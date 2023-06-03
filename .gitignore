@@ -4,3 +4,4 @@
 .config/zsh/**/*.zwc
 .config/zsh/.zcompcache
 .config/zsh/.zcalc_history
+.config/bar-scripts/**/target
