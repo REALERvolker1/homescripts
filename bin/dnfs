@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+fzf_query="${@:- }"
+
+package_installed () {
+    local return_value=""
+    for i in ${installed_packages}; do
+        if [[ "$i" == "$1" ]]; then
+            local return_value=''
+        else
+            local return_value="$i"
+        fi
+    done
+    echo "$return_value"
+}
+
+dnf_list_function () {
+    local selected="$(printf "$packages" | fzf -q "$fzf_query")"
+    if [ -z "$selected" ]; then
+        echo "no"
+    #elif dnf list --installed | grep "^$selected " &>/dev/null; then
+    #    return
+    else
+        echo "$selected"
+    fi
+}
+
+echo "searching..."
+
+packages="$(dnf list --available -C | tail -n +2 | grep -v '\.i686' | grep '\.' | cut -d ' ' -f 1)"
+
+while :; do
+    package=$(dnf_list_function)
+    if [ -z "$package" ]; then
+        printf "[\e[1;31mERROR\e[0m] Selected package is already installed! Choose another? \e[1m[y/n]\e[0m (y) > "
+        read answer
+        [[ "$answer" == 'n' ]] && exit 1
+    elif [[ "$package" == 'no' ]]; then
+        printf "[\e[1;31mERROR\e[0m] No package selected! Exiting..."
+        exit 1
+    else
+        break
+    fi
+done
+
+dnf info "$package"
+
+if sudo -vn &> /dev/null; then
+    sudo dnf install "$package"
+else
+    printf "\e[1m[\e[;31mSUDO\e[0m\e[1m]\e[0m Install '$package'? \e[1m[y/n]\e[0m (y) > "
+    read install_answer
+    [[ "$install_answer" == 'y' ]] && sudo dnf install "$package"
+fi

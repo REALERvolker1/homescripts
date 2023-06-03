@@ -1,0 +1,16 @@
+# vim:ft=zsh
+/usr/bin/date +"
+%a %-m/%-d %-I:%M %P
+%%a %%-m/%%-d %%-I:%%M %%P
+
+%x %X
+%%x %%X
+
+%D @ %r
+%%D @ %%r
+
+%F_%T
+%%F_%%T
+
+Today is %A, %B %-d, %Y. It is currently %-I:%M:%S %p.
+Today is %%A, %%B %%-d, %%Y. It is currently %%-I:%%M:%%S %%p."

@@ -1,0 +1,57 @@
+#compdef wlrctl
+
+local cmd="$0"
+typeset -A opt_args
+__wlrctl() {
+	"$cmd" "$@"
+}
+
+local -a wlrcmd_keyboard
+_regex_words action 'keyboard action' \
+	'type:Type an ascii string'
+wlrcmd_keyboard=("$reply[@]")
+
+local -a pointer_button
+_regex_words button 'pointer button' 'left' 'right' 'middle' \
+	'extra' 'side' 'forward' 'back'
+pointer_button=("$reply[@]")
+
+local -a wlrcmd_pointer
+_regex_words action 'pointer action' \
+	'click:Click a pointer button:$pointer_button' \
+	'move:Move the cursor' \
+	'scroll:Imitate a swipe scroll'
+wlrcmd_pointer=("$reply[@]")
+
+(( $+functions[_wlr_toplevel_attr] )) || _wlr_toplevel_attr() {
+	local -a windows matchspecs
+	windows=(${(@f)"$(__wlrctl toplevel list)"})
+	matchspecs=( app_id:${^windows%%: *} title:${^windows#*: } )
+	matchspecs+=( state:{{un,}minimized,{un,}maximized,{in,}active,{un,}fullscreen} )
+	_multi_parts ':' matchspecs
+}
+local -a wlrcmd_toplevel_attr=(/$'[^\0]#\0'/ ':_wlr_toplevel_attr' '#')
+
+local -a wlrcmd_toplevel
+_regex_words action 'toplevel action' 'maximize' 'minimize' 'focus' \
+	'activate' 'fullscreen' 'close' 'list' 'find' 'wait' 'waitfor'
+wlrcmd_toplevel=( "$reply[@]" "$wlrcmd_toplevel_attr[@]" )
+
+local -a wlrcmd_output
+_regex_words action 'output action' \
+	'list:List the avaialble output names'
+wlrcmd_output=("$reply[@]")
+
+local -a wlrcmd
+_regex_words commands 'wlr command' \
+	'keyboard:Control a virtual keyboard:$wlrcmd_keyboard' \
+	'pointer:Control a virtual pointer:$wlrcmd_pointer' \
+	{window,toplevel}':Manage windows:$wlrcmd_toplevel' \
+	'output:Manage outputs:$wlrcmd_output'
+wlrcmd=( /$'[^\0]#\0'/ "$reply[@]" )
+_regex_arguments _wlrcmd "$wlrcmd[@]"
+
+_arguments -S \
+	'(-h --help)'{-h,--help}'[Show a help message and exit]' \
+	'(-v --version)'{-v,--version}'[Show a version number and exit]' \
+	'*::wlr command:= _wlrcmd'

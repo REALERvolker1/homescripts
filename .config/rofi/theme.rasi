@@ -1,0 +1,259 @@
+/*
+    remember:
+    ${BG} to read env var BG, or env(BG, default)
+    element {visible modifier}.{state} for element colors
+    vim:ft=css
+*/
+
+@import "~/.cache/rofi-wayland-fix.rasi"
+
+* {
+    /* fonts */
+    font-search: "sans-serif 20";
+    font-item: "monospace 14";
+    font-icon: "monospace 20";
+
+    /* colors */
+
+    color-window: #2c313a80;
+    color-window-child: transparent;
+    color-window-widget: #373d48a6;
+
+    color-element-normal-normal: #2c313aaa;
+    color-element-selected-normal: #596273;
+    color-element-alternate-normal: #333842aa;
+    color-element-selected-normal-border: #7b57ff; /*hsl(200, 80%, 60%);*/
+    color-element-selected-normal-text: #e2e4e9;
+    color-element-text-normal: #c5cad3;
+
+    color-element-normal-urgent: #eb4763;
+    color-element-selected-urgent: #f5a3b1;
+    color-element-alternate-urgent: #ed5e76;
+    color-element-selected-urgent-text: #16181d;
+    color-element-text-urgent: #2c313a;
+    color-element-selected-urgent-border: @color-element-selected-normal-border;
+
+    color-element-normal-active: #33cccc;
+    color-element-selected-active: #85e0e0;
+    color-element-alternate-active: #47d1d1;
+    color-element-selected-active-border: @color-element-selected-normal-border;
+    color-element-selected-active-text: #16181d;
+    color-element-text-active: #2c313a;
+
+    color-element-selection-text-highlight: italic #eb4763;
+
+    /* sizing it up */
+
+    widget-radius: 8px;
+    widget-padding: 8px;
+    widget-side-padding: 0px 8px 0px;
+    widget-spacing: 8px;
+
+    /* elem settings */
+
+    window-width: 40%;
+
+    inputbar-children: [icon-search, entry, num-filtered-rows];
+    element-children: [element-icon, element-text];
+    //element-children: [element-text];
+    element-selected-border: 2px solid;
+
+    listview-columns: 2;
+    listview-lines: 14;
+    listview-scrollbar: false;
+    listview-resize: true;
+    listview-wayland-fix: false;
+
+    entry-placeholder: " Search...";
+
+    icon-search-name: "edit-find-symbolic";
+
+    font: @font-item;
+}
+
+window {
+    width: @window-width;
+    padding: 0px;
+
+    transparency: "real";
+    background-color: transparent;
+}
+
+mainbox {
+    padding: @widget-padding;
+    border-radius: @widget-radius;
+    spacing: @widget-spacing;
+
+    background-color: @color-window;
+    border: 2px;
+    border-color: @color-window-widget;
+}
+
+
+inputbar {
+    padding: @widget-padding;
+    spacing: @widget-spacing;
+    border-radius: @widget-radius;
+
+    background-color: @color-window-widget;
+    children: @inputbar-children;
+}
+
+case-indicator, textbox-current-entry, icon-current-entry { enabled: false; }
+
+prompt {
+    padding: @widget-side-padding;
+    font: @font-icon;
+    vertical-align: 0.5;
+
+    background-color: transparent;
+    text-color: @color-element-text-normal;
+    markup: true;
+}
+
+icon-search {
+    expand: false;
+    filename: @icon-search-name;
+    background-color: transparent;
+    size: 24;
+    padding: @widget-side-padding;
+    vertical-align: 0.5;
+}
+
+entry {
+    font: @font-search;
+    vertical-align: 0.5;
+    padding: 0px;
+
+    background-color: transparent;
+    text-color: @color-element-selected-normal-text;
+    cursor: text;
+    placeholder: @entry-placeholder;
+    placeholder-color: @color-element-selected-normal;
+}
+
+num-rows, num-filtered-rows {
+    vertical-align: 1;
+    padding: 0px;
+
+    background-color: transparent;
+    text-color: @color-element-selected-normal-border;
+    text-transform: bold italic;
+}
+
+
+message, error-message, mode-switcher {
+    background-color: @color-window-child;
+    spacing: @widget-spacing;
+}
+textbox {
+    padding: @widget-padding;
+    border-radius: @widget-radius;
+    text-transform: italic;
+    text-color: @color-element-text-normal;
+    background-color: @color-window-widget;
+}
+
+
+listview {
+    padding: 0px;
+    spacing: @widget-spacing;
+
+    columns: @listview-columns;
+    lines: @listview-lines;
+    fixed-height: @listview-wayland-fix;
+    dynamic: @listview-resize;
+    cycle: true;
+
+    scrollbar: @listview-scrollbar;
+    scrollbar-width: @widget-padding;
+
+    background-color: @color-window-child;
+}
+
+scrollbar {
+    background-color: @color-window-child;
+    handle-color: @color-window-widget;
+    border-color: transparent;
+}
+
+element, button {
+    padding: @widget-padding;
+    spacing: @widget-spacing;
+    border-radius: @widget-radius;
+    children: @element-children;
+    cursor: pointer;
+}
+
+element normal.normal, button normal.normal {
+    background-color: @color-element-normal-normal;
+    text-color: @color-element-text-normal;
+}
+element selected.normal, button selected.normal{
+    background-color: @color-element-selected-normal;
+    text-color: @color-element-selected-normal-text;
+    text-transform: bold;
+}
+element selected.normal {
+    border: @element-selected-border;
+    border-color: @color-element-selected-normal-border;
+}
+element alternate.normal, button alternate.normal {
+    background-color: @color-element-alternate-normal;
+    text-color: @color-element-text-normal;
+}
+
+element normal.urgent, button normal.urgent {
+    background-color: @color-element-normal-urgent;
+    text-color: @color-element-text-urgent;
+}
+element selected.urgent, button selected.urgent {
+    background-color: @color-element-selected-urgent;
+    text-color: @color-element-selected-urgent-text;
+    text-transform: bold;
+}
+element selected.urgent {
+    border: @element-selected-border;
+    border-color: @color-element-selected-urgent-border;
+}
+element alternate.urgent, button alternate.urgent {
+    background-color: @color-element-alternate-urgent;
+    text-color: @color-element-text-urgent;
+}
+
+element normal.active, button normal.active {
+    background-color: @color-element-normal-active;
+    text-color: @color-element-text-active;
+}
+element selected.active, button selected.active {
+    background-color: @color-element-selected-active;
+    text-color: @color-element-selected-active-text;
+    text-transform: bold;
+}
+element selected.active {
+    border: @element-selected-border;
+    border-color: @color-element-selected-active-border;
+}
+element alternate.active, button alternate.active {
+    background-color: @color-element-alternate-active;
+    text-color: @color-element-text-active;
+}
+
+element-icon, button-icon {
+    size: 24px;
+    vertical-align: 0.5;
+    background-color: @color-window-child;
+    cursor: inherit;
+}
+
+element-index { enabled: false; }
+
+element-text, button-text {
+    background-color: @color-window-child;
+    vertical-align: 0.5;
+    highlight: @color-element-selection-text-highlight;
+    text-color: inherit;
+    text-transform: inherit;
+    cursor: inherit;
+}
+

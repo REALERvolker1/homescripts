@@ -1,0 +1,178 @@
+#!/usr/bin/bash
+
+#set -eu
+
+PROGRAM="${1:-NONE}"
+SELECTION="${2:-NONE}"
+shift 2
+ARGS=()
+for arg in "$@"; do
+    ARGS+=("$arg")
+done
+
+print_err () {
+    echo "$@" >&2
+    notify-send -a "${0##*/}" "Error" "$@"
+}
+
+execute_command () {
+    local comm="$1"
+    shift 1
+    local args=()
+
+    local i
+
+    for i in "${@:-}"; do
+        args+=("$i")
+    done
+    ARGS=("${args[@]}" "${ARGS[@]}")
+
+    local normalized_args=()
+    for i in "${ARGS[@]}"; do
+        [[ "${i// /}" == '' ]] && continue
+        normalized_args+=("$i")
+    done
+
+    echo "$(printf '"%s" ' "$comm" "${normalized_args[@]}")"
+
+    exec "$comm" "${normalized_args[@]}"
+}
+
+if ((${#ARGS[@]} > 0)); then
+    TERMINAL_ARGS=' -e'
+fi
+
+fr='flatpak run'
+
+ozone=''
+if [ -n "$WAYLAND_DISPLAY" ]; then
+    ozone=" --enable-features=UseOzonePlatform --ozone-platform=wayland"
+fi
+
+terminals=(
+    "kitty$TERMINAL_ARGS"
+    "alacritty$TERMINAL_ARGS"
+    "xfce4-terminal$TERMINAL_ARGS"
+)
+
+screenshots=(
+    'spectacle --pointer --region'
+    'spectacle --pointer --background --current'
+    'spectacle --pointer --current'
+    'spectacle --pointer --background --fullscreen'
+)
+
+calculators=(
+    'gnome-calculator'
+)
+
+
+if [ -n "$WAYLAND_DISPLAY" ]; then
+    terminals=(
+        "xfce4-terminal$TERMINAL_ARGS"
+        "alacritty$TERMINAL_ARGS"
+        "kitty$TERMINAL_ARGS"
+    )
+    screenshots=(
+        'ksnip --cursor --rectarea'
+        'ksnip --cursor -a'
+        'ksnip --cursor -m'
+        'ksnip --cursor -f'
+    )
+    calculators=(
+        'galculator'
+    )
+    if [ -n "$HYPRLAND_INSTANCE_SIGNATURE" ]; then
+        grimblast_date="$(date +"%y-%m-%d_%H-%M-%S")"
+        screenshots=(
+            "grimblast --cursor copysave area $HOME/Pictures/Screenshots/grimblast-$grimblast_date.png"
+            "grimblast --cursor copysave output $HOME/Pictures/Screenshots/grimblast-$grimblast_date.png"
+            "grimblast --cursor copysave screen $HOME/Pictures/Screenshots/grimblast-$grimblast_date.png"
+        )
+    fi
+
+fi
+
+tr="${terminals[0]/$TERMINAL_ARGS/} -e"
+
+browsers=(
+    "$fr io.gitlab.librewolf-community"
+    "$fr com.brave.Browser${ozone}"
+    "$fr org.mozilla.firefox"
+)
+
+menus=(
+    'rofi -modi drun,run -show drun -sidebar-mode'
+    'rofi -show run'
+    'wofi -S drun'
+)
+
+editors=(
+    'mousepad'
+    "$fr com.vscodium.codium${ozone}"
+    "$fr org.gnome.gitlab.somas.Apostrophe"
+)
+
+
+managers=(
+    'thunar'
+    "$tr ranger"
+    'notify-send'
+)
+
+charamaps=(
+    'rofi-charamap-menu.sh'
+    'gnome-characters'
+    'gucharmap'
+)
+
+sessions=(
+    'vlklock.sh'
+    'rofi -show powermenu'
+)
+
+settings=(
+    'gfxmenu.sh'
+    'rog-control-center'
+)
+
+
+windows=(
+    'rofi -modi window -show window'
+    'xfce4-clipman-rofi.sh'
+)
+
+if [[ "$SELECTION" != *[0-9]* ]]; then
+    print_err "Error, selection '$SELECTION' is not numeric!"
+    exit 1
+fi
+real_selection=$((SELECTION - 1))
+
+case "$PROGRAM" in
+    --browser)
+        execute_command ${browsers[$real_selection]}
+    ;; --menu)
+        execute_command ${menus[$real_selection]}
+    ;; --editor)
+        execute_command ${editors[$real_selection]}
+    ;; --manager | --mgmt)
+        execute_command ${managers[$real_selection]}
+    ;; --charmap)
+        execute_command ${charamaps[$real_selection]}
+    ;; --calculator | --calc)
+        execute_command ${calculators[$real_selection]}
+    ;; --screenshot | --sc)
+        execute_command ${screenshots[$real_selection]}
+    ;; --session | --power)
+        execute_command ${sessions[$real_selection]}
+    ;; --settings)
+        execute_command ${settings[$real_selection]}
+    ;; --window)
+        execute_command ${windows[$real_selection]}
+    ;; --terminal | --term)
+        execute_command ${terminals[$real_selection]}
+    ;; *)
+        print_err "Error, category '${PROGRAM:-}' does not exist!"
+    ;;
+esac
+

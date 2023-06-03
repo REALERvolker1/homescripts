@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+echo "$1 $2 $3"
+TYPE="$1"
+DEVICE="$2"
+STATUS="$3"
+shift 3
+DESC="$*"
+
+
+if [[ "$STATUS" == "connected" ]]; then
+    case "$TYPE" in
+        display)
+            xlayoutdisplay
+            vlkbg
+        ;;
+        pointer)
+            #pointer.sh -n
+        ;;
+    esac
+else
+    case "$TYPE" in
+        display)
+            xrandr --output "$DEVICE" --off
+        ;;
+        pointer)
+            pointer.sh -n
+        ;;
+    esac
+fi
+

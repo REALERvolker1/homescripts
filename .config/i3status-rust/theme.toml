@@ -1,0 +1,26 @@
+# One Dark Pro basically
+
+idle_bg = "#23272E"
+idle_fg = "#ffffff"
+
+alternating_tint_bg = "#0a0a0a"
+#alternating_tint_fg = "#ffffff"
+
+info_bg = "#444454"
+info_fg = "#ffffff"
+
+good_bg = "#af99ff"
+good_fg = "#000000"
+
+warning_bg = "#61AFEF"
+warning_fg = "#000000"
+
+critical_bg = "#EF596F"
+critical_fg = "#000000"
+
+separator_bg = "auto"
+separator_fg = "auto"
+
+separator = ""
+end_separator = ""
+

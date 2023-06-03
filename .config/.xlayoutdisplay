@@ -1,0 +1,19 @@
+# all options here will be overridden by command line options
+
+# mirror outputs using the lowest common resolution
+#mirror=true
+
+# order of outputs
+#order=DP-1
+#order=HDMI-0
+
+# primary output
+primary=eDP-1
+
+# suppress output
+#quiet=false
+
+# override calculated DPI
+dpi=96
+
+# wait seconds before acting

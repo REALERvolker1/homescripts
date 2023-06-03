@@ -1,0 +1,307 @@
+#!/usr/bin/env bash
+# vim:foldmethod=marker:ft=sh
+
+## Disable alias variable expansion complaints
+# shellcheck disable=SC2139
+
+if [[ "$-" != *i* ]] ; then
+    echo 'Error, must be sourced!'
+    exit 1
+fi
+
+# ls, cd {{{
+
+alias ls=lsd
+alias ll='lsd -l'
+
+alias la='/usr/bin/ls -A --color=auto --group-directories-first'
+alias lah="/usr/bin/ls -Fsh -A --color=auto --group-directories-first"
+
+alias tree='lsd --tree'
+
+alias sl=ls
+alias l=ls
+alias s=ls
+
+alias -- -='cd -'
+alias cdb=pushd
+alias ,=pushd
+
+alias pdw=pwd
+
+alias pw=realpath
+
+alias woman=man
+
+# }}}
+# grep, cat, icat {{{
+
+alias grep='/usr/bin/grep --color=auto'
+alias egrep='/usr/bin/egrep --color=auto'
+alias igrep='/usr/bin/grep -i --color=auto'
+
+alias icat=timg
+alias readme='glow ./README.md'
+
+alias mime='file -bL --mime-type'
+
+# }}}
+# session, grub {{{
+
+alias suod=sudo
+
+alias q=exit
+alias :q=exit
+
+alias shutdown='systemctl poweroff'
+alias reboot='systemctl reboot'
+
+alias grubcfg='sudo /usr/sbin/grub2-mkconfig -o /etc/grub2.cfg'
+
+alias sbin='export PATH="/usr/sbin:$PATH"'
+
+# }}}
+# rm {{{
+
+_better_rm () {
+    local i
+    local dircount
+    local max
+    max="$(printf '%s\n' "$@" | wc -L)"
+
+    for i in "$@"; do
+        if [ -d "$i" ]; then
+            dircount="$(printf '%s\n' "$i"/* | wc -l) items"
+        else
+            dircount="$(wc -c "$i" | cut -d ' ' -f 1) bytes"
+        fi
+        printf "%-$((max + 2))s (%s)\n" "$(lsd -d "$i")" "$dircount"
+    done
+
+    local answer
+    echo -n "Want to chuck ${#@} items in the trash? [y/N] "
+    read -r answer
+    if [[ "$answer" == y ]]; then
+        echo "Trashing your ${#@} files"
+        trash "$@"
+    else
+        false
+    fi
+}
+
+alias fuck='/usr/bin/rm -rf'
+alias frick='trash -fvi'
+alias rmf='/usr/bin/rm -rf'
+#alias rm='_better_rm -i -f'
+alias rm='trash -i -r'
+
+# }}}
+# chmod, touch {{{
+
+alias touchc='touchx.sh --codium'
+alias touchv='touchx.sh --nvim'
+alias touchx='touchx.sh --exec'
+alias touchxc='touchx.sh --exec --codium'
+alias touchxv='touchx.sh --exec --nvim'
+
+alias chmodx='chmod +x'
+alias chmod-x='chmod -x'
+
+# }}}
+# disk, mem {{{
+
+alias df=duf
+alias du=dust
+alias free='free -m'
+
+#}}}
+# bat, glow, diff {{{
+
+alias bap='bat --paging always'
+alias glop='glow --pager'
+alias batop=battop
+alias battio=battop
+
+alias diff=difft
+
+#}}}
+# commands -- enhanced {{{
+
+alias tgpt='tgpt chat'
+alias neofetch=fastfetch
+
+alias extract=ouch
+alias ra=ranger
+
+alias fr='flatpak run'
+
+# }}}
+# vim, vscode {{{
+
+# I have a script for this, also it makes it so I can tab complete
+ide_command='codium'
+#ide_command='flatpak run com.vscodium.codium'
+
+#alias codium="$ide_command"
+alias code="$ide_command"
+alias co="$ide_command"
+
+alias vi="$EDITOR"
+#alias vim='$EDITOR'
+alias ivm="$EDITOR"
+alias iv="$EDITOR"
+alias v="$EDITOR"
+alias svim=sudoedit
+
+alias whihc=which
+
+# }}}
+# tmux, shells {{{
+
+alias tmuxk='tmux kill-session -t'
+alias tmuxa='tmux attach -t'
+alias tmuxl='tmux list-sessions'
+
+alias bash='env HISTFILE="$SHELLHIST" /usr/bin/bash'
+alias dash='env HISTFILE="$SHELLHIST" /usr/bin/dash'
+alias ksh='env HISTFILE="$SHELLHIST" /usr/bin/ksh'
+alias rksh='env HISTFILE="$SHELLHIST" /usr/bin/rksh'
+alias sh='env HISTFILE="$SHELLHIST" /usr/bin/sh'
+alias csh='echo 💀'
+
+# }}}
+# node js {{{
+
+alias pnpmi='pnpm install --global'
+alias pnpml='pnpm list --global | fzf'
+
+alias tc='tsc && node .'
+
+# }}}
+alias update='sudo dnf update --refresh ; flatpak update -y ; cargo install-update -a -g'
+alias keyring="$XDG_CONFIG_HOME/bar-scripts/gnome-keyring-daemon.sh"
+# git {{{
+
+alias gitm='git add -A && git commit -am "$(date +"Commit from shell alias at %D %r")" '
+alias gitp='git pull '
+alias tit='echo 😜 && git '
+alias gitd='git fetch && git diff "origin/$(git branch | grep -oP "\*[[:space:]]*\K.*\$")"'
+
+# }}}
+# cargo {{{
+
+alias cr='cargo run -- '
+alias cbr='cargo build --release'
+alias cupl='cargo install-update -l'
+
+# }}}
+# dnf {{{
+
+alias dfn=dnf
+alias apt='echo 🤦 && dnf'
+alias pacman='echo 🤓 && dnf'
+
+alias dnfi='sudo dnf install '
+alias dfni=dnfi
+
+alias dnfr='sudo dnf remove '
+alias dfnr=dnfr
+
+alias dnfu='sudo dnf update --refresh'
+alias dfnu=dnfu
+
+#alias dnfs="dnf search "
+alias dfns=dnfs
+
+alias dnfl='dnf list --installed | fzf'
+alias dfnl=dnfl
+
+alias dnfa='dnf list --available | fzf'
+alias dfna=dnfa
+
+alias dnfc='dnf check-update'
+alias dfnc=dnfc
+
+# }}}
+# flatpak {{{
+
+alias fli='flatpak install'
+alias flu='flatpak update'
+alias fls='flatpak search'
+
+alias fll='flatpak list | fzf'
+alias flc='flatpak remote-ls --updates'
+
+# }}}
+# XDG shit {{{
+
+#alias startx='startx "$XINITRC"'
+alias wget='wget --show-progress'
+
+# }}}
+# window mgmt {{{
+
+alias xclassget='xprop | grep WM_CLASS'
+alias xkeyget="xev -event keyboard | egrep -o 'keycode.*\)'"
+
+alias numlock-query="xset q | grep -Po 'Num Lock: *\K[a-z]*'"
+
+# }}}
+# gaming {{{
+
+alias gpu=switcherooctl
+
+alias winekill="killall winedevice.exe; killall wineserver"
+alias winelist="ps -eo args | grep 'C:[/|\\]' | grep -o '^.*\.exe '"
+alias ubikill='killall upc.exe; killall UbisoftGameLauncher.exe'
+
+alias touchpad-gaming='xinput set-prop $(xinput | grep -oP "Touchpad\s*id=\K[0-9]*") "libinput Disable While Typing Enabled" 0'
+
+# }}}
+# fonts {{{
+
+alias font-reset='fc-cache -fv'
+alias font-search="fc-list | cut -d ':' -f 2 | sed 's/,/, /g' | fzf"
+
+# }}}
+
+# fun {{{
+
+alias cum='printf " __\n/  \______________\n\__/              \\ \n/  \\______________/\n\\__/"'
+
+alias dadjoke='curl https://icanhazdadjoke.com'
+alias fortnite='while :; do printf "\e[1;33m#\e[31mW\e[32mE \e[33mL\e[34mI\e[35mK\e[36mE \e[31mF\e[32mO\e[33mR\e[34mT\e[35mN\e[36mI\e[31mT\e[32mE\e[0m\n"; done'
+
+colorblocks () {
+    ((COLUMNS < 8)) && return 1
+    local i
+    local column_width="$((COLUMNS / 8))"
+
+    printf '\x1b[1m[16]\x1b[0m colors\n'
+    for i in {40..47} {100..107}; do
+        ((i == 100)) && echo
+        ((i > 99)) && printf '\x1b[1m' # TTY compatibility
+        printf "\x1b[%sm%-${column_width}s\x1b[0m" "$i" "$i"
+    done
+    printf '\n'
+
+    if [ "$(tput colors)" = 256 ]; then
+        printf '\n\x1b[1m[256]\x1b[0m colors\n'
+        for i in {0..255}; do
+            printf "\x1b[48;5;%sm%-${column_width}s\x1b[0m" "$i" "$i"
+            (($(($((i + 1)) % 8)) == 0)) && echo
+        done
+    fi
+}
+
+# }}}
+# FZF commands {{{
+
+alias pipl='pip list | fzf'
+alias fenv='printenv | fzf'
+
+psa () {
+    /usr/bin/ps -eo pid,comm,exe h | /usr/bin/fzf -q "${1:- }"
+}
+
+# }}}

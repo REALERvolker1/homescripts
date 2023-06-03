@@ -1,0 +1,12 @@
+# vim:ft=zsh
+local directory="${1:?Error, please choose a directory name!}"
+directory="$(realpath -m "$directory")"
+local dircolor="${${${LS_COLORS##*:di=}%%:*}:-1;94}"
+
+if mkdir -p "$directory" ; then
+    echo "made dir $directory"
+    cd "$directory" && printf '\033[92m+\033[0m \033[%sm%s\033[0m' "$dircolor" "$directory"
+else
+    return 1
+fi
+

@@ -1,0 +1,149 @@
+{
+    "layer": "top",
+    "name": "topbar",
+    "height": 30,
+    "spacing": 4, // Gaps between modules (4px)
+    "modules-left": ["wlr/workspaces", "wlr/taskbar", "hyprland/window"],
+    "modules-center": [],
+    "modules-right": [
+        //"mpris",
+        "pulseaudio",
+        "bluetooth",
+        "memory",
+        "battery",
+        "clock",
+        "custom/mow",
+        "custom/xclients",
+        "custom/weather",
+        "custom/pointer",
+        "keyboard-state",
+        "tray"
+    ],
+    "hyprland/window": {
+        "format": "👉 {}",
+        "separate-outputs": true
+    },
+    "wlr/workspaces": {
+        "format": "{name} {icon}",
+        "on-click": "activate",
+        "format-icons": {
+            //"1": "",
+            "urgent": "󰗖",
+            "active": "󰝥",
+            "default": "󰝦"
+        },
+        "sort-by-number": true
+    },
+    "wlr/taskbar": {
+        "all-outputs": false,
+        "format": "{icon}",
+        "on-click": "activate",
+        "on-click-middle": "close",
+        "icon-size": 20,
+        "ignore-list": [
+            "__scratchpad__"
+        ]
+    },
+    "tray": {
+        // "icon-size": 21,
+        "spacing": 10
+    },
+    "clock": {
+        "timezone": "America/Chicago",
+        "format": "{:%a, %m/%d @ %I:%M %p}",
+        "format-alt": "{:%Y-%m-%d}"
+    },
+    "memory": {
+        "format": "󰭰  {used}GiB"
+    },
+    "battery": {
+        "states": {
+            // "good": 95,
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon} {capacity}% {power}",
+        "format-charging": " {capacity}% {power}",
+        "format-plugged": " {capacity}%",
+        "format-alt": "{icon} {time} {power}",
+        // "format-good": "", // An empty format will hide the module
+        // "format-full": "",
+        "format-icons": ["", "", "", "", ""]
+    },
+    "pulseaudio": {
+        // "scroll-step": 1, // %, can be a float
+        "format": "{icon} {volume}%",
+        "format-bluetooth": "{icon} {volume}%",
+        "format-bluetooth-muted": "󰝟 {icon}",
+        "format-muted": "󰝟",
+        "format-source": " {volume}%",
+        "format-source-muted": "",
+        "format-icons": {
+            "headphone": " ",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", "", ""]
+        },
+        "scroll-step": 5.0,
+        "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+        "on-click-right": "pavucontrol"
+    },
+    "mpris": {
+        "format": "{player_icon} {status_icon} {dynamic}",
+        "player-icons": {
+            "default": "󰝚",
+            "brave": "󰗃",
+            "chrome": "",
+            "chromium": "",
+            "firefox": "",
+            "vlc": "󰕼"
+        },
+        "status-icons": {
+            "playing": "󰏤",
+            "paused": "󰐊",
+            "stopped": "󰓛"
+        }
+    },
+    "bluetooth": {
+        "format": " {status}",
+        "format-disabled": "󰂲",
+        "format-off": "󰂲",
+        "format-on": "󰂲",
+        "format-connected": "",
+        "format-connected-battery": " {device_battery_percentage}",
+        "on-click": "$XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --toggle",
+        "on-click-right": "$XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --manager"
+    },
+    "custom/pointer": {
+        "exec": "pointer.sh -m"
+    },
+    "custom/mow": {
+        "exec": "$XDG_CONFIG_HOME/bar-scripts/mow-status.sh",
+        "interval": 15
+    },
+    "custom/xclients": {
+        "exec": "$XDG_CONFIG_HOME/bar-scripts/xclients-hyprland-monitor.sh",
+        "format": "󱂬 {}"
+        //"on-click": "xlsclients | sed \"s|^${HOSTNAME}[ ]*||g\" | rofi -dmenu"
+    },
+    // "custom/scratchpad": {
+    //     "exec": "$XDG_CONFIG_HOME/bar-scripts/scratchpad-hyprland-query.sh"
+    // },
+    "custom/weather": {
+        "exec": "$XDG_CONFIG_HOME/bar-scripts/weather.sh",
+        "interval": 300
+    },
+    "keyboard-state": {
+        "format": "{icon}",
+        "numlock": true,
+        "capslock": false,
+        "scrolllock": false,
+        "format-icons": {
+            "locked": "󰎼",
+            "unlocked": "󰎾"
+        }
+    }
+}

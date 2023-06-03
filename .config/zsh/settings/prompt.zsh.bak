@@ -1,0 +1,157 @@
+
+typeset -A bprompt
+
+case "$ICON_TYPE" in
+    'dashline')
+        bprompt[start]=
+        bprompt[end]=
+        bprompt[right_end_icon]=
+    ;;
+    'powerline')
+        bprompt[start]=
+        bprompt[end]=
+        bprompt[right_end_icon]=
+        #bprompt[sudo_right_end_icon]=
+    ;; *)
+        bprompt[icon_support_required]=
+        echo 'CRITICAL ERROR, icon support required'
+        exit 1
+    ;;
+esac
+
+bprompt[text_dark]=232
+bprompt[text_light]=255
+
+# directory block
+bprompt[dir_color]=33
+bprompt[dir_icon]=
+
+bprompt[vim_color]=120
+bprompt[vim_icon]=
+bprompt[vim_integer]=136
+
+bprompt[git_color]=141
+bprompt[git_icon]=󰊢
+bprompt[git_integer]=137
+
+# err block
+bprompt[err_color]=52
+bprompt[err_icon]=󰅗
+
+# jobs block
+bprompt[job_color]=172
+bprompt[job_icon]=󱜯
+
+# time block
+bprompt[time_color]=57
+bprompt[time_icon]=󱑂
+
+# sudo block
+bprompt[sud_color]=196
+bprompt[sud_icon]=󰆥
+bprompt[sud_end_icon]=' '
+bprompt[sudo_right_end_icon]=
+bprompt[sud_integer]=135
+
+bprompt[prompt2_color]=93
+bprompt[prompt2_end_icon]=
+
+# }}}
+# The prompt {{{
+
+typeset -A VLKPROMPT # Array of computed strings that have open background fmt on the ends
+
+VLKPROMPT[err]="%F{$bprompt[err_color]}${bprompt[start]}%f%k%K{$bprompt[err_color]}%F{$bprompt[text_light]}%B ${bprompt[err_icon]} %? %b%f%k%F{$bprompt[err_color]}$bprompt[end]%f"
+VLKPROMPT[sud]="%F{$bprompt[sud_color]}${bprompt[sudo_right_end_icon]}%K{$bprompt[sud_color]}%F{$bprompt[text_light]}%B${bprompt[sud_icon]} %b%f%k%F{$bprompt[sud_color]}$bprompt[sud_end_icon]%f"
+
+VLKPROMPT[pwd]="%K{$bprompt[dir_color]}%F{$bprompt[text_light]}%B ${bprompt[dir_icon]} %~ %b%f%F{${bprompt[dir_color]}}" # %k$bprompt[end]%f
+VLKPROMPT[pwd_vi]="%K{$bprompt[vim_color]}%F{$bprompt[text_dark]}%B ${bprompt[vim_icon]} %~ %b%f%F{${bprompt[vim_color]}}"
+VLKPROMPT[pwd_git]="%K{$bprompt[git_color]}%F{$bprompt[text_dark]}%B ${bprompt[git_icon]} %~ %b%f%F{${bprompt[git_color]}}"
+
+VLKPROMPT[jobs]="%K{$bprompt[job_color]}%F{$bprompt[text_dark]}%B ${bprompt[job_icon]} %j %b%f" # %F{$bprompt[job_color]}$bprompt[end]%f
+VLKPROMPT[time]="%F{$bprompt[time_color]}$bprompt[right_end_icon]%f%K{$bprompt[time_color]}%F{$bprompt[text_light]}%B $bprompt[time_icon] %D{%I:%M %P} %f%k"
+
+
+BASEPROMPT="\
+%(${bprompt[vim_integer]}V.$VLKPROMPT[pwd_vi].%(${bprompt[git_integer]}V.$VLKPROMPT[pwd_git].$VLKPROMPT[pwd]))\
+%(0?.%k$bprompt[end]%f.$VLKPROMPT[err])\
+%(${bprompt[sud_integer]}V.${VLKPROMPT[sud]}.)"
+
+BASEPROMPT_SHORT="\
+%K{$bprompt[dir_color]}%F{$bprompt[text_light]}%B %~ %b%f\
+%(0?.%k%F{${bprompt[dir_color]}}$bprompt[end]%f\
+.%k%K{$bprompt[err_color]}%F{${bprompt[dir_color]}}$bprompt[end]%f%F{$bprompt[text_light]}%B %? %b%f%k%F{$bprompt[err_color]}$bprompt[end]%f)"
+
+BASEPROMPT_RIGHT="%(1j.%k%F{$bprompt[job_color]}$bprompt[right_end_icon]%f$VLKPROMPT[jobs].%k)$VLKPROMPT[time]"
+
+# default: %_>
+PROMPT2="%(1_.%K{$bprompt[prompt2_color]}%F{$bprompt[text_light]}%B %_ %b%f%k.)%F{$bprompt[prompt2_color]}${bprompt[prompt2_end_icon]}%f "
+# default: ?#
+PROMPT3="%K{$bprompt[prompt2_color]}%F{$bprompt[text_light]}%B ?# %b%f%k%F{$bprompt[prompt2_color]}${bprompt[prompt2_end_icon]}%f "
+
+PROMPT_TRANSIENT_COMMAND='$(_vlk_prompt)'
+RIGHT_PROMPT_TRANSIENT_COMMAND='$(_vlk_prompt --right)'
+
+PS1="$PROMPT_TRANSIENT_COMMAND"
+RPS1="$RIGHT_PROMPT_TRANSIENT_COMMAND"
+
+export SUDO_PROMPT="$(print -P "%k%f%K{${bprompt[sud_color]}}%F{${bprompt[text_light]}}%B ${bprompt[sud_icon]} Password %b%k%f%F{${bprompt[sud_color]}}${bprompt[sud_end_icon]}%f") "
+
+unset VLKPROMPT
+unset bprompt
+
+
+# }}}
+
+
+__vlk_sudo_func () {
+    /usr/bin/sudo -vn &> /dev/null && psvar[135]=1 || psvar[135]=''
+}
+
+__vlk_precmd_func () {
+    [ -d ./.git ] && psvar[137]=1 || psvar[137]=''
+}
+export -U precmd_functions
+precmd_functions+=('__vlk_precmd_func')
+precmd_functions+=('__vlk_sudo_func')
+_vlk_prompt () {
+    #echo "$PWD" >&2
+    if (( $_vlk_prompt_compact )); then
+        [[ "$1" == '--right' ]] || echo "%k%f$BASEPROMPT_SHORT "
+    else
+        [[ "$1" == '--right' ]] && echo "%k%f$BASEPROMPT_RIGHT" || echo "%k%f\n$BASEPROMPT "
+    fi
+}
+
+function zle-line-init zle-keymap-select {
+    [[ "$KEYMAP" == vicmd ]] && psvar[136]=1 || psvar[136]=''
+    zle reset-prompt
+}
+
+__vlk-zle-line-init () {
+    [[ "$CONTEXT" == 'start' ]] || return 0
+    (( $+zle_bracketed_paste )) && print -r -n - $zle_bracketed_paste[1]
+    zle recursive-edit
+    local -i ret=$?
+    (( $+zle_bracketed_paste )) && print -r -n - $zle_bracketed_paste[2]
+    if [[ "$ret" == 0 && "$KEYS" == $'\4' ]]; then
+        _vlk_prompt_compact=1
+        zle reset-prompt
+        exit
+    fi
+
+    _vlk_prompt_compact=1
+    zle reset-prompt
+    unset _vlk_prompt_compact
+    if (( ret )); then
+        # Ctrl-C
+        zle send-break
+    else
+        #[ "${#${(z)BUFFER}}" -ne 0 ] && [[ "${(z)BUFFER}" == 'sudo'* ]] && [ -z "$psvar[135]" ] && precmd_functions+=('__vlk_sudo_func')
+        zle accept-line
+    fi
+    return ret
+}
+
+zle -N zle-keymap-select
+zle -N zle-line-init __vlk-zle-line-init

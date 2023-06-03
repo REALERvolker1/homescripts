@@ -1,0 +1,248 @@
+# vim:foldmethod=marker
+# Theming {{{
+
+icons_format = "<span font_family='FiraCode Nerd Font'>{icon}</span>"
+error_format = " $short_error_message |X"
+error_fullscreen_format = "<span>$full_error_message</span>" # does not work
+
+[theme]
+theme = "/home/vlk/.config/i3status-rust/theme.toml"
+[theme.overrides]
+separator = "<span font-family='FiraCode Nerd Font Mono' font='16'></span>"
+end_separator = "<span font-family='FiraCode Nerd Font Mono' font='16'></span>"
+[icons]
+icons = "/home/vlk/.config/i3status-rust/icons.toml"
+
+# }}}
+
+# Focused window {{{
+
+[[block]]
+block = "focused_window"
+format = "  󱂬 $title.str(min_w:1, max_w:40, rot_interval:0.25)  $marks|"
+
+# }}}
+# DNF {{{
+
+[[block]]
+block = "dnf"
+interval = 600
+format = "  $icon  ($count)  "
+format_up_to_date = ""
+warning_updates_regex = "(asus|i3|wayland|lightdm|selinux|vulkan)"
+critical_updates_regex = "(systemd|kernel|nvidia|plymouth|iwl|grub|mesa)"
+[[block.click]]
+button = "right"
+cmd = "dnf list -q --upgrades | tail -n +2 | rofi -dmenu"
+
+# }}}
+# Music {{{
+
+[[block]]
+block = "music"
+format = "{  $icon$avail  $combo.str(min_w:1, max_w:6,rot_interval:0.5)  $prev $play $next  |}"
+
+# }}}
+# kernel {{{
+
+[[block]]
+block = "custom"
+format = "   $text  "
+command = "uname -r | sed 's/-.*$//g'"
+interval = "once"
+hide_when_empty = true
+
+
+# }}}
+# Network {{{
+
+[[block]]
+block = "net"
+device = "wlo1"
+format = "  ^icon_net_down $speed_down  ^icon_net_up $speed_up  "
+format_alt = "  ^icon_net_down  $graph_down  ^icon_net_up  $graph_up  "
+[[block.click]]
+button = "left"
+action = "toggle_format"
+[[block.click]]
+button = "right"
+action = "none"
+cmd = "rofi-wifi-menu.sh"
+
+# }}}
+# parents' shit wifi {{{
+
+[[block]]
+block = "custom"
+format = "  $text  "
+command = "$XDG_CONFIG_HOME/bar-scripts/parents-shit-wifi.sh"
+interval = 60
+hide_when_empty = true
+
+# }}}
+
+# Time {{{
+
+[[block]]
+block = "time"
+interval = 5
+[block.format]
+full = "  $icon $timestamp.datetime(f:'%a  %-m/%-d  %-I:%M %P')  "
+short = "  $icon $timestamp.datetime(f:'%I:%M')  "
+
+# }}}
+# Battery {{{
+
+[[block]]
+block = "battery"
+device = "BAT1"
+driver = "upower"
+format = "  $icon $percentage{ $power.eng(u:W)|}  "
+not_charging_format = "  $icon $percentage  "
+full_format = "  $icon $percentage{ $power.eng(u:W)|}  "
+
+full_threshold  = 100
+empty_format = "  $icon $percentage{ $power.eng(u:W)|}  $time  "
+empty_threshold = 5
+info = 100
+good = 60
+warning = 40
+critical = 20
+
+# }}}
+
+# Memory {{{
+
+[[block]]
+block = "memory"
+format = "  $icon $mem_used.eng(w:3)  "
+format_alt = " $icon $mem_used / $mem_total ($mem_used_percents) [$icon_swap $swap_used_percents] "
+warning_mem = 70
+critical_mem = 90
+
+# }}}
+# Weather {{{
+
+[[block]]
+block = "custom"
+format = "  $text  "
+interval = 300
+#command = "curl -s 'v2n.wttr.in?format=%c%t' | sed 's/ //g ; s/+/ / ; s/F//;s/ /  /g ; s/Unknown.*/ ?/'"
+command = "$XDG_CONFIG_HOME/bar-scripts/weather.sh"
+hide_when_empty = true
+
+# }}}
+# Sound {{{
+
+[[block]]
+block = "sound"
+driver = "auto"
+format = "  $icon{  $volume  |  }"
+max_vol = 80
+step_width = 5
+headphones_indicator = true
+[[block.click]]
+button = "left"
+action = "toggle_mute"
+[[block.click]]
+button = "right"
+action = "none"
+cmd = "pavucontrol-qt"
+
+# }}}
+# Mouse {{{
+
+[[block]]
+block = "custom"
+format = "  $text  "
+command = "$XDG_CONFIG_HOME/bar-scripts/mow-status.sh"
+interval = 15
+hide_when_empty = true
+
+# }}}
+
+# custom dbus i3s-rs {{{
+
+#[[block]]
+#block = "custom_dbus"
+#path = "/sgfxd"
+
+# }}}
+# gnome-keyring-daemon {{{
+
+[[block]]
+block = "custom"
+format = "  $text  "
+command = "$XDG_CONFIG_HOME/bar-scripts/gnome-keyring-daemon.sh"
+interval = 60
+hide_when_empty = true
+
+# }}}
+# Touchpad {{{
+
+[[block]]
+block = "custom"
+format = "  $text   "
+command = "pointer.sh -i"
+#command = "pointer.sh -w"
+#persistent = true
+watch_files = ["$XDG_RUNTIME_DIR/touchpad-statusfile"]
+[[block.click]]
+button = "right"
+action = "none"
+cmd = "pointer.sh -t"
+
+# }}}
+# supergfx block {{{
+
+[[block]]
+block = "custom"
+format = "  $text  "
+command = "$XDG_CONFIG_HOME/bar-scripts/supergfx-status.sh"
+persistent = true
+hide_when_empty = true
+
+# }}}
+# hueshift {{{
+
+[[block]]
+block = "custom"
+format = "  $text  "
+command = "cat ~/.cache/gammastep-hook.txt"
+watch_files = ["~/.cache/gammastep-hook.txt"]
+interval = 'once'
+hide_when_empty = true
+
+# }}}
+# Numlock {{{
+
+#[[block]]
+#block = "custom"
+#format = "  $text  "
+#command = "$XDG_CONFIG_HOME/i3status-rust/custom/lock-status.sh"
+#persistent = true
+#hide_when_empty = true
+
+# }}}
+# Bluetooth {{{
+
+[[block]]
+block = "bluetooth"
+# Jlab Go Air
+#mac = "1C:52:16:13:D1:38"
+# Jlab JBuds Air icon
+#mac="69:18:31:31:5D:36"
+# air pod
+mac = "6C:B1:33:8F:A0:E1"
+format = "  $icon  "
+disconnected_format = "  $icon  "
+[[block.click]]
+button = "left"
+action = "toggle"
+[[block.click]]
+action = "none"
+button = "right"
+cmd = "blueman-manager; killall blueman-applet"
+#cmd = "rofi-bluetooth-menu.sh"
+
+# }}}

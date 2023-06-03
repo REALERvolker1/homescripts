@@ -1,0 +1,134 @@
+# vim:foldmethod=marker:ft=i3config
+# Important variables {{{
+
+set $exec exec --no-startup-id
+set $execa exec_always --no-startup-id
+
+set $gapsize 0
+set $gapsize-alt 10
+
+set $mod Mod4
+set $alt Mod1
+set $mods Mod4+shift
+set $modc Mod4+ctrl
+set $moda Mod4+Mod1
+set $modcs Mod4+ctrl+shift
+set $modas Mod4+Mod1+shift
+
+# }}}
+# Workspace vars and outputs {{{
+
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10"
+
+workspace $ws1 output eDP-1
+workspace $ws2 output DP-1 DP-1-0 eDP-1
+workspace $ws3 output eDP-1
+workspace $ws4 output DP-1 DP-1-0 eDP-1
+workspace $ws5 output eDP-1
+workspace $ws6 output DP-1 DP-1-0 eDP-1
+workspace $ws7 output eDP-1
+workspace $ws8 output DP-1 DP-1-0 eDP-1
+
+# }}}
+
+font pango:monospace bold 12
+mouse_warping output
+
+bindsym Mod4+t exec --no-startup-id i3-sensible-terminal
+
+# included range {{{
+
+include autostart.i3.sh
+include classes.i3.sh
+include keybinds.i3.sh
+
+# }}}
+# Window Decorations {{{
+
+gaps inner $gapsize
+default_border pixel 1
+default_floating_border normal
+smart_gaps on
+smart_borders on
+
+for_window [all] title_window_icon on
+for_window [all] title_format "%title :: %class"
+
+# }}}
+# Colors {{{
+
+# #7a5dfc
+# #C578DD
+# #d682f0
+
+# #272B33
+# #DF6B75
+# #BE5046
+# #FF5050
+
+#65b6f8
+# #6360FF
+#61aeee
+#61AFEF
+#56B5C2
+#66d7e6
+
+set $activeBorder #af99ff
+set $activeMain #7b57ffA0
+set $lessactBorder #61aeeeC0
+set $lessactMain #abb2bfA0
+set $inactBorder #272B3350
+set $inactMain #272B3350
+set $urgentBorder #FF5050FF
+set $urgentMain #FF5050DD
+set $text0 #FFFFFF
+set $text1 #FFFFFF
+
+# class                  border           background       text   indicator         child_border
+client.focused          $activeBorder   $activeMain     $text0 $activeMain      $activeBorder
+client.focused_inactive $lessactBorder  $lessactMain    $text0 $lessactMain     $lessactBorder
+client.unfocused        $inactBorder    $inactMain      $text1 $inactMain       $inactBorder
+client.urgent           $urgentBorder   $urgentMain     $text0 $urgentBorder    $urgentMain
+client.placeholder      $lessactBorder  $lessactMain    $text0 $lessactMain     $lessactBorder
+client.background       #FFFFFF
+
+# }}}
+# Bar config {{{
+
+bar {
+    # Colors {{{
+
+    colors {
+        background #00000000
+        statusline $text0
+        focused_workspace $activeBorder $activeMain $text0
+        active_workspace $lessactBorder $lessactMain $text0
+        inactive_workspace #00000000 $inactMain $text1
+        urgent_workspace $urgentBorder $urgentMain $text0
+    }
+
+    # }}}
+    workspace_buttons yes
+    workspace_min_width 30
+    strip_workspace_numbers no
+    binding_mode_indicator yes
+    position top
+    padding 1px
+    tray_output eDP-1
+    #tray_output none
+    tray_padding 0
+    i3bar_command i3bar --transparency
+    status_command i3status-rs
+}
+
+# }}}
+

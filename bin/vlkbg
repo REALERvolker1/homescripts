@@ -1,0 +1,53 @@
+#!/usr/bin/dash
+# vim:ft=sh
+
+background_select () {
+    echo "$XDG_DATA_HOME/backgrounds/"*.jpg | tr ' ' '\n' | shuf | head -n 1
+}
+
+for arg in "$@"; do
+    case $arg in
+        --sync)
+            sync=true
+        ;; --monitors=*)
+            monitors="${arg##--monitors=}"
+        ;; --image=*)
+            image="${arg##--image=}"
+        ;; --backend=*)
+            backend="${arg##--backend=}"
+        ;;
+    esac
+done
+
+monitors="${monitors:-$(grep '^connected' /sys/class/drm/card*/status | wc -l)}"
+
+if [ -z "$WAYLAND_DISPLAY" ]; then
+    #backend="${backend:-nitrogen}"
+    backend="${backend:-hsetroot}"
+else
+    printf "\033[1;41;91m[FATAL ERROR]\033[0m\tDoes not work on Wayland yet!\n"
+    backend="${backend:-swaybg}"
+fi
+
+case "$backend" in
+    'hsetroot')
+        exec hsetroot -cover "${image:-$(background_select)}"
+    ;; 'nitrogen')
+        i=0
+        while [ "$i" -lt "$monitors" ]; do
+            nitro_image="${image:-$(background_select)}"
+            if [ "$sync" ]; then
+                echo "Synchronous override"
+                nitrogen --set-zoom-fill --head="$i" "$nitro_image"
+            else
+                nitrogen --set-zoom-fill --head="$i" "$nitro_image" &
+            fi
+            i=$((i + 1))
+        done
+    ;; swaybg)
+        exit 1
+    ;; swaymsg)
+        exit 1
+    ;;
+esac
+wait

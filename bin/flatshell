@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+environment="${1:- }"
+
+flatpaks="$(flatpak list --app | cut -f 2)"
+
+if [[ "$flatpaks" == *"$environment"* ]]; then
+    selected_env="$environment"
+else
+    selected_env="$(printf "$flatpaks" | fzf -q "$environment")"
+fi
+
+env_home="/home/${USER}/.var/app/${selected_env}"
+
+cd "$env_home"
+exec env -i HOME="$env_home" flatpak run --command="bash" "$selected_env"

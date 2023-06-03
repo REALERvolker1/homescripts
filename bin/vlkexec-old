@@ -1,0 +1,158 @@
+#!/usr/bin/env bash
+# VLKExeC: Virtual Linux Keyboard Execution Controller
+# script by vlk, built from the ground up to exec stuff
+
+[[ $- == *i* ]] && echo "Error! Do not source vlkexec!" && return 1
+
+_print_help () {
+cat << EOF
+vlkexec --selector [<one|1> OR <two|2> OR <three|thr|3>]
+--browser
+--calculator
+--charmap
+--editor
+--i3
+--gfx
+--menu
+--mgmt
+--powermenu
+--lock
+--screenshot
+--term
+
+There is also a special selector, '--info-dump' to facilitate scripting
+EOF
+}
+
+_print_command_help () {
+    echo "vlkexec $SELECTED <number>"
+    [ -n "$ONE" ] && echo "1|one: $ONE"
+    [ -n "$TWO" ] && echo "2|two: $TWO"
+    [ -n "$THR" ] && echo "3|thr|three: $THR"
+}
+
+_trust_but_verify () {
+    local method_number="$1"
+    local command="$2"
+    if [ -n "$command" ]; then
+        exec sh -c "$command"
+    else
+        printf "\e[1;31mERROR\e[0m: method %s undefined\n\n" "$method_number"
+        _print_command_help
+        exit 1
+    fi
+}
+
+SELECTED="$1"
+PARAM="$2"
+
+case "$SELECTED" in
+    '--browser')
+        #ONE='flatpak run org.mozilla.firefox'
+        ONE='flatpak run net.mullvad.MullvadBrowser'
+        if [ -z "$WAYLAND_DISPLAY" ]; then
+            TWO='flatpak run com.brave.Browser'
+        else
+            TWO='flatpak run com.brave.Browser --enable-features=UseOzonePlatform --ozone-platform=wayland'
+        fi
+        THR='flatpak run net.waterfox.waterfox'
+
+    ;; '--calculator')
+        ONE='gnome-calculator'
+
+    ;; '--charmap')
+        ONE='rofi-charamap-menu.sh'
+        TWO='gnome-characters'
+        THR='gucharmap'
+
+    ;; '--editor')
+        ONE='gnome-text-editor'
+        TWO='codium'
+        THR="kitty -e nvim"
+
+    ;; '--i3')
+        ONE='rofi -modi window -show window'
+        TWO='xfce4-clipman-rofi.sh'
+
+    ;; '--gfx')
+        ONE='gfxmenu.sh'
+        TWO='rog-control-center'
+
+    ;; '--menu')
+        ONE='rofi -modi drun,run -show drun -sidebar-mode'
+        TWO='rofi -show run'
+        THR='rofi -show window'
+
+    ;; '--mgmt')
+        ONE='thunar'
+        TWO='mousepad'
+        THR='codium --reuse-window'
+
+    ;; '--powermenu')
+        ONE='rofi -show powermenu'
+        TWO='powermenu.sh'
+
+    ;; '--lock')
+        ONE='vlklock.sh'
+
+    ;; '--screenshot')
+        if [ -z "$WAYLAND_DISPLAY" ]; then
+            ONE='flatpak run org.ksnip.ksnip -r'
+            TWO='scrot -p -F "/home/vlk/Pictures/Screenshots/scrot_%Y-%m-%d_%H-%M-%S.png" && notify-send "Fullscreen screenshot saved"'
+        else
+            ONE='grimblast save area "$HOME/Pictures/Screenshots/grimblast_$(date +"%m-%d-%y_%H-%M-%S").png"'
+            TWO='grimblast save screen "$HOME/Pictures/Screenshots/grimblast_$(date +"%m-%d-%y_%H-%M-%S").png"'
+        fi
+    ;; '--term'|'--terminal')
+        if [ -z "$WAYLAND_DISPLAY" ]; then
+            ONE='kitty'
+            TWO='alacritty'
+            THR='konsole'
+        else
+            ONE='xfce4-terminal'
+            TWO='alacritty'
+            THR='kitty'
+        fi
+
+    ;; '--info-dump')
+        _print_help | while read -r line; do
+            [[ "$line" != '--'* ]] && continue
+            sh -c "$(realpath "$0") $line --help" | grep '[0-9]|' | sed "s/^/$line /g"
+        done
+        exit 0
+
+    ;; 'pass')
+
+    ;; 'help'|*'-h'*)
+        _print_help
+        exit 0
+
+    ;; *)
+        _print_help
+        exit 1
+    ;;
+esac
+
+case "$PARAM" in
+    'one'|'1')
+        _trust_but_verify "$PARAM" "$ONE"
+
+    ;; 'two'|'2')
+        _trust_but_verify "$PARAM" "$TWO"
+
+    ;; 'three'|'thr'|'3')
+        _trust_but_verify "$PARAM" "$THR"
+
+    ;; 'four'|'fou'|'4')
+        _trust_but_verify "$PARAM" "$FOU"
+
+    ;; 'pass')
+
+    ;; 'help'|*'-h'*)
+        _print_command_help
+        exit 0
+    ;; *)
+        _print_command_help
+        exit 1
+    ;;
+esac

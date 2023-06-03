@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+
+session="${VLK_SESSION:-i3}"
+
+exec dbus-run-session -- "$session"

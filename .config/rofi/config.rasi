@@ -1,0 +1,87 @@
+/*
+    vlk dotfile theme thing
+    vim: ft=sass
+*/
+
+@theme "theme.rasi"
+
+configuration {
+    // prompts
+    display-drun: " Desktop Entries";
+    display-run: " Run Command";
+    display-ssh: "";
+    display-window: "󱂬";
+    display-windowcd: "󱂬";
+    display-combi: "󰆜";
+    display-keys: "";
+    display-filebrowser: "";
+    display-emoji: "󰞅";
+    display-powermenu: "⏻";
+
+    modes: [
+        "drun",
+        "run",
+        "powermenu:/home/vlk/.config/rofi/modi/powermenu.sh"
+    ];
+
+    // make this work more better-er
+    cycle: true;
+    steal-focus: true;
+    click-to-exit: true;
+    //no-lazy-grab: true;
+    case-sensitive: false;
+    max-history-size: 30;
+    matching: "glob";
+    sorting-method: "fzf";
+
+    // this doesn't do shit
+    terminal: "kitty";
+    run-shell-command: "{terminal} -e {cmd}";
+    // this does but also runs with drun
+    // run-command: "{terminal} -e {cmd}";
+
+    // drun
+    drun-show-actions: false;
+    drun-display-format: "{icon}{name}";
+    show-icons: true;
+    icon-theme: "Skeuowaita";
+    //icon-theme: "Newaita-reborn-deep-purple-dark";
+    drun {
+        //fallback-icon: "application-x-addon";
+        fallback-icon: "<span color='#FFFFFF'>󰀶</span>";
+    }
+    run {
+        fallback-icon: "system-run";
+        run-command: "{terminal} -e {cmd}";
+    }
+
+    // window
+    window-format: "{icon}{w}  {t:0}";
+    window-thumbnail: true;
+
+    // fb
+    filebrowser {
+        directories-first: true;
+        sorting-method: "name";
+    }
+
+    // misc utils
+    disable-history: false;
+    sidebar-mode: false;
+
+    // keybinds
+    kb-move-char-back: "Control+b";
+    kb-move-char-forward: "Control+f";
+    kb-row-left: "Left";
+    kb-row-right: "Right";
+
+    /* // enable mouse support
+    hover-select: true;
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
+    */
+
+    // use with doubleclick
+    me-select-entry: "MousePrimary";
+    me-accept-entry: "MouseDPrimary";
+}

@@ -1,0 +1,44 @@
+
+# global options
+display: almost-all
+
+color:
+  when: always
+
+#indicators: true
+
+ignore-globs:
+  - .pki
+  - .ssh
+  - .rusherhack
+  - .zoom
+  - .yarnrc
+  - .nv
+  - .xsel.log
+  - .vscode-oss
+  - .neverball
+    #- .dbus
+
+icons:
+  when: always
+  theme: fancy
+  separator: " "
+
+sorting:
+  dir-grouping: first
+
+# long view options
+header: true
+
+blocks:
+  - permission
+  - user
+  - size
+  - date
+  - name
+# Possible values: permission, user, group, context, size, date, name, inode, links
+
+date: "+%D @ %X"
+dereference: false
+
+symlink-arrow: =>

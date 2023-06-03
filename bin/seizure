@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+trap 'printf "\e]11;#000000\007";printf "\e]10;#EEEEEE\007";exit' INT
+while :; do
+    printf "\e]11;#FFFFFF\007"
+    printf "\e]10;#000000\007"
+    sleep 0.05
+    printf "\e]11;#000000\007"
+    printf "\e]10;#FFFFFF\007"
+    sleep 0.05
+done

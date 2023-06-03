@@ -1,0 +1,31 @@
+#!/usr/bin/bash
+
+session="${VLK_SESSION:-Hyprland}"
+
+export XDG_SESSION_TYPE='wayland'
+
+export QT_QPA_PLATFORM='wayland;xcb'
+export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+export GDK_BACKEND='wayland,x11'
+export SDL_VIDEODRIVER='wayland'
+export CLUTTER_BACKEND='wayland'
+export _JAVA_AWT_WM_NONREPARENTING=1
+export MOZ_ENABLE_WAYLAND=1
+
+export XDG_CURRENT_DESKTOP='Hyprland'
+export XDG_SESSION_DESKTOP='Hyprland'
+
+export XCURSOR_THEME="$(grep -m 1 -oP '^Inherits=\K.*$' /usr/share/icons/default/index.theme)"
+
+# not needed on rofi-wayland master branch
+# echo "* {
+#     listview-wayland-fix: true;
+# }" > "$XDG_CACHE_HOME/rofi-wayland-fix.rasi"
+
+export YDOTOOL_SOCKET='/tmp/.ydotool_socket'
+
+#export WLR_DRM_DEVICES='/dev/dri/card0'
+
+exec "$session"
+
+

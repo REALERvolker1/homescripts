@@ -1,0 +1,47 @@
+# vim:ft=zsh
+
+setopt extended_glob
+
+local arg="${1:-}"
+
+local command_sourced="$ZPLUGIN_DIR/command-sourced.zsh"
+
+local files=(
+    "$ZDOTDIR/.zshrc"
+    "$ZDOTDIR/prompt.zsh"
+    "$command_sourced"
+)
+
+/usr/bin/rm -f "$ZDOTDIR/rc.d/"*'.zwc'
+
+local i
+for i in "${files[@]}"; do
+    rm -f "$i"*'.zwc'
+done
+for i in "$ZDOTDIR/rc.d/"*'.zsh'; do
+    files+=("$i")
+done
+
+[[ "$arg" == '--uncompile' ]] && return
+
+# command plugin sourcing so I don't have to wait 3 ms for this shit to run
+echo -ne "\
+if [ \"\$TERM\" != 'linux' ]; then
+$(atuin init zsh | /usr/bin/sed 's/echoti/#echoti/g')
+fi
+" \
+| /usr/bin/sed 's/^[[:space:]]*#/#/g' \
+| /usr/bin/grep -v -e '^#' -e '^$' \
+> "$command_sourced"
+# $(starship init zsh --print-full-init)
+
+for i in "${files[@]}"; do
+    zcompile "$i" && echo "$i" | /usr/bin/sed "
+        s|^|[✅] |
+        s|${ZDOTDIR}|[94m~[92mzsh[0m|
+        s|${ZPLUGIN_DIR}|[32m\$ZPLUGIN_DIR[0m|
+        s|$HOME/bin|[94m~[32mbin[0m|
+        s|$HOME|[94m~[0m|
+        s|site-functions|s..fn|
+    "
+done

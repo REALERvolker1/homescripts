@@ -1,0 +1,138 @@
+/* bat ~cfg/gtk-3.0/gtk.css if using gradience*/
+* {
+    font-family: "Symbols Nerd Font", sans-serif;
+    font-size: 13px;
+}
+
+window#waybar {
+    background-color: transparent;
+    /* border-bottom: 3px solid @unfocused_borders; */
+    color: @theme_text_color;
+    transition-property: background-color;
+    transition-duration: 0.5s;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+button {
+    /* Use box-shadow instead of border so the text isn't offset */
+    box-shadow: inset 0 -3px transparent;
+    /* Avoid rounded borders under each button name */
+    border: none;
+    transition-duration: 0ms;
+    border-radius: 0;
+}
+
+/* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
+button:hover {
+    background: inherit;
+    box-shadow: inset 0 -3px @theme_text_color;
+}
+
+tooltip {
+    background-color: @window_bg_color;
+    border: 1px solid @unfocused_borders;
+}
+tooltip label {
+    color: @theme_text_color;
+}
+
+#workspaces,
+#taskbar {
+    background-color: @window_bg_color;
+    border-radius: 0px 0px 10px 0px;
+}
+#taskbar {
+    border-radius: 0px 0px 10px 10px;
+}
+#workspaces button,
+#taskbar button {
+    padding: 0 5px;
+    /* background: transparent; */
+}
+#workspaces button.focused,
+#workspaces button.active,
+#taskbar button.active {
+    color: @accent_fg_color;
+    background-color: @accent_bg_color;
+    box-shadow: inset 0 -3px @accent_color;
+    border-radius: 4px;
+}
+#workspaces button.visible {
+    color: @theme_text_color;
+    box-shadow: inset 0 -3px @theme_text_color;
+}
+#workspaces button.urgent {
+    color: @destructive_fg_color;
+    background-color: @destructive_bg_color;
+    box-shadow: inset 0 -3px @destructive_color;
+}
+#workspaces button.hidden {
+    color: @dark_1;
+}
+#workspaces button.persistent {
+    color: @orange_1;
+}
+
+#window {
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: @window_bg_color;
+    border-radius: 0px 0px 10px 10px;
+}
+
+#custom-supergfxctl,
+#custom-pointer,
+#custom-mow,
+#custom-xclients,
+#custom-scratchpad,
+#custom-weather,
+#pulseaudio,
+#mpris,
+#bluetooth,
+#keyboard-state,
+#battery,
+#memory,
+#clock,
+#tray {
+    background-color: @window_bg_color;
+    padding: 0 10px;
+    border-radius: 0px 0px 10px 10px;
+}
+
+#tray {
+    border-radius: 0px 0px 0px 10px;
+}
+
+#battery.charging,
+#battery.plugged {
+    /* box-shadow: inset 0 3px @success_bg_color; */
+    border: 3px solid @success_bg_color;
+}
+#battery.warning:not(.charging) {
+    border: 3px solid @warning_bg_color;
+}
+#battery.critical:not(.charging) {
+    border: 3px solid @destructive_bg_color;
+}
+
+#bluetooth.connected {
+    border: 3px solid @success_bg_color;
+}
+#bluetooth.disabled,
+#bluetooth.off {
+    border: 3px solid @destructive_bg_color;
+}
+
+#pulseaudio.bluetooth {
+    border: 3px solid @blue_3;
+}
+#pulseaudio.muted {
+    border: 3px solid @yellow_3;
+}
+
+#mpris.playing {
+    border: 3px solid @success_bg_color;
+}

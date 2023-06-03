@@ -1,0 +1,8 @@
+# vim:ft=zsh
+local content="$*"
+if [ -z "$WAYLAND_DISPLAY" ]; then
+    echo -n "$content" | /usr/bin/xclip -selection clipboard
+else
+    /usr/bin/wl-copy "$content"
+fi
+

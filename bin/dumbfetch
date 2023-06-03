@@ -1,0 +1,30 @@
+#!/usr/bin/dash
+
+#box_color="[38;5;$((RANDOM % 255 + 1))m"
+box_color="[38;5;$(shuf -i 1-255 -n 1)m"
+
+prop0="${SHLVL:-999}"
+prop1="$(uptime -p | sed 's/^up // ; s/hour/hr/g ; s/minute/min/g')"
+prop2="${TERM:-Undefined}"
+#prop3="$(df -h -l -t btrfs --output=pcent | tail -n '+2' | head -n 1 | sed 's/[[:space:]]//g')"
+prop3="$(printf '%s\t' $(df -h -l -t btrfs --output=pcent) | cut -f 2)"
+prop4="$(rpm -q xorg-x11-drv-nvidia | cut -d '-' -f 5)"
+prop5="$(uname -r | cut -d '-' -f 1)"
+
+len=0
+for i in "$prop1" "$prop2" "$prop4"; do
+    [ "${#i}" -gt "$len" ] && len="${#i}"
+done
+length_string="$(printf "%-${len}s\n" '' | sed 's/ /─/g')"
+
+printf '%s\n' "${box_color}╭─────────────────┬─────────────${length_string}╮[0m"
+printf "${box_color}│[0m[92m%s${box_color}│[0m%s   [1m%-${len}s [0m${box_color}│[0m\n" \
+                            '          _      ' '[94m  SHLVL ' "$prop0" \
+                            '  _______| |__   ' '[95m 󰅐 Uptime' "$prop1" \
+                            ' |_  / __| `_ \  ' '[96m  Term  ' "$prop2" \
+                            '  / /\__ \ | | | ' '[93m 󰋊 Disk  ' "$prop3" \
+                            ' /___|___/_| |_| ' '[92m 󰾲 Nvidia' "$prop4" \
+                            '                 ' '[91m  Kernel' "$prop5"
+printf '%s\n' "${box_color}╰─────────────────┴─────────────${length_string}╯[0m"
+# ┴
+
