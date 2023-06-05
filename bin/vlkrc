@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 # vim:foldmethod=marker:ft=sh
-
-## Disable alias variable expansion complaints
 # shellcheck disable=SC2139
 
 if [[ "$-" != *i* ]] ; then
@@ -186,6 +184,13 @@ alias gitm='git add -A && git commit -am "$(date +"Commit from shell alias at %D
 alias gitp='git pull '
 alias tit='echo 😜 && git '
 alias gitd='git fetch && git diff "origin/$(git branch | grep -oP "\*[[:space:]]*\K.*\$")"'
+
+dotm () {
+    local current_dir="$PWD"
+    cd "$HOME/dotfiles"
+    gitm
+    cd "$current_dir"
+}
 
 # }}}
 # cargo {{{
