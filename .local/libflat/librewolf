@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec flatpak run io.gitlab.librewolf-community "$@"

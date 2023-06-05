@@ -96,11 +96,12 @@ export DENO_INSTALL="$XDG_DATA_HOME/deno"
 export PATH="\
 $HOME/bin:\
 $HOME/.local/bin:\
+$HOME/.local/libflat:\
 $CARGO_HOME/bin:\
 $BUN_INSTALL/bin:\
-$PYTHONUSERBASE/bin:\
 $PNPM_HOME:\
 $GOPATH/bin:\
+$PYTHONUSERBASE/bin:\
 /usr/lib64/ccache:\
 /usr/local/bin:\
 /usr/bin"

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# flatpak --user override com.vscodium.codium --env=PATH=/app/bin:/usr/bin:$HOME/bin:$CARGO_HOME/bin:$PNPM_HOME
+
+[ -n "$WAYLAND_DISPLAY" ] && electron_flags='--enable-features=UseOzonePlatform --ozone-platform=wayland'
+comm="flatpak run com.vscodium.codium ${electron_flags:-}"
+exec $comm "$@"
+
