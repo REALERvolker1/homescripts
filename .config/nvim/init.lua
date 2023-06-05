@@ -67,7 +67,7 @@ end
 
 -- }}}
 
-vim.cmd [[packadd packer.nvim]]
+--vim.cmd [[packadd packer.nvim]]
 
 vim.cmd [[packadd packer.nvim]]
 
@@ -88,6 +88,7 @@ require('packer').startup(function(use)
     use 'karb94/neoscroll.nvim'
     use 'lukas-reineke/indent-blankline.nvim'
     use 'mhartington/formatter.nvim'
+    use 'itspriddle/vim-shellcheck'
     use {
         'nvim-tree/nvim-tree.lua',
         requires = { 'nvim-tree/nvim-web-devicons' },

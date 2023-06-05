@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ -z "$WAYLAND_DISPLAY" ]; then
+    exec kitty
+else
+    exec xfce4-terminal
+fi
+
