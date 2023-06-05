@@ -1,0 +1,1 @@
+/home/vlk/dotfiles/bin/vlkdm-login-profile.sh
