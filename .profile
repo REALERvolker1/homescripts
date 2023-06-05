@@ -7,6 +7,7 @@ case "$-" in
     *'i'*)
         if [ "$TERM" = 'linux' ]; then
             exec vlkdm-login-profile.sh
+            #exec "$HOME/.config/rc.d/init.sh"
         fi
     ;;
     *)

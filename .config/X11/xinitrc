@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
-session="${VLK_SESSION:-i3}"
-
-exec dbus-run-session -- "$session"
+#. "$XDG_RUNTIME_DIR/vlk-$XDG_SESSION_ID.env"
+echo "$1" > ~/.xin
+session="${VLK_SESSION_EXEC:-i3}"
+exec "$session"
+#exec dbus-run-session -- "$session"

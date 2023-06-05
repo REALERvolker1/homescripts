@@ -49,11 +49,6 @@ fake_xinitrc () {
 
     xlayoutdisplay &
 
-    if [ "$VLKDM_SESSION" = 'openbox-session' ]; then
-        (while true; do tint2; done) &
-        volumeicon &
-    fi
-
     exec "$command"
 }
 eval "$("$HOME/.local/libexec/hardcoded-keyring-unlocker" 2>/dev/null | grep '^[A-Z]' | sed 's/^/export /g')"
