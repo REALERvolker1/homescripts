@@ -3,8 +3,8 @@
     "name": "topbar",
     "height": 30,
     "spacing": 4, // Gaps between modules (4px)
-    "modules-left": ["wlr/workspaces", "wlr/taskbar"],
-    "modules-center": ["hyprland/window"],
+    "modules-left": ["wlr/workspaces", "wlr/taskbar", "hyprland/window"],
+    "modules-center": [],
     "modules-right": [
         //"mpris",
         "pulseaudio",
@@ -12,15 +12,22 @@
         "memory",
         "battery",
         "clock",
+        "custom/mow",
+        "custom/xclients",
         "custom/weather",
         "custom/pointer",
         "keyboard-state",
         "tray"
     ],
+    "hyprland/window": {
+        "format": "👉 {}",
+        "separate-outputs": true
+    },
     "wlr/workspaces": {
         "format": "{name} {icon}",
         "on-click": "activate",
         "format-icons": {
+            //"1": "",
             "urgent": "󰗖",
             "active": "󰝥",
             "default": "󰝦"
@@ -37,28 +44,34 @@
             "__scratchpad__"
         ]
     },
-    "hyprland/window": {
-        "format": "{}",
-        "separate-outputs": true
+    "tray": {
+        // "icon-size": 21,
+        "spacing": 10
     },
-
-    "mpris": {
-        "format": "{player_icon} {status_icon} {dynamic}",
-        "player-icons": {
-            "default": "󰝚",
-            "brave": "󰗃",
-            "chrome": "",
-            "chromium": "",
-            "firefox": "",
-            "vlc": "󰕼"
+    "clock": {
+        "timezone": "America/Chicago",
+        "format": "{:%a, %m/%d @ %I:%M %p}",
+        "format-alt": "{:%Y-%m-%d}"
+    },
+    "memory": {
+        "format": "󰭰  {used}GiB"
+    },
+    "battery": {
+        "states": {
+            // "good": 95,
+            "warning": 30,
+            "critical": 15
         },
-        "status-icons": {
-            "playing": "󰏤",
-            "paused": "󰐊",
-            "stopped": "󰓛"
-        }
+        "format": "{icon} {capacity}% {power}",
+        "format-charging": " {capacity}% {power}",
+        "format-plugged": " {capacity}%",
+        "format-alt": "{icon} {time} {power}",
+        // "format-good": "", // An empty format will hide the module
+        // "format-full": "",
+        "format-icons": ["", "", "", "", ""]
     },
     "pulseaudio": {
+        // "scroll-step": 1, // %, can be a float
         "format": "{icon} {volume}%",
         "format-bluetooth": "{icon} {volume}%",
         "format-bluetooth-muted": "󰝟 {icon}",
@@ -78,6 +91,22 @@
         "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
         "on-click-right": "pavucontrol"
     },
+    "mpris": {
+        "format": "{player_icon} {status_icon} {dynamic}",
+        "player-icons": {
+            "default": "󰝚",
+            "brave": "󰗃",
+            "chrome": "",
+            "chromium": "",
+            "firefox": "",
+            "vlc": "󰕼"
+        },
+        "status-icons": {
+            "playing": "󰏤",
+            "paused": "󰐊",
+            "stopped": "󰓛"
+        }
+    },
     "bluetooth": {
         "format": " {status}",
         "format-disabled": "󰂲",
@@ -88,33 +117,24 @@
         "on-click": "$XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --toggle",
         "on-click-right": "$XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --manager"
     },
-    "memory": {
-        "format": "󰭰  {used}GiB"
+    "custom/pointer": {
+        "exec": "pointer.sh -m"
     },
-    "battery": {
-        "states": {
-            // "good": 95,
-            "warning": 30,
-            "critical": 15
-        },
-        //"full-at": 79,
-        "format": "{icon} {capacity}% {power:.1f}",
-        "format-charging": " {capacity}%",
-        "format-plugged": "{icon}",
-        "format-alt": "{icon} {time} {power}",
-        "format-icons": ["", "", "", "", ""]
+    "custom/mow": {
+        "exec": "$XDG_CONFIG_HOME/bar-scripts/mow-status.sh",
+        "interval": 15
     },
-    "clock": {
-        "timezone": "America/Chicago",
-        "format": "{:%a, %m/%d @ %I:%M %p}",
-        "format-alt": "{:%Y-%m-%d}"
+    "custom/xclients": {
+        "exec": "$XDG_CONFIG_HOME/bar-scripts/xclients-hyprland-monitor.sh",
+        "format": "󱂬 {}"
+        //"on-click": "xlsclients | sed \"s|^${HOSTNAME}[ ]*||g\" | rofi -dmenu"
     },
+    // "custom/scratchpad": {
+    //     "exec": "$XDG_CONFIG_HOME/bar-scripts/scratchpad-hyprland-query.sh"
+    // },
     "custom/weather": {
         "exec": "$XDG_CONFIG_HOME/bar-scripts/weather.sh",
         "interval": 300
-    },
-    "custom/pointer": {
-        "exec": "pointer.sh -m"
     },
     "keyboard-state": {
         "format": "{icon}",
@@ -125,9 +145,5 @@
             "locked": "󰎼",
             "unlocked": "󰎾"
         }
-    },
-    "tray": {
-        // "icon-size": 21,
-        "spacing": 10
     }
 }

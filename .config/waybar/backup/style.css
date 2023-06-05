@@ -17,12 +17,15 @@ window#waybar.hidden {
 }
 
 button {
+    /* Use box-shadow instead of border so the text isn't offset */
     box-shadow: inset 0 -3px transparent;
+    /* Avoid rounded borders under each button name */
     border: none;
     transition-duration: 0ms;
     border-radius: 0;
 }
 
+/* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
 button:hover {
     background: inherit;
     box-shadow: inset 0 -3px @theme_text_color;
@@ -78,11 +81,6 @@ tooltip label {
     padding-right: 10px;
     background-color: @window_bg_color;
     border-radius: 0px 0px 10px 10px;
-}
-
-#window.empty {
-    background: transparent;
-    padding: 0px;
 }
 
 #custom-supergfxctl,
