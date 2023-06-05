@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+
+#"${XDG_CONFIG_HOME:-$HOME/.config}/rc.d/postinit.sh" &
+(while true; do tint2; done) &
+volumeicon &

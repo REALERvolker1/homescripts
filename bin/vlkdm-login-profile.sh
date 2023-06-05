@@ -33,21 +33,22 @@ case "$command" in
 esac
 
 fake_xinitrc () {
-    echo "started fake xinitrc with $VLKDM_SESSION at $(date +'%X %x')"
+    "${XDG_CONFIG_HOME:-$HOME/.config}/rc.d/postinit.sh" --xorg &
+    # echo "started fake xinitrc with $VLKDM_SESSION at $(date +'%X %x')"
 
-    xrdb -merge "$XRESOURCES" &
-    /usr/libexec/xfce-polkit &
-    nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -l &
-    dbus-update-activation-environment --systemd DISPLAY XAUTHORITY WAYLAND_DISPLAY
-    systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+    # xrdb -merge "$XRESOURCES" &
+    # /usr/libexec/xfce-polkit &
+    # nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -l &
+    # dbus-update-activation-environment --systemd DISPLAY XAUTHORITY WAYLAND_DISPLAY
+    # systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 
-    #xset -dpms &
-    numlockx &
-    pointer.sh -n &
-    xmodmap -e "clear lock"
-    xmodmap -e "keycode 66 = Escape NoSymbol Escape"
+    # #xset -dpms &
+    # numlockx &
+    # pointer.sh -n &
+    # xmodmap -e "clear lock"
+    # xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 
-    xlayoutdisplay &
+    # xlayoutdisplay &
 
     exec "$command"
 }
