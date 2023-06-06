@@ -13,11 +13,23 @@ linked_folders=(
 
 for i in "${linked_folders[@]}"; do
     if [ -d "${folder_root}/$i" ] && [ ! -d "$HOME/$i" ]; then
-        echo "copying $folder_root/$i to ~/$i"
-        cp -r "$folder_root/$i" "$HOME/$i"
+        cp -ru "$folder_root/$i" "$HOME/$i" && echo "updated $folder_root/$i"
     else
-        echo "copying ~/$i to $folder_root/$i"
-        cp -r "$HOME/$i" "$folder_root/$i"
+        cp -ru "$HOME/$i" "$folder_root/$i" && echo "updated $folder_root/$i"
     fi
+done
+
+# copies all the folders I don't have permission to symlink
+perm_folders=(
+    "/etc/zshenv"
+    "/etc/X11/xorg.conf.d/30-mouse.conf"
+    "/etc/X11/xorg.conf.d/31-touchpad.conf"
+    "/etc/profile.d/lang.sh"
+)
+
+for i in "${perm_folders[@]}"; do
+    folderpath="$folder_root/disk-root$i"
+    mkdir -p "$(dirname "$folderpath")"
+    cp -ru "$i" "$folderpath" && echo "updated $folderpath"
 done
 
