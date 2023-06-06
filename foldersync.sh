@@ -7,6 +7,8 @@ folder_root="$HOME/dotfiles"
 linked_folders=(
     ".config/fontconfig"
     ".config/Kvantum"
+    ".config/qt5ct"
+    ".config/qt6ct"
     ".config/gtk-2.0"
     ".config/gtk-3.0"
     ".config/gtk-4.0"
