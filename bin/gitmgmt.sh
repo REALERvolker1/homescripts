@@ -77,11 +77,15 @@ case "${1:-}" in
     ;;
     *)
         echo 'gitmgmt updating'
+        declare -a file_errors
         for file in "$XDG_CONFIG_HOME/gitmgmt"/*; do
             file_url="$(grep -oP '^clone_func \K.*$' "$file" | sed "s/^\"//g ; s/\"$//g; s/^'//g; s/'$//g")"
             folder_name="${GITMGMT_HOME:-$XDG_DATA_HOME/gitmgmt}/${file_url##*/}"
             check_update "$folder_name" || [ "${2:-}" = '--force' ] || continue
-            sh -c "$file"
+            sh -c "$file" || file_errors+=("$file")
         done
+        if [[ "${file_errors[*]}" != '' ]]; then
+            printf '%s\n' 'gitmgmt errors' '=== === ===' "${file_errors[@]}"
+        fi
     ;;
 esac
