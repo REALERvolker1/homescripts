@@ -1,7 +1,5 @@
 #!/usr/bin/bash
 
-set -euo pipefail
-
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 
@@ -16,7 +14,21 @@ clone_func () { # (url: %s<url>, clone_command: %s<cmd<git>>|Undefined) -> folde
 }
 
 check_update () {
-    
+    local folder="${1:?Error, please give a folder name}"
+    local opt="${2:-}"
+    [ ! -d "$folder" ] && return 1
+    cd "$folder"
+    local diff_lines
+    #diff_lines="$(git fetch && git diff --stat "origin/$(git branch | grep -oP "\*[[:space:]]*\K.*\$")")"
+    if git status | grep -q '^Your branch is up to date'; then
+        echo 'up to date'
+    else
+        git status -uno
+    fi
+    # [ "$diff_lines" = '' ] && return 1
+    # if [ "$opt" = '--print-update' ]; then
+    #     echo -e "$folder\n$diff_lines"
+    # fi
 }
 
 change_cwd () {
@@ -53,10 +65,17 @@ binlink () {
 
 case "${1:-}" in
     '--source')
+        set -euo pipefail
         return
     ;;
+    '--check-update')
+        for file in "$XDG_CONFIG_HOME/gitmgmt"/* ; do
+            file_url="$(grep -oP '^clone_func \K.*$' "$file" | sed "s/^\"//g ; s/\"$//g; s/^'//g; s/'$//g")"
+            folder_name="${GITMGMT_HOME:-$XDG_DATA_HOME/gitmgmt}/${file_url##*/}"
+            check_update "$folder_name" --print-update
+        done
+    ;;
     *)
-        set +euo pipefail
         echo 'gitmgmt updating'
         for file in "$XDG_CONFIG_HOME/gitmgmt"/*; do
             echo "$file"
