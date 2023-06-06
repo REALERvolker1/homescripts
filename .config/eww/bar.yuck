@@ -1,0 +1,121 @@
+
+; (defvar workspaces_variable
+;     '[{"name": "1", "state": "focused"},{"name": "2", "state": "visible"},{"name": "3", "state": "urgent"},{"name": "4", "state": "exists"},{"name": "6", "state": "exists"}]'
+; )
+
+(deflisten workspaces_variable
+    `~/.config/bar-scripts/workspaces.sh --listen`
+)
+
+(deflisten window_title_variable
+    `~/.config/bar-scripts/window-title.sh`
+)
+
+(defpoll battery_variable
+    :interval "10s"
+    `~/.config/bar-scripts/battery-status.sh --wattage`
+)
+
+(defpoll time_variable
+    :interval "5s"
+    `~/.config/bar-scripts/time.sh`
+)
+
+(deflisten sgfx_variable
+    `~/.config/bar-scripts/supergfx-status.sh`
+)
+
+(deflisten pointer_variable
+    `pointer.sh -i`
+)
+
+(defwidget time[time]
+    (label
+        :text "${time}"
+    )
+)
+
+(defwidget window_title[window]
+    (box
+        :class "group"
+        :hexpand "true"
+        (label
+            :text "${window}"
+        )
+    )
+)
+
+(defwidget icon_only[icon]
+    (label
+        :width "20px"
+        :class "icon"
+        :text "${icon}"
+    )
+)
+
+(defwidget battery[battery]
+    (box
+        :space-evenly "true"
+        (label
+            :text "bat ${EWW_BATTERY.BAT1.capacity}% ${battery}W"
+        )
+        (circular-progress
+            :value "${EWW_BATTERY.BAT1.capacity}"
+            :thickness "4"
+        )
+    )
+)
+
+(defwidget workspaces[workspaces]
+    (box
+        :class "group"
+        :hexpand "false"
+        :space-evenly "false"
+        ; very resource-intensive
+        (for ws in workspaces
+            (button
+                :width "20px"
+                :class "workspace-button-${ws.state}"
+                :tooltip "Switch to workspace ${ws.name}"
+                :onclick "~/.config/bar-scripts/workspaces.sh --switch ${ws.name}"
+                "${ws.name}"
+            )
+        )
+    )
+)
+
+(defwindow bar
+    :geometry (geometry
+        :x "0%"
+        :y "20px"
+        :width "90%"
+        :height "30px"
+        :anchor "top center"
+    )
+    :stacking "fg"
+    :reserve (struts :distance "40px" :side "top")
+    :windowtype "dock"
+    :wm-ignore false
+    (box
+        :space-evenly "true"
+        :orientation "horizontal"
+        (box
+            :space-evenly "false"
+            :hexpand "true"
+            (workspaces :workspaces {workspaces_variable})
+            (window_title :window {window_title_variable})
+        )
+        (box
+            :class "group"
+            :hexpand "false"
+            (battery :battery {battery_variable})
+            (time :time {time_variable})
+        )
+        (box
+            :class "group"
+            :space-evenly "false"
+            (icon_only :icon {sgfx_variable})
+            (icon_only :icon {pointer_variable})
+        )
+    )
+)

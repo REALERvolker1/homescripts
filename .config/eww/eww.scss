@@ -1,0 +1,50 @@
+$window_background: transparent;
+
+$group-color: #23272e;
+$widget-color: #444454;
+
+$accent-color: #7857ff;
+$accent-color-alt: #ad99ff;
+
+$urgent-color: #ee586f;
+$urgent-color-alt: #e81736;
+
+/// non-interactive window height reference
+$window-height: 20px;
+
+* {
+    /// reset to default (Don't use GTK theme at all)
+    // all: unset;
+
+    color: #ffffff;
+}
+
+window {
+    background-color: $window_background;
+}
+
+.group {
+    background-color: $group-color;
+    margin-right: 5px;
+    border-radius: 8px;
+}
+
+// .workspace button:hover {
+//     background-color: red;
+// }
+
+.workspace-button-focused {
+    background-color: $accent-color;
+    border: 2px solid $accent-color-alt;
+}
+.workspace-button-visible {
+    background-color: $widget-color;
+    border: 2px solid $accent-color-alt;
+}
+.workspace-button-urgent {
+    background-color: $urgent-color;
+    border: 2px solid $urgent-color-alt;
+}
+.workspace-button-exists {
+    background-color: $group-color;
+}
