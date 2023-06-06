@@ -25,6 +25,10 @@ perm_folders=(
     "/etc/X11/xorg.conf.d/30-mouse.conf"
     "/etc/X11/xorg.conf.d/31-touchpad.conf"
     "/etc/profile.d/lang.sh"
+    "/usr/local/bin/numlock-tty.sh"
+    "/etc/sysctl.conf"
+    "/etc/systemd/system/getty@tty1.service.d"
+    "/etc/dnf/dnf.conf"
 )
 
 for i in "${perm_folders[@]}"; do
