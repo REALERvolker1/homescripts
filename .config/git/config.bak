@@ -1,0 +1,23 @@
+[user]
+	name = REALERvolker1
+  email = 73304952+REALERvolker1@users.noreply.github.com
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[core]
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only --features=interactive
+
+[delta]
+    features = decorations
+    syntax-theme = TwoDark
+    navigate = true
+
+[merge]
+    conflictstyle = diff3
+

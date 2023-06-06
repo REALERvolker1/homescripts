@@ -1,0 +1,16 @@
+
+long_uptime = true
+long_shell = true
+long_kernel = true
+current_shell = true
+physical_cores = false
+
+show = ["Host", "Machine", "Kernel", "Distribution", "OperatingSystem", "DesktopEnvironment", "WindowManager", "Resolution", "Backlight", "Packages", "LocalIP", "Terminal", "Shell", "Uptime", "Processor", "ProcessorLoad", "Memory", "Battery"]
+
+# Themes need to be placed in "$XDG_CONFIG_DIR/macchina/themes" beforehand.
+# e.g.:
+#  if theme path is /home/foo/.config/macchina/themes/Sodium.toml
+#  theme should be uncommented and set to "Sodium"
+#
+# theme = ""
+
