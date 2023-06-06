@@ -1,87 +1,72 @@
-#!/bin/dash
-# script by vlk to manage git
+#!/usr/bin/bash
+set -euo pipefail
 
-GIT_DIR="${GITMGMT_SRC_HOME:-}"
-SCRIPT_DIR="${GITMGMT_SCRIPT_HOME:-}"
-#ASSETS_DIR="${GITMGMT_SCRIPT_HOME:-}/assets"
-
-[ -z "$GIT_DIR" ] && echo "Error, please specify \$GITMGMT_SRC_HOME" && exit 1
-[ -z "$SCRIPT_DIR" ] && echo "Error, please specify \$GITMGMT_SCRIPT_HOME" && exit 1
-
-pull_git () {
-    dir="$1"
-    cd "$dir" || return 1
-    pulled_dir="$(git pull)"
-    #echo "$pulled_dir" 1>&2
-    if [ "$pulled_dir" = 'Already up to date.' ] && [ "$force" -eq 0 ]; then
-        return
-        #echo "${dir##*/} is already up to date" 1>&2
-    elif [ -x "$SCRIPT_DIR/${dir##*/}" ]; then
-        echo "$pulled_dir" 1>&2
-        echo "===${dir##*/}"
-    else
-        echo "$pulled_dir" 1>&2
-    fi
+_panic () {
+    echo "[PANIC] $*"
+    exit 1
+}
+_log () {
+    echo "[LOG] $*" >&2
 }
 
-pull_iter () {
-    for i in "$GIT_DIR"/*; do
-        pull_git "$i" &
-    done
-    wait
+_reset_parser () {
+    printf "local %s='%s'\n" \
+        "clone_command" "git clone" \
+        "url" "" \
+        "commands" ""
 }
 
-run_update_script () {
-    name="$1"
-    if cd "$GIT_DIR/$name"; then
-        if [ -x "$SCRIPT_DIR/$name" ]; then
-            echo "Running $SCRIPT_DIR/$name"
-            sh -c "$SCRIPT_DIR/$name"
-        else
-            echo "Error: COuld not run script for $name"
+parse_config () {
+    local config_file
+    config_file="$(cat "$GITMGMT_CONFIG_HOME/config.ini")"
+    local IFS=$'\n'
+    local iprop
+    local ival
+    GITS=()
+    #eval "$(_reset_parser)"
+    for i in $config_file; do
+        [[ "$i" == "#"* ]] || [ -z "${i:-}" ] && continue
+        [ "$i" = "[pkg]" ] && eval "$(_reset_parser)" && continue
+        if [ "$i" = "[endpkg]" ]; then
+            GITS+=("clone_command=$clone_command
+url=$url
+commands=$commands")
+            eval "$(_reset_parser)"
         fi
-    else
-        echo "Error: Could not change directory to $GIT_DIR/$name"
-    fi
-}
 
-execute_update () {
-    echo "Getting updates..."
-    pull_iter | grep -oP '===\K.*' | while read -r line; do
-        run_update_script "$line"
+        iprop="${i%%=*}"
+        ival="$(echo "${i#*=}" | cut -d '"' -f 2)"
+        case "$iprop" in
+            'clone_command')
+                clone_command="$ival"
+                ;;
+            'url')
+                url="$ival"
+                ;;
+            'commands')
+                commands="$ival"
+                ;;
+        esac
     done
-    echo "Done updating!"
 }
 
-execute_add () {
-    echo "Do you want to add $PWD as a gitmgmt-managed directory? [y/n]"
-    read answer
-    if [ "$answer" = 'y' ]; then
-        name="${PWD##*/}"
-        touch "$SCRIPT_DIR/$name"
-        chmod +x "$SCRIPT_DIR/$name"
-        printf '#!/usr/bin/bash
-[ "$PWD" != "$GITMGMT_SRC_HOME/${0##*/}" ] && exit 1
-git sync -f
-[ -d "$GITMGMT_SCRIPT_HOME/assets/${0##*/}" ] && cp -rf "$GITMGMT_SCRIPT_HOME/assets/${0##*/}/"* "$PWD"' > "$SCRIPT_DIR/$name"
-        echo "Edit the file at $SCRIPT_DIR/$name"
-    fi
-}
+XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+GITMGMT_HOME="${GITMGMT_HOME:-$XDG_DATA_HOME/gitmgmt}"
+GITMGMT_CONFIG_HOME="${GITMGMT_CONFIG_HOME:-$XDG_CONFIG_HOME/gitmgmt}"
 
-force=0
-case "$1" in
-    '--force')
-        force=1
-        ;; '--add')
-        execute_add
-    ;; '--update')
-        execute_update
-    ;; *)
-        printf "args:
---add\tAdd a folder to be tracked
---update\tUpdate your gits
-"
-    ;;
-esac
+for dir in "$GITMGMT_HOME" "$GITMGMT_CONFIG_HOME"; do
+    [ ! -d "$dir" ] && mkdir -p "$dir" && _log "created $dir"
+done
 
+parse_config
 
+for repo in "${GITS[@]}"; do
+    directory=
+    oldifs="$IFS"
+    IFS=$'\n'
+    for opt in $repo; do
+        echo "= $opt ="
+    done
+    IFS="$oldifs"
+done
