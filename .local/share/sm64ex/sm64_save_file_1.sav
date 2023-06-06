@@ -1,0 +1,59 @@
+# Super Mario 64 save file
+# Comment starts with #
+# True = 1, False = 0
+# 2023-05-22 23:28:01
+
+[menu]
+coin_score_age = 0
+sound_mode = stereo
+
+[flags]
+wing_cap = 1
+metal_cap = 0
+vanish_cap = 1
+key_1 = 0
+key_2 = 0
+basement_door = 1
+upstairs_door = 1
+ddd_moved_back = 1
+moat_drained = 1
+pps_door = 1
+wf_door = 1
+ccm_door = 1
+jrb_door = 1
+bitdw_door = 1
+bitfs_door = 1
+50star_door = 1
+
+[courses]
+bob = "100, 1111111, 1"
+wf = "100, 1111111, 1"
+jrb = "102, 1011111, 1"
+ccm = "135, 1111111, 1"
+bbh = "0, 0000000, 0"
+hmc = "0, 0000000, 0"
+lll = "0, 0000000, 0"
+ssl = "0, 0000000, 0"
+ddd = "6, 0000001, 0"
+sl = "102, 1111111, 1"
+wdw = "104, 1111111, 1"
+ttm = "113, 1111111, 1"
+thi = "110, 1111111, 1"
+ttc = "24, 0011111, 0"
+rr = "0, 0000000, 0"
+
+[bonus]
+bitdw = 1
+bitfs = 1
+bits = 0
+pss = 11
+cotmc = 0
+totwc = 1
+vcutm = 1
+wmotr = 0
+sa = 1
+hub = 00110
+
+[cap]
+level = sl
+area = 1
