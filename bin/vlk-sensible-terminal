@@ -1,8 +1,8 @@
 #!/bin/sh
 
 if [ -z "$WAYLAND_DISPLAY" ]; then
-    exec kitty
+    exec kitty "$@"
 else
-    exec xfce4-terminal
+    exec xfce4-terminal "$@"
 fi
 

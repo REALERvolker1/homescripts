@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+
+clone_func 'https://github.com/hyprwm/Hyprland'
+change_cwd
+
+git submodule update --init --recursive
