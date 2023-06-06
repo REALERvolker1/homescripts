@@ -310,3 +310,24 @@ psa () {
 }
 
 # }}}
+
+dotadd () {
+    local dotfolder="${1:?Error, please choose a folder!}"
+    dotfolder="$(realpath -e "$dotfolder")"
+    [ -e "$dotfolder" ] || return 1
+    
+    local linkfolder
+    case "$dotfolder" in
+        "$HOME/"*)
+            linkfolder="$HOME/dotfiles${dotfolder//$HOME/}"
+        ;;
+        *)
+            linkfolder="$HOME/dotfiles/disk-root${dotfolder}"
+        ;;
+    esac
+    #mkdir -P "$linkfolder"
+    mkdir -p "${linkfolder%/*}"
+    mv "$dotfolder" "$linkfolder"
+    ln -s "$linkfolder" "$dotfolder"
+}
+

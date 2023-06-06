@@ -1,0 +1,80 @@
+# alacritty config idk
+
+live_config_reload: false
+
+window:
+    padding:
+        x: 4
+        y: 4
+#    decorations: none
+    opacity: 0.75
+    dynamic_padding: true
+
+env:
+    ICON_TYPE: 'powerline'
+
+scrolling:
+    history: 4000
+    draw_bold_text_with_bright_colors: false
+
+font:
+    normal:
+        family: monospace
+        style: Regular
+
+    bold:
+        family: monospace
+        style: Bold
+
+    italic:
+        family: monospace
+        style: Italic
+
+    size: 11.0
+    offset:
+        x: 0
+        y: 0
+
+    glyph_offset:
+        x: 0
+        y: 0
+
+colors:
+    primary:
+        background: '0x000000'
+        foreground: '0xeaeaea'
+
+    normal:
+        black: '0x000000'
+        red: '0xaa0000'
+        green: '0x00aa00'
+        yellow: '0xaaaa00'
+        blue: '0x0000aa'
+        magenta: '0xaa00aa'
+        cyan: '0x00aaaa'
+        white: '0xaaaaaa'
+
+    bright:
+        black: '0x555555'
+        red: '0xff5555'
+        green: '0x55ff55'
+        yellow: '0xffff55'
+        blue: '0x5555ff'
+        magenta: '0xff55ff'
+        cyan: '0x00ffff'
+        white: '0xffffff'
+
+bell:
+    animation: EaseOutExpo
+    duration: 0
+
+cursor:
+    style: Beam
+    unfocused_hollow: true
+    text: CellBackground
+    cursor: CellForeground
+
+shell:
+  #program: /usr/bin/tmux
+    program: /usr/bin/zsh
+    #args:
