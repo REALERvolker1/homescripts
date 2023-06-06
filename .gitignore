@@ -6,3 +6,4 @@
 .config/zsh/.zcalc_history
 .config/bar-scripts/**/target
 .config/tmux/plugins
+.config/nushell/history.txt
