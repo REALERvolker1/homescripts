@@ -13,7 +13,7 @@ clone_func () { # (url: %s<url>, clone_command: %s<cmd<git>>|Undefined) -> folde
     $clone_command "$url" "$folder_name"
 }
 
-check_update () {
+check_update () { # file: %s<fs(/)> -> status
     local folder="${1:?Error, please give a folder name}"
     #local opt="${2:-}"
     [ ! -d "$folder" ] && return
@@ -31,14 +31,14 @@ check_update () {
     # fi
 }
 
-change_cwd () {
+change_cwd () { # folder_name: global %s<fs(/)> -> status
     cd "${folder_name:?Error, undefined folder name}" || {
         echo "Error, incorrect folder name! please specify a name in the script ${0:-}"
         exit 1
     }
 }
 
-safelink () {
+safelink () { # (file:<fs>, target:<fs>, link_name<fs?>) -> status
     local file="${1:?Error, please input a path to a binary}"
     local target="${2:?Error, please input a target directory}"
     local link_name="${3:-$(basename "$file")}"
@@ -57,7 +57,7 @@ safelink () {
     ln -s "$(realpath -e "$file")" "$bin_name"
 }
 
-binlink () {
+binlink () { # (file:<fs(.x)>, link_name<fs?>) -> status
     local file="${1:?Error, please input a path to a binary}"
     local link_name="${2:-$(basename "$file")}"
     safelink "$file" "$HOME/.local/bin" "$link_name"
