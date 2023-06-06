@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/romkatv/zsh-bench'
+change_cwd
+
+safelink "$PWD" "${ZDOTDIR:-$HOME}"

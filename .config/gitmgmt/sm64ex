@@ -1,0 +1,14 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/sm64pc/sm64ex'
+change_cwd
+
+cp "$HOME/random/mario-64-pc-port/baserom.us.z64" "$PWD"
+patch -p1 < "$PWD/enhancements/60fps_ex.patch"
+
+make BETTERCAMERA=1 TEXTSAVES=1 EXTERNAL_DATA=1 NODRAWINGDISTANCE=1 DISCORDRPC=1
+
+for file in "$PWD/build/us_pc/sm64.us"*; do
+    [ -x "$file" ] && binlink "$file" 'sm64' && break
+done

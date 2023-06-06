@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://git.sr.ht/~emersion/chayang'
+change_cwd
+
+meson setup build
+ninja -C build
+
+binlink "$PWD/build/chayang"

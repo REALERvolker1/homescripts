@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/b3nj5m1n/xdg-ninja'
+change_cwd
+
+binlink "$PWD/xdg-ninja.sh" 'xdg-ninja'

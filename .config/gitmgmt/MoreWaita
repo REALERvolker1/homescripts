@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/somepaulo/MoreWaita'
+change_cwd
+
+current_theme='Newaita-reborn-deep-purple-dark'
+
+sed -i "s|^Inherits.*|Inherits=${current_theme}|" "$PWD/index.theme"
+
+safelink "$PWD" "$XDG_DATA_HOME/icons"

@@ -1,0 +1,14 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/rafaelmardojai/firefox-gnome-theme'
+change_cwd
+
+firefox_dirs=(
+    "$HOME/.var/app/org.mozilla.firefox/.mozilla/firefox"
+    "$HOME/.var/app/io.gitlab.librewolf-community/.librewolf"
+    "$HOME/.mozilla/firefox"
+)
+for dir in "${firefox_dirs[@]}"; do
+    "$PWD/scripts/install.sh" -f "$dir"
+done

@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/hyprwm/contrib.git'
+change_cwd
+
+
+binlink "$PWD/grimblast/grimblast"
+binlink "$PWD/hyprprop/hyprprop"

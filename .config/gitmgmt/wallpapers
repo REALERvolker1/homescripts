@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://gitlab.com/dwt1/wallpapers.git'
+change_cwd
+
+for file in "$PWD"/*; do
+    if [ "$(file -bL --mime-type "$file" | cut -d '/' -f 1)" = 'image' ]; then
+        safelink "$file" "$XDG_DATA_HOME/backgrounds"
+    else
+        continue
+    fi
+done

@@ -1,0 +1,12 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/troglobit/xplugd'
+change_cwd
+
+./autogen.sh
+./configure
+make all
+
+binlink "$PWD/src/xplugd"
+safelink "$PWD/man/xplugd.1" "$XDG_DATA_HOME/man/man1"

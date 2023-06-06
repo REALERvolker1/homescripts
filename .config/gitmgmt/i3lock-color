@@ -1,0 +1,14 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/Raymo111/i3lock-color'
+change_cwd
+
+rpm -q i3lock && {
+    echo "Error, i3lock is already installed with rpm! Please remove"
+    exit 1
+}
+
+git tag -f "git-$(git rev-parse --short HEAD)"
+pkexec bash -c "cd $PWD; $PWD/install-i3lock-color.sh"
+

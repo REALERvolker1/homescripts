@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/greshake/i3status-rust.git'
+change_cwd
+
+cargo build --release
+
+binlink "$PWD/target/release/i3status-rs"
+safelink "$PWD/files" "$XDG_DATA_HOME" "i3status-rust"

@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/bulletmark/libinput-gestures'
+change_cwd
+
+binlink "$PWD/libinput-gestures"

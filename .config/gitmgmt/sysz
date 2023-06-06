@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/joehillen/sysz'
+change_cwd
+
+binlink "$PWD/sysz"

@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/yshui/picom'
+change_cwd
+
+git submodule update --init --recursive
+sed -i "s/option('with_docs', type: 'boolean', value: false/option('with_docs', type: 'boolean', value: true/g" "$PWD/meson_options.txt"
+meson setup --buildtype=release . build
+ninja -C build
+
+binlink "$PWD/build/src/picom"
+binlink "$PWD/bin/picom-trans"
+safelink "$PWD/build/man/picom.1" "$XDG_DATA_HOME/man/man1"
+safelink "$PWD/build/man/picom-trans.1" "$XDG_DATA_HOME/man/man1"

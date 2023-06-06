@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/GhostNaN/mpvpaper.git'
+change_cwd
+
+meson setup build
+ninja -C build
+
+binlink "$PWD/build/mpvpaper"

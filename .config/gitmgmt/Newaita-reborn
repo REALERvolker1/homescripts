@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/cbrnix/Newaita-reborn'
+change_cwd
+
+for dir in "$PWD"/*; do
+    [ ! -d "$dir" ] && continue
+    safelink "$dir" "$XDG_DATA_HOME/icons"
+done

@@ -1,0 +1,29 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/REALERvolker1/Google_Cursor'
+change_cwd
+
+[ ! -f "$PWD/venv" ] && python3 -m venv ./venv
+. ./venv/bin/activate
+
+pips="$(pip list)"
+if [[ "$pips" != *clickgen* ]]; then
+    pip install clickgen
+fi
+if [[ "$pips" != *attrs* ]]; then
+    pip install attrs
+fi
+
+[ -f "$HOME/.yarnrc" ] && has_yarnrc=true
+yarn build
+[ -z "${has_yarnrc:-}" ] && [ -f "$HOME/.yarnrc" ] && rm "$HOME/.yarnrc"
+
+current_theme="$(grep -oP '^Inherits=\K.*$' '/usr/share/icons/default/index.theme')"
+echo "current cursor theme: '$current_theme'"
+pkexec /bin/bash -c "for i in '$PWD/themes/'*; do
+[[ \"\$i\" == *Windows* ]] && continue
+sudo cp -rf \"\$i\" /usr/share/icons
+done
+echo -e '[Icon Theme]\nInherits=$current_theme' | tee '/usr/share/icons/default/index.theme'
+"
