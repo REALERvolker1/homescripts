@@ -1,4 +1,6 @@
 #!/usr/bin/bash
+# gitmgmt.sh by vlk
+# https://github.com/REALERvolker1/homescripts/tree/main/.config/gitmgmt for example scripts
 
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
