@@ -1,72 +1,66 @@
 #!/usr/bin/bash
+
 set -euo pipefail
 
-_panic () {
-    echo "[PANIC] $*"
-    exit 1
-}
-_log () {
-    echo "[LOG] $*" >&2
-}
-
-_reset_parser () {
-    printf "local %s='%s'\n" \
-        "clone_command" "git clone" \
-        "url" "" \
-        "commands" ""
-}
-
-parse_config () {
-    local config_file
-    config_file="$(cat "$GITMGMT_CONFIG_HOME/config.ini")"
-    local IFS=$'\n'
-    local iprop
-    local ival
-    GITS=()
-    #eval "$(_reset_parser)"
-    for i in $config_file; do
-        [[ "$i" == "#"* ]] || [ -z "${i:-}" ] && continue
-        [ "$i" = "[pkg]" ] && eval "$(_reset_parser)" && continue
-        if [ "$i" = "[endpkg]" ]; then
-            GITS+=("clone_command=$clone_command
-url=$url
-commands=$commands")
-            eval "$(_reset_parser)"
-        fi
-
-        iprop="${i%%=*}"
-        ival="$(echo "${i#*=}" | cut -d '"' -f 2)"
-        case "$iprop" in
-            'clone_command')
-                clone_command="$ival"
-                ;;
-            'url')
-                url="$ival"
-                ;;
-            'commands')
-                commands="$ival"
-                ;;
-        esac
-    done
-}
-
-XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-GITMGMT_HOME="${GITMGMT_HOME:-$XDG_DATA_HOME/gitmgmt}"
-GITMGMT_CONFIG_HOME="${GITMGMT_CONFIG_HOME:-$XDG_CONFIG_HOME/gitmgmt}"
+XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 
-for dir in "$GITMGMT_HOME" "$GITMGMT_CONFIG_HOME"; do
-    [ ! -d "$dir" ] && mkdir -p "$dir" && _log "created $dir"
-done
+clone_func () { # (url: %s<url>, clone_command: %s<cmd<git>>|Undefined) -> folder_name: %s<fs>
+    local url="${1:?Error, please specify a url!}"
+    local clone_command="${2:-git clone}"
 
-parse_config
+    folder_name="${GITMGMT_HOME:-$XDG_DATA_HOME/gitmgmt}/${url##*/}"
+    [ -e "$folder_name" ] && rm -rf "$folder_name"
 
-for repo in "${GITS[@]}"; do
-    directory=
-    oldifs="$IFS"
-    IFS=$'\n'
-    for opt in $repo; do
-        echo "= $opt ="
-    done
-    IFS="$oldifs"
-done
+    $clone_command "$url" "$folder_name"
+}
+
+check_update () {
+    
+}
+
+change_cwd () {
+    cd "${folder_name:?Error, undefined folder name}" || {
+        echo "Error, incorrect folder name! please specify a name in the script ${0:-}"
+        exit 1
+    }
+}
+
+safelink () {
+    local file="${1:?Error, please input a path to a binary}"
+    local target="${2:?Error, please input a target directory}"
+    local link_name="${3:-$(basename "$file")}"
+    [ ! -e "$file" ] && echo "Error, please select a real file/dir"
+    mkdir -p "$(dirname "$target")"
+    local bin_name
+    bin_name="$target/$link_name"
+
+    if [ -L "$bin_name" ]; then
+        rm "$bin_name"
+    elif [ -e "$bin_name" ]; then
+        echo "Error, '$bin_name' exists!"
+        /bin/ls -d --color=auto "$bin_name"
+        return 1
+    fi
+    ln -s "$(realpath -e "$file")" "$bin_name"
+}
+
+binlink () {
+    local file="${1:?Error, please input a path to a binary}"
+    local link_name="${2:-$(basename "$file")}"
+    safelink "$file" "$HOME/.local/bin" "$link_name"
+}
+
+case "${1:-}" in
+    '--source')
+        return
+    ;;
+    *)
+        set +euo pipefail
+        echo 'gitmgmt updating'
+        for file in "$XDG_CONFIG_HOME/gitmgmt"/*; do
+            echo "$file"
+        done
+    ;;
+esac
+
