@@ -1,0 +1,9 @@
+#style=/home/vlk/.config/wofi/style.css
+allow_images=true
+normal_window=true
+print_command=true
+always_parse_args=true
+insensitive=true
+#layer=overlay
+prompt=
+

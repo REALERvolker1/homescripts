@@ -1,0 +1,45 @@
+# a fallback for other terminals
+
+add_newline = false
+command_timeout = 200
+continuation_prompt = "[> ](fg:folder)"
+format = """
+$directory\
+$jobs\
+$status\
+$sudo \
+"""
+# fixes vim
+right_format = " "
+
+palette = "main"
+[palettes.main]
+text = "bright-white"
+dark_text = "black"
+emph_text = "bright-yellow"
+git = "bright-purple"
+folder = "bright-blue"
+jobs = "bright-yellow"
+err = "red"
+sudo = "bright-red"
+
+[directory]
+format = "[$read_only](fg:emph_text bg:folder)[ $path ](fg:text bg:folder)"
+repo_root_format = "[ $before_root_path](fg:dark_text bg:git)[$repo_root](bold underline fg:dark_text bg:git)[$path ](fg:dark_text bg:git)"
+repo_root_style = ""
+read_only = " -"
+truncation_symbol = "//"
+truncation_length = 30
+truncate_to_repo = false
+
+[jobs]
+format = " [ $number ](fg:dark_text bg:jobs)"
+number_threshold = 1
+
+[status]
+format = " [ X $status ](bold fg:text bg:err)"
+disabled = false
+
+[sudo]
+format = " [ S ](bold fg:text bg:sudo)"
+disabled = false

@@ -1,0 +1,60 @@
+# Using this shit prompt until they get around to merging the pull request that adds different profiles that you can toggle with the command line because I'm sick of running 3 configs at once
+
+add_newline = false
+command_timeout = 200
+continuation_prompt = "[ ](fg:folder)"
+format = """
+$directory\
+$conda\
+$shlvl\
+$jobs\
+$status\
+$sudo \
+"""
+
+# fixes vim
+right_format = " "
+
+palette = "main"
+[palettes.main]
+text = "255"
+dark_text = "17"
+emph_text = "226"
+jobs = "172"
+python = "220"
+err = "52"
+shlvl = "21"
+sudo = "196"
+git = "105"
+folder = "33"
+
+[directory]
+format = "[$read_only](fg:emph_text bg:folder)[  $path ](fg:text bg:folder)[](fg:folder)"
+repo_root_format = "[ 󰊢 $before_root_path](fg:dark_text bg:git)[$repo_root](bold underline fg:dark_text bg:git)[$path ](fg:dark_text bg:git)[](fg:git)"
+repo_root_style = ""
+read_only = " "
+truncation_symbol = "//"
+truncation_length = 30
+truncate_to_repo = false
+
+[conda]
+format = "[](fg:python)[ $symbol $environment ](fg:dark_text bg:python)[](fg:python)"
+symbol = "󱔎"
+
+[shlvl]
+format = "[](fg:shlvl)[ $symbol $shlvl ](bg:shlvl fg:text)[](fg:shlvl)"
+symbol = "󰨊"
+disabled = false
+
+[jobs]
+format = "[](fg:jobs)[ 󱜯 $number ](fg:dark_text bg:jobs)[](fg:jobs)"
+number_threshold = 1
+
+[status]
+format = "[](fg:err)[ $symbol$status ](bold fg:text bg:err)[](fg:err)"
+symbol = "󰅗 "
+disabled = false
+
+[sudo]
+format = "[](fg:sudo)[ ](bold fg:white bg:sudo)[ ](fg:sudo)"
+disabled = false
