@@ -24,6 +24,18 @@ done
 
 [[ "$arg" == '--uncompile' ]] && return
 
+echo "Updating git plugins"
+# update plugins
+local current_dir="$PWD"
+for i in "$ZPLUGIN_DIR"/*(/); do
+    cd "$i" &>/dev/null
+    basename "$i"
+    git pull
+done
+cd "$current_dir" &>/dev/null
+
+echo "
+recompiling zsh config"
 # command plugin sourcing so I don't have to wait 3 ms for this shit to run
 echo -ne "\
 if [ \"\$TERM\" != 'linux' ]; then
