@@ -204,7 +204,7 @@ alias cupl='cargo install-update -l'
 
 alias dfn=dnf
 alias apt='echo 🤦 && dnf'
-alias pacman='echo 🤓 && dnf'
+#alias pacman='echo 🤓 && dnf'
 
 alias dnfi='sudo dnf install '
 alias dfni=dnfi

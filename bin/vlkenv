@@ -98,16 +98,21 @@ export DENO_INSTALL="$XDG_DATA_HOME/deno"
 export PATH="\
 $HOME/bin:\
 $HOME/.local/bin:\
-$HOME/.local/libflat:\
 $CARGO_HOME/bin:\
 $BUN_INSTALL/bin:\
 $PNPM_HOME:\
 $GOPATH/bin:\
 $PYTHONUSERBASE/bin:\
-/usr/lib64/ccache:\
+/opt/cuda/nsight_compute:\
+/opt/cuda/nsight_systems/bin:\
+/opt/cuda/bin:\
+/usr/bin/site_perl:\
+/usr/bin/vendor_perl:\
+/usr/bin/core_perl:\
+/var/lib/flatpak/exports/bin:\
 /usr/local/bin:\
+/usr/local/sbin:\
 /usr/bin"
-#/usr/sbin"
 
 __vlkenv_term="${TERM:-}"
 [ -n "$VTE_VERSION" ] && __vlkenv_term='vte_alacritty'
