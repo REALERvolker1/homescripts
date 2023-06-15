@@ -7,3 +7,4 @@
 .config/bar-scripts/**/target
 .config/tmux/plugins
 .config/nushell/history.txt
+.config/btop/btop.log

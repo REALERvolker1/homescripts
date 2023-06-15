@@ -44,7 +44,6 @@ configuration {
     drun-show-actions: false;
     drun-display-format: "{icon}{name}";
     show-icons: true;
-    icon-theme: "Skeuowaita";
     //icon-theme: "Newaita-reborn-deep-purple-dark";
     drun {
         //fallback-icon: "application-x-addon";
