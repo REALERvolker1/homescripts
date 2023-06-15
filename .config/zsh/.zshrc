@@ -17,7 +17,8 @@
 . "$ZDOTDIR/prompt.zsh"
 ((COLUMNS > 55)) && (
     dumbfetch
-    vlk-fortune-rs | lolcrab
+    fortune -a -s | lolcrab
+    #vlk-fortune-rs | lolcrab
 )
 lsdiff || :
 
