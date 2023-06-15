@@ -33,7 +33,7 @@ case "$command" in
 esac
 
 fake_xinitrc () {
-    "${XDG_CONFIG_HOME:-$HOME/.config}/rc.d/postinit.sh" --xorg &
+    #"${XDG_CONFIG_HOME:-$HOME/.config}/rc.d/postinit.sh" --xorg &
     # echo "started fake xinitrc with $VLKDM_SESSION at $(date +'%X %x')"
 
     # xrdb -merge "$XRESOURCES" &

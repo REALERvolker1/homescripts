@@ -6,9 +6,8 @@
 #$exec xlayoutdisplay
 
 # DE stuff
-#$exec /usr/libexec/xfce-polkit
-#$exec /usr/libexec/geoclue-2.0/demos/agent
-#$exec dbus-update-activation-environment --systemd --verbose DISPLAY XAUTHORITY WAYLAND_DISPLAY
+$exec /usr/lib/xfce-polkit/xfce-polkit
+$exec dbus-update-activation-environment --systemd --verbose DISPLAY XAUTHORITY WAYLAND_DISPLAY
 #$exec gnome-keyring-daemon -r
 #$exec nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -l
 #$exec autostart_keyring.sh
@@ -22,10 +21,10 @@ $exec pmgmt.sh
 $exec "killall xplugd; xplugd"
 
 # Input configs
-#$exec numlockx
-#$exec pointer.sh -n
-#$exec xmodmap -e "clear lock"
-#$exec xmodmap -e "keycode 66 = Escape NoSymbol Escape"
+$exec numlockx
+$exec pointer.sh -n
+$exec xmodmap -e "clear lock"
+$exec xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 
 # Bar icons
 $exec xfce4-clipman
@@ -34,11 +33,11 @@ $exec nm-applet
 # visuals
 $exec picom
 $exec flashfocus
-#$exec "killall gammastep; gammastep -P"
+$exec "killall gammastep; gammastep -P"
 
 #$exec scratchpad_terminal.sh
 
 # exec_always field
-$execa hsetroot -cover "$(printf '%s\n' $XDG_DATA_HOME/backgrounds/* | shuf | head -n 1)"
+#$execa hsetroot -cover "$(printf '%s\n' $XDG_DATA_HOME/backgrounds/* | shuf | head -n 1)"
 $execa kitti3 -s 0.75 1.0 -p RC
 
