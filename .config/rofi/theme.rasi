@@ -5,7 +5,7 @@
     vim:ft=css
 */
 
-@import "~/.cache/rofi-wayland-fix.rasi"
+/* @import "~/.cache/rofi-wayland-fix.rasi" */
 
 * {
     /* fonts */

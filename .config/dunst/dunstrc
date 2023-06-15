@@ -68,10 +68,10 @@ hide_duplicate_count = false
 show_indicators = yes
 
 enable_recursive_icon_lookup = true
-icon_theme = "Skeuowaita, Adwaita, hicolor"
-# Newaita-reborn-deep-purple-dark
+icon_theme = "Newaita-reborn-deep-purple-dark, Adwaita, hicolor"
 # Paths to default icons
-icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+#icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+icon_path = /usr/share/icons/Adwaita/16x16/status/:/usr/share/icons/Adwaita/16x16/devices/:/usr/share/icons/Adwaita/16x16/legacy/
 
 sticky_history = yes
 history_length = 20

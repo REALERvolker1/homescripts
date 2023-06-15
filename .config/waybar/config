@@ -98,7 +98,7 @@
             "critical": 15
         },
         //"full-at": 79,
-        "format": "{icon} {capacity}% {power:.1f}",
+        "format": "{icon} {capacity}%, {power:.1f}W",
         "format-charging": " {capacity}%",
         "format-plugged": "{icon}",
         "format-alt": "{icon} {time} {power}",
