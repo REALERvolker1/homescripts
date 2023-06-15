@@ -176,8 +176,6 @@ alias pnpml='pnpm list --global | fzf'
 alias tc='tsc && node .'
 
 # }}}
-alias update='sudo dnf update --refresh ; flatpak update -y ; cargo install-update -a -g'
-alias keyring="$XDG_CONFIG_HOME/bar-scripts/gnome-keyring-daemon.sh"
 # git {{{
 
 alias gitm='git add -A && git commit -am "$(date +"Commit from shell alias at %D %r")" '
@@ -319,15 +317,40 @@ dotadd () {
     local linkfolder
     case "$dotfolder" in
         "$HOME/"*)
-            linkfolder="$HOME/dotfiles${dotfolder//$HOME/}"
+            linkfolder="$HOMESCRIPTS/${dotfolder//$HOME/}"
         ;;
         *)
-            linkfolder="$HOME/dotfiles/disk-root${dotfolder}"
+            linkfolder="$HOMESCRIPTS/disk-root${dotfolder}"
         ;;
     esac
-    #mkdir -P "$linkfolder"
     mkdir -p "${linkfolder%/*}"
     mv "$dotfolder" "$linkfolder"
     ln -s "$linkfolder" "$dotfolder"
 }
 
+keyring () {
+    if pgrep 'gnome-keyring-d' &>/dev/null; then
+        busctl --user get-property 'org.gnome.keyring' \
+            '/org/freedesktop/secrets/collection/login' \
+            'org.freedesktop.Secret.Collection' \
+            'Locked' | sed 's/^b //g'
+    else
+        echo "Error, gnome-keyring-daemon doesn't seem to be running!"
+        return 1
+    fi
+}
+
+update () {
+    # Fedora/RHEL
+    command -v dnf >/dev/null && sudo dnf update --refresh
+
+    # Arch btw
+    if command -v yay >/dev/null; then
+        yay -Syu
+    elif command -v pacman >/dev/null; then
+        pacman -Syu
+    fi
+
+    command -v flatpak && flatpak update -y
+    command -v cargo-install-update && cargo install-update -a -g
+}

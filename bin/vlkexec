@@ -85,10 +85,13 @@ if [ -n "$WAYLAND_DISPLAY" ]; then
     if [ -n "$HYPRLAND_INSTANCE_SIGNATURE" ]; then
         grimblast_date="$(date +"%y-%m-%d_%H-%M-%S")"
         screenshots=(
-            "grimblast --cursor copysave area $HOME/Pictures/Screenshots/grimblast-$grimblast_date.png"
+            "grimblast copysave area $HOME/Pictures/Screenshots/grimblast-$grimblast_date.png"
             "grimblast --cursor copysave output $HOME/Pictures/Screenshots/grimblast-$grimblast_date.png"
             "grimblast --cursor copysave screen $HOME/Pictures/Screenshots/grimblast-$grimblast_date.png"
         )
+    fi
+    if [ "$(supergfxctl -S)" = 'active' ]; then
+        terminals[0]="kitty$TERMINAL_ARGS"
     fi
 
 fi
@@ -109,7 +112,7 @@ menus=(
 
 editors=(
     'mousepad'
-    "$fr com.vscodium.codium${ozone}"
+    "codium${ozone}"
     "$fr org.gnome.gitlab.somas.Apostrophe"
 )
 

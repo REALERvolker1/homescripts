@@ -21,7 +21,7 @@ export QT_STYLE_OVERRIDE='kvantum'
 export MOZ_ENABLE_WAYLAND=1
 export UWUFETCH_CACHE_ENABLED=true
 
-[ -f "${DIR_COLOR_FILE:=XDG_CONFIG_HOME/dir_colors}" ] && eval "$(dircolors "$XDG_CONFIG_HOME/dir_colors")"
+[ -f "${DIR_COLOR_FILE:=$XDG_CONFIG_HOME/dir_colors}" ] && eval "$(dircolors "$XDG_CONFIG_HOME/dir_colors")"
 
 export GREP_COLORS="mt=01;91:fn=03;32:ln=33:bn=36:se=35"
 export JQ_COLORS="0;31:0;36:1;36:0;33:1;32:0;37:1;37"
