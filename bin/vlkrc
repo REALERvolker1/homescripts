@@ -185,9 +185,9 @@ alias gitd='git fetch && git diff "origin/$(git branch | grep -oP "\*[[:space:]]
 
 dotm () {
     local current_dir="$PWD"
-    cd "$HOME/dotfiles"
+    cd "$HOMESCRIPTS" &>/dev/null
     gitm
-    cd "$current_dir"
+    cd "$current_dir" &>/dev/null
 }
 
 # }}}
