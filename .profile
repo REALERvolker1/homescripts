@@ -22,6 +22,9 @@ start_hyprland () {
     ( Hyprland ) >> "$ERRFILE"
 }
 
+export XCURSOR_THEME="$(grep -m 1 -oP '^Inherits=\K.*$' /usr/share/icons/default/index.theme)"
+export XCURSOR_SIZE='24'
+
 case "$-" in
     *'i'*)
         if [ "$TERM" = 'linux' ] && [ "$(tty)" = '/dev/tty1' ]; then
