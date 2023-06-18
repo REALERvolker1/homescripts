@@ -14,7 +14,7 @@ set_cursors () {
         echo 'Cursors set in gsettings'
     fi
     # hyprland
-    if [ ! -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+    if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
         hyprctl setcursor "$cursor" "$size"
         echo 'Cursors set in hyprland'
     fi
@@ -55,12 +55,12 @@ get_cursor_xdg () {
     # look for cursor theme, if found, overwrite preference
     local swaptheme
     local cursortheme
-    local cursorfile
+    #local cursorfile
     for i in "${data_dirs[@]}"; do
         [ ! -f "$i" ] && continue
         if swaptheme="$(grep -m 1 -oP '^Inherits=\K.*$' "$i" 2>/dev/null)"; then
             cursortheme="$swaptheme"
-            cursorfile="$i"
+            #cursorfile="$i"
         fi
     done
 
@@ -79,7 +79,6 @@ get_cursor_size () {
 preferred_theme="$(get_cursor_xdg)"
 preferred_size="$(get_cursor_size)"
 
-mypath="${0##*/}"
 action="${1:-}"
 case "${action}" in
     '--shell-eval')
