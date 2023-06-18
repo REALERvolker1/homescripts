@@ -1,6 +1,8 @@
 # shellcheck shell=dash
 . '/home/vlk/bin/vlkenv'
 
+export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
+
 loginctl list-sessions --no-pager
 
 start_hyprland () {
