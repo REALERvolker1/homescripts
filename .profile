@@ -24,8 +24,9 @@ start_hyprland () {
     ( Hyprland ) >> "$ERRFILE"
 }
 
-export XCURSOR_THEME="$(grep -m 1 -oP '^Inherits=\K.*$' /usr/share/icons/default/index.theme)"
-export XCURSOR_SIZE='24'
+#export XCURSOR_THEME="$(grep -m 1 -oP '^Inherits=\K.*$' /usr/share/icons/default/index.theme)"
+#export XCURSOR_SIZE='24'
+eval $(set-cursor-theme.sh --shell-eval)
 
 case "$-" in
     *'i'*)

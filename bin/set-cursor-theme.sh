@@ -6,6 +6,7 @@ set_cursors () {
     local cursor="${1:?Error, please input a cursor theme}"
     local size="${2:?Error, please input a cursor size}"
 
+    printf "Cursor %s: '\e[1m%s\e[0m'\n" 'theme' "$cursor" 'size' "$size"
     # gnome gsettings
     if command -v gsettings >/dev/null; then
         gsettings set org.gnome.desktop.interface cursor-theme "$cursor"
@@ -38,8 +39,6 @@ set_cursors () {
     # This doesn't work unless the file is sourced, but what the hell
     export XCURSOR_THEME="$cursor"
     export XCURSOR_SIZE="$size"
-
-    printf 'export XCURSOR_%s\n' "THEME=$cursor" "SIZE=$size"
 }
 
 get_cursor_xdg () {
@@ -66,14 +65,7 @@ get_cursor_xdg () {
     done
 
     # gracefully fall back to Adwaita cursors
-    if [ -z "${cursortheme:-}" ]; then
-        cursortheme='Adwaita'
-        echo -e "No explicitly set cursor theme, falling back to default '$cursortheme'" >&2
-    else
-        echo -e "Loading cursortheme '\e[1m${cursortheme:=Adwaita}\e[0m' from file '\e[1m${cursorfile:-NONE}\e[0m'" >&2
-    fi
-
-    echo "$cursortheme"
+    echo "${cursortheme:-Adwaita}"
 }
 
 get_cursor_size () {
@@ -81,11 +73,27 @@ get_cursor_size () {
     case "$size" in
         ''|*[!0-9]*) size=24 ;;
     esac
-    echo -e "Cursor size: \e[1m$size\e[0m" >&2
     echo "$size"
 }
+
 preferred_theme="$(get_cursor_xdg)"
 preferred_size="$(get_cursor_size)"
 
-
-set_cursors "$preferred_theme" "$preferred_size"
+mypath="${0##*/}"
+action="${1:-}"
+case "${action}" in
+    '--shell-eval')
+        printf "export %s='%s'\n" 'XCURSOR_THEME' "$preferred_theme" 'XCURSOR_SIZE' "$preferred_size"
+        ;;
+    '--session')
+        set_cursors "$preferred_theme" "$preferred_size"
+        ;;
+    *)
+        printf '%s\n' '' "Error, unknown option '$action'"\
+            "--shell-eval   Print output to run through eval to get shell vars" \
+            '    run `eval "$(set-cursor-theme.sh --shell-eval)"' \
+            "--session      This is designed for setting the cursor in an interactive X or Wayland session" \
+            "    put this in your session autostarts"
+        exit 1
+        ;;
+esac
