@@ -113,5 +113,6 @@
     "editor.smoothScrolling": true,
     "[shellscript]": {
         "editor.defaultFormatter": "foxundermoon.shell-format"
-    }
+    },
+    "shellformat.flag": "-i 4"
 }

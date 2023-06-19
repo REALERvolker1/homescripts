@@ -1,0 +1,25 @@
+#!/usr/bin/bash
+
+width="$(stty size | cut -d ' ' -f 1)"
+
+((width < 8)) && exit 1
+
+column_width=$((width / 8))
+
+printf '\x1b[1m[16]\x1b[0m colors\n'
+
+for i in {40..47} {100..107}; do
+    ((i == 100)) && echo
+    ((i > 99)) && printf '\x1b[1m' # TTY compatibility
+    printf "\x1b[%sm%-${column_width}s\x1b[0m" "$i" "$i"
+done
+
+printf '\n'
+
+if [ "$(tput colors)" = 256 ]; then
+    printf '\n\x1b[1m[256]\x1b[0m colors\n'
+    for i in {0..255}; do
+        printf "\x1b[48;5;%sm%-${column_width}s\x1b[0m" "$i" "$i"
+        (($(($((i + 1)) % 8)) == 0)) && echo
+    done
+fi
