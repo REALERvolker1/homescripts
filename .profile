@@ -1,15 +1,16 @@
 # shellcheck shell=dash
+## shellcheck disable=SC2155
 . '/home/vlk/bin/vlkenv'
 
 export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
 
 loginctl list-sessions --no-pager
 
-start_hyprland () {
+start_hyprland() {
     export XDG_CURRENT_DESKTOP='Hyprland'
     export XDG_SESSION_DESKTOP='Hyprland'
     export XDG_SESSION_TYPE='wayland'
-        
+
     export QT_QPA_PLATFORM='wayland;xcb'
     export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
     export GDK_BACKEND='wayland,x11'
@@ -21,7 +22,7 @@ start_hyprland () {
     ERRFILE="${ERRFILE:-$XDG_RUNTIME_DIR/errfile-$XDG_CURRENT_DESKTOP}"
     [ -f "$ERRFILE" ] && rm "$ERRFILE"
     touch -- "$ERRFILE"
-    ( Hyprland ) >> "$ERRFILE"
+    (Hyprland) >>"$ERRFILE"
 }
 
 #export XCURSOR_THEME="$(grep -m 1 -oP '^Inherits=\K.*$' /usr/share/icons/default/index.theme)"
@@ -29,14 +30,14 @@ start_hyprland () {
 eval $(set-cursor-theme.sh --shell-eval)
 
 case "$-" in
-    *'i'*)
-        if [ "$TERM" = 'linux' ] && [ "$(tty)" = '/dev/tty1' ]; then
-            start_hyprland
-            #exec vlkdm-login-profile.sh
-        fi
+*'i'*)
+    if [ "$TERM" = 'linux' ] && [ "$(tty)" = '/dev/tty1' ]; then
+        start_hyprland
+        #exec vlkdm-login-profile.sh
+    fi
     ;;
-    *)
-        echo 'non-interactive'
+*)
+    echo 'non-interactive'
     ;;
 esac
 #[ "$TERM" = 'linux' ] && expr "$-" : '.*i' >/dev/null && exec vlkdm-login-profile.sh

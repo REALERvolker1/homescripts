@@ -110,5 +110,8 @@
     "editor.formatOnPaste": true,
     "python.formatting.provider": "none",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.smoothScrolling": true
+    "editor.smoothScrolling": true,
+    "[shellscript]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    }
 }

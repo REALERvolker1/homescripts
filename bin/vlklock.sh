@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
-if ps -e | grep 'i3lock'; then
-    notify-send 'Error! i3lock already detected!'
+if pgrep 'i3lock' || pgrep 'swaylock'; then
+    notify-send 'Error! screenlocker already detected!'
     date +'%x %X -- vlklock fail' >> "${XDG_CACHE_HOME:-$HOME/.cache}/vlklock-log"
     exit 1
 fi
 
-IMAGE="$(printf '%s\n' $HOME/Pictures/vlklock-backgrounds/* | shuf | head -n 1)"
+#IMAGE="$(printf '%s\n' $HOME/Pictures/vlklock-backgrounds/* | shuf | head -n 1)"
+IMAGE="$(printf '%s\n' "${XDG_DATA_HOME:-$HOME/.local/share}/backgrounds/vlklock/"* | shuf | head -n 1)"
 IMAGE="${IMAGE:-/usr/share/backgrounds/default.png}"
 
 #GREETER="$(fortune -a -s)"
