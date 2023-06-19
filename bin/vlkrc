@@ -2,10 +2,7 @@
 # vim:foldmethod=marker:ft=sh
 # shellcheck disable=SC2139
 
-if [[ "$-" != *i* ]]; then
-    echo 'Error, must be sourced!'
-    exit 1
-fi
+[[ "$-" != *i* ]] && exit 1
 
 # ls, cd {{{
 
@@ -22,29 +19,15 @@ alias l=ls
 alias s=ls
 
 alias -- -='cd -'
-alias cdb=pushd
-alias ,=pushd
+
+alias ...='cd ../..'
+alias ....='cd ../../..'
 
 alias pdw=pwd
-
 alias pw=realpath
 
-alias woman=man
-
 # }}}
-# grep, cat, icat {{{
-
-alias grep='/usr/bin/grep --color=auto'
-alias egrep='/usr/bin/egrep --color=auto'
-alias igrep='/usr/bin/grep -i --color=auto'
-
-alias icat=timg
-alias readme='glow ./README.md'
-
-alias mime='file -bL --mime-type'
-
-# }}}
-# session, grub {{{
+# session, shell stuff, sudo {{{
 
 alias suod=sudo
 
@@ -54,41 +37,12 @@ alias :q=exit
 alias shutdown='systemctl poweroff'
 alias reboot='systemctl reboot'
 
-alias sbin='export PATH="/usr/sbin:$PATH"'
-
 # }}}
 # rm {{{
-
-_better_rm() {
-    local i
-    local dircount
-    local max
-    max="$(printf '%s\n' "$@" | wc -L)"
-
-    for i in "$@"; do
-        if [ -d "$i" ]; then
-            dircount="$(printf '%s\n' "$i"/* | wc -l) items"
-        else
-            dircount="$(wc -c "$i" | cut -d ' ' -f 1) bytes"
-        fi
-        printf "%-$((max + 2))s (%s)\n" "$(lsd -d "$i")" "$dircount"
-    done
-
-    local answer
-    echo -n "Want to chuck ${#@} items in the trash? [y/N] "
-    read -r answer
-    if [[ "$answer" == y ]]; then
-        echo "Trashing your ${#@} files"
-        trash "$@"
-    else
-        false
-    fi
-}
 
 alias fuck='/usr/bin/rm -rf'
 alias frick='trash -fvi'
 alias rmf='/usr/bin/rm -rf'
-#alias rm='_better_rm -i -f'
 alias rm='trash -i -r'
 
 # }}}
@@ -104,14 +58,14 @@ alias chmodx='chmod +x'
 alias chmod-x='chmod -x'
 
 # }}}
-# disk, mem {{{
 
-alias df=duf
-alias du=dust
-alias free='free -m'
+alias grep='/usr/bin/grep --color=auto'
+alias egrep='/usr/bin/egrep --color=auto'
+alias igrep='/usr/bin/grep -i --color=auto'
 
-#}}}
-# bat, glow, diff {{{
+alias readme='glow ./README.md'
+
+alias mime='file -bL --mime-type'
 
 alias bap='bat --paging always'
 alias glop='glow --pager'
@@ -120,8 +74,11 @@ alias battio=battop
 
 alias diff=difft
 
-#}}}
-# commands -- enhanced {{{
+alias icat=timg
+
+alias df=duf
+alias du=dust
+alias free='free -m'
 
 alias neofetch=fastfetch
 
@@ -129,6 +86,7 @@ alias extract=ouch
 alias ra=ranger
 
 alias fr='flatpak run'
+alias whihc=which
 
 # }}}
 # vim, vscode {{{
@@ -146,8 +104,7 @@ alias iv="$EDITOR"
 alias v="$EDITOR"
 alias svim=sudoedit
 
-alias whihc=which
-
+unset ide_command
 # }}}
 # tmux, shells {{{
 
@@ -155,18 +112,15 @@ alias tmuxk='tmux kill-session -t'
 alias tmuxa='tmux attach -t'
 alias tmuxl='tmux list-sessions'
 
-alias bash='env HISTFILE="$SHELLHIST" /usr/bin/bash'
-alias dash='env HISTFILE="$SHELLHIST" /usr/bin/dash'
-alias ksh='env HISTFILE="$SHELLHIST" /usr/bin/ksh'
-alias rksh='env HISTFILE="$SHELLHIST" /usr/bin/rksh'
-alias sh='env HISTFILE="$SHELLHIST" /usr/bin/sh'
-alias csh='echo 💀'
+alias bash='run-subshell.sh bash'
+alias dash='run-subshell.sh dash'
+alias ksh='run-subshell.sh ksh'
+alias rksh=ksh
+alias sh='run-subshell.sh sh'
 
-__run_shell() {
-    local shellcmd
-    shellcmd="$(command -v bash)"
-    env HISTFILE="${SHELLHIST:-/dev/null}"
-}
+# alias sh='env HISTFILE="$SHELLHIST" /usr/bin/sh'
+alias csh='echo 💀 && run-subshell.sh csh'
+alias tcsh='echo 💀 && run-subshell.sh tcsh'
 
 # }}}
 # node js {{{
@@ -276,6 +230,30 @@ psa() {
 }
 
 # }}}
+
+alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
+
+refresh() {
+    if [ -n "${ZSH_VERSION:-}" ]; then
+        exec zsh
+    elif [ -n "${BASH_VERSION:-}" ]; then
+        exec bash
+    else
+        echo 'Error, only currently supported shells are zsh and bash!'
+        return 1
+    fi
+}
+
+case "$CURRENT_SHELL" in
+'zsh')
+    alias %= \$=
+    ;;
+
+'bash')
+    # echo 'hi'
+    ;;
+
+esac
 
 case "$CURRENT_DISTRO" in
 'Arch')

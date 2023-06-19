@@ -1,5 +1,6 @@
 #!/usr/bin/zsh
 
+set -euo pipefail
 set -x
 
 ZPLUGIN_DIR="${ZPLUGIN_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/zsh-plugins}"
@@ -8,13 +9,13 @@ ZPLUGIN_DIR="${ZPLUGIN_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/zsh-plugins}"
 
 declare -a urls
 urls=(
-	"https://github.com/Aloxaf/fzf-tab"
-	"https://github.com/zsh-users/zsh-autosuggestions"
-	"https://github.com/romkatv/zsh-defer"
-	"https://github.com/zdharma-continuum/fast-syntax-highlighting"
+    "https://github.com/Aloxaf/fzf-tab"
+    "https://github.com/zsh-users/zsh-autosuggestions"
+    "https://github.com/romkatv/zsh-defer"
+    "https://github.com/zdharma-continuum/fast-syntax-highlighting"
 )
 
 cd "$ZPLUGIN_DIR" || exit 1
 for url in "${urls[@]}"; do
-	git clone "$url"
+    git clone "$url"
 done

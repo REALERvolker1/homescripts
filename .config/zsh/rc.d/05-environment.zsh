@@ -1,6 +1,5 @@
-
 export ZPLUGIN_DIR="$XDG_DATA_HOME/zsh-plugins"
-export DUMBFETCH_SHELL=zsh
+export CURRENT_SHELL='zsh'
 
 hash -d zsh="$ZDOTDIR"
 hash -d bin="$HOME/bin"
@@ -17,7 +16,6 @@ hash -d i3="$XDG_CONFIG_HOME/i3"
 hash -d i3s="$XDG_CONFIG_HOME/i3status-rust"
 hash -d hypr="$XDG_CONFIG_HOME/hypr"
 
-
 fpath=(
     "$ZDOTDIR/site-functions"
     "$ZPLUGIN_DIR/zsh-completions/src"
@@ -29,9 +27,16 @@ export -U PATH path FPATH fpath MANPATH manpath
 export -U XDG_DATA_DIRS
 export -U chpwd_functions
 
+export -U ZSH_PLUGINS=(
+    "romkatv/zsh-defer"
+    "Aloxaf/fzf-tab"
+    "zdharma-continuum/fast-syntax-highlighting"
+    "zsh-users/zsh-autosuggestions"
+)
+
 READNULLCMD="$PAGER"
 
-__cd_ls () {
+__cd_ls() {
     lsd
 }
 chpwd_functions+=('__cd_ls')
