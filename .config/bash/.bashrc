@@ -1,14 +1,24 @@
 # .bashrc
+# shellcheck shell=bash
 [[ $- != *i* ]] && return
 unset MAILCHECK
-. /etc/bashrc
+#. /etc/bashrc
 . /home/vlk/bin/vlkenv
 
 if [[ $- == *i* ]] && [ -z "$NO_BLE" ]; then
-    if [[ "$TERM" == *'xterm'* ]] || [[ "$TERM" == *'256'* ]]  ; then
-        #. "${BDOTDIR:-$HOME}/launch-ble.sh"
-        #. "$HOME/.local/src/ble.sh/out/ble.sh" --noattach --rcfile "$BDOTDIR/blerc"
-	. /usr/share/blesh/ble.sh --noattach --rcfile "$BDOTDIR/blerc"
+    if [[ "$TERM" == *'xterm'* ]] || [[ "$TERM" == *'256'* ]]; then
+        case "$CURRENT_DISTRO" in
+        'Arch')
+            pacman -Qs blesh &>/dev/null && [ -f '/usr/share/blesh/ble.sh' ] && . /usr/share/blesh/ble.sh --noattach --rcfile "$BDOTDIR/blerc"
+            ;;
+        'Fedora')
+            if [ -f "${BDOTDIR:-$HOME}/launch-ble.sh" ]; then
+                . "${BDOTDIR:-$HOME}/launch-ble.sh"
+            elif [ -f "$HOME/.local/src/ble.sh/out/ble.sh" ]; then
+                . "$HOME/.local/src/ble.sh/out/ble.sh" --noattach --rcfile "$BDOTDIR/blerc"
+            fi
+            ;;
+        esac
     fi
 fi
 
@@ -19,7 +29,5 @@ for i in "$BDOTDIR/rc.d/"*'.bash'; do
 done
 
 printf '%s -%s' "${0##*/}" "$-" | figlet -f smslant -w "$COLUMNS" | lolcat
-
-#. <(starship init bash)
 
 [ -z "${BLE_VERSION:-}" ] && : || ble-attach
