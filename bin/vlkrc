@@ -54,7 +54,8 @@ alias :q=exit
 alias shutdown='systemctl poweroff'
 alias reboot='systemctl reboot'
 
-alias grubcfg='sudo grub2-mkconfig -o /etc/grub2.cfg'
+alias grubcfg='sudo grub-mkconfig -o /boot/grub/grub.cfg'
+#alias grubcfg='sudo grub2-mkconfig -o /etc/grub2.cfg'
 
 alias sbin='export PATH="/usr/sbin:$PATH"'
 
