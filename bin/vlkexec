@@ -112,6 +112,7 @@ menus=(
 
 editors=(
     'mousepad'
+    #"$fr com.vscodium.codium${ozone}"
     "codium${ozone}"
     "$fr org.gnome.gitlab.somas.Apostrophe"
 )

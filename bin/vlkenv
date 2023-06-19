@@ -56,7 +56,7 @@ export XDG_DATA_DIRS="$XDG_DATA_HOME:$XDG_DATA_HOME/flatpak/exports/share:/var/l
 export MANPATH="$XDG_DATA_HOME/man:/usr/local/share/man:/usr/share/man"
 export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo:/usr/share/terminfo"
 
-export VSCODE_PORTABLE="$XDG_DATA_HOME/vscode"
+#export VSCODE_PORTABLE="$XDG_DATA_HOME/vscode"
 
 export WINEPREFIX="$XDG_DATA_HOME/wine"
 

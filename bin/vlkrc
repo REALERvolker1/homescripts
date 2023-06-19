@@ -352,6 +352,8 @@ update () {
         pacman -Syu
     fi
 
+    flatpak list | cut -f 2 | grep -q 'com\.vscodium\.codium' || codium-update.py
+
     command -v flatpak && flatpak update -y
     command -v cargo-install-update && cargo install-update -a -g
 }
