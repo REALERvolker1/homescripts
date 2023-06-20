@@ -4,10 +4,12 @@
 set -euo pipefail
 #setopt extendedglob
 
-ZDOTDIR="${ZDOTDIR:-$HOME/.config/zsh}"
+ZDOTDIR="${ZDOTDIR:-$HOME}"
 ZPLUGIN_DIR="${ZPLUGIN_DIR:?Error, please set ZPLUGIN_DIR}"
+DIR_COLOR_FILE="$XDG_CONFIG_HOME/dircolors/dir_colors"
 
 atuin_gen="$ZPLUGIN_DIR/atuin.zsh"
+dircolor_gen="$XDG_CONFIG_HOME/dircolors/generated.sh"
 
 SEDSTR="s|^|[✅] |
 s|${ZDOTDIR}|[94m~[92mzsh[0m|
@@ -30,11 +32,15 @@ generate_atuin() {
             'if [[ "$TERM" != linux ]]; then' \
             "$(atuin init zsh | sed 's/echoti/#echoti/g')" \
             'fi' |
-            sed 's/^[[:space:]]*#/#/g' | grep -v -e '^#' -e '^$' >"$atuin_gen"
+            sed 's/^[[:space:]]*#/#/g' | grep -v -e '^#' -e '^$' >"$atuin_gen" && echo '[✅]' "atuin"
     else
         echo "Error, command 'atuin' is not installed!" >&2
         return 1
     fi
+}
+
+generate_dircolors() {
+    dircolors "$DIR_COLOR_FILE" >"$dircolor_gen" && echo '[✅]' "dircolors"
 }
 
 update_plugins() {
@@ -75,11 +81,14 @@ compile_everything() {
         "$ZDOTDIR/.zshrc" \
         "$ZDOTDIR/.zprofile" \
         "$atuin_gen" \
+        "$dircolor_gen" \
         "$ZDOTDIR/rc.d/"*".zsh" \
         "$ZDOTDIR/functions/"* \
         "$ZDOTDIR/globals/"*; do
-        [ -d "$i" ] && continue
-        zcompile "$i" && zcompile -ca "$i" && echo "$i" | sed "$SEDSTR"
+        [ ! -f "$i" ] && continue
+        echo "$i"
+        # zcompile uses the script's env instead of the interactive env
+        #zcompile "$i" && zcompile -ca "$i" && echo "$i" | sed "$SEDSTR"
     done
 }
 
@@ -97,6 +106,7 @@ case "${action:-}" in
     ;;
 '--recompile')
     remove_compiled
+    generate_dircolors
     generate_atuin
     update_plugins
     compile_everything
@@ -106,7 +116,20 @@ case "${action:-}" in
         '--uncompile      ' 'remove compiled zwcs' \
         '--update         ' 'update plugins' \
         '--install-plugins' 'install all your plugins (specified by the newline-separated $ZSH_PLUGINS environment variable)' \
-        '--recompile      ' 'update your plugins and recompile your current zshconfig'
+        '--recompile      ' "update your plugins and recompile your current zshconfig."
+
+    cat <<EOF
+
+--recompile will require you to have the following shell function defined somewhere that you run when you want to recompile your stuff
+
+sample_recompile() {
+    local line
+    ~/bin/recompile.zsh --recompile | while read -r line; do
+        [ ! -f "\$line" ] && echo "\$line" && continue
+        zcompile "\$line"
+    done
+}
+EOF
     exit 1
     ;;
 esac

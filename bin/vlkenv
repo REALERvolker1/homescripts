@@ -21,7 +21,11 @@ export QT_STYLE_OVERRIDE='kvantum'
 export MOZ_ENABLE_WAYLAND=1
 export UWUFETCH_CACHE_ENABLED=true
 
-[ -f "$XDG_CONFIG_HOME/dir_colors" ] && eval "$(dircolors "$XDG_CONFIG_HOME/dir_colors")"
+if [ -f "$XDG_CONFIG_HOME/dircolors/generated.sh" ]; then
+    . "$XDG_CONFIG_HOME/dircolors/generated.sh"
+elif [ -f "$XDG_CONFIG_HOME/dircolors/dir_colors" ]; then
+    eval "$(dircolors "$XDG_CONFIG_HOME/dircolors/dir_colors")"
+fi
 
 export GREP_COLORS="mt=01;91:fn=03;32:ln=33:bn=36:se=35"
 export JQ_COLORS="0;31:0;36:1;36:0;33:1;32:0;37:1;37"
@@ -118,27 +122,8 @@ $GOPATH/bin:\
 $PYTHONUSERBASE/bin"
 
 case "${CURRENT_DISTRO:-}" in
-    'Arch')
-        __vlkenv_path="$__vlkenv_path:\
-/opt/cuda/nsight_compute:\
-/opt/cuda/nsight_systems/bin:\
-/opt/cuda/bin:\
-/usr/local/lib/perl-shit:\
-/var/lib/flatpak/exports/bin:"
-        ;;
-    'Fedora')
-        __vlkenv_path="$__vlkenv_path:/usr/lib/ccache"
-        ;;
-esac
-
-export PATH="\
-$HOME/bin:\
-$HOME/.local/bin:\
-$CARGO_HOME/bin:\
-$BUN_INSTALL/bin:\
-$PNPM_HOME:\
-$GOPATH/bin:\
-$PYTHONUSERBASE/bin:\
+'Arch')
+    __vlkenv_path="$__vlkenv_path:\
 /opt/cuda/nsight_compute:\
 /opt/cuda/nsight_systems/bin:\
 /opt/cuda/bin:\
@@ -149,21 +134,30 @@ $PYTHONUSERBASE/bin:\
 /usr/local/bin:\
 /usr/local/sbin:\
 /usr/bin"
+    ;;
+'Fedora')
+    __vlkenv_path="$__vlkenv_path:/usr/lib/ccache:\
+/usr/local/bin:\
+/usr/local/sbin:\
+/usr/bin:\
+/usr/sbin"
+    ;;
+esac
+export PATH="$__vlkenv_path"
 
 __vlkenv_term="${TERM:-}"
 [ -n "$VTE_VERSION" ] && __vlkenv_term='vte_alacritty'
 case "$__vlkenv_term" in
-    'xterm-kitty')
-        ICON_TYPE='dashline'
+'xterm-kitty')
+    ICON_TYPE='dashline'
     ;;
-    *'alacritty'*)
-        ICON_TYPE='powerline'
+*'alacritty'*)
+    ICON_TYPE='powerline'
     ;;
-    *)
-        ICON_TYPE='fallback'
+*)
+    ICON_TYPE='fallback'
     ;;
 esac
 export ICON_TYPE
 
-unset __vlkenv_term
-
+unset __vlkenv_path __vlkenv_term
