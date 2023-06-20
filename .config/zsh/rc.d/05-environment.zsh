@@ -27,12 +27,10 @@ export -U PATH path FPATH fpath MANPATH manpath
 export -U XDG_DATA_DIRS
 export -U chpwd_functions
 
-export -U ZSH_PLUGINS=(
-    "romkatv/zsh-defer"
-    "Aloxaf/fzf-tab"
-    "zdharma-continuum/fast-syntax-highlighting"
-    "zsh-users/zsh-autosuggestions"
-)
+export ZSH_PLUGINS="https://github.com/romkatv/zsh-defer
+https://github.com/Aloxaf/fzf-tab
+https://github.com/zdharma-continuum/fast-syntax-highlighting
+https://github.com/zsh-users/zsh-autosuggestions"
 
 READNULLCMD="$PAGER"
 

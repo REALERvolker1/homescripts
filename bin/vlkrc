@@ -233,24 +233,25 @@ psa() {
 
 alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 
-refresh() {
-    if [ -n "${ZSH_VERSION:-}" ]; then
-        exec zsh
-    elif [ -n "${BASH_VERSION:-}" ]; then
-        exec bash
-    else
-        echo 'Error, only currently supported shells are zsh and bash!'
-        return 1
-    fi
-}
+# refresh() {
+#     if [ -n "${ZSH_VERSION:-}" ]; then
+#         exec zsh
+#     elif [ -n "${BASH_VERSION:-}" ]; then
+#         exec bash
+#     else
+#         echo 'Error, only currently supported shells are zsh and bash!'
+#         return 1
+#     fi
+# }
 
 case "$CURRENT_SHELL" in
 'zsh')
     alias %= \$=
+    alias refresh='exec zsh'
     ;;
 
 'bash')
-    # echo 'hi'
+    alias refresh='exec bash'
     ;;
 
 esac

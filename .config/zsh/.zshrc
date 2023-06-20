@@ -9,7 +9,7 @@
     done
 
     . "$HOME/bin/vlkrc"
-    . "$ZDOTDIR/prompt.zsh"
+    #. "$ZDOTDIR/prompt.zsh"
 
 } "$@"
 
@@ -22,7 +22,7 @@ lsdiff || :
 
 # plugin loading
 () {
-    printf '%s\n' "${ZSH_PLUGINS[@]}"
+    #printf '%s\n' "${ZSH_PLUGINS[@]}"
     if [ ! -d "${ZPLUGIN_DIR:=${XDG_DATA_HOME:=$HOME/.local/share}/zsh-plugins}" ]; then
         if "${ZDOTDIR:-${XDG_CONFIG_HOME:-$HOME/.config}/zsh}/settings/plugin-install"; then
             echo 'Installed plugins'
