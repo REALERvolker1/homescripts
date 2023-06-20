@@ -4,6 +4,8 @@
 
 [[ "$-" != *i* ]] && exit 1
 
+__homebin="$HOME/bin"
+
 # ls, cd {{{
 
 alias ls=lsd
@@ -48,16 +50,19 @@ alias rm='trash -i -r'
 # }}}
 # chmod, touch {{{
 
-alias touchc='touchx.sh --codium'
-alias touchv='touchx.sh --nvim'
-alias touchx='touchx.sh --exec'
-alias touchxc='touchx.sh --exec --codium'
-alias touchxv='touchx.sh --exec --nvim'
+alias touchc="$__homebin/touchx.sh --codium"
+alias touchv="$__homebin/touchx.sh --nvim"
+alias touchx="$__homebin/touchx.sh --exec"
+alias touchxc="$__homebin/touchx.sh --exec --codium"
+alias touchxv="$__homebin/touchx.sh --exec --nvim"
 
 alias chmodx='chmod +x'
 alias chmod-x='chmod -x'
 
 # }}}
+
+alias copy="$__homebin/copy"
+alias copycat="$__homebin/copy --cat"
 
 alias grep='/usr/bin/grep --color=auto'
 alias egrep='/usr/bin/egrep --color=auto'
@@ -113,15 +118,15 @@ alias tmuxk='tmux kill-session -t'
 alias tmuxa='tmux attach -t'
 alias tmuxl='tmux list-sessions'
 
-alias bash='run-subshell.sh bash'
-alias dash='run-subshell.sh dash'
-alias ksh='run-subshell.sh ksh'
+alias bash="$__homebin/run-subshell.sh bash"
+alias dash="$__homebin/run-subshell.sh dash"
+alias ksh="$__homebin/run-subshell.sh ksh"
 alias rksh=ksh
-alias sh='run-subshell.sh sh'
+alias sh="$__homebin/run-subshell.sh sh"
 
 # alias sh='env HISTFILE="$SHELLHIST" /usr/bin/sh'
-alias csh='echo 💀 && run-subshell.sh csh'
-alias tcsh='echo 💀 && run-subshell.sh tcsh'
+alias csh="echo 💀 && $__homebin/run-subshell.sh csh"
+alias tcsh="echo 💀 && $__homebin/run-subshell.sh tcsh"
 
 # }}}
 # node js {{{

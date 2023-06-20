@@ -1,0 +1,25 @@
+#!/usr/bin/dash
+
+set -eu
+
+if [ "${1:-}" = '--cat' ]; then
+    shift 1
+    succes_str="$(
+        echo "Successfully copied the files"
+        for i in "$@"; do
+            ls -d --color=always "$i"
+        done
+    )"
+    content="$(cat "$@")"
+else
+    succes_str="$(printf "'%s'" "$@")"
+    content="$*"
+fi
+
+if [ -z "$WAYLAND_DISPLAY" ]; then
+    echo -n "$content" | xclip -selection clipboard
+else
+    wl-copy "$content"
+fi
+
+echo "$succes_str"
