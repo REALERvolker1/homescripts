@@ -8,32 +8,24 @@
         . "$i"
     done
 
-    autoload -Uz zcalc
+    [ ! -d "$ZPLUGIN_DIR" ] && zsh-recompile.sh --install-plugins
+    . "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
 
-    # autoload -Uz zmv
-    # alias zmv='zmv -Mv'
-    # alias zln='zmv -Lv'
-    # alias zcp='zmv -Cv'
-
-    autoload -Uz "$ZDOTDIR/functions"/^*.zwc(.)
-
+    for i in \
+        zcalc \
+        zmv \
+        "$ZDOTDIR/functions"/^*.zwc(.)
+        do
+        autoload -Uz "$i"
+    done
     . "$ZDOTDIR/globals/vlkrc"
 
-} "$@"
+    ((COLUMNS > 55)) && {
+        dumbfetch
+        ( fortune -a -s 2>/dev/null || echo '(insert fortune here)' ) | ( lolcrab 2>/dev/null || tee )
+    }
+    lsdiff
 
-# info display
-((COLUMNS > 55)) && (
-    dumbfetch
-    fortune -a -s | lolcrab
-)
-lsdiff || :
-
-# plugin loading
-() {
-    [ ! -d "$ZPLUGIN_DIR" ] && zsh-recompile.sh --install-plugins
-
-    . "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
-    local i
     for i in \
         "atuin.zsh" \
         "fzf-tab/fzf-tab.plugin.zsh" \
@@ -42,4 +34,4 @@ lsdiff || :
         do
         zsh-defer . "$ZPLUGIN_DIR/$i"
     done
-}
+} "$@"

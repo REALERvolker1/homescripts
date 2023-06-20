@@ -234,8 +234,8 @@ alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 case "$CURRENT_SHELL" in
 'zsh')
     alias refresh='exec zsh'
-    alias recompile="$__homebin/zsh-recompile.sh --recompile"
-    alias uncompile="$__homebin/zsh-recompile.sh --uncompile"
+    alias recompile="$__homebin/recompile.zsh --recompile"
+    alias uncompile="$__homebin/recompile.zsh --uncompile"
     alias lsh="hash -dL | sed 's/hash -d //g ; s/=/  \t  /g' | fzf"
     ;;
 
