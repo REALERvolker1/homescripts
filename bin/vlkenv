@@ -112,21 +112,46 @@ export NVM_DIR="$XDG_DATA_HOME/nvm"
 export BUN_INSTALL="$XDG_DATA_HOME/bun"
 export DENO_INSTALL="$XDG_DATA_HOME/deno"
 
-__vlkenv_path="\
-$HOME/bin:\
+# case "${CURRENT_DISTRO:-}" in
+# 'Arch')
+#     PATH="$HOME/bin:\
+# $HOME/.local/bin:\
+# $CARGO_HOME/bin:\
+# $BUN_INSTALL/bin:\
+# $PNPM_HOME:\
+# $GOPATH/bin:\
+# $PYTHONUSERBASE/bin:\
+# /opt/cuda/nsight_compute:\
+# /opt/cuda/nsight_systems/bin:\
+# /opt/cuda/bin:\
+# /usr/lib/rustup/bin:\
+# /usr/bin/site_perl:\
+# /usr/bin/vendor_perl:\
+# /usr/bin/core_perl:\
+# /var/lib/flatpak/exports/bin:\
+# /usr/local/bin:\
+# /usr/local/sbin:\
+# /usr/bin"
+#     ;;
+# 'Fedora')
+#     PATH="$PATH:/usr/lib/ccache:\
+# /usr/local/bin:\
+# /usr/local/sbin:\
+# /usr/bin:\
+# /usr/sbin"
+#     ;;
+# esac
+export PATH="$HOME/bin:\
 $HOME/.local/bin:\
 $CARGO_HOME/bin:\
 $BUN_INSTALL/bin:\
 $PNPM_HOME:\
 $GOPATH/bin:\
-$PYTHONUSERBASE/bin"
-
-case "${CURRENT_DISTRO:-}" in
-'Arch')
-    __vlkenv_path="$__vlkenv_path:\
+$PYTHONUSERBASE/bin:\
 /opt/cuda/nsight_compute:\
 /opt/cuda/nsight_systems/bin:\
 /opt/cuda/bin:\
+/usr/lib/rustup/bin:\
 /usr/bin/site_perl:\
 /usr/bin/vendor_perl:\
 /usr/bin/core_perl:\
@@ -134,16 +159,8 @@ case "${CURRENT_DISTRO:-}" in
 /usr/local/bin:\
 /usr/local/sbin:\
 /usr/bin"
-    ;;
-'Fedora')
-    __vlkenv_path="$__vlkenv_path:/usr/lib/ccache:\
-/usr/local/bin:\
-/usr/local/sbin:\
-/usr/bin:\
-/usr/sbin"
-    ;;
-esac
-export PATH="$__vlkenv_path"
+#export PATH="$__vlkenv_path"
+#export PATH="$HOME/bin:$HOME/.local/bin:$CARGO_HOME/bin:$PATH"
 
 __vlkenv_term="${TERM:-}"
 [ -n "$VTE_VERSION" ] && __vlkenv_term='vte_alacritty'
@@ -160,4 +177,4 @@ case "$__vlkenv_term" in
 esac
 export ICON_TYPE
 
-unset __vlkenv_path __vlkenv_term
+unset __vlkenv_term
