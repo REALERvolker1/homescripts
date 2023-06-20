@@ -44,3 +44,7 @@ PROMPT='%k%f
 #RPS1='%(0?..%F{9}%B%?%b)'
 ZLE_RPROMPT_INDENT=0
 PROMPT_EOL_MARK=''
+
+alias -s {css,gradle,html,js,json,md,patch,properties,txt,xml,yml}="bat --paging always"
+alias -s gz='gzip -l'
+alias -s {log,out}='tail -F'

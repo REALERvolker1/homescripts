@@ -2,9 +2,10 @@
 # a script by vlk to recompile my zsh shit
 
 set -euo pipefail
+#setopt extendedglob
 
 ZDOTDIR="${ZDOTDIR:-$HOME/.config/zsh}"
-ZPLUGIN_DIR="${ZPLUGIN_DIR:-$HOME/.zsh-plugins}"
+ZPLUGIN_DIR="${ZPLUGIN_DIR:?Error, please set ZPLUGIN_DIR}"
 
 atuin_gen="$ZPLUGIN_DIR/atuin.zsh"
 
@@ -13,7 +14,8 @@ s|${ZDOTDIR}|[94m~[92mzsh[0m|
 s|${ZPLUGIN_DIR}|[32m\$ZPLUGIN_DIR[0m|
 s|$HOME/bin|[94m~[32mbin[0m|
 s|$HOME|[94m~[0m|
-s|site-functions|s..fn|"
+s|site-functions|s..fn|
+s|functions|f..ns|"
 
 remove_compiled() {
     local i
@@ -73,8 +75,11 @@ compile_everything() {
         "$ZDOTDIR/.zshrc" \
         "$ZDOTDIR/.zprofile" \
         "$atuin_gen" \
-        "$ZDOTDIR/rc.d/"*".zsh"; do
-        zcompile "$i" && echo "$i" | sed "$SEDSTR"
+        "$ZDOTDIR/rc.d/"*".zsh" \
+        "$ZDOTDIR/functions/"* \
+        "$ZDOTDIR/globals/"*; do
+        [ -d "$i" ] && continue
+        zcompile "$i" && zcompile -ca "$i" && echo "$i" | sed "$SEDSTR"
     done
 }
 

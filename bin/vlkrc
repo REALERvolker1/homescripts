@@ -25,8 +25,8 @@ alias -- -='cd -'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 
-alias pdw=pwd
-alias pw=realpath
+alias pw=pwd
+alias rp=realpath
 
 # }}}
 # session, shell stuff, sudo {{{
@@ -60,6 +60,8 @@ alias chmodx='chmod +x'
 alias chmod-x='chmod -x'
 
 # }}}
+
+alias %="$__homebin/\$"
 
 alias copy="$__homebin/copy"
 alias copycat="$__homebin/copy --cat"
@@ -146,9 +148,9 @@ alias gitd='git fetch && git diff "origin/$(git branch | grep -oP "\*[[:space:]]
 
 dotm() {
     local current_dir="$PWD"
-    cd "$HOMESCRIPTS" &>/dev/null
+    cd "$HOMESCRIPTS" &>/dev/null || return 1
     gitm
-    cd "$current_dir" &>/dev/null
+    cd "$current_dir" &>/dev/null || return 1
 }
 
 # }}}
@@ -232,6 +234,9 @@ alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 case "$CURRENT_SHELL" in
 'zsh')
     alias refresh='exec zsh'
+    alias recompile="$__homebin/zsh-recompile.sh --recompile"
+    alias uncompile="$__homebin/zsh-recompile.sh --uncompile"
+    alias lsh="hash -dL | sed 's/hash -d //g ; s/=/  \t  /g' | fzf"
     ;;
 
 'bash')

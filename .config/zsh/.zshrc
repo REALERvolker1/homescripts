@@ -1,5 +1,5 @@
 # .zshrc
-. /home/vlk/bin/vlkenv
+. "$ZDOTDIR/globals/vlkenv"
 
 # zshrc loading
 () {
@@ -8,8 +8,16 @@
         . "$i"
     done
 
-    . "$HOME/bin/vlkrc"
-    #. "$ZDOTDIR/prompt.zsh"
+    autoload -Uz zcalc
+
+    # autoload -Uz zmv
+    # alias zmv='zmv -Mv'
+    # alias zln='zmv -Lv'
+    # alias zcp='zmv -Cv'
+
+    autoload -Uz "$ZDOTDIR/functions"/^*.zwc(.)
+
+    . "$ZDOTDIR/globals/vlkrc"
 
 } "$@"
 
@@ -22,30 +30,16 @@ lsdiff || :
 
 # plugin loading
 () {
-    #printf '%s\n' "${ZSH_PLUGINS[@]}"
-    if [ ! -d "${ZPLUGIN_DIR:=${XDG_DATA_HOME:=$HOME/.local/share}/zsh-plugins}" ]; then
-        if "${ZDOTDIR:-${XDG_CONFIG_HOME:-$HOME/.config}/zsh}/settings/plugin-install"; then
-            echo 'Installed plugins'
-        else
-            echo 'Failed to install plugins'
-            rm -rf "$ZPLUGIN_DIR"
-            return 1
-        fi
-    fi
+    [ ! -d "$ZPLUGIN_DIR" ] && zsh-recompile.sh --install-plugins
 
     . "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
-    local -a async_plugins=(
-        "command-sourced.zsh"
-        "fzf-tab/fzf-tab.plugin.zsh"
-        "fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
+    local i
+    for i in \
+        "atuin.zsh" \
+        "fzf-tab/fzf-tab.plugin.zsh" \
+        "fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" \
         "zsh-autosuggestions/zsh-autosuggestions.zsh"
-    )
-    for i in "${async_plugins[@]}"; do
+        do
         zsh-defer . "$ZPLUGIN_DIR/$i"
     done
 }
-
-# zsh-defer . "$ZPLUGIN_DIR/command-sourced.zsh"
-# zsh-defer . "$ZPLUGIN_DIR/fzf-tab/fzf-tab.plugin.zsh"
-# zsh-defer . "$ZPLUGIN_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
-# zsh-defer . "$ZPLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
