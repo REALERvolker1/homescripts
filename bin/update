@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+
+command -v dnf >/dev/null && sudo dnf update --refresh
+
+if command -v yay >/dev/null; then
+    yay -Syu
+elif command -v pacman >/dev/null; then
+    pacman -Syu
+fi
+
+[ -d "$HOME/.local/opt/vscodium" ] && codium-update.py
+
+command -v flatpak >/dev/null && flatpak update -y
+
+command -v cargo-install-update >/dev/null && cargo install-update -a -g

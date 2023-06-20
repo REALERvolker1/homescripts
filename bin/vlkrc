@@ -63,8 +63,6 @@ alias grep='/usr/bin/grep --color=auto'
 alias egrep='/usr/bin/egrep --color=auto'
 alias igrep='/usr/bin/grep -i --color=auto'
 
-alias readme='glow ./README.md'
-
 alias mime='file -bL --mime-type'
 
 alias bap='bat --paging always'
@@ -87,6 +85,9 @@ alias ra=ranger
 
 alias fr='flatpak run'
 alias whihc=which
+
+#alias startx='startx "$XINITRC"'
+alias wget='wget --show-progress'
 
 # }}}
 # vim, vscode {{{
@@ -189,12 +190,6 @@ alias fll='flatpak list | fzf'
 alias flc='flatpak remote-ls --updates'
 
 # }}}
-# XDG shit {{{
-
-#alias startx='startx "$XINITRC"'
-alias wget='wget --show-progress'
-
-# }}}
 # window mgmt {{{
 
 alias xclassget='xprop | grep WM_CLASS'
@@ -225,28 +220,12 @@ alias font-search="fc-list | cut -d ':' -f 2 | sed 's/,/, /g' | fzf"
 alias pipl='pip list | fzf'
 alias fenv='printenv | fzf'
 
-psa() {
-    /usr/bin/ps -eo pid,comm,exe h | /usr/bin/fzf -q "${1:- }"
-}
-
 # }}}
 
 alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 
-# refresh() {
-#     if [ -n "${ZSH_VERSION:-}" ]; then
-#         exec zsh
-#     elif [ -n "${BASH_VERSION:-}" ]; then
-#         exec bash
-#     else
-#         echo 'Error, only currently supported shells are zsh and bash!'
-#         return 1
-#     fi
-# }
-
 case "$CURRENT_SHELL" in
 'zsh')
-    alias %= \$=
     alias refresh='exec zsh'
     ;;
 
@@ -262,8 +241,6 @@ case "$CURRENT_DISTRO" in
     ;;
 'Fedora')
     alias grubcfg='sudo grub2-mkconfig -o /etc/grub2.cfg'
-    alias apt='echo 🤦 && dnf'
-    alias pacman='echo 🤓 && dnf'
     ;;
 esac
 
@@ -287,8 +264,8 @@ dotadd() {
 }
 
 keyring() {
-    if pgrep 'gnome-keyring-d' &>/dev/null; then
-        busctl --user get-property 'org.gnome.keyring' \
+    if /usr/bin/pgrep 'gnome-keyring-d' &>/dev/null; then
+        /usr/bin/busctl --user get-property 'org.gnome.keyring' \
             '/org/freedesktop/secrets/collection/login' \
             'org.freedesktop.Secret.Collection' \
             'Locked' | sed 's/^b //g'
@@ -296,21 +273,4 @@ keyring() {
         echo "Error, gnome-keyring-daemon doesn't seem to be running!"
         return 1
     fi
-}
-
-update() {
-    # Fedora/RHEL
-    command -v dnf >/dev/null && sudo dnf update --refresh
-
-    # Arch btw
-    if command -v yay >/dev/null; then
-        yay -Syu
-    elif command -v pacman >/dev/null; then
-        pacman -Syu
-    fi
-
-    flatpak list | cut -f 2 | grep -q 'com\.vscodium\.codium' || codium-update.py
-
-    command -v flatpak && flatpak update -y
-    command -v cargo-install-update && cargo install-update -a -g
 }

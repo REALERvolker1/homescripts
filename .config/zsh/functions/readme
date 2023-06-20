@@ -1,0 +1,14 @@
+local __readmecmd
+if command -v 'glow' >/dev/null; then
+    __readmecmd='glow'
+elif command -v 'bat' >/dev/null; then
+    __readmecmd='bat'
+else
+    __readmecmd='cat'
+fi
+
+# [ -f "$PWD/README.md" ] && $__readmecmd "$PWD/README.md" && return 0
+
+$__readmecmd "$(print -l (#i)(readme)* | fzf --select-1)"
+
+unset __readmecmd

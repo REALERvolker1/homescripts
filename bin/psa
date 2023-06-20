@@ -1,0 +1,48 @@
+#!/usr/bin/bash
+
+set -euo pipefail
+
+declare -A actions
+
+actions[print]="print the full command"
+actions[spawn]='Spawn a new instance'
+
+if command -v pidstat >/dev/null; then
+    previewcmd='pidstat -p $(echo {} | grep -oP "^\\s*\\K[^ ]*")'
+    actions[stat]='run pidstat'
+else
+    echo "Please install 'sysstat' to provide the command 'pidstat'" >&2
+    previewcmd='echo {} | tr -s "[:blank:]" " "'
+fi
+
+selected_program="$(ps -eo pid,comm,exe | fzf --preview-window='down,25%' --header-lines=1 --preview="$previewcmd" -q "${1:-}" | tr -s '[:blank:]' ' ')"
+
+[ -z "${selected_program:-}" ] && exit 1
+
+pid="$(echo "$selected_program" | cut -d ' ' -f 2)"
+comm="$(echo "$selected_program" | cut -d ' ' -f 3)"
+exe="$(echo "$selected_program" | cut -d ' ' -f 4)"
+
+if [ "$exe" = '-' ]; then
+    echo "Error, no executable detected. Falling back to command name" >&2
+    exe="$comm"
+fi
+
+selected_action="$(printf '%s\n' "${actions[@]}" | tac | fzf --disabled)"
+
+case "$selected_action" in
+"${actions[print]}")
+    echo "$exe"
+    ;;
+"${actions[spawn]}")
+    if [ -x "${exe## *}" ]; then
+        exec $exe
+    else
+        echo "command '${exe## *}' was not found!"
+        exit 1
+    fi
+    ;;
+"${actions[stat]}")
+    command -v pidstat >/dev/null && exec pidstat -p "$pid"
+    ;;
+esac
