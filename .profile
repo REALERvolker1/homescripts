@@ -3,7 +3,6 @@
 #export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
 . '/home/vlk/bin/vlkenv'
 
-
 loginctl list-sessions --no-pager
 
 start_hyprland() {
@@ -31,6 +30,8 @@ case "$-" in
     if [ "$TERM" = 'linux' ] && [ "$(tty)" = '/dev/tty1' ]; then
         start_hyprland
         #exec vlkdm-login-profile.sh
+    else
+        . "${BDOTDIR:-$HOME}/.bashrc"
     fi
     ;;
 *)

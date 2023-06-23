@@ -1,6 +1,14 @@
 #!/usr/bin/bash
 
-command -v dnf >/dev/null && sudo dnf update --refresh
+if command -v dnf >/dev/null; then
+    # support dnf5 on Fedora Rawhide
+    if stat /usr/bin/dnf | grep -oP '^\s*File:.*-> \K.*dnf5'; then
+        sudo dnf makecache
+        sudo dnf upgrade
+    else
+        sudo dnf update --refresh
+    fi
+fi
 
 if command -v yay >/dev/null; then
     yay -Syu
