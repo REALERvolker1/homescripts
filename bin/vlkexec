@@ -69,10 +69,11 @@ calculators=(
 
 if [ -n "$WAYLAND_DISPLAY" ]; then
     terminals=(
-        "xfce4-terminal$TERMINAL_ARGS"
+        "mate-terminal$TERMINAL_ARGS"
         "alacritty$TERMINAL_ARGS"
         "kitty$TERMINAL_ARGS"
     )
+        # "xfce4-terminal$TERMINAL_ARGS"
     screenshots=(
         'ksnip --cursor --rectarea'
         'ksnip --cursor -a'
@@ -119,9 +120,9 @@ editors=(
 
 
 managers=(
+    'nemo'
     'thunar'
     "$tr ranger"
-    'notify-send'
 )
 
 charamaps=(
