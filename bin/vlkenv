@@ -1,8 +1,11 @@
-#!/bin/dash
+# shellcheck shell=dash
+# shellcheck disable=2155
 # vim:foldmethod=marker:ft=sh
 
 [ -n "${CONDA_PREFIX:-}" ] && conda deactivate && echo "\$CONDA_PREFIX '$CONDA_PREFIX' deactivated"
 [ -n "${VIRTUAL_ENV:-}" ] && deactivate && echo "\$VIRTUAL_ENV '$VIRTUAL_ENV' deactivated"
+
+export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
 
 export HOME="${HOME:-/home/vlk}"
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -57,7 +60,7 @@ export FZF_DEFAULT_OPTS="--prompt=' ' --pointer=' ' --marker=' ' --tabs
 --color=fg:#ccccdc,hl:#df6b75,fg+:#fcfcff,bg+:#2c323d,hl+:#d682f0,info:#f2ce97,prompt:#d7005f,pointer:#65b6f8,marker:#56b5c2,spinner:#d682f0,header:#e6e6e6 "
 
 export XDG_DATA_DIRS="$XDG_DATA_HOME:$XDG_DATA_HOME/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share"
-export MANPATH="$XDG_DATA_HOME/man:/usr/local/share/man:/usr/share/man"
+#export MANPATH="$XDG_DATA_HOME/man:/usr/local/share/man:/usr/share/man"
 export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo:/usr/share/terminfo"
 
 #export VSCODE_PORTABLE="$XDG_DATA_HOME/vscode"
@@ -112,9 +115,44 @@ export NVM_DIR="$XDG_DATA_HOME/nvm"
 export BUN_INSTALL="$XDG_DATA_HOME/bun"
 export DENO_INSTALL="$XDG_DATA_HOME/deno"
 
-# case "${CURRENT_DISTRO:-}" in
-# 'Arch')
-#     PATH="$HOME/bin:\
+# $BUN_INSTALL/bin
+__vlkenv_path="$HOME/bin:\
+$HOME/.local/bin:\
+$CARGO_HOME/bin:\
+$PNPM_HOME:\
+$GOPATH/bin:\
+$PYTHONUSERBASE/bin"
+
+case "${CURRENT_DISTRO:-}" in
+'Arch')
+    __vlkenv_path="$__vlkenv_path:\
+/opt/cuda/nsight_compute:\
+/opt/cuda/nsight_systems/bin:\
+/opt/cuda/bin:\
+/usr/lib/rustup/bin:\
+/usr/bin/site_perl:\
+/usr/bin/vendor_perl:\
+/usr/bin/core_perl:\
+/var/lib/flatpak/exports/bin:\
+/usr/local/bin:\
+/usr/local/sbin:\
+/usr/bin"
+    ;;
+'Fedora')
+    __vlkenv_path="$__vlkenv_path:\
+/usr/lib/ccache:\
+/usr/local/bin:\
+/usr/local/sbin:\
+/usr/bin:\
+/usr/sbin"
+    ;;
+*)
+    [ -n "${PATH:-}" ] && echo "$PATH" >"$HOME/fix-your-shitty-vlkenv-path-case-statement.txt"
+    __vlkenv_path="$__vlkenv_path:${PATH:-/usr/local/bin:/usr/bin:/usr/sbin:/bin:/sbin}"
+    ;;
+esac
+
+# export PATH="$HOME/bin:\
 # $HOME/.local/bin:\
 # $CARGO_HOME/bin:\
 # $BUN_INSTALL/bin:\
@@ -132,35 +170,10 @@ export DENO_INSTALL="$XDG_DATA_HOME/deno"
 # /usr/local/bin:\
 # /usr/local/sbin:\
 # /usr/bin"
-#     ;;
-# 'Fedora')
-#     PATH="$PATH:/usr/lib/ccache:\
-# /usr/local/bin:\
-# /usr/local/sbin:\
-# /usr/bin:\
-# /usr/sbin"
-#     ;;
-# esac
-export PATH="$HOME/bin:\
-$HOME/.local/bin:\
-$CARGO_HOME/bin:\
-$BUN_INSTALL/bin:\
-$PNPM_HOME:\
-$GOPATH/bin:\
-$PYTHONUSERBASE/bin:\
-/opt/cuda/nsight_compute:\
-/opt/cuda/nsight_systems/bin:\
-/opt/cuda/bin:\
-/usr/lib/rustup/bin:\
-/usr/bin/site_perl:\
-/usr/bin/vendor_perl:\
-/usr/bin/core_perl:\
-/var/lib/flatpak/exports/bin:\
-/usr/local/bin:\
-/usr/local/sbin:\
-/usr/bin"
-#export PATH="$__vlkenv_path"
+export PATH="$__vlkenv_path"
 #export PATH="$HOME/bin:$HOME/.local/bin:$CARGO_HOME/bin:$PATH"
+
+export __vlkenv_path
 
 __vlkenv_term="${TERM:-}"
 [ -n "$VTE_VERSION" ] && __vlkenv_term='vte_alacritty'

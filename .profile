@@ -1,8 +1,8 @@
 # shellcheck shell=dash
 ## shellcheck disable=SC2155
+#export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
 . '/home/vlk/bin/vlkenv'
 
-export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
 
 loginctl list-sessions --no-pager
 
