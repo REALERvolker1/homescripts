@@ -7,7 +7,7 @@ shopt -s autocd checkwinsize histappend
 #. /etc/bashrc
 . /home/vlk/bin/vlkenv
 
-if [[ $- == *i* ]] && [ -z "$NO_BLE" ] && [[ "$TERM" == *'xterm'* ]] || [[ "$TERM" == *'256'* ]]; then
+if [[ $- == *i* ]] && [ -z "$NO_BLE" ] && ( [[ "$TERM" == *'xterm'* ]] || [[ "$TERM" == *'256'* ]] ); then
     bleargs="--noattach --rcfile '$BDOTDIR/blerc'"
     if [ -f '/usr/share/blesh/ble.sh' ]; then
         . '/usr/share/blesh/ble.sh' $bleargs

@@ -142,6 +142,7 @@ case "${CURRENT_DISTRO:-}" in
 'Fedora')
     __vlkenv_path="$__vlkenv_path:\
 /usr/lib/ccache:\
+/var/lib/flatpak/exports/bin:\
 /usr/local/bin:\
 /usr/local/sbin:\
 /usr/bin:\
