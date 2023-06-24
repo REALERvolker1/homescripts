@@ -11,6 +11,7 @@ hash -d loc="$HOME/.local"
 hash -d data="$XDG_DATA_HOME"
 hash -d cache="$XDG_CACHE_HOME"
 hash -d cfg="$XDG_CONFIG_HOME"
+hash -d run="$XDG_RUNTIME_DIR"
 
 hash -d i3="$XDG_CONFIG_HOME/i3"
 hash -d i3s="$XDG_CONFIG_HOME/i3status-rust"

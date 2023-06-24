@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+[[ "$(realpath "$(which dnf)")" != *'dnf-3' ]] && echo "Error, dnfs does not work with dnf5 yet!" && exit 1
+
 fzf_query="${@:- }"
 
 package_installed () {
@@ -27,7 +29,7 @@ dnf_list_function () {
 
 echo "searching..."
 
-packages="$(dnf list --available -C | tail -n +2 | grep -v '\.i686' | grep '\.' | cut -d ' ' -f 1)"
+packages="$(dnf list --available -C | tail -n +2 | grep -v -e '\.i686' -e '\.src' -e '..-debuginfo' -e '..-debugsource' | grep '\.' | cut -d ' ' -f 1)"
 
 while :; do
     package=$(dnf_list_function)

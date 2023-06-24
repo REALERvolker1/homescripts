@@ -101,8 +101,8 @@ tr="${terminals[0]/$TERMINAL_ARGS/} -e"
 
 browsers=(
     "$fr io.gitlab.librewolf-community"
-    "$fr com.brave.Browser${ozone}"
     "$fr org.mozilla.firefox"
+    "$fr com.brave.Browser${ozone}"
 )
 
 menus=(
@@ -113,8 +113,8 @@ menus=(
 
 editors=(
     'mousepad'
-    #"$fr com.vscodium.codium${ozone}"
-    "codium"
+    "$fr com.vscodium.codium${ozone}"
+    #"codium"
     "$fr org.gnome.gitlab.somas.Apostrophe"
 )
 

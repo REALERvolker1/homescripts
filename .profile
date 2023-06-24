@@ -18,6 +18,8 @@ start_hyprland() {
     export _JAVA_AWT_WM_NONREPARENTING=1
     export MOZ_ENABLE_WAYLAND=1
 
+    # WLR_NO_HARDWARE_CURSORS=1
+
     ERRFILE="${ERRFILE:-$XDG_RUNTIME_DIR/errfile-$XDG_CURRENT_DESKTOP}"
     [ -f "$ERRFILE" ] && rm "$ERRFILE"
     touch -- "$ERRFILE"

@@ -70,6 +70,7 @@ export WINEPREFIX="$XDG_DATA_HOME/wine"
 export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
 
 export RXVT_SOCKET="$XDG_RUNTIME_DIR/urxvtd"
+[ -S /tmp/.ydotool_socket ] && export YDOTOOL_SOCKET='/tmp/.ydotool_socket'
 
 export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
 
