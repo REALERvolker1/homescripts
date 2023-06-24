@@ -19,6 +19,7 @@ start_hyprland() {
     export MOZ_ENABLE_WAYLAND=1
 
     # WLR_NO_HARDWARE_CURSORS=1
+    eval $(~/.local/lib/hardcoded-keyring-unlocker |& grep '[A-Z,_]*=' | sed 's/^/export /g')
 
     ERRFILE="${ERRFILE:-$XDG_RUNTIME_DIR/errfile-$XDG_CURRENT_DESKTOP}"
     [ -f "$ERRFILE" ] && rm "$ERRFILE"
