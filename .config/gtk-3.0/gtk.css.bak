@@ -1,6 +1,6 @@
-@define-color accent_color #af99ff;
-@define-color accent_bg_color #7857ff;
-@define-color accent_fg_color #ffffff;
+@define-color accent_color hsl(252, 100%, 80%);
+@define-color accent_bg_color hsl(252, 100%, 67%);
+@define-color accent_fg_color hsl(0, 0%, 100%);
 @define-color destructive_color @red_1;
 @define-color destructive_bg_color @red_3;
 @define-color destructive_fg_color @accent_fg_color;
@@ -76,6 +76,3 @@
 @define-color dark_3 rgb(68,68,68);
 @define-color dark_4 rgb(34,34,34);
 @define-color dark_5 rgb(0,0,0);
-decoration {
-    padding: 0;
-}

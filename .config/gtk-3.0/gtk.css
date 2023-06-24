@@ -76,3 +76,6 @@
 @define-color dark_3 rgb(68,68,68);
 @define-color dark_4 rgb(34,34,34);
 @define-color dark_5 rgb(0,0,0);
+decoration {
+    padding: 0;
+}
