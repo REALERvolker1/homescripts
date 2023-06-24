@@ -7,8 +7,17 @@ prop1="$(uptime -p | sed 's/^up // ; s/hour/hr/g ; s/minute/min/g')"
 prop2="${TERM:-Undefined}"
 #prop3="$(df -h -l -t btrfs --output=pcent | tail -n '+2' | head -n 1 | sed 's/[[:space:]]//g')"
 prop3="$(printf '%s\t' $(df -h -l -t btrfs --output=pcent) | cut -f 2)"
-prop4="$(rpm -q xorg-x11-drv-nvidia | cut -d '-' -f 5)"
-#prop4="$(pacman -Q nvidia-dkms | grep -oP '^.* \K[^-]*')"
+case "${CURRENT_DISTRO:-}" in
+    'Arch')
+        prop4="$(pacman -Q nvidia-dkms | grep -oP '^.* \K[^-]*')"
+        ;;
+    'Fedora')
+        prop4="$(rpm -q xorg-x11-drv-nvidia | cut -d '-' -f 5)"
+        ;;
+    *)
+        prop4="unsupported distro"
+        ;;
+esac
 prop5="$(uname -r | cut -d '-' -f 1)"
 
 len=0
