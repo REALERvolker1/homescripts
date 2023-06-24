@@ -19,7 +19,9 @@ start_hyprland() {
     export MOZ_ENABLE_WAYLAND=1
 
     # WLR_NO_HARDWARE_CURSORS=1
-    eval $(~/.local/lib/hardcoded-keyring-unlocker |& grep '[A-Z,_]*=' | sed 's/^/export /g')
+    #~/.local/lib/hardcoded-keyring-unlocker
+    export GNOME_KEYRING_CONTROL="$XDG_RUNTIME_DIR/keyring"
+    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
 
     ERRFILE="${ERRFILE:-$XDG_RUNTIME_DIR/errfile-$XDG_CURRENT_DESKTOP}"
     [ -f "$ERRFILE" ] && rm "$ERRFILE"
