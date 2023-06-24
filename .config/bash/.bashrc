@@ -1,5 +1,6 @@
 # .bashrc
 # shellcheck shell=bash
+[ -z "${BASH_VERSION:-}" ] && return
 [[ $- != *i* ]] && return
 unset MAILCHECK
 shopt -s autocd checkwinsize histappend
