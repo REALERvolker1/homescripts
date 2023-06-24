@@ -1,0 +1,10 @@
+# Created by vlk on 12/02/22
+# Edited by vlk on 6/23/23
+# Here's the guide I followed:
+# https://github.com/libusb/hidapi/blob/master/udev/69-hid.rules
+
+# Line that lets me access Glorous Model O Wireless
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="2011", TAG+="uaccess"
+
+# Line that lets me access Glorious Model O Wireless when unplugged
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="2022", TAG+="uaccess"
