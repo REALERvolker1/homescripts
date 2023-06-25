@@ -26,7 +26,8 @@ replacedirs () {
 
 for link in "${symlinks[@]}"; do
     target="${link//$HOME/$HOMESCRIPTS}"
-    [ ! -e "$link" ] && cp -Rf "$target" "$link"
-    replacedirs "$link" "$target"
+    [ ! -e "$link" ] && cp -Rf "$target" "$link" && echo "copied '$target' '$link'"
+    #replacedirs "$link" "$target"
+    rm -ri "$target" && cp -Rf "$link" "$target"
 done
 
