@@ -220,6 +220,8 @@ alias winekill="killall winedevice.exe; killall wineserver"
 alias winelist="ps -eo args | grep 'C:[/|\\]' | grep -o '^.*\.exe '"
 alias ubikill='killall upc.exe; killall UbisoftGameLauncher.exe'
 
+alias steamfix='find "$HOME/.var/app/com.valvesoftware.Steam/.config" -maxdepth 1 -type l -delete'
+
 alias touchpad-gaming='xinput set-prop $(xinput | grep -oP "Touchpad\s*id=\K[0-9]*") "libinput Disable While Typing Enabled" 0'
 
 # }}}
