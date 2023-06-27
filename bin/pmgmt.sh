@@ -33,6 +33,7 @@ ac_command_center () {
         light -S "$bat_backlight"
         powerprofilesctl set "$bat_powerprof"
         asusctl bios -O "false"
+        pgrep 'gpublock.sh' && killall 'gpublock.sh'
     fi
 }
 
