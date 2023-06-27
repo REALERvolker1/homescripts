@@ -1,7 +1,12 @@
 #!/usr/bin/bash
 
-#. "$XDG_RUNTIME_DIR/vlk-$XDG_SESSION_ID.env"
-echo "$1" > ~/.xin
+xrdb -merge "${XRESOURCES:-$HOME/.Xresources}"
+
 session="${VLK_SESSION_EXEC:-i3}"
-exec "$session"
+
+if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
+    exec dbus-run-session -- "$session"
+else
+    exec "$session"
+fi
 #exec dbus-run-session -- "$session"

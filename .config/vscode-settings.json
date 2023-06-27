@@ -114,5 +114,6 @@
     "[shellscript]": {
         "editor.defaultFormatter": "foxundermoon.shell-format"
     },
-    "shellformat.flag": "-i 4"
+    "shellformat.flag": "-i 4",
+    "glassit.alpha": 100
 }

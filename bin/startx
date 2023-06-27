@@ -1,25 +1,15 @@
-#!/usr/bin/sh
-
-#
-# This is just a sample implementation of a slightly less primitive
-# interface than xinit. It looks for user .xinitrc and .xserverrc
-# files, then system xinitrc and xserverrc files, else lets xinit choose
-# its default. The system xinitrc should probably do things like check
-# for .Xresources files and merge them in, start up a window manager,
-# and pop a clock and several xterms.
-#
-# Site administrators are STRONGLY urged to write nicer versions.
-#
+#!/usr/bin/dash
+# This is a slightly nicer implementation of startx written by vlk for use on Fedora.
 
 unset DBUS_SESSION_BUS_ADDRESS
 unset SESSION_MANAGER
-userclientrc=$HOME/.xinitrc
+userclientrc="${XINITRC:-$HOME/.xinitrc}"
 sysclientrc=/etc/X11/xinit/xinitrc
 
-userserverrc=$HOME/.xserverrc
+userserverrc="${XSERVERRC:-$HOME/.xserverrc}"
 sysserverrc=/etc/X11/xinit/xserverrc
 defaultclient=xterm
-defaultserver=/usr/bin/X
+defaultserver=/usr/bin/Xorg
 defaultclientargs=""
 defaultserverargs=""
 defaultdisplay=""
@@ -28,55 +18,61 @@ serverargs=""
 vtarg=""
 enable_xauth=1
 
+#export XAUTHORITY="${XAUTHORITY:-$XDG_RUNTIME_DIR/Xauthority}"
+#export ERRFILE="${ERRFILE:-$XDG_RUNTIME_DIR/xsession-errors}"
 
 # Automatically determine an unused $DISPLAY
 d=0
-while true ; do
+while true; do
     [ -e "/tmp/.X$d-lock" -o -S "/tmp/.X11-unix/X$d" ] ||
-
         grep -q "/tmp/.X11-unix/X$d" "/proc/net/unix" ||
-
         break
     d=$(($d + 1))
 done
 defaultdisplay=":$d"
 unset d
 
+xsessionfolder="${XDG_RUNTIME_DIR:-/tmp}/xorg-$defaultdisplay"
+mkdir -p "$xsessionfolder"
+export XAUTHORITY="$xsessionfolder/Xauthority"
+export SERVERAUTH="$xsessionfolder/serverauth.$$"
+export ERRFILE="$xsessionfolder/xsession-errors"
+
 whoseargs="client"
 while [ x"$1" != x ]; do
     case "$1" in
     # '' required to prevent cpp from treating "/*" as a C comment.
-    /''*|\./''*)
- if [ "$whoseargs" = "client" ]; then
-     if [ x"$client" = x ] && [ x"$clientargs" = x ]; then
-  client="$1"
-     else
-  clientargs="$clientargs $1"
-     fi
- else
-     if [ x"$server" = x ] && [ x"$serverargs" = x ]; then
-  server="$1"
-     else
-  serverargs="$serverargs $1"
-     fi
- fi
- ;;
+    /''* | \./''*)
+        if [ "$whoseargs" = "client" ]; then
+            if [ x"$client" = x ] && [ x"$clientargs" = x ]; then
+                client="$1"
+            else
+                clientargs="$clientargs $1"
+            fi
+        else
+            if [ x"$server" = x ] && [ x"$serverargs" = x ]; then
+                server="$1"
+            else
+                serverargs="$serverargs $1"
+            fi
+        fi
+        ;;
     --)
- whoseargs="server"
- ;;
+        whoseargs="server"
+        ;;
     *)
- if [ "$whoseargs" = "client" ]; then
-     clientargs="$clientargs $1"
- else
-     # display must be the FIRST server argument
-     if [ x"$serverargs" = x ] && \
-   expr "$1" : ':[0-9][0-9]*$' > /dev/null 2>&1; then
-  display="$1"
-     else
-  serverargs="$serverargs $1"
-     fi
- fi
- ;;
+        if [ "$whoseargs" = "client" ]; then
+            clientargs="$clientargs $1"
+        else
+            # display must be the FIRST server argument
+            if [ x"$serverargs" = x ] &&
+                expr "$1" : ':[0-9][0-9]*$' >/dev/null 2>&1; then
+                display="$1"
+            else
+                serverargs="$serverargs $1"
+            fi
+        fi
+        ;;
     esac
     shift
 done
@@ -104,24 +100,22 @@ fi
 if [ x"$server" = x ]; then
     server=$defaultserver
 
-
     # When starting the defaultserver start X on the current tty to avoid
     # the startx session being seen as inactive:
     # "https://bugzilla.redhat.com/show_bug.cgi?id=806491"
     tty=$(tty)
-    if expr "$tty" : '/dev/tty[0-9][0-9]*$' > /dev/null; then
+    if expr "$tty" : '/dev/tty[0-9][0-9]*$' >/dev/null; then
         tty_num=$(echo "$tty" | grep -oE '[0-9]+$')
         vtarg="vt$tty_num -keeptty"
     fi
 
-
     # For compatibility reasons, only use xserverrc if there were no server command line arguments
     if [ x"$serverargs" = x -a x"$display" = x ]; then
- if [ -f "$userserverrc" ]; then
-     server=$userserverrc
- elif [ -f "$sysserverrc" ]; then
-     server=$sysserverrc
- fi
+        if [ -f "$userserverrc" ]; then
+            server=$userserverrc
+        elif [ -f "$sysserverrc" ]; then
+            server=$sysserverrc
+        fi
     fi
 fi
 
@@ -133,7 +127,7 @@ fi
 # if no vt is specified add vtarg (which may be empty)
 have_vtarg="no"
 for i in $serverargs; do
-    if expr "$i" : 'vt[0-9][0-9]*$' > /dev/null; then
+    if expr "$i" : 'vt[0-9][0-9]*$' >/dev/null; then
         have_vtarg="yes"
     fi
 done
@@ -148,7 +142,7 @@ if [ x"$display" = x ]; then
     display=$defaultdisplay
 fi
 
-if [ x"$enable_xauth" = x1 ] ; then
+if [ x"$enable_xauth" = x1 ]; then
     if [ x"$XAUTHORITY" = x ]; then
         XAUTHORITY=$HOME/.Xauthority
         export XAUTHORITY
@@ -157,28 +151,22 @@ if [ x"$enable_xauth" = x1 ] ; then
     removelist=
 
     # set up default Xauth info for this machine
-    case `uname` in
+    case $(uname) in
     Linux*)
-        if [ -z "`hostname --version 2>&1 | grep GNU`" ]; then
-            hostname=`hostname -f`
+        if [ -z "$(hostname --version 2>&1 | grep GNU)" ]; then
+            hostname=$(hostname -f)
         else
-            hostname=`hostname`
+            hostname=$(hostname)
         fi
         ;;
     *)
-        hostname=`hostname`
+        hostname=$(hostname)
         ;;
     esac
 
     authdisplay=${display:-:0}
 
-    mcookie=`/usr/bin/mcookie`
-
-
-
-
-
-
+    mcookie=$(/usr/bin/mcookie)
 
     if test x"$mcookie" = x; then
         echo "Couldn't create cookie"
@@ -187,46 +175,39 @@ if [ x"$enable_xauth" = x1 ] ; then
     dummy=0
 
     # create a file with auth information for the server. ':0' is a dummy.
-    xserverauthfile=$HOME/.serverauth.$$
+    xserverauthfile="$SERVERAUTH"
     trap "rm -f '$xserverauthfile'" HUP INT QUIT ILL TRAP KILL BUS TERM
-    xauth -q -f "$xserverauthfile" << EOF
+    xauth -q -f "$xserverauthfile" <<EOF
 add :$dummy . $mcookie
 EOF
 
-
-
-
     serverargs=${serverargs}" -auth "${xserverauthfile}
-
 
     # now add the same credentials to the client authority file
     # if '$displayname' already exists do not overwrite it as another
     # server may need it. Add them to the '$xserverauthfile' instead.
     for displayname in $authdisplay $hostname$authdisplay; do
-        authcookie=`xauth list "$displayname" \
-        | sed -n "s/.*$displayname[[:space:]*].*[[:space:]*]//p"` 2>/dev/null;
-        if [ "z${authcookie}" = "z" ] ; then
-            xauth -q << EOF
+        authcookie=$(xauth list "$displayname" |
+            sed -n "s/.*$displayname[[:space:]*].*[[:space:]*]//p") 2>/dev/null
+        if [ "z${authcookie}" = "z" ]; then
+            xauth -q <<EOF
 add $displayname . $mcookie
 EOF
-        removelist="$displayname $removelist"
+            removelist="$displayname $removelist"
         else
-            dummy=$(($dummy+1));
-            xauth -q -f "$xserverauthfile" << EOF
+            dummy=$(($dummy + 1))
+            xauth -q -f "$xserverauthfile" <<EOF
 add :$dummy . $authcookie
 EOF
         fi
     done
 fi
 
-
-
-
 xinit "$client" $clientargs -- "$server" $display $serverargs
 
 retval=$?
 
-if [ x"$enable_xauth" = x1 ] ; then
+if [ x"$enable_xauth" = x1 ]; then
     if [ x"$removelist" != x ]; then
         xauth remove $removelist
     fi
@@ -235,17 +216,8 @@ if [ x"$enable_xauth" = x1 ] ; then
     fi
 fi
 
-
-
-
-
-if command -v deallocvt > /dev/null 2>&1; then
+if command -v deallocvt >/dev/null 2>&1; then
     deallocvt
 fi
-
-
-
-
-
 
 exit $retval

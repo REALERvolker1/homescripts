@@ -2,7 +2,7 @@
 # vim:foldmethod=marker:ft=i3config
 
 # x11 stuff
-#$exec xrdb -merge "$XRESOURCES" &
+$exec xrdb -merge "$XRESOURCES"
 #$exec xlayoutdisplay
 
 # DE stuff
@@ -11,6 +11,7 @@ $exec dbus-update-activation-environment --systemd --verbose DISPLAY XAUTHORITY 
 #$exec gnome-keyring-daemon -r
 #$exec nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -l
 #$exec autostart_keyring.sh
+$exec ~/.local/lib/hardcoded-keyring-unlocker
 
 $exec volbright.sh --brightness --volume --keyboard
 
@@ -34,10 +35,10 @@ $exec nm-applet
 $exec picom
 $exec flashfocus
 $exec "killall gammastep; gammastep -P"
+$exec hsetroot -cover "$XDG_DATA_HOME/backgrounds/DiscoDingoUbuntu.png"
 
 #$exec scratchpad_terminal.sh
 
 # exec_always field
 #$execa hsetroot -cover "$(printf '%s\n' $XDG_DATA_HOME/backgrounds/* | shuf | head -n 1)"
 $execa kitti3 -s 0.75 1.0 -p RC
-
