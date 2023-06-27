@@ -21,7 +21,7 @@ done
 
 [ -z "${XINITRC:-}" ] && export XINITRC="${XINITRC:-$HOME/.xinitrc}"
 if [ -z "${EXEC_COMMAND:-}" ]; then
-    EXEC_COMMAND="$XINITRC --vlk-session=$VLK_SESSION_EXEC"
+    EXEC_COMMAND="$XINITRC"
 fi
 
 export XAUTHORITY="${XAUTHORITY:-$XDG_RUNTIME_DIR/Xauthority}"
