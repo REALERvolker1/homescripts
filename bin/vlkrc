@@ -96,7 +96,8 @@ alias whihc=which
 #alias startx='startx "$XINITRC"'
 alias wget='wget --show-progress'
 
-# }}}
+alias bg-gen='convert +append -resize x1080'
+
 # vim, vscode {{{
 
 if [ -x "$(command -v codium)" ]; then

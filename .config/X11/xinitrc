@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
 xrdb -merge "${XRESOURCES:-$HOME/.Xresources}"
+xlayoutdisplay
 
 session="${VLK_SESSION_EXEC:-i3}"
 
