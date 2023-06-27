@@ -99,14 +99,14 @@ alias wget='wget --show-progress'
 # }}}
 # vim, vscode {{{
 
-if [ -x '/var/lib/flatpak/exports/bin/com.vscodium.codium' ]; then
-    ide_command='/var/lib/flatpak/exports/bin/com.vscodium.codium'
-elif [ -x "$(command -v codium)" ]; then
+if [ -x "$(command -v codium)" ]; then
     ide_command='codium'
+elif [ -x '/var/lib/flatpak/exports/bin/com.vscodium.codium' ]; then
+    ide_command='/var/lib/flatpak/exports/bin/com.vscodium.codium'
 else
-    ide_command='nvim'
+    ide_command="$EDITOR"
 fi
-# codium() { $ide_command; }
+# codium() { $ide_command "$@"; }
 
 [[ "$ide_command" != 'codium' ]] && alias codium="$ide_command"
 alias code="$ide_command"
