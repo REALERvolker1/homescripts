@@ -4,16 +4,18 @@
 #mirror=true
 
 # order of outputs
-#order=DP-1
+order=DP-1
+order=eDP-1
 #order=HDMI-0
 
 # primary output
 primary=eDP-1
 
 # suppress output
-#quiet=false
+#quiet=true
 
 # override calculated DPI
-dpi=96
+dpi=92
 
 # wait seconds before acting
+#wait=10
