@@ -5,6 +5,7 @@ hash -d zsh="$ZDOTDIR"
 hash -d bin="$HOME/bin"
 hash -d code="$HOME/code"
 hash -d pics="$HOME/Pictures"
+hash -d var="$HOME/.var/app"
 [ -d "$HOMESCRIPTS" ] && hash -d dots="$HOMESCRIPTS"
 
 hash -d loc="$HOME/.local"
