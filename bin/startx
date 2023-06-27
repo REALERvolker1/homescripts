@@ -13,10 +13,10 @@
 
 unset DBUS_SESSION_BUS_ADDRESS
 unset SESSION_MANAGER
-userclientrc=$XDG_CONFIG_HOME/X11/xinitrc
+userclientrc=$HOME/.xinitrc
 sysclientrc=/etc/X11/xinit/xinitrc
 
-userserverrc=$XDG_CONFIG_HOME/X11/xserverrc
+userserverrc=$HOME/.xserverrc
 sysserverrc=/etc/X11/xinit/xserverrc
 defaultclient=xterm
 defaultserver=/usr/bin/X
@@ -150,7 +150,7 @@ fi
 
 if [ x"$enable_xauth" = x1 ] ; then
     if [ x"$XAUTHORITY" = x ]; then
-        XAUTHORITY=$XDG_RUNTIME_DIR/.Xauthority
+        XAUTHORITY=$HOME/.Xauthority
         export XAUTHORITY
     fi
 
@@ -174,6 +174,12 @@ if [ x"$enable_xauth" = x1 ] ; then
 
     mcookie=`/usr/bin/mcookie`
 
+
+
+
+
+
+
     if test x"$mcookie" = x; then
         echo "Couldn't create cookie"
         exit 1
@@ -181,13 +187,17 @@ if [ x"$enable_xauth" = x1 ] ; then
     dummy=0
 
     # create a file with auth information for the server. ':0' is a dummy.
-    xserverauthfile=$XDG_RUNTIME_DIR/.serverauth.$$
+    xserverauthfile=$HOME/.serverauth.$$
     trap "rm -f '$xserverauthfile'" HUP INT QUIT ILL TRAP KILL BUS TERM
     xauth -q -f "$xserverauthfile" << EOF
 add :$dummy . $mcookie
 EOF
 
+
+
+
     serverargs=${serverargs}" -auth "${xserverauthfile}
+
 
     # now add the same credentials to the client authority file
     # if '$displayname' already exists do not overwrite it as another
@@ -209,8 +219,9 @@ EOF
     done
 fi
 
-#client="dbus-run-session -- ${VLK_SESSION:=i3}"
-client="${XINITRC:-i3}"
+
+
+
 xinit "$client" $clientargs -- "$server" $display $serverargs
 
 retval=$?
