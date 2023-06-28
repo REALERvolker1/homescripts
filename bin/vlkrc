@@ -83,7 +83,7 @@ alias icat=timg
 
 alias df=duf
 alias du=dust
-alias free='free -m'
+alias free='free -h'
 
 alias neofetch=fastfetch
 
