@@ -6,7 +6,7 @@ if command -v dnf >/dev/null; then
         sudo dnf makecache
         sudo dnf upgrade
     else
-        sudo dnf update --refresh
+        sudo dnf upgrade --refresh
     fi
 fi
 

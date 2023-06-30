@@ -35,7 +35,7 @@ $exec nm-applet
 $exec picom
 $exec flashfocus
 $exec "killall gammastep; gammastep -P"
-$exec hsetroot -cover "$XDG_DATA_HOME/backgrounds/out.png"
+$exec hsetroot -root -cover "$XDG_DATA_HOME/backgrounds/out.png"
 
 #$exec scratchpad_terminal.sh
 
