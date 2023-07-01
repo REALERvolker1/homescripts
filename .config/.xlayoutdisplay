@@ -5,6 +5,7 @@
 
 # order of outputs
 order=DP-1
+order=DP-1-0
 order=eDP-1
 #order=HDMI-0
 
