@@ -1,42 +1,29 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
-if pgrep 'i3lock' || pgrep 'swaylock'; then
-    notify-send 'Error! screenlocker already detected!'
-    date +'%x %X -- vlklock fail' >> "${XDG_CACHE_HOME:-$HOME/.cache}/vlklock-log"
-    exit 1
-fi
+__swaylock () {
+    exec swaylock -Ffli "$IMAGE" \
+        --font "$FONT" \
+        --font-size "$FONT_SIZE" \
+        --indicator-radius "$LOCK_RADIUS" \
+        --indicator-thickness "$LOCK_WIDTH" \
+        --inside-color "$LOCK_INSIDE" \
+        --inside-ver-color "$VERIF_BG_ACCENT" \
+        --inside-wrong-color "$WRONG_BG_ACCENT" \
+        --key-hl-color "$LOCK_KEY_ACCENT" \
+        --line-color '00000000' \
+        --ring-color "$LOCK_ACCENT" \
+        --ring-ver-color "$VERIF_ACCENT" \
+        --ring-wrong-color "$WRONG_ACCENT" \
+        --text-color "$FONT_COLOR" \
+        --text-ver-color "$FONT_COLOR" \
+        --text-wrong-color "$FONT_COLOR"
+}
 
-#IMAGE="$(printf '%s\n' $HOME/Pictures/vlklock-backgrounds/* | shuf | head -n 1)"
-IMAGE="$(printf '%s\n' "${XDG_DATA_HOME:-$HOME/.local/share}/backgrounds/vlklock/"* | shuf | head -n 1)"
-IMAGE="${IMAGE:-/usr/share/backgrounds/default.png}"
+__i3lock () {
+    exec i3lock -efti "$IMAGE"
+}
 
-#GREETER="$(fortune -a -s)"
-#GREETER="${GREETER:-$USER has not installed fortune-mod! Laugh at them!}"
-
-FONT=Impact
-
-FONT_COLOR=FFFFFF
-FONT_OUTLINE=000000
-FONT_SIZE=64
-FONT_MEME_SIZE=128
-FONT_OUTLINE_SIZE=1
-FONT_LARGE_OUTLINE_SIZE=3
-
-LOCK_WIDTH=16.0
-LOCK_RADIUS=220
-LOCK_INSIDE=FFFFFF00
-
-LOCK_ACCENT=D55FDE
-LOCK_KEY_ACCENT=7B57FF
-LOCK_KEY_ACCENT_BORDER=5B37CF
-
-VERIF_ACCENT=fcf11b
-VERIF_BG_ACCENT="${VERIF_ACCENT}70"
-WRONG_ACCENT=ff0000
-WRONG_BG_ACCENT="${WRONG_ACCENT}70"
-
-
-if [ -z "$WAYLAND_DISPLAY" ]; then
+__i3lock_color () {
     exec i3lock -Ffki "$IMAGE" \
         --greeter-text='' \
         --wrong-text='Access Denied' \
@@ -88,25 +75,45 @@ if [ -z "$WAYLAND_DISPLAY" ]; then
         --insidever-color="$VERIF_BG_ACCENT" \
         --ringwrong-color="$WRONG_ACCENT" \
         --insidewrong-color="$WRONG_BG_ACCENT"
+}
 
+
+if pgrep 'i3lock' || pgrep 'swaylock'; then
+    notify-send 'Error! screenlocker already detected!'
+    date +'%x %X -- vlklock fail' >> "${XDG_CACHE_HOME:-$HOME/.cache}/vlklock-log"
+    exit 1
+fi
+
+IMAGE="$(printf '%s\n' "${XDG_DATA_HOME:-$HOME/.local/share}/backgrounds/vlklock/"* | shuf | head -n 1)"
+IMAGE="${IMAGE:-/usr/share/backgrounds/default.png}"
+
+FONT=Impact
+
+FONT_COLOR=FFFFFF
+FONT_OUTLINE=000000
+FONT_SIZE=64
+FONT_MEME_SIZE=128
+FONT_OUTLINE_SIZE=1
+FONT_LARGE_OUTLINE_SIZE=3
+
+LOCK_WIDTH=16.0
+LOCK_RADIUS=220
+LOCK_INSIDE=FFFFFF00
+
+LOCK_ACCENT=D55FDE
+LOCK_KEY_ACCENT=7B57FF
+LOCK_KEY_ACCENT_BORDER=5B37CF
+
+VERIF_ACCENT=fcf11b
+VERIF_BG_ACCENT="${VERIF_ACCENT}70"
+WRONG_ACCENT=ff0000
+WRONG_BG_ACCENT="${WRONG_ACCENT}70"
+
+
+if [ -z "$WAYLAND_DISPLAY" ]; then
+    __i3lock
 else
-    exec swaylock -Ffli "$IMAGE" \
-        --font "$FONT" \
-        --font-size "$FONT_SIZE" \
-        --indicator-radius "$LOCK_RADIUS" \
-        --indicator-thickness "$LOCK_WIDTH" \
-        --inside-color "$LOCK_INSIDE" \
-        --inside-ver-color "$VERIF_BG_ACCENT" \
-        --inside-wrong-color "$WRONG_BG_ACCENT" \
-        --key-hl-color "$LOCK_KEY_ACCENT" \
-        --line-color '00000000' \
-        --ring-color "$LOCK_ACCENT" \
-        --ring-ver-color "$VERIF_ACCENT" \
-        --ring-wrong-color "$WRONG_ACCENT" \
-        --text-color "$FONT_COLOR" \
-        --text-ver-color "$FONT_COLOR" \
-        --text-wrong-color "$FONT_COLOR"
-
+    __swaylock
 fi
 
 #vlkbg
