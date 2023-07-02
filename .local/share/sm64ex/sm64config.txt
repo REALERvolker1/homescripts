@@ -1,7 +1,7 @@
 fullscreen false
-window_x 0
-window_y 0
-window_w 1920
+window_x 612
+window_y 29
+window_w 1307
 window_h 1050
 vsync false
 texture_filtering 2
