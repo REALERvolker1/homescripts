@@ -35,7 +35,7 @@ __prompt_command() {
     # Add dir code
     PS1+="\[\e[48;5;238m\]\[\e[97m\] \w\[\e[0m\]\[\e[38;5;238m\]"
 
-    if [ $exit != 0 ]; then
+    if ((exit != 0)); then
         PS1+="\[\e[48;5;124m\]\[\e[97m\] ${exit}\[\e[0m\]\[\e[38;5;124m\]"
     else
         PS1+=''
