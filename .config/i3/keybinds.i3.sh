@@ -74,6 +74,7 @@ bindsym $mod + XF86AudioLowerVolume $exec playerctl previous
 # Special keys {{{
 
 bindsym XF86Launch3 nop kitti3
+bindsym Scroll_Lock nop kitti3
 
 # Asus Aura key (Unused potential)
 bindsym XF86Launch4 $exec "dunstify -a $XDG_CURRENT_DESKTOP -- asusctl 'Aura mode not changed -- not configured'"

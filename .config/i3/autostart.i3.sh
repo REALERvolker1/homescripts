@@ -12,6 +12,7 @@ $exec dbus-update-activation-environment --systemd --verbose DISPLAY XAUTHORITY 
 #$exec nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -l
 #$exec autostart_keyring.sh
 $exec ~/.local/lib/hardcoded-keyring-unlocker
+$exec steam-symlink-unfucker.sh
 
 $exec volbright.sh --brightness --volume --keyboard
 
@@ -22,10 +23,10 @@ $exec pmgmt.sh
 $exec "killall xplugd; xplugd"
 
 # Input configs
-$exec numlockx
+#$exec numlockx
 $exec pointer.sh -n
-$exec xmodmap -e "clear lock"
-$exec xmodmap -e "keycode 66 = Escape NoSymbol Escape"
+#$exec xmodmap -e "clear lock"
+#$exec xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 
 # Bar icons
 $exec xfce4-clipman

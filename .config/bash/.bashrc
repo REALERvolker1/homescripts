@@ -7,15 +7,16 @@ shopt -s autocd checkwinsize histappend
 #. /etc/bashrc
 . /home/vlk/bin/vlkenv
 
-if [[ $- == *i* ]] && [ -z "$NO_BLE" ] && ( [[ "$TERM" == *'xterm'* ]] || [[ "$TERM" == *'256'* ]] ); then
-    bleargs="--noattach --rcfile '$BDOTDIR/blerc'"
+if [[ $- == *i* ]] && \
+    [ -z "${NO_BLE:-}" ] && \
+    ( [[ "$TERM" == *'xterm'* ]] || [[ "$TERM" == *'256'* ]] ); then
+    __bleargs="--noattach --rcfile '${BDOTDIR:-$HOME}/blerc'"
     if [ -f '/usr/share/blesh/ble.sh' ]; then
-        . '/usr/share/blesh/ble.sh' $bleargs
-    elif [ -f "${BDOTDIR:-$HOME}/launch-ble.sh" ]; then
-        . "${BDOTDIR:-$HOME}/launch-ble.sh"
-    elif [ -f "${XDG_DATA_HOME}/blesh/ble.sh" ]; then
-        . "${XDG_DATA_HOME}/blesh/ble.sh" $bleargs
+        . '/usr/share/blesh/ble.sh' $__bleargs
+    elif [ -f "${XDG_DATA_HOME:=$HOME/.local/share}/gitmgmt/ble.sh/out/ble.sh" ]; then
+        . "${XDG_DATA_HOME}/gitmgmt/ble.sh/out/ble.sh" $__bleargs
     fi
+    unset __bleargs
 fi
 
 . /home/vlk/bin/vlkrc
