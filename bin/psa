@@ -5,6 +5,7 @@ set -euo pipefail
 declare -A actions
 
 actions[print]="print the full command"
+actions[kill]="Kill the process"
 actions[spawn]='Spawn a new instance'
 
 if command -v pidstat >/dev/null; then
@@ -33,6 +34,9 @@ selected_action="$(printf '%s\n' "${actions[@]}" | tac | fzf --disabled)"
 case "$selected_action" in
 "${actions[print]}")
     echo "$exe"
+    ;;
+"${actions[kill]}")
+    kill "$pid"
     ;;
 "${actions[spawn]}")
     if [ -x "${exe## *}" ]; then
