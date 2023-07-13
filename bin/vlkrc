@@ -230,6 +230,8 @@ alias steamfix='find "$HOME/.var/app/com.valvesoftware.Steam/.config" -maxdepth 
 
 alias touchpad-gaming='xinput set-prop $(xinput | grep -oP "Touchpad\s*id=\K[0-9]*") "libinput Disable While Typing Enabled" 0'
 
+command -v steam >/dev/null && alias steam='flatpak run --branch=stable --arch=x86_64 --command=/app/bin/steam-wrapper --file-forwarding com.valvesoftware.Steam'
+
 # }}}
 # fonts {{{
 
