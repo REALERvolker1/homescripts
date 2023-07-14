@@ -1,0 +1,19 @@
+#!/bin/sh
+# vlk wrapper for betacraft
+
+realhome="$HOME"
+launcher="$HOME/.local/lib/launcher-1.09_16.jar"
+althome="$realhome/random"
+
+if [ ! -f "$launcher" ]; then
+    echo "Error, launcher location '$launcher' is invalid!"
+    exit 1
+elif [ ! -d "$althome" ]; then
+    echo "Error, althome location '$althome' is invalid!"
+    exit 1
+fi
+command -v 'java' >/dev/null || exit 1
+
+#export HOME="$althome"
+java -jar "$launcher"
+#export HOME="$realhome"
