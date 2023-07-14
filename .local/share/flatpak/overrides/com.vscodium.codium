@@ -1,3 +1,6 @@
 [Context]
-features=per-app-dev-shm
-filesystems=xdg-run/app/com.discordapp.Discord:create;~/random;home
+features=per-app-dev-shm;
+filesystems=xdg-run/app/com.discordapp.Discord:create;~/random;home;
+
+[Environment]
+PATH=/app/bin:/usr/bin:/home/vlk/bin:/home/vlk/.local/share/cargo/bin:/home/vlk/.local/share/pnpm
