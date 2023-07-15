@@ -111,10 +111,10 @@ menus=(
     'wofi -S drun'
 )
 
+#"$fr com.vscodium.codium${ozone}"
 editors=(
     'mousepad'
-    "$fr com.vscodium.codium${ozone}"
-    #"codium"
+    "codium"
     "$fr org.gnome.gitlab.somas.Apostrophe"
 )
 

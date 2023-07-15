@@ -1,4 +1,5 @@
 #!/bin/sh
+# script by vlk to install vscodium on any linux distro
 set -eu
 
 # path to install it to
