@@ -115,5 +115,6 @@
         "editor.defaultFormatter": "foxundermoon.shell-format"
     },
     "shellformat.flag": "-i 4",
-    "glassit.alpha": 100
+    "glassit.alpha": 100,
+    "rust-analyzer.diagnostics.enable": false
 }

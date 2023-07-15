@@ -1,6 +1,6 @@
 [Context]
-features=per-app-dev-shm;
-filesystems=xdg-run/app/com.discordapp.Discord:create;~/random;home;
+features=per-app-dev-shm
+filesystems=/usr/bin/rust-analyzer;/usr/bin/cargo;~/random;xdg-run/app/com.discordapp.Discord:create;~/code;home;host-etc;host-os
 
 [Environment]
 PATH=/app/bin:/usr/bin:/home/vlk/bin:/home/vlk/.local/share/cargo/bin:/home/vlk/.local/share/pnpm
