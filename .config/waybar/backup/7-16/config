@@ -38,7 +38,7 @@
         ]
     },
     "hyprland/window": {
-        "format": "{title:.50}",
+        "format": "{}",
         "separate-outputs": true
     },
 

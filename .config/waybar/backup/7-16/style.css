@@ -1,6 +1,6 @@
 /* bat ~cfg/gtk-3.0/gtk.css if using gradience*/
 * {
-    font-family: "Symbols Nerd Font", "Comic Sans MS";
+    font-family: "Symbols Nerd Font", sans-serif;
     font-size: 13px;
 }
 
@@ -74,17 +74,15 @@ tooltip label {
 }
 
 #window {
+    padding-left: 10px;
+    padding-right: 10px;
     background-color: @window_bg_color;
     border-radius: 0px 0px 10px 10px;
-    background-color: rgba(0, 0, 0, 0.01);
-    padding: 0px 10px;
-    font-weight: bold;
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-        1px 1px 0 #000;
 }
 
 #window.empty {
     background: transparent;
+    padding: 0px;
 }
 
 #custom-supergfxctl,
@@ -107,7 +105,7 @@ tooltip label {
 }
 
 #tray {
-    /*padding-right: 0px;*/
+    padding-right: 0px;
     border-radius: 0px 0px 0px 10px;
 }
 
