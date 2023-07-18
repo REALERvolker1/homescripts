@@ -1,5 +1,5 @@
 [Context]
-filesystems=xdg-config/gtk-3.0:ro;~/random:ro;xdg-config/gtk-4.0:ro;xdg-config/gtk-2.0:ro;xdg-config/fontconfig:ro;xdg-config/Kvantum:ro;
+filesystems=xdg-config/gtk-3.0:ro;~/random:ro;xdg-config/gtk-4.0:ro;xdg-config/Kvantum:ro;xdg-config/gtk-2.0:ro;xdg-config/fontconfig:ro;
 
 [Environment]
 XCURSOR_SIZE=24

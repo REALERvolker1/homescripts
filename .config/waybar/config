@@ -1,8 +1,9 @@
 {
     "layer": "top",
     "name": "topbar",
+    "mode": "dock",
     "height": 30,
-    "spacing": 4, // Gaps between modules (4px)
+    "spacing": 4,
     "modules-left": ["wlr/workspaces", "wlr/taskbar"],
     "modules-center": ["hyprland/window"],
     "modules-right": [
@@ -38,7 +39,7 @@
         ]
     },
     "hyprland/window": {
-        "format": "{title:.50}",
+        "format": "{title:.60}",
         "separate-outputs": true
     },
 
