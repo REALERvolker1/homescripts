@@ -87,7 +87,7 @@ alias free='free -h'
 
 alias neofetch=fastfetch
 
-alias extract=ouch
+alias extract='ouch decompress'
 alias ra=ranger
 
 alias fr='flatpak run'
@@ -97,6 +97,7 @@ alias whihc=which
 alias wget='wget --show-progress'
 
 alias bg-gen='convert +append -resize x1080'
+alias ttymouse='sudo gpm -m /dev/input/mice -t imps2'
 
 # vim, vscode {{{
 

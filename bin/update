@@ -16,7 +16,7 @@ elif command -v pacman >/dev/null; then
     pacman -Syu
 fi
 
-[ -d "$HOME/.local/opt/vscodium" ] && codium-update.py
+[ -d "$HOME/.local/opt/vscodium" ] && codium-install.sh
 
 command -v flatpak >/dev/null && flatpak update -y
 
