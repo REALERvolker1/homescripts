@@ -2,19 +2,32 @@
 # mini startx, by vlk
 # buncha shit stolen from https://github.com/Earnestly/sx
 # shellcheck disable=SC2064
+
+if [ "$TERM" != 'linux' ]; then
+    case "$(tty)" in
+    '/dev/tty'*)
+        true
+        ;;
+    *)
+        echo "Error, you must be in a real tty! '$(tty)' does not count!"
+        exit 1
+        ;;
+    esac
+fi
+
 VLK_SESSION_EXEC=''
 EXEC_COMMAND=''
 for arg in "$@"; do
     parg="${arg#*=}"
     case "$arg" in
-        '--xinitrc='*)
-            XINITRC="$parg"
+    '--xinitrc='*)
+        XINITRC="$parg"
         ;;
-        '--vlk-session='*)
-            VLK_SESSION_EXEC="$parg"
+    '--vlk-session='*)
+        VLK_SESSION_EXEC="$parg"
         ;;
-        *)
-            EXEC_COMMAND="$EXEC_COMMAND $arg"
+    *)
+        EXEC_COMMAND="$EXEC_COMMAND $arg"
         ;;
     esac
 done
@@ -27,7 +40,7 @@ fi
 export XAUTHORITY="${XAUTHORITY:-$XDG_RUNTIME_DIR/Xauthority}"
 
 cleanup() {
-    if [ "$server" ] && kill -0 "$server" 2> /dev/null; then
+    if [ "$server" ] && kill -0 "$server" 2>/dev/null; then
         kill "$server"
         wait "$server"
         xorg=$?

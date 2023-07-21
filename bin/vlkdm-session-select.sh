@@ -40,9 +40,41 @@ echo "$desktop_name"
 case "$selection" in
 *'wayland-sessions'*)
     echo "$desktop_exec"
+
+    export XDG_CURRENT_DESKTOP="$desktop_name"
+    export XDG_SESSION_DESKTOP="$desktop_name"
+    export XDG_SESSION_TYPE='wayland'
+
+    export QT_QPA_PLATFORM='wayland;xcb'
+    export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+    export GDK_BACKEND='wayland,x11'
+    export SDL_VIDEODRIVER='wayland'
+    export CLUTTER_BACKEND='wayland'
+    export _JAVA_AWT_WM_NONREPARENTING=1
+    export MOZ_ENABLE_WAYLAND=1
+
+    # WLR_NO_HARDWARE_CURSORS=1
+    #~/.local/lib/hardcoded-keyring-unlocker
+
+    ERRFILE="${ERRFILE:-$XDG_RUNTIME_DIR/errfile-$XDG_CURRENT_DESKTOP}"
+    [ -f "$ERRFILE" ] && rm "$ERRFILE"
+    touch -- "$ERRFILE"
+    (eval $desktop_exec) >>"$ERRFILE"
     ;;
 *'xsessions'*)
-    echo "$desktop_exec"
+    for i in \
+        stx \
+        sx \
+        startx; do
+        if command -v "$i" >/dev/null; then
+            cmdexec="$i"
+            #break
+        else
+            continue
+        fi
+    done
+    eval $cmdexec "$desktop_exec"
+    # echo "$desktop_exec"
     ;;
 *)
     echo shell

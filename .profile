@@ -5,6 +5,9 @@
 
 loginctl list-sessions --no-pager
 
+export GNOME_KEYRING_CONTROL="$XDG_RUNTIME_DIR/keyring"
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
+
 start_hyprland() {
     export XDG_CURRENT_DESKTOP='Hyprland'
     export XDG_SESSION_DESKTOP='Hyprland'
@@ -20,8 +23,6 @@ start_hyprland() {
 
     # WLR_NO_HARDWARE_CURSORS=1
     #~/.local/lib/hardcoded-keyring-unlocker
-    export GNOME_KEYRING_CONTROL="$XDG_RUNTIME_DIR/keyring"
-    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
 
     ERRFILE="${ERRFILE:-$XDG_RUNTIME_DIR/errfile-$XDG_CURRENT_DESKTOP}"
     [ -f "$ERRFILE" ] && rm "$ERRFILE"
