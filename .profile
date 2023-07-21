@@ -30,6 +30,12 @@ start_hyprland() {
 }
 eval $(set-cursor-theme.sh --shell-eval)
 
+case "$0" in
+*'bash'*)
+    unset MAILCHECK
+    ;;
+esac
+
 case "$-" in
 *'i'*)
     if [ "$TERM" = 'linux' ] && [ "$(tty)" = '/dev/tty1' ]; then

@@ -1,24 +1,9 @@
 #!/bin/sh
 
-case "${CURRENT_DISTRO:-}" in
-    'Arch')
-        pkpath='/usr/lib/xfce-polkit/xfce-polkit'
-        errmsg="Error, please install 'xfce-polkit' from the AUR!"
-        ;;
-    'Fedora')
-        pkpath='/usr/libexec/xfce-polkit'
-        errmsg="Error, please install 'xfce-policykit' with DNF"
-        ;;
-    *)
-        echo "Error, \$CURRENT_DISTRO value '$CURRENT_DISTRO' is unsupported!"
-        exit 1
-        ;;
-esac
+for i in \
+    '/usr/libexec/xfce-polkit' \
+    '/usr/lib/xfce-polkit/xfce-polkit'; do
+    [ -x "$i" ] && exec "$i"
+done
 
-if [ ! -x "$pkpath" ]; then
-    echo "$errmsg"
-    exit 1
-fi
-
-exec $pkpath
-
+echo "Error, could not find xfce-polkit! (is it installed?)"

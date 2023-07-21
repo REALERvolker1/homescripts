@@ -59,7 +59,11 @@ export GPG_TTY="${TTY:-$(tty)}"
 export FZF_DEFAULT_OPTS="--prompt=' ' --pointer=' ' --marker=' ' --tabstop=4 --no-mouse --ansi \
 --color=fg:#ccccdc,hl:#df6b75,fg+:#fcfcff,bg+:#2c323d,hl+:#d682f0,info:#f2ce97,prompt:#d7005f,pointer:#65b6f8,marker:#56b5c2,spinner:#d682f0,header:#e6e6e6 "
 
-export XDG_DATA_DIRS="$XDG_DATA_HOME:$XDG_DATA_HOME/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share"
+export XDG_DATA_DIRS="$XDG_DATA_HOME:\
+$XDG_DATA_HOME/flatpak/exports/share:\
+$HOME/.var/app/com.valvesoftware.Steam/data:\
+/var/lib/flatpak/exports/share:\
+/usr/local/share:/usr/share"
 #export MANPATH="$XDG_DATA_HOME/man:/usr/local/share/man:/usr/share/man"
 export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo:/usr/share/terminfo"
 

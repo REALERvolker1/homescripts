@@ -1,7 +1,7 @@
 {
     "layer": "top",
     "name": "topbar",
-    "mode": "dock",
+    //"mode": "dock",
     "height": 30,
     "spacing": 4,
     "modules-left": ["wlr/workspaces", "wlr/taskbar"],
