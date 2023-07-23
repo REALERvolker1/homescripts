@@ -22,8 +22,6 @@ start_hyprland() {
     export MOZ_ENABLE_WAYLAND=1
 
     # WLR_NO_HARDWARE_CURSORS=1
-    #~/.local/lib/hardcoded-keyring-unlocker
-
     ERRFILE="${ERRFILE:-$XDG_RUNTIME_DIR/errfile-$XDG_CURRENT_DESKTOP}"
     [ -f "$ERRFILE" ] && rm "$ERRFILE"
     touch -- "$ERRFILE"

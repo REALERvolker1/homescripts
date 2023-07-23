@@ -70,8 +70,8 @@ calculators=(
 if [ -n "$WAYLAND_DISPLAY" ]; then
     terminals=(
         "mate-terminal$TERMINAL_ARGS"
-        "alacritty$TERMINAL_ARGS"
         "kitty$TERMINAL_ARGS"
+        "alacritty$TERMINAL_ARGS"
     )
         # "xfce4-terminal$TERMINAL_ARGS"
     screenshots=(
@@ -93,6 +93,7 @@ if [ -n "$WAYLAND_DISPLAY" ]; then
     fi
     if [ "$(supergfxctl -S)" = 'active' ]; then
         terminals[0]="kitty$TERMINAL_ARGS"
+        terminals[1]="mate-terminal$TERMINAL_ARGS"
     fi
 
 fi
