@@ -2,7 +2,7 @@
 
 if command -v dnf >/dev/null; then
     # support dnf5 on Fedora Rawhide
-    if stat /usr/bin/dnf | grep -oP '^\s*File:.*-> \K.*dnf5'; then
+    if file /usr/bin/dnf | grep 'dnf5$'; then
         sudo dnf makecache
         sudo dnf upgrade
     else
@@ -13,10 +13,17 @@ fi
 if command -v yay >/dev/null; then
     yay -Syu
 elif command -v pacman >/dev/null; then
-    pacman -Syu
+    sudo pacman -Syu
 fi
 
-[ -d "$HOME/.local/opt/vscodium" ] && codium-install.sh
+if command -v apt >/dev/null; then
+    sudo apt update
+    sudo apt upgrade
+fi
+
+if ping -c 1 'www.github.com' >/dev/null && [ -d "$HOME/.local/opt/vscodium" ] && command -v codium-install.sh >/dev/null; then
+    codium-install.sh
+fi
 
 command -v flatpak >/dev/null && flatpak update -y
 
