@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/alex-courtis/xlayoutdisplay'
+change_cwd
+
+make
+
+binlink "$PWD/xlayoutdisplay"
+

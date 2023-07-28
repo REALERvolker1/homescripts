@@ -25,12 +25,13 @@ for_window [window_role="GtkFileChooserDialog"] resize set 1100 800, move positi
 # Workspaces {{{
 
 assign [class="VSCodium"] workspace $ws1
-#assign [class="(?i)firefox"] workspace $ws2
+assign [class="(?i)firefox"] workspace $ws4
 assign [class="LibreWolf"] workspace $ws2
 #assign [class="Mullvad Browser"] workspace $ws2
-assign [class="Opera"] workspace $ws3
-assign [class="Brave-browser"] workspace $ws4
+#assign [class="Opera"] workspace $ws3
+assign [class="Brave-browser"] workspace $ws3
 assign [class="(?i)steam"] workspace $ws5
+for_window [class="^$" title="^Steam$"] workspace $ws5
 assign [class="discord"] workspace $ws6
 
 # }}}

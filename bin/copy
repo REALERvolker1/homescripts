@@ -16,7 +16,7 @@ else
     content="$*"
 fi
 
-if [ -z "$WAYLAND_DISPLAY" ]; then
+if [ -z "${WAYLAND_DISPLAY:-}" ]; then
     echo -n "$content" | xclip -selection clipboard
 else
     wl-copy "$content"

@@ -56,10 +56,10 @@ terminals=(
 )
 
 screenshots=(
-    'spectacle --pointer --region'
-    'spectacle --pointer --background --current'
-    'spectacle --pointer --current'
-    'spectacle --pointer --background --fullscreen'
+    'flameshot gui'
+    'flameshot screen'
+    'flameshot full'
+    'flameshot launcher'
 )
 
 calculators=(

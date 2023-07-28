@@ -1,8 +1,8 @@
 fullscreen false
-window_x 612
-window_y 29
-window_w 1307
-window_h 1050
+window_x 0
+window_y 28
+window_w 1920
+window_h 1052
 vsync false
 texture_filtering 2
 master_volume 113

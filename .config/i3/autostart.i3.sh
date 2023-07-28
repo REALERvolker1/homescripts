@@ -39,10 +39,11 @@ $exec flashfocus
 $exec "killall gammastep; gammastep -P"
 #$exec hsetroot -root -cover "$XDG_DATA_HOME/backgrounds/out.png"
 $exec set-cursor-theme.sh --session
+$exec nitrogen --restore
 
 #$exec scratchpad_terminal.sh
 
 # exec_always field
 #$execa hsetroot -cover "$(printf '%s\n' $XDG_DATA_HOME/backgrounds/* | shuf | head -n 1)"
-$execa vlkbg
+#$execa vlkbg
 $execa kitti3 -s 0.75 1.0 -p RC
