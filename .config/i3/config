@@ -127,7 +127,8 @@ bar {
     #tray_output none
     tray_padding 0
     i3bar_command i3bar --transparency
-    status_command i3status-rs
+    status_command /home/vlk/.local/share/cargo/bin/i3status-rs
+    #status_command i3status-rs
 }
 
 # }}}

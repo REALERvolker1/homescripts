@@ -47,7 +47,8 @@ _initialize () {
 
 _pkginst () {
     if dnf copr list | grep -q 'solopasha/hyprland'; then
-        sudo dnf install hyprland hyprpaper hyprpicker hyprshot hyprprop grimblast waybar-git xdg-desktop-portal-hyprland swaylock swayidle
+        #sudo dnf install hyprland hyprpaper hyprpicker hyprshot hyprprop grimblast waybar-git xdg-desktop-portal-hyprland swaylock swayidle
+	true
     fi
 
     sudo dnf install --allowerasing ffmpeg ffmpeg-devel

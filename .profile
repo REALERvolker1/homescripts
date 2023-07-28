@@ -35,15 +35,17 @@ case "$0" in
     ;;
 esac
 
+export ERRFILE="$XDG_RUNTIME_DIR/xsession-errors"
 case "$-" in
 *'i'*)
-    if [ "$TERM" = 'linux' ] && [ "$(tty)" = '/dev/tty2' ]; then
-        #start_hyprland
-        #exec vlkdm-login-profile.sh
-        Hyprland
-    else
-        . "${BDOTDIR:-$HOME}/.bashrc"
-    fi
+    #if [ "$TERM" = 'linux' ] && [ "$(tty)" = '/dev/tty2' ]; then
+    #    #start_hyprland
+    #    #exec vlkdm-login-profile.sh
+    #    Hyprland
+    #else
+    #    . "${BDOTDIR:-$HOME}/.bashrc"
+    #fi
+    . "${BDOTDIR:-$HOME}/.bashrc"
     ;;
 *)
     echo 'non-interactive'

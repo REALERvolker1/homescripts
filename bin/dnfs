@@ -45,7 +45,7 @@ while :; do
     fi
 done
 
-dnf info "$package"
+dnf info -C "$package"
 
 if sudo -vn &> /dev/null; then
     sudo dnf install "$package"

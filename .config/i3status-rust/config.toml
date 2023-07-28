@@ -195,12 +195,12 @@ cmd = "pointer.sh -t"
 # }}}
 # supergfx block {{{
 
-[[block]]
-block = "custom"
-format = "  $text  "
-command = "$XDG_CONFIG_HOME/bar-scripts/supergfx-status.sh"
-persistent = true
-hide_when_empty = true
+#[[block]]
+#block = "custom"
+#format = "  $text  "
+#command = "$XDG_CONFIG_HOME/bar-scripts/supergfx-status.sh"
+#persistent = true
+#hide_when_empty = true
 
 # }}}
 # hueshift {{{
