@@ -1,13 +1,13 @@
 #!/usr/bin/bash
 
-xrdb -merge "${XRESOURCES:-$HOME/.Xresources}"
-xlayoutdisplay
+#xrdb -merge "${XRESOURCES:-$HOME/.Xresources}"
+#xlayoutdisplay
 
 session="${VLK_SESSION_EXEC:-i3}"
 
-numlockx
-xmodmap -e "clear lock"
-xmodmap -e "keycode 66 = Escape NoSymbol Escape"
+#numlockx
+#xmodmap -e "clear lock"
+#xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 
 if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
     exec dbus-run-session -- "$session"

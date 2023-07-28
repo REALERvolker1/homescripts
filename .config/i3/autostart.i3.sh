@@ -2,19 +2,19 @@
 # vim:foldmethod=marker:ft=i3config
 
 # x11 stuff
+$exec dbus-update-activation-environment --systemd --verbose DISPLAY XAUTHORITY WAYLAND_DISPLAY
 $exec xrdb -merge "$XRESOURCES"
-#$exec xlayoutdisplay
+$exec xlayoutdisplay
 
 # DE stuff
-$exec /usr/lib/xfce-polkit/xfce-polkit
-$exec dbus-update-activation-environment --systemd --verbose DISPLAY XAUTHORITY WAYLAND_DISPLAY
+$exec xfce-polkit.sh
 #$exec gnome-keyring-daemon -r
 #$exec nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -l
-#$exec autostart_keyring.sh
 $exec ~/.local/lib/hardcoded-keyring-unlocker
-$exec steam-symlink-unfucker.sh
 
+# scripts
 $exec volbright.sh --brightness --volume --keyboard
+$exec steam-symlink-unfucker.sh
 
 # Power management
 $exec xset -dpms
@@ -23,20 +23,22 @@ $exec pmgmt.sh
 $exec "killall xplugd; xplugd"
 
 # Input configs
-#$exec numlockx
+$exec numlockx
 $exec pointer.sh -n
-#$exec xmodmap -e "clear lock"
-#$exec xmodmap -e "keycode 66 = Escape NoSymbol Escape"
+$exec xmodmap -e "clear lock"
+$exec xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 
 # Bar icons
 $exec xfce4-clipman
 $exec nm-applet
+# $exec rog-control-center
 
 # visuals
 $exec picom
 $exec flashfocus
 $exec "killall gammastep; gammastep -P"
 $exec hsetroot -root -cover "$XDG_DATA_HOME/backgrounds/out.png"
+$exec set-cursor-theme.sh --session
 
 #$exec scratchpad_terminal.sh
 

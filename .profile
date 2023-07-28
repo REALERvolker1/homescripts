@@ -5,8 +5,8 @@
 
 loginctl list-sessions --no-pager
 
-export GNOME_KEYRING_CONTROL="$XDG_RUNTIME_DIR/keyring"
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
+#export GNOME_KEYRING_CONTROL="$XDG_RUNTIME_DIR/keyring"
+#export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
 
 start_hyprland() {
     export XDG_CURRENT_DESKTOP='Hyprland'
@@ -27,7 +27,7 @@ start_hyprland() {
     touch -- "$ERRFILE"
     (Hyprland) >>"$ERRFILE"
 }
-eval $(set-cursor-theme.sh --shell-eval)
+#eval $(set-cursor-theme.sh --shell-eval)
 
 case "$0" in
 *'bash'*)
@@ -37,9 +37,10 @@ esac
 
 case "$-" in
 *'i'*)
-    if [ "$TERM" = 'linux' ] && [ "$(tty)" = '/dev/tty1' ]; then
-        start_hyprland
+    if [ "$TERM" = 'linux' ] && [ "$(tty)" = '/dev/tty2' ]; then
+        #start_hyprland
         #exec vlkdm-login-profile.sh
+        Hyprland
     else
         . "${BDOTDIR:-$HOME}/.bashrc"
     fi
