@@ -1,8 +1,41 @@
-#!/bin/sh
+#!/usr/bin/dash
 
 if [ -z "$WAYLAND_DISPLAY" ]; then
-    exec kitty "$@"
+    _vst_firstpref=kitty
+    _vst_secondpref=xfce4-terminal
 else
-    exec xfce4-terminal "$@"
+    _vst_firstpref=xfce4-terminal
+    _vst_secondpref=kitty
 fi
+
+case "$1" in
+    1)
+        echo "$*"
+        shift 1
+        exec $_vst_firstpref "$@"
+        ;;
+    2)
+        echo "$*"
+        shift 1
+        exec $_vst_secondpref "$@"
+        ;;
+    *)
+        for i in \
+            "alacritty" \
+            "konsole" \
+            "mate-terminal" \
+            "gnome-terminal" \
+            "qterminal" \
+            "xfce4-terminal" \
+            "kitty" \
+            "xterm"
+        do
+            if command -v "$i" >/dev/null; then
+                exec $i "$@"
+                break
+            fi
+        done
+        ;;
+esac
+
 
