@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+source gitmgmt.sh --source
+
+clone_func 'https://github.com/hzeller/timg'
+change_cwd
+
+mkdir build
+cd build
+cmake ../
+make
