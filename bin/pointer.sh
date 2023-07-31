@@ -10,7 +10,8 @@ TOUCHPAD_STATUS="$XDG_RUNTIME_DIR/touchpad-statusfile"
 
 if [ -z "${WAYLAND_DISPLAY:-}" ]; then
     touchpad_name='ASUP1205:00 093A:2003 Touchpad'
-    mouse_name='Glorious Model O Wireless'
+    #mouse_name='Glorious Model O Wireless'
+    mouse_name='Glorious Model O'
     PLATFORM='x11'
 elif [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
     touchpad_name='asup1205:00-093a:2003-touchpad'
