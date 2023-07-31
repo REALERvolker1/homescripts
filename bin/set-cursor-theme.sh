@@ -23,8 +23,8 @@ set_cursors () {
     if command -v xrdb >/dev/null; then
         # merge X resources if they are empty
         printf '%s\n' "$(xrdb -query | grep -vE '^Xcursor\.(theme|size)')" \
-            "Xcursor.theme: $XCURSOR_THEME" \
-            "Xcursor.size: $XCURSOR_SIZE" \
+            "Xcursor.theme: ${XCURSOR_THEME:-}" \
+            "Xcursor.size: ${XCURSOR_SIZE:-}" \
              | xrdb -load
         echo 'Cursors set in X server resources'
     fi

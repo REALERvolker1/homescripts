@@ -4,13 +4,13 @@
 # x11 stuff
 $exec dbus-update-activation-environment --systemd --verbose DISPLAY XAUTHORITY WAYLAND_DISPLAY
 $exec xrdb -merge "$XRESOURCES"
-$exec xlayoutdisplay
+$exec xlayoutdisplay --quiet
 
 # DE stuff
 $exec xfce-polkit.sh
 #$exec gnome-keyring-daemon -r
 #$exec nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -l
-$exec ~/.local/lib/hardcoded-keyring-unlocker
+#$exec ~/.local/lib/hardcoded-keyring-unlocker
 
 # scripts
 $exec volbright.sh --brightness --volume --keyboard
@@ -37,9 +37,9 @@ $exec rog-control-center
 $exec picom
 $exec flashfocus
 $exec "killall gammastep; gammastep -P"
-#$exec hsetroot -root -cover "$XDG_DATA_HOME/backgrounds/out.png"
 $exec set-cursor-theme.sh --session
-$exec nitrogen --restore
+#$exec nitrogen --restore
+$exec hsetroot -cover ~/.local/share/backgrounds/subnautica-alan.jpg
 
 #$exec scratchpad_terminal.sh
 

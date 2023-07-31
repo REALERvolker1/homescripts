@@ -45,12 +45,12 @@ format = "{  $icon$avail  $combo.str(min_w:1, max_w:6,rot_interval:0.5)�
 # }}}
 # kernel {{{
 
-[[block]]
-block = "custom"
-format = "   $text  "
-command = "uname -r | sed 's/-.*$//g'"
-interval = "once"
-hide_when_empty = true
+#[[block]]
+#block = "custom"
+#format = "   $text  "
+#command = "uname -r | sed 's/-.*$//g'"
+#interval = "once"
+#hide_when_empty = true
 
 
 # }}}
@@ -170,12 +170,12 @@ hide_when_empty = true
 # }}}
 # gnome-keyring-daemon {{{
 
-[[block]]
-block = "custom"
-format = "  $text  "
-command = "$XDG_CONFIG_HOME/bar-scripts/gnome-keyring-daemon.sh"
-interval = 60
-hide_when_empty = true
+#[[block]]
+#block = "custom"
+#format = "  $text  "
+#command = "$XDG_CONFIG_HOME/bar-scripts/gnome-keyring-daemon.sh"
+#interval = 60
+#hide_when_empty = true
 
 # }}}
 # Touchpad {{{
