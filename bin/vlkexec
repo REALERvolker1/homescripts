@@ -69,7 +69,7 @@ calculators=(
 
 if [ -n "$WAYLAND_DISPLAY" ]; then
     terminals=(
-        "mate-terminal$TERMINAL_ARGS"
+        "xfce4-terminal$TERMINAL_ARGS"
         "kitty$TERMINAL_ARGS"
         "alacritty$TERMINAL_ARGS"
     )

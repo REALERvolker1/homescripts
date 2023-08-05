@@ -9,10 +9,11 @@ DESC="$*"
 
 
 if [[ "$STATUS" == "connected" ]]; then
+    echo "xplug detected $TYPE"
     case "$TYPE" in
         display)
-            xlayoutdisplay
-            vlkbg
+            xlayoutdisplay --quiet
+            nitrogen --restore
         ;;
         pointer)
             #pointer.sh -n

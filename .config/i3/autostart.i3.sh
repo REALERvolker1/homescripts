@@ -39,7 +39,8 @@ $exec flashfocus
 $exec "killall gammastep; gammastep -P"
 $exec set-cursor-theme.sh --session
 #$exec nitrogen --restore
-$exec hsetroot -cover ~/.local/share/backgrounds/subnautica-alan.jpg
+# the following gets called in ~/.config/xplugrc
+#$exec hsetroot -cover ~/.local/share/backgrounds/subnautica-alan.jpg
 
 #$exec scratchpad_terminal.sh
 

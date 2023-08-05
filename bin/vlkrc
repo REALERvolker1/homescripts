@@ -4,6 +4,8 @@
 
 [[ "$-" != *i* ]] && exit 1
 
+[ -f "$HOME/.xsel.log" ] && rm "$HOME/.xsel.log" &>/dev/null
+
 __homebin="$HOME/bin"
 
 # ls, cd {{{
