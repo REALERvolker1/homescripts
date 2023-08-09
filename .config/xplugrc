@@ -13,7 +13,8 @@ if [[ "$STATUS" == "connected" ]]; then
     case "$TYPE" in
         display)
             xlayoutdisplay --quiet
-            nitrogen --restore
+            #nitrogen --restore
+            vlkbg
         ;;
         pointer)
             #pointer.sh -n

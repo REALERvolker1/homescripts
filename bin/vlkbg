@@ -1,6 +1,10 @@
 #!/usr/bin/dash
 # vim:ft=sh
 
+hsetroot -cover "$(printf '%s\n' $XDG_DATA_HOME/backgrounds/fedora/* | shuf -n 1)"
+exit 0
+
+
 background_select () {
     echo "$XDG_DATA_HOME/backgrounds/"*.jpg | tr ' ' '\n' | shuf | head -n 1
 }

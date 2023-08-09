@@ -32,6 +32,7 @@ $exec xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 $exec xfce4-clipman
 $exec nm-applet
 $exec rog-control-center
+$exec flameshot
 
 # visuals
 $exec picom
@@ -46,5 +47,5 @@ $exec set-cursor-theme.sh --session
 
 # exec_always field
 #$execa hsetroot -cover "$(printf '%s\n' $XDG_DATA_HOME/backgrounds/* | shuf | head -n 1)"
-#$execa vlkbg
+$execa vlkbg
 $execa kitti3 -s 0.75 1.0 -p RC

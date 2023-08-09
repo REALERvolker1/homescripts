@@ -4,7 +4,12 @@
 [[ $- != *i* ]] && return
 unset MAILCHECK
 shopt -s autocd checkwinsize histappend
-. /home/vlk/bin/vlkenv
+
+if [[ "${HOSTNAME:-}" == 'toolbox' ]] || [[ "${HOSTNAME:-}" == 'distrobox' ]]; then
+    return
+fi
+
+    . /home/vlk/bin/vlkenv
 
 if [[ $- == *i* ]] && \
         [ -z "${NO_BLE:-}" ] && \
