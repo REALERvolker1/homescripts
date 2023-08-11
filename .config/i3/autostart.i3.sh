@@ -8,6 +8,7 @@ $exec xlayoutdisplay --quiet
 
 # DE stuff
 $exec xfce-polkit.sh
+$exec "killall dunst; dunst"
 #$exec gnome-keyring-daemon -r
 #$exec nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -l
 #$exec ~/.local/lib/hardcoded-keyring-unlocker

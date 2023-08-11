@@ -1,3 +1,0 @@
-#!/bin/sh
-
-exec flatpak run org.audacityteam.Audacity "$@"

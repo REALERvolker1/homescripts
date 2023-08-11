@@ -1,4 +1,0 @@
-#!/bin/sh
-[ -n "$WAYLAND_DISPLAY" ] && electron_flags='--enable-features=UseOzonePlatform --ozone-platform=wayland'
-comm="flatpak run com.discordapp.Discord ${electron_flags:-}"
-exec $comm "$@"
