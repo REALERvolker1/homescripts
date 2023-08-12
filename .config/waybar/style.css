@@ -76,7 +76,7 @@ tooltip label {
 #window {
     background-color: @window_bg_color;
     border-radius: 0px 0px 10px 10px;
-    background-color: rgba(0, 0, 0, 0.01);
+    /*background-color: rgba(0, 0, 0, 0.01);*/
     padding: 0px 10px;
     font-weight: bold;
     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,

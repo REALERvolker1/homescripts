@@ -4,7 +4,8 @@ monitor = 0
 follow = none
 
 width = (250, 350)
-height = (0, 300)
+height = 300
+#height = (10, 300)
 
 origin = top-right
 offset = 10x50
@@ -70,7 +71,6 @@ show_indicators = yes
 enable_recursive_icon_lookup = true
 icon_theme = "Newaita-reborn-deep-purple-dark, Adwaita, hicolor"
 # Paths to default icons
-#icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
 icon_path = /usr/share/icons/Adwaita/16x16/status/:/usr/share/icons/Adwaita/16x16/devices/:/usr/share/icons/Adwaita/16x16/legacy/
 
 sticky_history = yes
@@ -107,19 +107,19 @@ mouse_right_click = do_action, close_current
 frame_color = "#61afef"
 
 [urgency_low]
-background = "#3e4451"
+background = "#3e445190"
 foreground = "#AAAAAA"
 timeout = 5
 default_icon = emblem-information
 
 [urgency_normal]
-background = "#282c34"
+background = "#282c3490"
 foreground = "#ffffff"
 timeout = 5
 #default_icon = emblem-information
 
 [urgency_critical]
-background = "#900000"
+background = "#900000C0"
 foreground = "#ffffff"
 frame_color = "#ef596f"
 timeout = 0

@@ -33,7 +33,7 @@ selection="$(echo -e "$menu" | rofi -dmenu -mesg 'vlkexec character map selector
 
 case "$selection" in
     'Nerd Fonts')
-        exec nerd-rofi.py
+        exec nerd-rofi.sh
     ;; 'Emojis')
         exec rofimoji
     ;; 'Special Characters')

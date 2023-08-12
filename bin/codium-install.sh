@@ -130,7 +130,7 @@ fi
 
 if [ ! -f "${XDG_CONFIG_HOME:-$HOME/.config}/VSCodium" ]; then
     mkdir -p "$codium_data/user-data"
-    ln -s "$codium_data/user-data" "${XDG_CONFIG_HOME:-$HOME/.config}/VSCodium"
+    ln -s "$codium_data/user-data" "${XDG_CONFIG_HOME:-$HOME/.config}/VSCodium" || true
 fi
 
 echo "
