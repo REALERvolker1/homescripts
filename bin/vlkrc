@@ -169,6 +169,12 @@ dotp() {
     git push
     cd "$current_dir" &>/dev/null || return 1
 }
+dotd() {
+    local current_dir="$PWD"
+    cd "$HOMESCRIPTS" &>/dev/null || return 1
+    gitd
+    cd "$current_dir" &>/dev/null || return 1
+}
 # }}}
 # cargo {{{
 
