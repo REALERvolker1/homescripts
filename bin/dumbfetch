@@ -1,11 +1,9 @@
 #!/usr/bin/dash
-
 box_color="[38;5;$(shuf -i 1-255 -n 1)m"
 
 prop0="${SHLVL:-999}"
 prop1="$(uptime -p | sed 's/^up // ; s/hour/hr/g ; s/minute/min/g')"
 prop2="${TERM:-Undefined}"
-#prop3="$(df -h -l -t btrfs --output=pcent | tail -n '+2' | head -n 1 | sed 's/[[:space:]]//g')"
 prop3="$(printf '%s\t' $(df -h -l -t btrfs --output=pcent) | cut -f 2)"
 prop4="$(
     if command -v 'rpm' >/dev/null; then
