@@ -10,13 +10,35 @@ __homebin="$HOME/bin"
 
 # ls, cd {{{
 
-alias ls=lsd
-alias ll='lsd -l'
+__lscmd="$(unalias ls; command -v ls)"
+__lsargs='--color=auto --group-directories-first'
 
-alias la='/usr/bin/ls -A --color=auto --group-directories-first'
-alias lah="/usr/bin/ls -Fsh -A --color=auto --group-directories-first"
+if command -v lsd &>/dev/null; then
+    alias ls=lsd
+    alias ll='lsd -l'
 
-alias tree='lsd --tree'
+    alias tree='lsd --tree'
+else
+    alias ls="$__lscmd $__lsargs -A"
+    alias ll="$__lscmd $__lsargs -Al"
+
+    if command -v tree &>/dev/null; then
+        true
+    else
+        alias tree="$__lscmd $__lsargs -AR"
+    fi
+fi
+
+alias la="$__lscmd $__lsargs -A"
+alias lah="$__lscmd $__lsargs -AFsh"
+
+unset __lscmd __lsargs
+#alias ls=lsd
+#alias ll='lsd -l'
+
+#alias la='/usr/bin/ls -A --color=auto --group-directories-first'
+#alias lah="/usr/bin/ls -Fsh -A --color=auto --group-directories-first"
+
 
 alias sl=ls
 alias l=ls
@@ -28,7 +50,17 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 
 alias pw=pwd
-alias rp=realpath
+#alias rp=realpath
+rp () {
+    if [ -z "${1:-}" ]; then
+        realpath "$PWD"
+    else
+        local i
+        for i in "$@"; do
+            realpath "$i"
+        done
+    fi
+}
 
 # }}}
 # session, shell stuff, sudo {{{
@@ -103,18 +135,20 @@ alias ttymouse='sudo gpm -m /dev/input/mice -t imps2'
 
 # vim, vscode {{{
 
-if [ -x "$(command -v codium)" ]; then
-    ide_command='codium'
-elif [ -x '/var/lib/flatpak/exports/bin/com.vscodium.codium' ]; then
-    ide_command='/var/lib/flatpak/exports/bin/com.vscodium.codium'
-else
-    ide_command="$EDITOR"
-fi
+#if [ -x "$(command -v codium)" ]; then
+#    ide_command='codium'
+#elif [ -x '/var/lib/flatpak/exports/bin/com.vscodium.codium' ]; then
+#    ide_command='/var/lib/flatpak/exports/bin/com.vscodium.codium'
+#else
+#    ide_command="$EDITOR"
+#fi
 # codium() { $ide_command "$@"; }
 
-[[ "$ide_command" != 'codium' ]] && alias codium="$ide_command"
-alias code="$ide_command"
-alias co="$ide_command"
+#[[ "$ide_command" != 'codium' ]] && alias codium="$ide_command"
+#alias code="$ide_command"
+#alias co="$ide_command"
+
+alias code=codium
 
 alias vi="$EDITOR"
 #alias vim='$EDITOR'

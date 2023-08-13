@@ -5,6 +5,12 @@ set -euo pipefail
 shellsel="$1"
 shift 1
 
+if command -v "$shellsel" >/dev/null; then
+    true
+else
+    exit 1
+fi
+
 declare -a stdin
 if [ ! -t 0 ]; then
     while read -r line; do
