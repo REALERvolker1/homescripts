@@ -15,9 +15,9 @@ codium_paths="$(
 )"
 
 if [ -n "${codium_paths:-}" ]; then
-    exec $codium_paths
+    exec $codium_paths "$@"
 elif [ -f "$flatpak_path" ]; then
-    flatpak run com.vscodium.codium
+    flatpak run com.vscodium.codium "$@"
 else
     notify-send -a "${0##*/}" 'Error' "Could not find VSCodium installation"
 fi
