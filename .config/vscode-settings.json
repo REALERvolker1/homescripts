@@ -119,5 +119,6 @@
     "rust-analyzer.diagnostics.enable": false,
     "[properties]": {
         "editor.defaultFormatter": null
-    }
+    },
+    "window.zoomLevel": -2
 }

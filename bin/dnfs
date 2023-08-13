@@ -28,9 +28,7 @@ echo 'Searching...'
 # grep '\.' |
 packages="$(dnf list --available -C | grep -Ev "$filterstr" | cut -d ' ' -f 1)"
 
-selected_packages="$(
-    echo "$packages" | sed "$cosmetic_sedstr" | sh -c "$fzfcmd"
-)"
+selected_packages="$(echo "$packages" | sed "$cosmetic_sedstr" | sh -c "$fzfcmd")"
 
 (
     echo "You are about to install the following packages"
