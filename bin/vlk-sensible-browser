@@ -7,22 +7,19 @@ if [ -n "$WAYLAND_DISPLAY" ]; then
 fi
 
 case "$1" in
-    1)
-        shift 1
-        exec $fr 'io.gitlab.librewolf-community' "$@"
-        ;;
-    2)
-        shift 1
-        exec $fr 'org.mozilla.firefox' "$@"
-        ;;
-    3)
-        shift 1
-        exec $fr 'com.brave.Browser' ${ozone} "$@"
-        ;;
-    *)
-        echo "Error, please enter a number 1-3"
-        ;;
+1)
+    shift 1
+    exec $fr 'io.gitlab.librewolf-community' "$@"
+    ;;
+2)
+    shift 1
+    exec $fr 'org.mozilla.firefox' "$@"
+    ;;
+3)
+    shift 1
+    exec $fr 'com.brave.Browser' $ozone "$@"
+    ;;
+*)
+    echo "Error, please enter a number 1-3"
+    ;;
 esac
-
-
-
