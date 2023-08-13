@@ -11,7 +11,7 @@ fi
 [ -z "$*" ] && exit 1
 
 if [ -z "${stdin[*]}" ]; then
-    exec $@
+    exec "$@"
 else
-    printf '%s\n' "${stdin[@]}" | exec $@
+    printf '%s\n' "${stdin[@]}" | exec "$@"
 fi

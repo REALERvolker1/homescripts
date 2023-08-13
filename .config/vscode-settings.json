@@ -118,6 +118,6 @@
     "glassit.alpha": 100,
     "rust-analyzer.diagnostics.enable": false,
     "[properties]": {
-        "editor.defaultFormatter": "foxundermoon.shell-format"
+        "editor.defaultFormatter": null
     }
 }
