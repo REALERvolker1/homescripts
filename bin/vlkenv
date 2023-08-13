@@ -191,10 +191,11 @@ done
 unset i
 export PATH="$temppath"
 
+unset ICON_TYPE
 __vlkenv_term="${TERM:-}"
-[ -n "$VTE_VERSION" ] && __vlkenv_term='vte_alacritty'
+[ -n "${VTE_VERSION:-}" ] && __vlkenv_term='vte_alacritty'
 case "$__vlkenv_term" in
-'xterm-kitty')
+*'kitty')
     ICON_TYPE='dashline'
     ;;
 *'alacritty'*)
@@ -204,6 +205,6 @@ case "$__vlkenv_term" in
     ICON_TYPE='fallback'
     ;;
 esac
+unset __vlkenv_term
 export ICON_TYPE
 
-unset __vlkenv_term
