@@ -10,7 +10,7 @@ __homebin="$HOME/bin"
 
 # ls, cd {{{
 
-__lscmd="$(unalias ls; command -v ls)"
+__lscmd="$(/bin/which ls)"
 __lsargs='--color=auto --group-directories-first'
 
 if command -v lsd &>/dev/null; then
