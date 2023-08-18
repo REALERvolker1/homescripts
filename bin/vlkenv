@@ -123,52 +123,12 @@ export NVM_DIR="$XDG_DATA_HOME/nvm"
 export BUN_INSTALL="$XDG_DATA_HOME/bun"
 export DENO_INSTALL="$XDG_DATA_HOME/deno"
 
-# $BUN_INSTALL/bin
-__vlkenv_path="$HOME/bin:\
-$HOME/.local/bin:\
-$CARGO_HOME/bin:\
-$PNPM_HOME:\
-$GOPATH/bin:\
-$PYTHONUSERBASE/bin"
-
-case "${CURRENT_DISTRO:-}" in
-'Arch')
-    __vlkenv_path="$__vlkenv_path:\
-/opt/cuda/nsight_compute:\
-/opt/cuda/nsight_systems/bin:\
-/opt/cuda/bin:\
-/usr/lib/rustup/bin:\
-/usr/bin/site_perl:\
-/usr/bin/vendor_perl:\
-/usr/bin/core_perl:\
-/var/lib/flatpak/exports/bin:\
-/usr/local/bin:\
-/usr/local/sbin:\
-/usr/bin"
-    ;;
-'Fedora')
-    __vlkenv_path="$__vlkenv_path:\
-/usr/lib/ccache:\
-/var/lib/flatpak/exports/bin:\
-/usr/local/bin:\
-/usr/local/sbin:\
-/usr/bin:\
-/usr/sbin"
-    ;;
-*)
-    [ -n "${PATH:-}" ] && echo "$PATH" >"$HOME/fix-your-shitty-vlkenv-path-case-statement.txt"
-    __vlkenv_path="$__vlkenv_path:${PATH:-/usr/local/bin:/usr/bin:/usr/sbin:/bin:/sbin}"
-    ;;
-esac
-export __vlkenv_path
-
 temppath="$PATH"
-
 for i in \
     "/var/lib/flatpak/exports/bin" \
     "${PYTHONUSERBASE:-PYTHONUSERBASE}/bin" \
     "${PNPM_HOME:-PNPM_HOME}" \
-    "${GOPATH:-GOPATH}/bin" \
+    "${BUN_INSTALL:-BUN_INSTALL}/bin" \
     "${GOPATH:-GOPATH}/bin" \
     "${CARGO_HOME:-CARGO_HOME}/bin" \
     "${HOME:=/home/$(whoami)}/.local/bin" \
