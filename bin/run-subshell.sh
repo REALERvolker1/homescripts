@@ -4,12 +4,7 @@ set -euo pipefail
 
 shellsel="$1"
 shift 1
-
-if command -v "$shellsel" >/dev/null; then
-    true
-else
-    exit 1
-fi
+command -v "$shellsel" >/dev/null || exit 1
 
 declare -a stdin
 if [ ! -t 0 ]; then
