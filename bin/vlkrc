@@ -39,7 +39,6 @@ unset __lscmd __lsargs
 #alias la='/usr/bin/ls -A --color=auto --group-directories-first'
 #alias lah="/usr/bin/ls -Fsh -A --color=auto --group-directories-first"
 
-
 alias sl=ls
 alias l=ls
 alias s=ls
@@ -51,7 +50,7 @@ alias ....='cd ../../..'
 
 alias pw=pwd
 #alias rp=realpath
-rp () {
+rp() {
     if [ -z "${1:-}" ]; then
         realpath "$PWD"
     else
@@ -134,19 +133,6 @@ alias bg-gen='convert +append -resize x1080'
 alias ttymouse='sudo gpm -m /dev/input/mice -t imps2'
 
 # vim, vscode {{{
-
-#if [ -x "$(command -v codium)" ]; then
-#    ide_command='codium'
-#elif [ -x '/var/lib/flatpak/exports/bin/com.vscodium.codium' ]; then
-#    ide_command='/var/lib/flatpak/exports/bin/com.vscodium.codium'
-#else
-#    ide_command="$EDITOR"
-#fi
-# codium() { $ide_command "$@"; }
-
-#[[ "$ide_command" != 'codium' ]] && alias codium="$ide_command"
-#alias code="$ide_command"
-#alias co="$ide_command"
 
 alias code=codium
 
@@ -273,7 +259,7 @@ alias steamfix='find "$HOME/.var/app/com.valvesoftware.Steam/.config" -maxdepth 
 
 alias touchpad-gaming='xinput set-prop $(xinput | grep -oP "Touchpad\s*id=\K[0-9]*") "libinput Disable While Typing Enabled" 0'
 
-command -v steam >/dev/null && alias steam='flatpak run --branch=stable --arch=x86_64 --command=/app/bin/steam-wrapper --file-forwarding com.valvesoftware.Steam'
+#command -v steam >/dev/null && alias steam='flatpak run --branch=stable --arch=x86_64 --command=/app/bin/steam-wrapper --file-forwarding com.valvesoftware.Steam'
 
 # }}}
 # fonts {{{
