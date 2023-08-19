@@ -4,6 +4,19 @@
 
 set -eu
 
+TOUCHPAD_STATUS="$XDG_RUNTIME_DIR/touchpad-statusfile"
+[ ! -f "$TOUCHPAD_STATUS" ] && touch "$TOUCHPAD_STATUS"
+
+if [ -z "${WAYLAND_DISPLAY:-}" ]; then
+    touchpad_name='ASUP1205:00 093A:2003 Touchpad'
+    mouse_name='Glorious Model O Wireless'
+    PLATFORM='x11'
+elif [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+    touchpad_name='asup1205:00-093a:2003-touchpad'
+    mouse_name='glorious-model-o-wireless'
+    PLATFORM='hyprland'
+fi
+
 get_status_icon() {
     case "$(cat "$TOUCHPAD_STATUS")" in
     1)
@@ -31,15 +44,10 @@ touchpad_operation() {
     esac
     case "$PLATFORM" in
     'x11')
-        if xinput "$operation" "$touchpad_name"; then
-            printf '%s' "$fs_state" >"$TOUCHPAD_STATUS"
-            printf "Touchpad %s\n" "$1"
-        fi
+        xinput "$operation" "$touchpad_name" && printf '%s' "$fs_state" >"$TOUCHPAD_STATUS" && printf "Touchpad %s\n" "$1"
         ;;
     'hyprland')
-        if [ "$(hyprctl keyword device:"$touchpad_name":enabled "$fs_state")" = 'ok' ]; then
-            printf '%s' "$fs_state" >"$TOUCHPAD_STATUS" && printf "Touchpad %s\n" "$operation"
-        fi
+        [ "$(hyprctl keyword device:"$touchpad_name":enabled "$fs_state")" = 'ok' ] && printf '%s' "$fs_state" >"$TOUCHPAD_STATUS" && printf "Touchpad %s\n" "$operation"
         hyprctl keyword device:"$touchpad_name":natural_scroll true >/dev/null
         ;;
     esac
@@ -52,7 +60,7 @@ normalize_input() {
     'hyprland') inputs="$(hyprctl devices)" ;;
     esac
 
-    if echo "$inputs" | grep -Ev "$egrep_mouse_blacklist" | grep -qE "$egrep_mouse_name"; then
+    if echo "$inputs" | grep -q "$mouse_name"; then
         echo 'mouse detected. Disabling trackpad'
         touchpad_operation disable
     else
@@ -60,39 +68,6 @@ normalize_input() {
         touchpad_operation enable
     fi
 }
-
-TOUCHPAD_STATUS="$XDG_RUNTIME_DIR/touchpad-statusfile"
-if [ ! -f "$TOUCHPAD_STATUS" ]; then
-    touch "$TOUCHPAD_STATUS"
-fi
-
-if [ -z "${WAYLAND_DISPLAY:-}" ]; then
-    touchpad_name='ASUP1205:00 093A:2003 Touchpad'
-    wireless_name='Glorious Model O Wireless'
-    wired_name='Glorious Model O'
-    egrep_mouse_name='(Glorious Model O Wireless|Glorious Model O)'
-    egrep_mouse_blacklist="(\
-${wired_name} Keyboard|\
-${wired_name} Consumer Control|\
-${wireless_name} Keyboard|\
-${wireless_name} Consumer Control|\
-)"
-    PLATFORM='x11'
-elif [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-    touchpad_name='asup1205:00-093a:2003-touchpad'
-    wireless_name='glorious-model-o-wireless'
-    wired_name='glorious-model-o'
-    egrep_mouse_name='(glorious-model-o-wireless|glorious-model-o)'
-    egrep_mouse_blacklist="(\
-${wired_name}-keyboard|\
-${wired_name}-system-control|\
-${wired_name}-consumer-control|\
-${wireless_name}-keyboard|\
-${wireless_name}-consumer-control|\
-${wireless_name}-system-control\
-)"
-    PLATFORM='hyprland'
-fi
 
 sel="${1:-}"
 

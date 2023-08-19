@@ -57,14 +57,6 @@ export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$XDG_RUNTIME_DIR/keyring/ssh}"
 export FZF_DEFAULT_OPTS="--prompt=' ' --pointer=' ' --marker=' ' --tabstop=4 --no-mouse --ansi \
 --color=fg:#ccccdc,hl:#df6b75,fg+:#fcfcff,bg+:#2c323d,hl+:#d682f0,info:#f2ce97,prompt:#d7005f,pointer:#65b6f8,marker:#56b5c2,spinner:#d682f0,header:#e6e6e6 "
 
-export XDG_DATA_DIRS="$XDG_DATA_HOME:\
-$XDG_DATA_HOME/flatpak/exports/share:\
-$HOME/.var/app/com.valvesoftware.Steam/data:\
-/var/lib/flatpak/exports/share:\
-/usr/local/share:/usr/share"
-#export MANPATH="$XDG_DATA_HOME/man:/usr/local/share/man:/usr/share/man"
-export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo:/usr/share/terminfo"
-
 #export VSCODE_PORTABLE="$XDG_DATA_HOME/vscode"
 
 export WINEPREFIX="$XDG_DATA_HOME/wine"
@@ -95,11 +87,9 @@ export PYENV_ROOT="$XDG_DATA_HOME/pyenv"
 export PYTHON_EGG_CACHE="$XDG_CACHE_HOME/python-eggs"
 export WORKON_HOME="$XDG_DATA_HOME/virtualenvs"
 
-export JULIA_DEPOT_PATH="$XDG_DATA_HOME/julia:$JULIA_DEPOT_PATH"
-
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=\"$XDG_CONFIG_HOME/java\""
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
-#export JAVA_HOME="/app/jdk/17" # flatpak java
+export JAVA_HOME='/usr/lib/jvm/java-17-openjdk-17.0.8.0.7-1.fc38.x86_64'
 export INSTALL4J_JAVA_HOME="${JAVA_HOME:-}"
 
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
@@ -117,6 +107,17 @@ export PNPM_HOME="$XDG_DATA_HOME/pnpm"
 export NVM_DIR="$XDG_DATA_HOME/nvm"
 export BUN_INSTALL="$XDG_DATA_HOME/bun"
 export DENO_INSTALL="$XDG_DATA_HOME/deno"
+
+export XDG_DATA_DIRS="$XDG_DATA_HOME:\
+$XDG_DATA_HOME/flatpak/exports/share:\
+$HOME/.var/app/com.valvesoftware.Steam/data:\
+/var/lib/flatpak/exports/share:\
+/usr/local/share:\
+/usr/share"
+
+export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo:/usr/share/terminfo"
+
+#export JULIA_DEPOT_PATH="$XDG_DATA_HOME/julia:${JULIA_DEPOT_PATH:-}"
 
 __vlkenv_temppath="$PATH"
 for i in \
@@ -141,7 +142,6 @@ for i in \
         continue
     fi
 done
-unset i
 export PATH="$__vlkenv_temppath"
 
 unset ICON_TYPE
@@ -160,4 +160,4 @@ case "$__vlkenv_term" in
 esac
 export ICON_TYPE
 
-unset __vlkenv_term __vlkenv_temppath
+unset i __vlkenv_term __vlkenv_temppath

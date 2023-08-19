@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
@@ -19,14 +19,18 @@ for line in "$@"; do
     args+=("$line")
 done
 
+original_stty="$(stty --save)"
+
 export HISTFILE="${SHELLHIST:-/dev/null}"
 
 if [ -n "${stdin[*]}" ] && [ -n "$*" ]; then
-    printf '%s\n' "${stdin[@]}" | exec $shellsel "${args[@]}"
+    printf '%s\n' "${stdin[@]}" | $shellsel "${args[@]}"
 elif [ -n "${stdin[*]}" ] && [ -z "$*" ]; then
-    printf '%s\n' "${stdin[@]}" | exec $shellsel
+    printf '%s\n' "${stdin[@]}" | $shellsel
 elif [ -z "${stdin[*]}" ] && [ -n "$*" ]; then
-    exec $shellsel "${args[@]}"
+    $shellsel "${args[@]}"
 else
-    exec $shellsel
+    $shellsel
 fi
+
+stty "$original_stty"
