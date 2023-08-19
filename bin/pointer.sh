@@ -3,7 +3,6 @@
 # vim:foldmethod=marker:ft=sh
 
 set -eu
-
 get_status_icon() {
     case "$(cat "$TOUCHPAD_STATUS")" in
     1)
@@ -70,12 +69,12 @@ if [ -z "${WAYLAND_DISPLAY:-}" ]; then
     touchpad_name='ASUP1205:00 093A:2003 Touchpad'
     wireless_name='Glorious Model O Wireless'
     wired_name='Glorious Model O'
-    egrep_mouse_name='(Glorious Model O Wireless|Glorious Model O)'
+    egrep_mouse_name='(Glorious Model O Wireless|Glorious Model O)  '
     egrep_mouse_blacklist="(\
 ${wired_name} Keyboard|\
-${wired_name} Consumer Control|\
 ${wireless_name} Keyboard|\
-${wireless_name} Consumer Control|\
+${wireless_name} System Control|\
+${wireless_name} Consumer Control\
 )"
     PLATFORM='x11'
 elif [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
