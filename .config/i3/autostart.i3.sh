@@ -12,6 +12,8 @@ $exec "killall dunst; dunst"
 #$exec gnome-keyring-daemon -r
 #$exec nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -l
 #$exec ~/.local/lib/hardcoded-keyring-unlocker
+$exec xsettingsd
+
 
 # scripts
 $exec volbright.sh --brightness --volume --keyboard

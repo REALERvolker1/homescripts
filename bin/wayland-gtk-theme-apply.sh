@@ -3,13 +3,13 @@
 gtk3_settings=$(cat "$XDG_CONFIG_HOME/gtk-3.0/settings.ini" | sed 's/$/\\n/g')
 cursor_theme="$(cat /usr/share/icons/default/index.theme | grep '^Inherit' | cut -d '=' -f 2)"
 
-get_setting () {
+get_setting() {
     local setting="$1"
     local value=$(echo -e $gtk3_settings | grep " $setting" | cut -d '=' -f 2)
     echo "$value"
 }
 
-set_setting () {
+set_setting() {
     if gsettings set org.gnome.desktop.interface "$1" "$2"; then
         echo "Successfully set '$1' '$2'" || echo "ERROR! Failed to set '$1' '$2'"
     fi
