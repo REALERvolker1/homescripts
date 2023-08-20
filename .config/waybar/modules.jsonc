@@ -23,10 +23,10 @@
     },
 
     "mpris": {
-        "format": "{player_icon} {status_icon} {dynamic}",
+        "format": "{player_icon} {player:.15} {status_icon}",
         "player-icons": {
             "default": "󰝚",
-            "brave": "󰗃",
+            "brave": "󰒘",
             "chrome": "",
             "chromium": "",
             "firefox": "",
@@ -69,7 +69,11 @@
         "on-click-right": "$XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --manager"
     },
     "memory": {
-        "format": "󰭰  {used}GiB"
+        "format": "󰭰  {used}GiB",
+        "states": {
+            "warning": 60,
+            "critical": 80
+        }
     },
     "battery": {
         "states": {
@@ -107,7 +111,7 @@
         }
     },
     "tray": {
-        // "icon-size": 21,
-        "spacing": 0
+        "icon-size": 21,
+        "spacing": 4
     }
 }

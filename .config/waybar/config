@@ -11,8 +11,8 @@
     "modules-left": ["wlr/workspaces", "wlr/taskbar"],
     "modules-center": ["hyprland/window"],
     "modules-right": [
-        //"mpris",
         "pulseaudio",
+        "mpris",
         "bluetooth",
         "memory",
         "battery",
