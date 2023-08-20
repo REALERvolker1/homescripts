@@ -8,12 +8,11 @@ if [ "$XDG_CURRENT_DESKTOP" = 'Hyprland' ]; then
         kill "$line"
     done
     waybar &
+    #killall -SIGUSR2 waybar
 
-    notify-send -a "$XDG_CURRENT_DESKTOP" 'reload' 'manually reloaded configuration'
+    #notify-send -a "$XDG_CURRENT_DESKTOP" 'reload' 'manually reloaded configuration'
 else
     echo "Error, \$XDG_CURRENT_DESKTOP must be set to 'Hyprland'"
     notify-send "Error, \$XDG_CURRENT_DESKTOP must be set to 'Hyprland'"
     exit 1
 fi
-
-

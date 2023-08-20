@@ -1,24 +1,6 @@
 {
-    "layer": "top",
-    "name": "topbar",
-    "height": 30,
-    "spacing": 4, // Gaps between modules (4px)
-    "modules-left": ["wlr/workspaces", "wlr/taskbar"],
-    "modules-center": ["hyprland/window"],
-    "modules-right": [
-        //"mpris",
-        "pulseaudio",
-        "bluetooth",
-        "memory",
-        "battery",
-        "clock",
-        "custom/weather",
-        "custom/pointer",
-        "keyboard-state",
-        "tray"
-    ],
     "wlr/workspaces": {
-        "format": "{name} {icon}",
+        "format": "{name}", // {icon}
         "on-click": "activate",
         "format-icons": {
             "urgent": "󰗖",
@@ -33,12 +15,10 @@
         "on-click": "activate",
         "on-click-middle": "close",
         "icon-size": 20,
-        "ignore-list": [
-            "__scratchpad__"
-        ]
+        "ignore-list": ["__scratchpad__"]
     },
     "hyprland/window": {
-        "format": "{}",
+        "format": "{title:.60}",
         "separate-outputs": true
     },
 
@@ -128,6 +108,6 @@
     },
     "tray": {
         // "icon-size": 21,
-        "spacing": 10
+        "spacing": 0
     }
 }
