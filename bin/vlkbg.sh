@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 # script by vlk to manage my wallpapers cross-wm
+# fix vscode bash IDE complaining about an unavoidable grep | wc -l
 # shellcheck disable=2126
 set -euo pipefail
 IFS=$'\n\t'
