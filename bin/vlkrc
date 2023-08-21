@@ -64,8 +64,33 @@ alias suod=sudo
 alias q=exit
 alias :q=exit
 
-alias shutdown='systemctl poweroff'
-alias reboot='systemctl reboot'
+session_end() {
+    local selected="${1:?Error, please select a session ending option}"
+    echo -n "[${selected}]Do you really want to end your session? [y/N] (n) > "
+    local answer
+    read -r answer
+    if [[ "${answer:-}" == 'y' ]]; then
+        case "${selected:-}" in
+        'shutdown')
+            systemctl poweroff
+            ;;
+        'reboot')
+            systemctl reboot
+            ;;
+        'logout')
+            loginctl kill-session "${XDG_SESSION_ID}"
+            ;;
+        esac
+    fi
+}
+
+# alias shutdown='systemctl poweroff'
+# alias reboot='systemctl reboot'
+
+alias shutdown='session_end shutdown'
+alias reboot='session_end reboot'
+alias restart='session_end reboot'
+alias logout='session_end logout'
 
 # }}}
 # rm {{{
@@ -172,24 +197,41 @@ alias gitp='git pull '
 alias tit='echo 😜 && git '
 alias gitd='git fetch && git diff "origin/$(git branch | grep -oP "\*[[:space:]]*\K.*\$")"'
 
-dotm() {
+dotfiles_git_interact() {
     local current_dir="$PWD"
     cd "$HOMESCRIPTS" &>/dev/null || return 1
-    gitm
+    case "${1:-}" in
+    'm') gitm ;;
+    'p') git push ;;
+    'd') gitd ;;
+    *) echo 'Error, please specify a git action to take on dotfiles' ;;
+    esac
     cd "$current_dir" &>/dev/null || return 1
 }
-dotp() {
-    local current_dir="$PWD"
-    cd "$HOMESCRIPTS" &>/dev/null || return 1
-    git push
-    cd "$current_dir" &>/dev/null || return 1
-}
-dotd() {
-    local current_dir="$PWD"
-    cd "$HOMESCRIPTS" &>/dev/null || return 1
-    gitd
-    cd "$current_dir" &>/dev/null || return 1
-}
+
+# dotm() {
+#     local current_dir="$PWD"
+#     cd "$HOMESCRIPTS" &>/dev/null || return 1
+#     gitm
+#     cd "$current_dir" &>/dev/null || return 1
+# }
+# dotp() {
+#     local current_dir="$PWD"
+#     cd "$HOMESCRIPTS" &>/dev/null || return 1
+#     git push
+#     cd "$current_dir" &>/dev/null || return 1
+# }
+# dotd() {
+#     local current_dir="$PWD"
+#     cd "$HOMESCRIPTS" &>/dev/null || return 1
+#     gitd
+#     cd "$current_dir" &>/dev/null || return 1
+# }
+
+alias dotm='dotfiles_git_interact m'
+alias dotp='dotfiles_git_interact p'
+alias dotd='dotfiles_git_interact d'
+
 # }}}
 # cargo {{{
 
@@ -277,12 +319,12 @@ case "$CURRENT_SHELL" in
     alias refresh='exec zsh'
     recompile() {
         local line
-        $__homebin/recompile.zsh --recompile | while read -r line; do
+        recompile.zsh --recompile | while read -r line; do
             [ ! -f "$line" ] && echo "$line" && continue
             zcompile "$line"
         done
     }
-    alias uncompile="$__homebin/recompile.zsh --uncompile"
+    alias uncompile="recompile.zsh --uncompile"
     alias lsh="hash -dL | sed 's/hash -d //g ; s/=/  \t  /g' | fzf"
     ;;
 

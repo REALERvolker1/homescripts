@@ -186,3 +186,5 @@ case "$BACKEND" in
     ;;
 
 esac
+
+exit 0

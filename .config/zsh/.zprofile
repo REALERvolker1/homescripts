@@ -1,1 +1,1 @@
-. /home/vlk/.profile "$@"
+[ -f ~/.profile ] && . ~/.profile "$@"
