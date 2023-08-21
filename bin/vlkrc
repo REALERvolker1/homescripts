@@ -209,25 +209,6 @@ dotfiles_git_interact() {
     cd "$current_dir" &>/dev/null || return 1
 }
 
-# dotm() {
-#     local current_dir="$PWD"
-#     cd "$HOMESCRIPTS" &>/dev/null || return 1
-#     gitm
-#     cd "$current_dir" &>/dev/null || return 1
-# }
-# dotp() {
-#     local current_dir="$PWD"
-#     cd "$HOMESCRIPTS" &>/dev/null || return 1
-#     git push
-#     cd "$current_dir" &>/dev/null || return 1
-# }
-# dotd() {
-#     local current_dir="$PWD"
-#     cd "$HOMESCRIPTS" &>/dev/null || return 1
-#     gitd
-#     cd "$current_dir" &>/dev/null || return 1
-# }
-
 alias dotm='dotfiles_git_interact m'
 alias dotp='dotfiles_git_interact p'
 alias dotd='dotfiles_git_interact d'
