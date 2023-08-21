@@ -26,13 +26,15 @@ ac_command_center() {
         light -S "$ac_backlight"
         powerprofilesctl set "$ac_powerprof"
         asusctl bios -O "true"
+        pgrep 'gpublock.sh' >/dev/null && killall 'gpublock.sh'
+        zsh -c "gpublock.sh &!"
 
     elif [ "$ac_state" = 'false' ]; then
         light -Srs "$KEYBOARD_PATH" "$bat_kbd"
         light -S "$bat_backlight"
         powerprofilesctl set "$bat_powerprof"
         asusctl bios -O "false"
-        pgrep 'gpublock.sh' && killall 'gpublock.sh'
+        pgrep 'gpublock.sh' >/dev/null && killall 'gpublock.sh'
     fi
 }
 

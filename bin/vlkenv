@@ -2,6 +2,8 @@
 # shellcheck disable=2155
 # vim:foldmethod=marker:ft=sh
 
+unset MAILCHECK
+
 [ -n "${CONDA_PREFIX:-}" ] && conda deactivate && echo "\$CONDA_PREFIX '$CONDA_PREFIX' deactivated"
 [ -n "${VIRTUAL_ENV:-}" ] && deactivate && echo "\$VIRTUAL_ENV '$VIRTUAL_ENV' deactivated"
 
