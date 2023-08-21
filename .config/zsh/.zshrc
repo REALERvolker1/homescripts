@@ -9,7 +9,12 @@
     done
 
     [ ! -d "$ZPLUGIN_DIR" ] && zsh-recompile.sh --install-plugins
-    . "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
+
+    local has_defer_plugin=false
+    if [ -f "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh" ]; then
+        has_defer_plugin=true
+        . "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
+    fi
 
     for i in \
         zcalc \
@@ -20,18 +25,38 @@
     done
     . "$ZDOTDIR/globals/vlkrc"
 
-    ((COLUMNS > 55)) && {
-        dumbfetch
-        ( fortune -a -s 2>/dev/null || echo '(insert fortune here)' ) | ( lolcrab 2>/dev/null || tee )
-    }
+    if ((COLUMNS > 55)); then
+        if command -v dumbfetch &>/dev/null; then
+            dumbfetch
+        fi
+        fortune -a -s | (
+            if command -v lolcrab &>/dev/null; then
+                lolcrab
+            elif command -v lolcat &>/dev/null; then
+                lolcat
+            else
+                tee
+            fi
+        )
+    fi
     lsdiff
 
     for i in \
-        "atuin.zsh" \
-        "fzf-tab/fzf-tab.plugin.zsh" \
-        "fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" \
-        "zsh-autosuggestions/zsh-autosuggestions.zsh"
+        "$ZPLUGIN_DIR/atuin.zsh" \
+        "$ZPLUGIN_DIR/fzf-tab/fzf-tab.plugin.zsh" \
+        "$ZPLUGIN_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" \
+        "$ZPLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
         do
-        zsh-defer . "$ZPLUGIN_DIR/$i"
+        [ ! -f "$i" ] && continue
+        if "$has_defer_plugin"; then
+            zsh-defer . "$i"
+        else
+            . "$i"
+        fi
     done
 } "$@"
+
+if [[ "${FAST_THEME_NAME:-}" != 'vlk-fsyh' ]] && typeset -f 'fast-theme' &>/dev/null; then
+    fast-theme "$ZDOTDIR/settings/vlk-fsyh.ini"
+fi
+true

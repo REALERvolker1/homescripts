@@ -95,7 +95,6 @@ export -U precmd_functions
 precmd_functions+=('__vlk_precmd')
 
 function zle-line-init zle-keymap-select {
-    #[[ "$KEYMAP" == vicmd ]] && psvar[136]=1 || psvar[136]=''
     if [[ "$KEYMAP" == vicmd ]]; then
         psvar[138]=1
     else
