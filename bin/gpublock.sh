@@ -16,6 +16,7 @@ _getmon () {
 if [ "$(_getmon)" -gt 1 ]; then
     while true; do
         nvidia-smi >/dev/null
+        sleep 5
     done
 fi
 
