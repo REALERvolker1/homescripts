@@ -18,8 +18,7 @@ ac_kbd=3
 ac_backlight=80
 ac_powerprof='performance'
 
-
-ac_command_center () {
+ac_command_center() {
     local ac_state="${1:-}"
     echo "$ac_state"
     if [ "$ac_state" = 'true' ]; then
@@ -37,13 +36,13 @@ ac_command_center () {
     fi
 }
 
-ac_monitor () {
+ac_monitor() {
     dbus-monitor --system "type='signal',sender='org.freedesktop.UPower',path='$UPOWER_AC_DEVICE',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'" |& grep --line-buffered -oP 'boolean \K.*$' | while read -r line; do
         ac_command_center "$line"
     done
 }
 
-_instance_detect () {
+_instance_detect() {
     local program_name="${0##*/}"
     local program_id="$$"
     local pids
@@ -60,13 +59,15 @@ _instance_detect () {
 _instance_detect
 
 case "$(cat "$SYSFS_AC_DEVICE")" in
-    1)
-        ac_command_center 'true'
-    ;; 0)
-        ac_command_center 'false'
-    ;; *)
-        echo "ERROR: Failed to get current AC state"
-        exit 1
+1)
+    ac_command_center 'true'
+    ;;
+0)
+    ac_command_center 'false'
+    ;;
+*)
+    echo "ERROR: Failed to get current AC state"
+    exit 1
     ;;
 esac
 
