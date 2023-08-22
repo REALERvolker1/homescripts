@@ -10,30 +10,37 @@ if [[ "${HOSTNAME:-}" == 'toolbox' ]] || [[ "${HOSTNAME:-}" == 'distrobox' ]]; t
     LIMITED_ROOT_HOST=true
     #return
 fi
-if [ -f /etc/bashrc ]; then
-    . /etc/bashrc
-elif [ -f /etc/bash.bashrc ]; then
-    . /etc/bash.bashrc
-fi
+# if [ -f /etc/bashrc ]; then
+#     . /etc/bashrc
+# elif [ -f /etc/bash.bashrc ]; then
+#     . /etc/bash.bashrc
+# fi
 
-[ -f "$HOME/bin/vlkenv" ] && . "$HOME/bin/vlkenv"
+for i in \
+    '/etc/bashrc' \
+    '/etc/bash.bashrc' \
+    "$HOME/bin/vlkenv" \
+    '/usr/share/blesh/ble.sh' \
+    "$XDG_DATA_HOME/gitmgmt/ble.sh/out/ble.sh" \
+    "$HOME/bin/vlkrc"; do
+    [ -f "$i" ] && . "$i"
+done
 
-if [[ "$TERM" == *'xterm'* ]] || [[ "$TERM" == *'256'* ]]; then
-    if [ -z "${NO_BLE:-}" ] && [ -f "$BDOTDIR/blerc" ]; then
-        __bleargs="--noattach --rcfile $BDOTDIR/blerc"
-        for i in \
-            '/usr/share/blesh/ble.sh' \
-            "$XDG_DATA_HOME/gitmgmt/ble.sh/out/ble.sh"; do
-            if [ -f "$i" ]; then
-                . "$i" $__bleargs
-                break
-            fi
-        done
-        unset i __bleargs
-    fi
-fi
+# [ -f "$HOME/bin/vlkenv" ] && . "$HOME/bin/vlkenv"
+# if [ -z "${NO_BLE:-}" ] && [ -f "$BDOTDIR/blerc" ]; then
+#     __bleargs="--noattach --rcfile $BDOTDIR/blerc"
+#     for i in \
+#         '/usr/share/blesh/ble.sh' \
+#         "$XDG_DATA_HOME/gitmgmt/ble.sh/out/ble.sh"; do
+#         if [ -f "$i" ]; then
+#             . "$i" $__bleargs
+#             break
+#         fi
+#     done
+#     unset i __bleargs
+# fi
 
-[ -f "$HOME/bin/vlkrc" ] && . "$HOME/bin/vlkrc"
+#[ -f "$HOME/bin/vlkrc" ] && . "$HOME/bin/vlkrc"
 
 HISTFILE="$XDG_STATE_HOME/bash_history"
 export HISTCONTROL=erasedups:ignoreboth
