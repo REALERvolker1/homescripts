@@ -2,18 +2,22 @@
 # vim:foldmethod=marker:ft=sh
 # shellcheck disable=SC2139
 
-[[ "$-" != *i* ]] && exit 1
+#[[ "$-" != *i* ]] && exit 1
+if [ "$(expr "$-" : '.*i')" = 0 ] || [ -z "${ZSH_VERSION:-$BASH_VERSION}" ]; then
+    echo "Error, you must source this file with interactive zsh or bash" >&2
+    return 1
+    exit 1
+fi
 
 [ -f "$HOME/.xsel.log" ] && rm "$HOME/.xsel.log" &>/dev/null
 
 __homebin="$HOME/bin"
 
-# ls, cd {{{
-
-__lscmd="$(/bin/which ls)"
+# hardcoded path
+__lscmd="$(which --skip-alias ls)"
 __lsargs='--color=auto --group-directories-first'
 
-if command -v lsd &>/dev/null; then
+if which --skip-alias lsd &>/dev/null; then
     alias ls=lsd
     alias ll='lsd -l'
 
@@ -22,7 +26,7 @@ else
     alias ls="$__lscmd $__lsargs -A"
     alias ll="$__lscmd $__lsargs -Al"
 
-    if command -v tree &>/dev/null; then
+    if which --skip-alias tree &>/dev/null; then
         true
     else
         alias tree="$__lscmd $__lsargs -AR"
@@ -56,9 +60,9 @@ rp() {
     fi
 }
 
-# }}}
-# session, shell stuff, sudo {{{
-
+if which --skip-alias doas &>/dev/null; then
+    alias sudo='doas --'
+fi
 alias suod=sudo
 
 alias q=exit
@@ -92,16 +96,14 @@ alias reboot='session_end reboot'
 alias restart='session_end reboot'
 alias logout='session_end logout'
 
-# }}}
-# rm {{{
+__rmcmd="$(which --skip-alias rm)"
 
-alias fuck='/usr/bin/rm -rf'
+alias fuck="$__rmcmd -rf"
 alias frick='trash -fvi'
-alias rmf='/usr/bin/rm -rf'
+alias rmf="$__rmcmd -rf"
 alias rm='trash -i -r'
 
-# }}}
-# chmod, touch {{{
+unset __rmcmd
 
 alias touchc="$__homebin/touchx.sh --codium"
 alias touchv="$__homebin/touchx.sh --nvim"
@@ -111,8 +113,6 @@ alias touchxv="$__homebin/touchx.sh --exec --nvim"
 
 alias chmodx='chmod +x'
 alias chmod-x='chmod -x'
-
-# }}}
 
 alias %="$__homebin/\$"
 
@@ -130,15 +130,20 @@ alias glop='glow --pager'
 alias batop=battop
 alias battio=battop
 
-alias diff=difft
+if which --skip-alias difft &>/dev/null; then
+    alias diff=difft
+fi
 
 alias icat=timg
 
-alias df=duf
-alias du=dust
-alias free='free -h'
+if which --skip-alias duf &>/dev/null; then
+    alias df=duf
+fi
+if which --skip-alias dust &>/dev/null; then
+    alias du=dust
+fi
 
-alias neofetch=fastfetch
+alias free='free -h'
 
 alias extract='ouch decompress'
 alias ra=ranger
@@ -152,9 +157,9 @@ alias wget='wget --show-progress'
 alias bg-gen='convert +append -resize x1080'
 alias ttymouse='sudo gpm -m /dev/input/mice -t imps2'
 
-# vim, vscode {{{
-
-alias code=codium
+if which --skip-alias codium &>/dev/null; then
+    alias code=codium
+fi
 
 alias vi="$EDITOR"
 #alias vim='$EDITOR'
@@ -164,8 +169,6 @@ alias v="$EDITOR"
 alias svim=sudoedit
 
 unset ide_command
-# }}}
-# tmux, shells {{{
 
 alias tmuxk='tmux kill-session -t'
 alias tmuxa='tmux attach -t'
@@ -181,16 +184,10 @@ alias sh="$__homebin/run-subshell.sh sh"
 alias csh="echo 💀 && $__homebin/run-subshell.sh csh"
 alias tcsh="echo 💀 && $__homebin/run-subshell.sh tcsh"
 
-# }}}
-# node js {{{
-
 alias pnpmi='pnpm install --global'
 alias pnpml='pnpm list --global | fzf'
 
 alias tc='tsc && node .'
-
-# }}}
-# git {{{
 
 alias gitm='git add -A && git commit -am "$(date +"Commit from shell alias at %D %r")" '
 alias gitp='git pull '
@@ -198,6 +195,10 @@ alias tit='echo 😜 && git '
 alias gitd='git fetch && git diff "origin/$(git branch | grep -oP "\*[[:space:]]*\K.*\$")"'
 
 dotfiles_git_interact() {
+    if [ ! -d "${HOMESCRIPTS:-}" ]; then
+        echo "Error, directory '${HOMESCRIPTS:-}' does not exist!"
+        return 1
+    fi
     local current_dir="$PWD"
     cd "$HOMESCRIPTS" &>/dev/null || return 1
     case "${1:-}" in
@@ -213,15 +214,9 @@ alias dotm='dotfiles_git_interact m'
 alias dotp='dotfiles_git_interact p'
 alias dotd='dotfiles_git_interact d'
 
-# }}}
-# cargo {{{
-
 alias cr='cargo run -- '
 alias cbr='cargo build --release'
 alias cupl='cargo install-update -l'
-
-# }}}
-# dnf {{{
 
 alias dfn=dnf
 
@@ -246,9 +241,6 @@ alias dfna=dnfa
 alias dnfc='dnf check-update'
 alias dfnc=dnfc
 
-# }}}
-# flatpak {{{
-
 alias fli='flatpak install'
 alias flu='flatpak update'
 alias fls='flatpak search'
@@ -256,16 +248,10 @@ alias fls='flatpak search'
 alias fll='flatpak list | fzf'
 alias flc='flatpak remote-ls --updates'
 
-# }}}
-# window mgmt {{{
-
 alias xclassget='xprop | grep WM_CLASS'
-alias xkeyget="xev -event keyboard | egrep -o 'keycode.*\)'"
+alias xkeyget="xev -event keyboard | grep -Eo 'keycode.*\)'"
 
 alias numlock-query="xset q | grep -Po 'Num Lock: *\K[a-z]*'"
-
-# }}}
-# gaming {{{
 
 alias gpu=switcherooctl
 
@@ -279,19 +265,11 @@ alias touchpad-gaming='xinput set-prop $(xinput | grep -oP "Touchpad\s*id=\K[0-9
 
 #command -v steam >/dev/null && alias steam='flatpak run --branch=stable --arch=x86_64 --command=/app/bin/steam-wrapper --file-forwarding com.valvesoftware.Steam'
 
-# }}}
-# fonts {{{
-
 alias font-reset='fc-cache -fv'
 alias font-search="fc-list | cut -d ':' -f 2 | sed 's/,/, /g' | fzf"
 
-# }}}
-# FZF commands {{{
-
 alias pipl='pip list | fzf'
 alias fenv='printenv | fzf'
-
-# }}}
 
 alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 
@@ -312,10 +290,9 @@ case "$CURRENT_SHELL" in
 'bash')
     alias refresh='exec bash'
     ;;
-
 esac
 
-case "$CURRENT_DISTRO" in
+case "${CURRENT_DISTRO:-}" in
 'Arch')
     alias grubcfg='sudo grub-mkconfig -o /boot/grub/grub.cfg'
     ;;
@@ -344,8 +321,8 @@ dotadd() {
 }
 
 keyring() {
-    if /usr/bin/pgrep 'gnome-keyring-d' &>/dev/null; then
-        /usr/bin/busctl --user get-property 'org.gnome.keyring' \
+    if pgrep 'gnome-keyring-d' &>/dev/null; then
+        busctl --user get-property 'org.gnome.keyring' \
             '/org/freedesktop/secrets/collection/login' \
             'org.freedesktop.Secret.Collection' \
             'Locked' | sed 's/^b //g'
