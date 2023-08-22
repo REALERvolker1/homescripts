@@ -138,6 +138,7 @@ export TERMINFO_DIRS="$__vlkenv_terminfodirs"
 
 __vlkenv_tempdirs="$PATH"
 for i in \
+    $(echo "$PATH" | sed 's/:/\n/g' | tac) \
     "/var/lib/flatpak/exports/bin" \
     "${PYTHONUSERBASE:-PYTHONUSERBASE}/bin" \
     "${PNPM_HOME:-PNPM_HOME}" \

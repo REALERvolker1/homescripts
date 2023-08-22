@@ -24,35 +24,19 @@ if [[ "$TERM" == *'xterm'* ]] || [[ "$TERM" == *'256'* ]]; then
         for i in \
             '/usr/share/blesh/ble.sh' \
             "$XDG_DATA_HOME/gitmgmt/ble.sh/out/ble.sh"; do
-            [ -f "$i" ] && . "$i" $__bleargs
+            if [ -f "$i" ]; then
+                . "$i" $__bleargs
+                break
+            fi
         done
         unset i __bleargs
     fi
 fi
 
-[ -z "${LIMITED_ROOT_HOST:-}" ] && [ -f "$HOME/bin/vlkrc" ] && . "$HOME/bin/vlkrc"
+[ -f "$HOME/bin/vlkrc" ] && . "$HOME/bin/vlkrc"
 
 HISTFILE="$XDG_STATE_HOME/bash_history"
 export HISTCONTROL=erasedups:ignoreboth
-
-# # \[escape codes\]content
-# export PS1='\[\e[0;31m\][\[\e[0;2;32m\]\s\[\e[0;2;31m\]] \[\e[0;95m\]$? \[\e[0;1;3;4;96m\]\w\[\e[0;1;92m\] \$ \[\e[0m\]'
-# # stolen from TehBoss#4823 on discord, suck it nerd lmaooo
-# [[ "$ICON_TYPE" != 'fallback' ]] && PROMPT_COMMAND=__prompt_command
-# __prompt_command() {
-#     local exit="$?"
-#     # Add user
-#     PS1="\[\e[97m\]\[\e[48;5;25m\] \u\[\e[38;5;25m\]"
-#     # Add dir code
-#     PS1+="\[\e[48;5;238m\]\[\e[97m\] \w\[\e[0m\]\[\e[38;5;238m\]"
-
-#     if ((exit != 0)); then
-#         PS1+="\[\e[48;5;124m\]\[\e[97m\] ${exit}\[\e[0m\]\[\e[38;5;124m\]"
-#     else
-#         PS1+=''
-#     fi
-#     PS1+="\[\e[0m\] "
-# }
 
 PROMPT_COMMAND=__vlk_bash_prompt_command
 

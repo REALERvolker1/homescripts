@@ -33,4 +33,4 @@ else
     $shellsel
 fi
 
-stty "$original_stty"
+stty "$original_stty" && echo "I restored your stty settings for ya :D"

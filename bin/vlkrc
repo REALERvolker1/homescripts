@@ -3,6 +3,7 @@
 # shellcheck disable=SC2139
 
 #[[ "$-" != *i* ]] && exit 1
+#sudo virsh console fedora38-server #username: root, password: root
 if [ "$(expr "$-" : '.*i')" = 0 ] || [ -z "${ZSH_VERSION:-$BASH_VERSION}" ]; then
     echo "Error, you must source this file with interactive zsh or bash" >&2
     return 1
@@ -17,7 +18,7 @@ __homebin="$HOME/bin"
 __lscmd="$(which --skip-alias ls)"
 __lsargs='--color=auto --group-directories-first'
 
-if which --skip-alias lsd &>/dev/null; then
+if command -v lsd &>/dev/null; then
     alias ls=lsd
     alias ll='lsd -l'
 
@@ -60,7 +61,7 @@ rp() {
     fi
 }
 
-if which --skip-alias doas &>/dev/null; then
+if command -v doas &>/dev/null; then
     alias sudo='doas --'
 fi
 alias suod=sudo
@@ -130,16 +131,16 @@ alias glop='glow --pager'
 alias batop=battop
 alias battio=battop
 
-if which --skip-alias difft &>/dev/null; then
+if command -v difft &>/dev/null; then
     alias diff=difft
 fi
 
 alias icat=timg
 
-if which --skip-alias duf &>/dev/null; then
+if command -v duf &>/dev/null; then
     alias df=duf
 fi
-if which --skip-alias dust &>/dev/null; then
+if command -v dust &>/dev/null; then
     alias du=dust
 fi
 
@@ -157,9 +158,7 @@ alias wget='wget --show-progress'
 alias bg-gen='convert +append -resize x1080'
 alias ttymouse='sudo gpm -m /dev/input/mice -t imps2'
 
-if which --skip-alias codium &>/dev/null; then
-    alias code=codium
-fi
+alias code=codium
 
 alias vi="$EDITOR"
 #alias vim='$EDITOR'
@@ -167,8 +166,6 @@ alias ivm="$EDITOR"
 alias iv="$EDITOR"
 alias v="$EDITOR"
 alias svim=sudoedit
-
-unset ide_command
 
 alias tmuxk='tmux kill-session -t'
 alias tmuxa='tmux attach -t'
