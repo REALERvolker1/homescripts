@@ -5,8 +5,6 @@
     vim:ft=css
 */
 
-/* @import "~/.cache/rofi-wayland-fix.rasi" */
-
 * {
     /* fonts */
     font-search: "sans-serif 20";
@@ -23,13 +21,13 @@
     color-element-selected-normal: #596273;
     color-element-alternate-normal: #333842aa;
     color-element-selected-normal-border: #7b57ff; /*hsl(200, 80%, 60%);*/
-    color-element-selected-normal-text: #e2e4e9;
+    color-element-selected-normal-text: env(ROFI_ICON_NORMAL, #e2e4e9); // #e2e4e9
     color-element-text-normal: #c5cad3;
 
     color-element-normal-urgent: #eb4763;
     color-element-selected-urgent: #f5a3b1;
     color-element-alternate-urgent: #ed5e76;
-    color-element-selected-urgent-text: #16181d;
+    color-element-selected-urgent-text: env(ROFI_ICON_URGENT, #16181d);
     color-element-text-urgent: #2c313a;
     color-element-selected-urgent-border: @color-element-selected-normal-border;
 
@@ -37,7 +35,7 @@
     color-element-selected-active: #85e0e0;
     color-element-alternate-active: #47d1d1;
     color-element-selected-active-border: @color-element-selected-normal-border;
-    color-element-selected-active-text: #16181d;
+    color-element-selected-active-text: env(ROFI_ICON_ACTIVE, #16181d);
     color-element-text-active: #2c313a;
 
     color-element-selection-text-highlight: italic #eb4763;

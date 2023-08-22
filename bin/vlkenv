@@ -110,18 +110,33 @@ export NVM_DIR="$XDG_DATA_HOME/nvm"
 export BUN_INSTALL="$XDG_DATA_HOME/bun"
 export DENO_INSTALL="$XDG_DATA_HOME/deno"
 
-export XDG_DATA_DIRS="$XDG_DATA_HOME:\
-$XDG_DATA_HOME/flatpak/exports/share:\
-$HOME/.var/app/com.valvesoftware.Steam/data:\
-/var/lib/flatpak/exports/share:\
-/usr/local/share:\
-/usr/share"
+__vlkenv_tempdirs="$XDG_DATA_DIRS"
+__vlkenv_terminfodirs=''
+for i in \
+    '/usr/share' \
+    '/usr/local/share' \
+    '/var/lib/flatpak/exports/share' \
+    "$HOME/.var/app/com.valvesoftware.Steam/data" \
+    "$XDG_DATA_HOME/flatpak/exports/share" \
+    "$XDG_DATA_HOME"; do
+    if [ -d "$i" ]; then
+        case ":$__vlkenv_tempdirs:" in
+        *:"$i":*)
+            true
+            ;;
+        *)
+            __vlkenv_tempdirs="$i:$__vlkenv_tempdirs"
+            ;;
+        esac
+    fi
+    if [ -d "$i/terminfo" ]; then
+        __vlkenv_terminfodirs="$i/terminfo:$__vlkenv_terminfodirs"
+    fi
+done
+export XDG_DATA_DIRS="$__vlkenv_tempdirs"
+export TERMINFO_DIRS="$__vlkenv_terminfodirs"
 
-export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo:/usr/share/terminfo"
-
-#export JULIA_DEPOT_PATH="$XDG_DATA_HOME/julia:${JULIA_DEPOT_PATH:-}"
-
-__vlkenv_temppath="$PATH"
+__vlkenv_tempdirs="$PATH"
 for i in \
     "/var/lib/flatpak/exports/bin" \
     "${PYTHONUSERBASE:-PYTHONUSERBASE}/bin" \
@@ -132,19 +147,17 @@ for i in \
     "$HOME/.local/bin" \
     "$HOME/bin"; do
     if [ -d "$i" ]; then
-        case ":$__vlkenv_temppath:" in
+        case ":$__vlkenv_tempdirs:" in
         *:"$i":*)
             continue
             ;;
         *)
-            __vlkenv_temppath="$i:$__vlkenv_temppath"
+            __vlkenv_tempdirs="$i:$__vlkenv_tempdirs"
             ;;
         esac
-    else
-        continue
     fi
 done
-export PATH="$__vlkenv_temppath"
+export PATH="$__vlkenv_tempdirs"
 
 unset ICON_TYPE
 __vlkenv_term="${TERM:-}"
@@ -162,4 +175,4 @@ case "$__vlkenv_term" in
 esac
 export ICON_TYPE
 
-unset i __vlkenv_term __vlkenv_temppath
+unset i __vlkenv_term __vlkenv_tempdirs __vlkenv_terminfodirs
