@@ -1,15 +1,22 @@
 # keybinds for zsh
 
+# Disable CTRL-s from freezing your terminal's output.
+stty stop undef
+
 bindkey -v
 export KEYTIMEOUT=1
 
 typeset -A keymap
+keymap[Ca]="^A"
 keymap[home]="^[[H"
 keymap[end]="^[[F"
 keymap[delete]="^[[3~"
 keymap[backspace]="^H"
+keymap[backspace_two]="^?"
 keymap[Cright]="^[[1;5C"
 keymap[Cleft]="^[[1;5D"
+keymap[As]='^[s'
+keymap[AshiftS]='^[S'
 keymap[Cz]="^Z"
 keymap[Cy]="^Y"
 
@@ -19,8 +26,9 @@ bindkey "${keymap[delete]}" delete-char
 bindkey "${keymap[Cright]}" forward-word
 bindkey "${keymap[Cleft]}" backward-word
 bindkey "${keymap[backspace]}" backward-delete-char
-bindkey "${keymap[Cz]}" undo # CTRL+Z
-bindkey "${keymap[Cy]}" redo # CTRL+Y
+bindkey "${keymap[backspace_two]}" backward-delete-char
+bindkey "${keymap[Cz]}" undo
+bindkey "${keymap[Cy]}" redo
 
 bindkey -M vicmd "${keymap[home]}" beginning-of-line
 bindkey -M vicmd "${keymap[end]}" end-of-line
@@ -28,26 +36,39 @@ bindkey -M vicmd "${keymap[delete]}" delete-char
 bindkey -M vicmd "${keymap[Cright]}" forward-word
 bindkey -M vicmd "${keymap[Cleft]}" backward-word
 bindkey -M vicmd "${keymap[backspace]}" backward-delete-char
-bindkey -M vicmd "${keymap[Cz]}" undo # CTRL+Z
-bindkey -M vicmd "${keymap[Cy]}" redo # CTRL+Y
+bindkey -M vicmd "${keymap[backspace_two]}" backward-delete-char
+bindkey -M vicmd "${keymap[Cz]}" undo
+bindkey -M vicmd "${keymap[Cy]}" redo
 
-# Alt-Shift-S: Prefix the current or previous command line with `sudo`.
-() {
-    bindkey '^[S' $1    # Bind Alt-Shift-S to the widget below.
-    zle -N $1           # Create a widget that calls the function below.
-    $1() {              # Create the function.
-        # If the command line is empty or just whitespace, then first load the
-        # previous line.
-        [[ $BUFFER == [[:space:]]# ]] &&
-                zle .up-history
+__zle_vlk_sudo_prefix() {
+    [[ $BUFFER == [[:space:]]# ]] && zle .up-history
+    LBUFFER="sudo $LBUFFER"
+}
 
-        # $LBUFFER is the part of the command line that's left of the cursor. This
-        # way, we preserve the cursor's position.
-        LBUFFER="sudo $LBUFFER"
-    }
-} .sudo
+zle -N __zle_vlk_sudo_prefix
+bindkey -M main "${keymap[AshiftS]}" __zle_vlk_sudo_prefix
 
-replace_multiple_dots () {
+# __zle_vlk_unalias_command() {
+#     [[ $BUFFER == [[:space:]]# ]] && zle .up-history
+#     local cmd="${LBUFFER%% *}"
+#     local cmd_bin="$(which --skip-alias "$cmd" 2>/dev/null)"
+#     local args
+#     if [[ "$LBUFFER" != "$cmd "* ]]; then
+#         args=''
+#     else
+#         args="${LBUFFER#* }"
+#     fi
+#     if [ -x "$cmd_bin" ]; then
+#         LBUFFER="$cmd_bin $args"
+#         zle self-insert
+#         zle backward-delete-char # needed to delete ^[s character
+#     fi
+# }
+# zle -N __zle_vlk_unalias_command
+# bindkey -M main "${keymap[As]}" __zle_vlk_unalias_command
+bindkey -M main "${keymap[As]}" expand-cmd-path
+
+__zle_vlk_replace_multiple_dots() {
     local dots=$LBUFFER[-3,-1]
     if [[ $dots =~ "^[ //\"']?\.\.$" ]]; then
         LBUFFER=$LBUFFER[1,-3]'../.'
@@ -55,5 +76,13 @@ replace_multiple_dots () {
     zle self-insert
 }
 
-zle -N replace_multiple_dots
-bindkey "." replace_multiple_dots
+zle -N __zle_vlk_replace_multiple_dots
+bindkey "." __zle_vlk_replace_multiple_dots
+
+__zle_vlk_expand_alias() {
+    zle _expand_alias
+    zle self-insert
+    zle backward-delete-char
+}
+zle -N __zle_vlk_expand_alias
+bindkey -M main "${keymap[Ca]}" __zle_vlk_expand_alias

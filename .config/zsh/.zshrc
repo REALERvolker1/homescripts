@@ -1,8 +1,22 @@
 # .zshrc
+[ -z "${ZSH_VERSION:-}" ] && return
 . "$ZDOTDIR/globals/vlkenv"
+
+setopt inc_append_history share_history \
+    hist_ignore_all_dups hist_expire_dups_first \
+    hist_reduce_blanks hist_no_store hist_ignore_space \
+    hist_fcntl_lock extended_history \
+    auto_cd auto_pushd pushd_ignore_dups multios \
+    extended_glob glob_complete glob_dots interactive_comments \
+    prompt_subst
+
+HISTFILE="$XDG_STATE_HOME/zshist"
+SAVEHIST=50000
+HISTSIZE=60000
 
 # zshrc loading
 () {
+    export ZPLUGIN_DIR="$XDG_DATA_HOME/zsh-plugins"
     local i
     for i in "$ZDOTDIR/rc.d/"*'.zsh'; do
         . "$i"
@@ -26,10 +40,8 @@
     . "$ZDOTDIR/globals/vlkrc"
 
     if ((COLUMNS > 55)); then
-        if command -v dumbfetch &>/dev/null; then
-            dumbfetch
-        fi
-        fortune -a -s | (
+        command -v dumbfetch &>/dev/null && dumbfetch
+        command -v fortune &>/dev/null && fortune -a -s | (
             if command -v lolcrab &>/dev/null; then
                 lolcrab
             elif command -v lolcat &>/dev/null; then
@@ -47,7 +59,7 @@
         "$ZPLUGIN_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" \
         "$ZPLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
         do
-        [ ! -f "$i" ] && continue
+        [ -f "$i" ] || continue
         if "$has_defer_plugin"; then
             zsh-defer . "$i"
         else
@@ -56,7 +68,7 @@
     done
 } "$@"
 
-if [[ "${FAST_THEME_NAME:-}" != 'vlk-fsyh' ]] && typeset -f 'fast-theme' &>/dev/null; then
+if [[ "${FAST_THEME_NAME:-}" != 'vlk-fsyh' ]] && typeset -f 'fast-theme' &>/dev/null && [ -f "$ZDOTDIR/settings/vlk-fsyh.ini" ]; then
     fast-theme "$ZDOTDIR/settings/vlk-fsyh.ini"
 fi
 true

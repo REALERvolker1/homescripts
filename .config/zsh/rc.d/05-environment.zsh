@@ -1,12 +1,9 @@
-export ZPLUGIN_DIR="$XDG_DATA_HOME/zsh-plugins"
-export CURRENT_SHELL='zsh'
-
 hash -d zsh="$ZDOTDIR"
 hash -d bin="$HOME/bin"
 hash -d code="$HOME/code"
 hash -d pics="$HOME/Pictures"
 hash -d var="$HOME/.var/app"
-[ -d "$HOMESCRIPTS" ] && hash -d dots="$HOMESCRIPTS"
+[ -d "${HOMESCRIPTS:-}" ] && hash -d dots="$HOMESCRIPTS"
 
 hash -d loc="$HOME/.local"
 hash -d data="$XDG_DATA_HOME"
@@ -43,7 +40,6 @@ chpwd_functions+=('__cd_ls')
 
 PROMPT='%k%f
 %B %F{14}%~%f %(0?.%F{10}%#.%F{9}%? %#) %b%f'
-#RPS1='%(0?..%F{9}%B%?%b)'
 ZLE_RPROMPT_INDENT=0
 PROMPT_EOL_MARK=''
 

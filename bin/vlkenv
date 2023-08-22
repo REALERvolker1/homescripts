@@ -19,6 +19,8 @@ export EDITOR="nvim"
 export VISUAL="$EDITOR"
 export PAGER='less'
 export MANPAGER='nvim +Man\!'
+export TERMINAL='vlk-sensible-terminal 1'
+export BROWSER='vlk-sensible-browser 1'
 
 export QT_QPA_PLATFORMTHEME='qt5ct'
 export QT_STYLE_OVERRIDE='kvantum'

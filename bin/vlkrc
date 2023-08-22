@@ -2,13 +2,15 @@
 # vim:foldmethod=marker:ft=sh
 # shellcheck disable=SC2139
 
-#[[ "$-" != *i* ]] && exit 1
-#sudo virsh console fedora38-server #username: root, password: root
 if [ "$(expr "$-" : '.*i')" = 0 ] || [ -z "${ZSH_VERSION:-$BASH_VERSION}" ]; then
     echo "Error, you must source this file with interactive zsh or bash" >&2
     return 1
     exit 1
 fi
+
+# the following are just some random notes :3
+# sudo virsh console fedora38-server #username: root, password: root
+# distrobox-create --name ARCH --image archlinux:latest
 
 [ -f "$HOME/.xsel.log" ] && rm "$HOME/.xsel.log" &>/dev/null
 
@@ -190,6 +192,7 @@ alias gitm='git add -A && git commit -am "$(date +"Commit from shell alias at %D
 alias gitp='git pull '
 alias tit='echo 😜 && git '
 alias gitd='git fetch && git diff "origin/$(git branch | grep -oP "\*[[:space:]]*\K.*\$")"'
+alias uncommit='git reset --soft HEAD~'
 
 dotfiles_git_interact() {
     if [ ! -d "${HOMESCRIPTS:-}" ]; then
@@ -270,8 +273,7 @@ alias fenv='printenv | fzf'
 
 alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 
-case "$CURRENT_SHELL" in
-'zsh')
+if [ -n "${ZSH_VERSION:-}" ]; then
     alias refresh='exec zsh'
     recompile() {
         local line
@@ -282,12 +284,10 @@ case "$CURRENT_SHELL" in
     }
     alias uncompile="recompile.zsh --uncompile"
     alias lsh="hash -dL | sed 's/hash -d //g ; s/=/  \t  /g' | fzf"
-    ;;
 
-'bash')
+elif [ -n "${BASH_VERSION:-}" ]; then
     alias refresh='exec bash'
-    ;;
-esac
+fi
 
 case "${CURRENT_DISTRO:-}" in
 'Arch')
