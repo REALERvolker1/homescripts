@@ -33,6 +33,7 @@ vlkprompt[colorterm]="${VLKPROMPT_COLOR_OVERRIDE:-$(tput colors)}"
 if ((vlkprompt[colorterm] < 8 )); then
     return
 elif ((vlkprompt[colorterm] < 256 )); then
+    vlkprompt[bash_color_prefix]=''
     vlkprompt[light_color]=7
     vlkprompt[dark_color]=0
     vlkprompt[cwd_color]=4
@@ -44,6 +45,7 @@ elif ((vlkprompt[colorterm] < 256 )); then
     vlkprompt[ps2_color]=5
     vlkprompt[ps3_color]=5
 else
+    vlkprompt[bash_color_prefix]='8;5;'
     vlkprompt[light_color]=255
     vlkprompt[dark_color]=232
     vlkprompt[cwd_color]=33
@@ -56,7 +58,101 @@ else
     vlkprompt[ps3_color]=95
 fi
 
-if [ -n "${ZSH_VERSION:-}" ]; then # zsh-specific stuff
+if [ -n "${BASH_VERSION:-}" ]; then # bash-specific stuff
+
+vlkprompt[sgr]="\[\e[0m\]"
+
+vlkprompt[light_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[light_color]}m"
+vlkprompt[dark_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[dark_color]}m"
+vlkprompt[cwd_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[cwd_color]}m"
+vlkprompt[git_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[git_color]}m"
+vlkprompt[vim_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[vim_color]}m"
+vlkprompt[err_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[err_color]}m"
+vlkprompt[job_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[job_color]}m"
+vlkprompt[sud_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[sud_color]}m"
+vlkprompt[ps2_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[ps2_color]}m"
+vlkprompt[ps3_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[ps3_color]}m"
+
+vlkprompt[light_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[light_color]}m"
+vlkprompt[dark_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[dark_color]}m"
+vlkprompt[cwd_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[cwd_color]}m"
+vlkprompt[git_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[git_color]}m"
+vlkprompt[vim_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[vim_color]}m"
+vlkprompt[err_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[err_color]}m"
+vlkprompt[job_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[job_color]}m"
+vlkprompt[sud_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[sud_color]}m"
+vlkprompt[ps2_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[ps2_color]}m"
+vlkprompt[ps3_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[ps3_color]}m"
+
+# export PS2="$(echo -en "${vlkprompt[ps2_color_bg]}${vlkprompt[light_color_fg]} > \e[0m${vlkprompt[ps2_color_fg]}${vlkprompt[end_icon]}\e[0m ")"
+export PS3="$(echo -en "${vlkprompt[ps3_color_bg]}${vlkprompt[light_color_fg]} #? \e[0m${vlkprompt[ps3_color_fg]}${vlkprompt[end_icon]}\e[0m ")"
+
+PROMPT_COMMAND=__vlk_bash_prompt_command
+__vlk_bash_prompt_command() {
+    local retval="$?"
+    local jobcount="$(jobs | wc -l)"
+
+    # cwd
+    local computed_filestr_color
+    local computed_filestr_next_icon_fg_color
+    local computed_filestr_previous_icon_bg_color
+    local computed_filestr_icon
+    if git status &>/dev/null; then
+        computed_filestr_color="${vlkprompt[dark_color_fg]}${vlkprompt[git_color_bg]}"
+        computed_filestr_next_icon_fg_color="${vlkprompt[git_color_fg]}"
+        computed_filestr_previous_icon_bg_color="${vlkprompt[git_color_bg]}"
+        computed_filestr_icon="${vlkprompt[git_icon]}"
+    else
+        computed_filestr_color="${vlkprompt[light_color_fg]}${vlkprompt[cwd_color_bg]}"
+        computed_filestr_next_icon_fg_color="${vlkprompt[cwd_color_fg]}"
+        computed_filestr_previous_icon_bg_color="${vlkprompt[cwd_color_bg]}"
+        if [ -w "$PWD" ]; then
+            computed_filestr_icon="${vlkprompt[rw_icon]}"
+        else
+            computed_filestr_icon="${vlkprompt[ro_icon]}"
+        fi
+    fi
+    local computed_filestr="${vlkprompt[sgr]}\[${computed_filestr_color}\] ${computed_filestr_icon} \w "
+
+    # end icon
+    local computed_end_color_slice
+    local computed_end_icon
+    if sudo -vn &>/dev/null; then
+        computed_end_color_slice="${vlkprompt[sud_color_bg]}"
+        computed_end_icon="${vlkprompt[end_icon]}  ${vlkprompt[sgr]}\[${vlkprompt[sud_color_fg]}\]${vlkprompt[sud_end_icon]}"
+    else
+        computed_end_color_slice=""
+        computed_end_icon="${vlkprompt[end_icon]}"
+    fi
+    local computed_end="${vlkprompt[sgr]}\[${computed_filestr_next_icon_fg_color}${computed_end_color_slice}\]${computed_end_icon}"
+
+    # error code
+    local computed_err_previous_icon_bg_color
+    local computed_err
+    if ((retval != 0)); then
+        computed_err_previous_icon_bg_color="${vlkprompt[err_color_bg]}"
+        computed_err="${vlkprompt[sgr]}\[${vlkprompt[light_color_fg]}${vlkprompt[err_color_bg]}\] ${vlkprompt[err_icon]} ${retval} \[${vlkprompt[err_color_fg]}${computed_filestr_previous_icon_bg_color}\]${vlkprompt[end_icon]}"
+    else
+        computed_err_previous_icon_bg_color="${computed_filestr_previous_icon_bg_color}"
+        computed_err=""
+    fi
+
+    # jobs
+    local computed_jobs_previous_icon_bg_color
+    local computed_jobs
+    if ((jobcount != 0)); then
+        computed_jobs="${vlkprompt[sgr]}\[${vlkprompt[dark_color_fg]}${vlkprompt[job_color_bg]}\] ${vlkprompt[job_icon]} ${jobcount} \[${vlkprompt[job_color_fg]}${computed_err_previous_icon_bg_color}\]${vlkprompt[end_icon]}"
+        computed_jobs_previous_icon_bg_color="${vlkprompt[job_color_bg]}"
+    else
+        computed_jobs=""
+        computed_jobs_previous_icon_bg_color="${computed_err_previous_icon_bg_color}"
+    fi
+
+    export PS1="${vlkprompt[sgr]}${computed_jobs}${computed_err}${computed_filestr}${computed_end}${vlkprompt[sgr]} "
+}
+fi
+[ -n "${BASH_VERSION:-}" ] && return 0
+if [ -n "${ZSH_VERSION:-}" ]; then
 
 autoload -Uz vcs_info
 zstyle ':vcs_info:*' enable git
@@ -137,27 +233,5 @@ __vlk-zle-line-init () {
 }
 
 zle -N zle-line-init __vlk-zle-line-init
-
-elif [ -n "${BASH_VERSION:-}" ]; then # bash-specific stuff
-
-PROMPT_COMMAND=__vlk_bash_prompt_command
-__vlk_bash_prompt_command() {
-    local retval="$?"
-    local jobcount="$(jobs | wc -l)"
-    local ps1str="\[\e[0m\e[3;44m\e[1;37m\] \h \[\e[0m\e[3;34m\e[1;47m\] \w "
-    local end_icon=']'
-    local sudo_end_icon=' '
-    case "${ICON_TYPE:-}" in
-    dashline) end_icon='' ;;
-    powerline) end_icon='' ;;
-    *) sudo_end_icon='#]' ;;
-    esac
-    local computed_end_icon="\[\e[0m\e[0;37m\]$end_icon"
-    sudo -vn &>/dev/null && computed_end_icon="\[\e[0m\e[0;37m\e[0;41m\]$end_icon \[\e[0m\e[0;31m\]$sudo_end_icon"
-    ps1str="${ps1str}${computed_end_icon}\[\e[0m\]"
-    ((retval != 0)) && ps1str="\[\e[1;37m\e[41m\] $retval $ps1str"
-    ((jobcount != 0)) && ps1str="\[\e[1;30m\e[43m\] $jobcount $ps1str"
-    export PS1="\[\e[0m\]$ps1str "
-}
 
 fi
