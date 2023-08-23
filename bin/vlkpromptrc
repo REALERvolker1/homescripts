@@ -121,7 +121,7 @@ __vlk_bash_prompt_command() {
     local computed_end_icon
     if sudo -vn &>/dev/null; then
         computed_end_color_slice="${vlkprompt[sud_color_bg]}"
-        computed_end_icon="${vlkprompt[end_icon]}  ${vlkprompt[sgr]}\[${vlkprompt[sud_color_fg]}\]${vlkprompt[sud_end_icon]}"
+        computed_end_icon="${vlkprompt[end_icon]} ${vlkprompt[sgr]}\[${vlkprompt[sud_color_fg]}\]${vlkprompt[sud_end_icon]}"
     else
         computed_end_color_slice=""
         computed_end_icon="${vlkprompt[end_icon]}"
@@ -150,11 +150,14 @@ __vlk_bash_prompt_command() {
         computed_jobs_previous_icon_bg_color="${computed_err_previous_icon_bg_color}"
     fi
 
-    export PS1="${vlkprompt[sgr]}${computed_jobs}${computed_err}${computed_filestr}${computed_end}${vlkprompt[sgr]} "
+    export PS1="${vlkprompt[sgr]}\n${computed_jobs}${computed_err}${computed_filestr}${computed_end}${vlkprompt[sgr]} "
 }
 fi
 [ -n "${BASH_VERSION:-}" ] && return 0
-if [ -n "${ZSH_VERSION:-}" ]; then
+
+#####            #####
+#: BEGIN ZSH PROMPT :#
+#####            #####
 
 autoload -Uz vcs_info
 zstyle ':vcs_info:*' enable git
@@ -235,5 +238,3 @@ __vlk-zle-line-init () {
 }
 
 zle -N zle-line-init __vlk-zle-line-init
-
-fi
