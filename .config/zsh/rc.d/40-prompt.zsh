@@ -1,4 +1,8 @@
-#!/usr/bin/zsh
+if [ -z "${ZSH_VERSION:-$BASH_VERSION}" ]; then
+    return 1
+    exit 1
+fi
+
 declare -A vlkprompt
 
 vlkprompt[git_icon]=󰊢
@@ -52,8 +56,13 @@ else
     vlkprompt[ps3_color]=95
 fi
 
+if [ -n "${ZSH_VERSION:-}" ]; then # zsh-specific stuff
+
+autoload -Uz vcs_info
+zstyle ':vcs_info:*' enable git
+
 vlkprompt[sgr]="%k%f%b%u%s"
-# %\$((COLUMNS / 2))<\<..<%~
+
 PS1="${vlkprompt[sgr]}%B%(130V..
 )%(0?..%K{${vlkprompt[err_color]}}%F{${vlkprompt[light_color]}}%(130V.. ${vlkprompt[err_icon]}) %? %k%f)\
 %(130V..%(1j.%K{${vlkprompt[job_color]}}%F{${vlkprompt[dark_color]}} ${vlkprompt[job_icon]} %j %k%f.))\
@@ -74,7 +83,7 @@ SUDO_PROMPT="$(print -P "${vlkprompt[sgr]}%B%K{${vlkprompt[sud_color]}}%F{${vlkp
 unset vlkprompt
 
 __vlk_precmd () {
-    if /usr/bin/sudo -vn &>/dev/null; then # sudo
+    if sudo -vn &>/dev/null; then # sudo
         psvar[135]=1
     else
         psvar[135]=''
@@ -84,7 +93,8 @@ __vlk_precmd () {
     else
         psvar[136]=''
     fi
-    if [ -d "$PWD/.git" ]; then # git color
+    vcs_info &>/dev/null
+    if [ -n "${vcs_info_msg_0_:-}" ]; then # git color
         psvar[137]=1
     else
         psvar[137]=''
@@ -127,3 +137,27 @@ __vlk-zle-line-init () {
 }
 
 zle -N zle-line-init __vlk-zle-line-init
+
+elif [ -n "${BASH_VERSION:-}" ]; then # bash-specific stuff
+
+PROMPT_COMMAND=__vlk_bash_prompt_command
+__vlk_bash_prompt_command() {
+    local retval="$?"
+    local jobcount="$(jobs | wc -l)"
+    local ps1str="\[\e[0m\e[3;44m\e[1;37m\] \h \[\e[0m\e[3;34m\e[1;47m\] \w "
+    local end_icon=']'
+    local sudo_end_icon=' '
+    case "${ICON_TYPE:-}" in
+    dashline) end_icon='' ;;
+    powerline) end_icon='' ;;
+    *) sudo_end_icon='#]' ;;
+    esac
+    local computed_end_icon="\[\e[0m\e[0;37m\]$end_icon"
+    sudo -vn &>/dev/null && computed_end_icon="\[\e[0m\e[0;37m\e[0;41m\]$end_icon \[\e[0m\e[0;31m\]$sudo_end_icon"
+    ps1str="${ps1str}${computed_end_icon}\[\e[0m\]"
+    ((retval != 0)) && ps1str="\[\e[1;37m\e[41m\] $retval $ps1str"
+    ((jobcount != 0)) && ps1str="\[\e[1;30m\e[43m\] $jobcount $ps1str"
+    export PS1="\[\e[0m\]$ps1str "
+}
+
+fi

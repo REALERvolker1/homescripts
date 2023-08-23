@@ -317,6 +317,11 @@ dotadd() {
     ln -s "$linkfolder" "$dotfolder"
 }
 
+fzfify() {
+    : "${1:?Error, please enter a list of stuff to fzfify!}"
+    printf '%s\n' "$@" | fzf
+}
+
 keyring() {
     if pgrep 'gnome-keyring-d' &>/dev/null; then
         busctl --user get-property 'org.gnome.keyring' \

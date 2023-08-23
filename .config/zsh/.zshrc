@@ -28,6 +28,7 @@ HISTSIZE=60000
     if [ -f "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh" ]; then
         has_defer_plugin=true
         . "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
+        #autoload -Uz "$ZPLUGIN_DIR/zsh-defer/zsh-defer"
     fi
 
     for i in \
@@ -71,4 +72,6 @@ HISTSIZE=60000
 if [[ "${FAST_THEME_NAME:-}" != 'vlk-fsyh' ]] && typeset -f 'fast-theme' &>/dev/null && [ -f "$ZDOTDIR/settings/vlk-fsyh.ini" ]; then
     fast-theme "$ZDOTDIR/settings/vlk-fsyh.ini"
 fi
+
+# hyperfine -n 5 'zsh -i -c "print -n"'
 true
