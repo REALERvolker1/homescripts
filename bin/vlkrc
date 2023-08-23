@@ -1,3 +1,4 @@
+#!/usr/bin/dash
 # shellcheck shell=bash
 # vim:foldmethod=marker:ft=sh
 # shellcheck disable=SC2139

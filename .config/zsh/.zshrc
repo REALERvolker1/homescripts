@@ -38,6 +38,7 @@ HISTSIZE=60000
         do
         autoload -Uz "$i"
     done
+    . "$ZDOTDIR/globals/vlkpromptrc"
     . "$ZDOTDIR/globals/vlkrc"
 
     if ((COLUMNS > 55)); then

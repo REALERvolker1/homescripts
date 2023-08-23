@@ -1,3 +1,5 @@
+#!/usr/bin/dash
+
 if [ -z "${ZSH_VERSION:-$BASH_VERSION}" ]; then
     return 1
     exit 1

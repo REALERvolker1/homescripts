@@ -19,7 +19,7 @@ unset i
 HISTFILE="$XDG_STATE_HOME/bash_history"
 HISTCONTROL=erasedups:ignoreboth
 
-. ~/.config/zsh/rc.d/40-prompt.zsh
+. "$HOME/bin/vlkpromptrc"
 
 # PROMPT_COMMAND=__vlk_bash_prompt_command
 # __vlk_bash_prompt_command() {
