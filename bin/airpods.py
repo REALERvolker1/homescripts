@@ -1,12 +1,67 @@
 #!/usr/bin/python3
+# script originally from https://github.com/A-delta/zsh-airpods-battery
+# modified to death by vlk
+
 import asyncio
 from bleak import BleakScanner
 from binascii import hexlify
 from time import sleep
+from sys import argv
+from os import environ
 
 AIRPODS_MANUFACTURER = 76
 AIRPODS_DATA_LENGTH = 54
 UPDATE_INTERVAL = 2
+
+OUTPUT_METHOD = "stdout"
+OUTPUT_TYPE = "string"
+for arg in argv:
+    if arg == argv[0]:
+        continue
+    match arg:
+        case "--stdout" :
+            OUTPUT_METHOD = "stdout"
+        case "--tmpfile" :
+            OUTPUT_METHOD = "tempfile"
+        case "--json":
+            OUTPUT_TYPE = "json"
+        case "--string":
+            OUTPUT_TYPE = "string"
+        case "--single-highest":
+            OUTPUT_TYPE = "single-highest"
+        case "--single-lowest":
+            OUTPUT_TYPE = "single-lowest"
+        case "--zsh-prompt":
+            OUTPUT_TYPE = "zsh-prompt"
+        case _:
+            print("\n".join([
+                    "airpods.py",
+                    "Continuously monitors your airpods battery level",
+                    "Due to Apple being stupid, it only works in intervals of 5",
+                    "",
+                    "Possible output methods",
+                    "--tmpfile       Output to a tempfile",
+                    "    tempfile path is $XDG_RUNTIME_DIR/airpods_battery.out",
+                    "    If $XDG_RUNTIME_DIR is not set, it falls back to /tmp",
+                    "    This can be overridden with the environment variable $AIRPODS_TMPFILE",
+                    "",
+                    "--stdout        Output directly to stdout (Default)",
+                    "    This is useful if you want to use it as a statusbar module",
+                    "",
+                    "Possible output types",
+                    "--json            Print output as a json string",
+                    "    `{\"left\": 95, \"left_charging\": false, \"right\": 95, \"right_charging\": false}`",
+                    "",
+                    "--string          Print output as a human-readable string (Default)",
+                    "    `L: 95, R: 95`",
+                    "",
+                    "--single-highest  Print a single integer, the highest out of either left or right",
+                    "--single-lowest   Print a single integer, the lowest out of either left or right",
+                    "    `95`"
+                    ])
+            )
+            exit(1)
+
 
 async def get_data_from_bluetooth():
     discovered_devices_and_advertisement_data = await BleakScanner.discover(return_adv=True)
@@ -21,20 +76,6 @@ async def get_data_from_bluetooth():
 
 def is_flipped(raw):
     return (int("" + chr(raw[10]), 16) & 0x02) == 0
-
-def add_color_zsh_prompt(status):
-    if status=='🚫':
-        return status
-    if status < 25:
-        return f"%{{$fg[red]%}}{status}%{{$reset_color%}}"
-
-    elif status < 50:
-        return f"${{FG[202]}}{status}%{{$reset_color%}}"
-
-    elif status < 75:
-        return f"%{{$fg[yellow]%}}{status}%{{$reset_color%}}"
-    else:
-        return f"%{{$fg[green]%}}{status}%{{$reset_color%}}"
 
 def get_battery_from_data(data_hexa):
     flip: bool = is_flipped(data_hexa)
@@ -55,20 +96,98 @@ def get_battery_from_data(data_hexa):
     charging_right:bool = (charging_status & (0b00000001 if flip else 0b00000010)) != 0
     charging_case:bool = (charging_status & 0b00000100) != 0
 
-    res = "L:"+add_color_zsh_prompt(left_status)+' ' if left_status!='' else ''
-    res += "R:"+add_color_zsh_prompt(right_status)+' ' if right_status!='' else ''
-    res += "C:"+add_color_zsh_prompt(case_status)+' ' if case_status!='' else ''
+    res = []
+    return_str = ""
 
-    return res
+    left_active = (left_status != '')
+    right_active = (right_status != '')
+    case_active = (case_status != '')
+    match OUTPUT_TYPE:
+        case "json":
+            if left_active:
+                res.append(f'"left": {left_status}')
+                res.append(f'"left_charging": {str(charging_left).lower()}')
+            if right_active:
+                res.append(f'"right": {right_status}')
+                res.append(f'"right_charging": {str(charging_right).lower()}')
+            if case_active:
+                res.append(f'"case": {case_status}')
+                res.append(f'"case_charging": {str(charging_case).lower()}')
+
+            return_str = "{" + ", ".join(res) + "}"
+
+        case "string":
+            if left_active:
+                tmpstr = "L: "
+                if charging_left:
+                    tmpstr += "(Charging) "
+                tmpstr += str(left_status)
+                res.append(tmpstr)
+            if right_active:
+                tmpstr = "R: "
+                if charging_right:
+                    tmpstr += "(Charging) "
+                tmpstr += str(right_status)
+                res.append(tmpstr)
+            if case_active:
+                tmpstr = "C: "
+                if charging_case:
+                    tmpstr += "(Charging) "
+                tmpstr += str(case_status)
+                res.append(tmpstr)
+
+            return_str = ", ".join(res)
+
+        case "single-highest":
+            if left_active and right_active:
+                if left_status >= right_status:
+                    return_str = left_status
+                else:
+                    return_str = right_status
+            elif left_active:
+                return_str = left_status
+            elif right_active:
+                return_str = right_status
+            elif case_active:
+                return_str = case_status
+
+        case "single-lowest":
+            if left_active and right_active:
+                if left_status >= right_status:
+                    return_str = right_status
+                else:
+                    return_str = left_status
+            elif left_active:
+                return_str = left_status
+            elif right_active:
+                return_str = right_status
+            elif case_active:
+                return_str = case_status
+
+    return return_str
 
 async def main():
-    with open("/tmp/airpods_battery.out", 'w+') as writer:
+    if OUTPUT_METHOD == "tempfile":
+        tempfile = environ.get("AIRPODS_TMPFILE")
+        if tempfile == None:
+            runtime_dir = environ.get("XDG_RUNTIME_DIR")
+            if runtime_dir == None:
+                runtime_dir = "/tmp"
+            tempfile = f"{runtime_dir}/airpods_battery.out"
+        with open(tempfile, 'w+') as writer:
+            while True:
+                res=await get_data_from_bluetooth()
+                writer.seek(0)
+                if res is not None:
+                    writer.write(get_battery_from_data(res))
+                writer.truncate()
+                sleep(UPDATE_INTERVAL)
+
+    elif OUTPUT_METHOD == "stdout":
         while True:
             res=await get_data_from_bluetooth()
-            writer.seek(0)
             if res is not None:
-                writer.write(get_battery_from_data(res))
-            writer.truncate()
+                print(get_battery_from_data(res))
             sleep(UPDATE_INTERVAL)
 
 asyncio.run(main())
