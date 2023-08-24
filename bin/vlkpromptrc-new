@@ -1,14 +1,25 @@
-#!/usr/bin/bash
 # shellcheck shell=bash
 # vim:foldmethod=marker:ft=sh
 # shellcheck disable=SC2317
 
-[ -z "${ZSH_VERSION:-$BASH_VERSION}" ] && {
+# [ -z "${ZSH_VERSION:-$BASH_VERSION}" ] && {
+#     return 1
+#     exit 1
+# }
+
+if [ -n "${BASH_VERSION:-}" ]; then
+    VLK_SHELL=bash
+elif [ -n "${ZSH_VERSION:-}" ]; then
+    VLK_SHELL=zsh
+else
     return 1
     exit 1
-}
+    VLK_SHELL=''
+    echo 'unreachable code statement! vlk is truly bad at coding!!' >&2
+fi
 
 declare -A vlkprompt
+# [ "$VLK_SHELL" == 'bash' ] && declare -a psvar
 
 vlkprompt[dir_git_icon]=󰊢
 vlkprompt[dir_vim_icon]=
@@ -20,30 +31,36 @@ vlkprompt[end_icon_sud]=' '
 case "${ICON_TYPE:-}" in
 dashline)
     vlkprompt[end_icon]=
+    vlkprompt[right_icon]=
     ;;
 powerline)
     vlkprompt[end_icon]=
+    vlkprompt[right_icon]=
     ;;
 *)
     vlkprompt[end_icon]=']'
+    vlkprompt[right_icon]='['
     vlkprompt[dir_git_icon]='G'
     vlkprompt[dir_vim_icon]='V'
     vlkprompt[dir_ro_icon]='-'
     vlkprompt[dir_rw_icon]='.'
     vlkprompt[err_icon]='X'
     vlkprompt[job_icon]='J'
-    vlkprompt[end_icon_sud]="${vlkprompt[end_icon]}"
+    vlkprompt[end_icon_sud]='#'
     ;;
 esac
 
 vlkprompt[colorterm]="${VLKPROMPT_COLOR_OVERRIDE:-$(tput colors)}"
 
 if ((vlkprompt[colorterm] < 8)); then
+    unset vlkprompt
     return
 elif ((vlkprompt[colorterm] < 256)); then
-    vlkprompt[ansi_color_prefix]=''
-    vlkprompt[light_color]=7
-    vlkprompt[dark_color]=0
+    vlkprompt[ansi_text_fg_prefix]='\e[1;3'
+    vlkprompt[ansi_fg_prefix]='\e[3'
+    vlkprompt[ansi_bg_prefix]='\e[4'
+    vlkprompt[lite_text]=7
+    vlkprompt[dark_text]=0
     vlkprompt[cwd_color]=4
     vlkprompt[git_color]=5
     vlkprompt[vim_color]=2
@@ -53,9 +70,11 @@ elif ((vlkprompt[colorterm] < 256)); then
     vlkprompt[ps2_color]=5
     vlkprompt[ps3_color]=5
 else
-    vlkprompt[ansi_color_prefix]='8;5;'
-    vlkprompt[light_color]=255
-    vlkprompt[dark_color]=232
+    vlkprompt[ansi_text_fg_prefix]='\e[1;38;5;'
+    vlkprompt[ansi_fg_prefix]='\e[38;5;'
+    vlkprompt[ansi_bg_prefix]='\e[48;5;'
+    vlkprompt[lite_text]=255
+    vlkprompt[dark_text]=232
     vlkprompt[cwd_color]=33
     vlkprompt[git_color]=141
     vlkprompt[vim_color]=120
@@ -66,28 +85,194 @@ else
     vlkprompt[ps3_color]=95
 fi
 
-vlkprompt[sgr]="\e[0m"
+# psvar[130] = is short prompt
+# psvar[135] = is sudo authenticated
+# psvar[136] = is dir writable
+# psvar[137] = is dir in git vcs
+# psvar[138] = is in zle vicmd mode
 
-vlkprompt[light_color_fg]="\e[1;3${vlkprompt[ansi_color_prefix]}${vlkprompt[light_color]}m"
-vlkprompt[dark_color_fg]="\e[1;3${vlkprompt[ansi_color_prefix]}${vlkprompt[dark_color]}m"
-vlkprompt[cwd_color_fg]="\e[1;3${vlkprompt[ansi_color_prefix]}${vlkprompt[cwd_color]}m"
-vlkprompt[git_color_fg]="\e[1;3${vlkprompt[ansi_color_prefix]}${vlkprompt[git_color]}m"
-vlkprompt[vim_color_fg]="\e[1;3${vlkprompt[ansi_color_prefix]}${vlkprompt[vim_color]}m"
-vlkprompt[err_color_fg]="\e[1;3${vlkprompt[ansi_color_prefix]}${vlkprompt[err_color]}m"
-vlkprompt[job_color_fg]="\e[1;3${vlkprompt[ansi_color_prefix]}${vlkprompt[job_color]}m"
-vlkprompt[sud_color_fg]="\e[1;3${vlkprompt[ansi_color_prefix]}${vlkprompt[sud_color]}m"
-vlkprompt[ps2_color_fg]="\e[1;3${vlkprompt[ansi_color_prefix]}${vlkprompt[ps2_color]}m"
-vlkprompt[ps3_color_fg]="\e[1;3${vlkprompt[ansi_color_prefix]}${vlkprompt[ps3_color]}m"
+# __vlk_precmd() {
+#     if sudo -vn &>/dev/null; then # sudo
+#         psvar[135]=1
+#     else
+#         psvar[135]=''
+#     fi
+#     if [ -w "$PWD" ]; then # dir icon
+#         psvar[136]=1
+#     else
+#         psvar[136]=''
+#     fi
+#     if git status &>/dev/null; then # git color
+#         psvar[137]=1
+#     else
+#         psvar[137]=''
+#     fi
+#     psvar[138]='' # vicmd
+# }
 
-vlkprompt[light_color_bg]="\e[1;4${vlkprompt[ansi_color_prefix]}${vlkprompt[light_color]}m"
-vlkprompt[dark_color_bg]="\e[1;4${vlkprompt[ansi_color_prefix]}${vlkprompt[dark_color]}m"
-vlkprompt[cwd_color_bg]="\e[1;4${vlkprompt[ansi_color_prefix]}${vlkprompt[cwd_color]}m"
-vlkprompt[git_color_bg]="\e[1;4${vlkprompt[ansi_color_prefix]}${vlkprompt[git_color]}m"
-vlkprompt[vim_color_bg]="\e[1;4${vlkprompt[ansi_color_prefix]}${vlkprompt[vim_color]}m"
-vlkprompt[err_color_bg]="\e[1;4${vlkprompt[ansi_color_prefix]}${vlkprompt[err_color]}m"
-vlkprompt[job_color_bg]="\e[1;4${vlkprompt[ansi_color_prefix]}${vlkprompt[job_color]}m"
-vlkprompt[sud_color_bg]="\e[1;4${vlkprompt[ansi_color_prefix]}${vlkprompt[sud_color]}m"
-vlkprompt[ps2_color_bg]="\e[1;4${vlkprompt[ansi_color_prefix]}${vlkprompt[ps2_color]}m"
-vlkprompt[ps3_color_bg]="\e[1;4${vlkprompt[ansi_color_prefix]}${vlkprompt[ps3_color]}m"
+declare -A promptstr
+case "$VLK_SHELL" in
+zsh)
+    vlkprompt[ansi_text_fg_prefix]='%B%f%F{'
+    vlkprompt[ansi_fg_prefix]='%b%f%F{'
+    vlkprompt[ansi_bg_prefix]='%k%K{'
+    vlkprompt[ansi_suffix]='}'
+    vlkprompt[sgr]='%k%f%b%u%s'
 
+    vlkprompt[dir_git_icon]="%(130V.. ${vlkprompt[dir_git_icon]})"
+    vlkprompt[dir_vim_icon]="%(130V.. ${vlkprompt[dir_vim_icon]})"
+    # vlkprompt[dir_ro_icon]="%(130V.. ${vlkprompt[dir_ro_icon]})"
+    # vlkprompt[dir_rw_icon]="%(130V.. ${vlkprompt[dir_rw_icon]})"
+    vlkprompt[dir_icon]="%(130V.. %(136V.${vlkprompt[dir_rw_icon]}.${vlkprompt[dir_ro_icon]}))"
+    vlkprompt[err_icon]="%(130V.. ${vlkprompt[err_icon]})"
+    vlkprompt[job_icon]="%(130V.. ${vlkprompt[job_icon]})"
 
+    promptstr[err]='%?'
+    promptstr[job]='%j'
+    promptstr[cwd]='%$((COLUMNS / 2))<..<%~'
+    promptstr[ps2]='%_'
+    promptstr[ps3]='%_'
+
+    ;;
+bash)
+    vlkprompt[ansi_suffix]='m'
+    vlkprompt[sgr]="\e[0m"
+
+    promptstr[err]='$?'
+    promptstr[job]='\j'
+    promptstr[cwd]='\w'
+    promptstr[ps2]='>'
+    promptstr[ps3]='#?'
+    ;;
+esac
+
+vlkprompt[lite_text_fg]="${vlkprompt[ansi_text_fg_prefix]}${vlkprompt[lite_text]}${vlkprompt[ansi_suffix]}"
+vlkprompt[dark_text_fg]="${vlkprompt[ansi_text_fg_prefix]}${vlkprompt[dark_text]}${vlkprompt[ansi_suffix]}"
+
+vlkprompt[cwd_color_fg]="${vlkprompt[ansi_fg_prefix]}${vlkprompt[cwd_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[git_color_fg]="${vlkprompt[ansi_fg_prefix]}${vlkprompt[git_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[vim_color_fg]="${vlkprompt[ansi_fg_prefix]}${vlkprompt[vim_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[err_color_fg]="${vlkprompt[ansi_fg_prefix]}${vlkprompt[err_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[job_color_fg]="${vlkprompt[ansi_fg_prefix]}${vlkprompt[job_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[sud_color_fg]="${vlkprompt[ansi_fg_prefix]}${vlkprompt[sud_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[ps2_color_fg]="${vlkprompt[ansi_fg_prefix]}${vlkprompt[ps2_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[ps3_color_fg]="${vlkprompt[ansi_fg_prefix]}${vlkprompt[ps3_color]}${vlkprompt[ansi_suffix]}"
+
+vlkprompt[cwd_color_bg]="${vlkprompt[ansi_bg_prefix]}${vlkprompt[cwd_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[git_color_bg]="${vlkprompt[ansi_bg_prefix]}${vlkprompt[git_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[vim_color_bg]="${vlkprompt[ansi_bg_prefix]}${vlkprompt[vim_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[err_color_bg]="${vlkprompt[ansi_bg_prefix]}${vlkprompt[err_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[job_color_bg]="${vlkprompt[ansi_bg_prefix]}${vlkprompt[job_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[sud_color_bg]="${vlkprompt[ansi_bg_prefix]}${vlkprompt[sud_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[ps2_color_bg]="${vlkprompt[ansi_bg_prefix]}${vlkprompt[ps2_color]}${vlkprompt[ansi_suffix]}"
+vlkprompt[ps3_color_bg]="${vlkprompt[ansi_bg_prefix]}${vlkprompt[ps3_color]}${vlkprompt[ansi_suffix]}"
+
+# __vlk_bash_prompt() {
+#     local retval="$?"
+#     local jobs="$(jobs | wc -l)"
+#     __vlk_precmd
+# }
+
+declare -A vlk_computed
+
+vlk_computed[err]="${vlkprompt[err_color_bg]}${vlkprompt[lite_text_fg]}${vlkprompt[err_icon]} ${promptstr[err]} "
+vlk_computed[err_border_job]="${vlkprompt[job_color_bg]}${vlkprompt[err_color_fg]}${vlkprompt[end_icon]}"
+vlk_computed[err_border_cwd]="${vlkprompt[cwd_color_bg]}${vlkprompt[err_color_fg]}${vlkprompt[end_icon]}"
+vlk_computed[err_border_git]="${vlkprompt[cwd_color_bg]}${vlkprompt[err_color_fg]}${vlkprompt[end_icon]}"
+vlk_computed[err_border_vim]="${vlkprompt[cwd_color_bg]}${vlkprompt[err_color_fg]}${vlkprompt[end_icon]}"
+
+vlk_computed[job]="${vlkprompt[err_color_bg]}${vlkprompt[lite_text_fg]}${vlkprompt[err_icon]} ${promptstr[job]} "
+vlk_computed[job_border_cwd]="${vlkprompt[cwd_color_bg]}${vlkprompt[job_color_fg]}${vlkprompt[end_icon]}"
+vlk_computed[job_border_git]="${vlkprompt[git_color_bg]}${vlkprompt[job_color_fg]}${vlkprompt[end_icon]}"
+vlk_computed[job_border_vim]="${vlkprompt[vim_color_bg]}${vlkprompt[job_color_fg]}${vlkprompt[end_icon]}"
+
+vlk_computed[cwd]="${vlkprompt[cwd_color_bg]}${vlkprompt[lite_text_fg]}${vlkprompt[dir_icon]} ${promptstr[cwd]} "
+vlk_computed[git]="${vlkprompt[git_color_bg]}${vlkprompt[lite_text_fg]}${vlkprompt[dir_git_icon]} ${promptstr[cwd]} "
+vlk_computed[vim]="${vlkprompt[vim_color_bg]}${vlkprompt[lite_text_fg]}${vlkprompt[dir_vim_icon]} ${promptstr[cwd]} "
+
+vlk_computed[cwd_end]="${vlkprompt[sgr]}${vlkprompt[cwd_color_fg]}${vlkprompt[end_icon]}"
+vlk_computed[git_end]="${vlkprompt[sgr]}${vlkprompt[git_color_fg]}${vlkprompt[end_icon]}"
+vlk_computed[vim_end]="${vlkprompt[sgr]}${vlkprompt[vim_color_fg]}${vlkprompt[end_icon]}"
+
+vlk_computed[cwd_end_sudo]="${vlkprompt[cwd_color_fg]}${vlkprompt[sud_color_bg]} ${vlkprompt[sgr]}${vlkprompt[sud_color_fg]}${vlkprompt[end_icon_sud]}"
+vlk_computed[git_end_sudo]="${vlkprompt[git_color_fg]}${vlkprompt[sud_color_bg]} ${vlkprompt[sgr]}${vlkprompt[sud_color_fg]}${vlkprompt[end_icon_sud]}"
+vlk_computed[vim_end_sudo]="${vlkprompt[vim_color_fg]}${vlkprompt[sud_color_bg]} ${vlkprompt[sgr]}${vlkprompt[sud_color_fg]}${vlkprompt[end_icon_sud]}"
+
+[[ "$VLK_SHELL" != 'zsh' ]] && return 0
+
+## In order for me to be able to read my own prompt code,
+## I must invent my own syntax as an abstraction over the horrible zsh prompt syntax.
+## Trust me, it's probably easier this way
+## - vlk from 8/24/23
+
+declare -A zp
+
+zp[newline]='
+'
+zp[if_open]='%('
+zp[if_close]=')'
+zp[then]='.'
+zp[else]='.'
+zp[if_err_open]='%(0?.'
+zp[if_job_open]='%(1j.'
+zp[if_short_prompt_open]='%(130V.'
+zp[if_short_prompt_not_open]='%(130V..'
+zp[if_sudo_open]='%(135V.'
+zp[if_dir_writable_open]='%(136V.'
+zp[if_dir_git_open]='%(137V.'
+zp[if_dir_vim_open]='%(137V.'
+
+vlk_computed[cwd_end_computed]="${zp[if_sudo_open]}${vlk_computed[cwd_end_sudo]}${zp[else]}${vlk_computed[cwd_end]}${zp[if_close]}"
+vlk_computed[git_end_computed]="${zp[if_sudo_open]}${vlk_computed[git_end_sudo]}${zp[else]}${vlk_computed[git_end]}${zp[if_close]}"
+vlk_computed[vim_end_computed]="${zp[if_sudo_open]}${vlk_computed[vim_end_sudo]}${zp[else]}${vlk_computed[vim_end]}${zp[if_close]}"
+
+#longps1="${vlkprompt[sgr]}${zp[if_short_prompt_not_open]}${zp[newline]}${zp[if_close]}\
+vlk_computed[begin_segment]="${vlkprompt[sgr]}${zp[if_short_prompt_not_open]}${zp[newline]}${zp[if_close]}"
+
+vlk_computed[dir_end_segment]="${zp[if_dir_vim_open]}\
+${vlk_computed[vim]}${vlk_computed[vim_end_computed]}\
+${zp[else]}\
+${zp[if_dir_git_open]}\
+${vlk_computed[git]}${vlk_computed[git_end_computed]}\
+${zp[else]}\
+${vlk_computed[cwd]}${vlk_computed[cwd_end_computed]}\
+${zp[if_close]}\
+${zp[if_close]}"
+
+vlk_computed[job_dir_segment]="${zp[if_dir_vim_open]}\
+${vlk_computed[job_border_vim]}\
+${zp[else]}\
+${zp[if_dir_git_open]}\
+${vlk_computed[job_border_git]}\
+${zp[else]}\
+${vlk_computed[job_border_cwd]}\
+${zp[if_close]}\
+${zp[if_close]}"
+
+vlk_computed[job_segment]="${zp[if_job_open]}\
+${vlk_computed[job]}\
+${vlk_computed[job_dir_segment]}"
+
+vlk_computed[err_dir_segment]="${zp[if_dir_vim_open]}\
+${vlk_computed[err_border_vim]}\
+${zp[else]}\
+${zp[if_dir_git_open]}\
+${vlk_computed[err_border_git]}\
+${zp[else]}\
+${vlk_computed[err_border_cwd]}\
+${zp[if_close]}\
+${zp[if_close]}"
+
+vlk_computed[err_segment]="${zp[if_err_open]}\
+${vlk_computed[err]}\
+${zp[if_job_open]}\
+${vlk_computed[job_segment]}
+${zp[else]}\
+${vlk_computed[err_dir_segment]}
+${zp[if_close]}"
+
+export PS1="${vlk_computed[begin_segment]}\
+${vlk_computed[err_segment]}\
+${vlk_computed[job_segment]}\
+${vlk_computed[job_dir_segment]}\
+${vlk_computed[dir_end_segment]}"
