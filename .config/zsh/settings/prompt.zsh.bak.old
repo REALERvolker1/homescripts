@@ -1,0 +1,119 @@
+# vlk prompt
+
+[[ "$VLK_PROMPT" != 'zsh' ]] && return
+
+# VI mode prompt {{{
+
+function zle-line-init zle-keymap-select {
+    PROMPT="$BASEPROMPT"
+    PROMPT="${${KEYMAP/vicmd/${PROMPT_VIM_MODE_TEXT}${PROMPT}}/(main|viins)/$PROMPT}"
+    zle reset-prompt
+}
+
+zle -N zle-line-init
+zle -N zle-keymap-select
+
+# }}}
+# precmd {{{
+
+__vlk_prompt_func () {
+    psvar[135]=''
+    /usr/bin/sudo -vn &> /dev/null && psvar[135]=1
+}
+precmd_functions+=(
+    '__vlk_prompt_func'
+)
+
+# }}}
+# terminal-specific icons, colors {{{
+
+local icon_start='['
+local icon_end=']'
+local separator=' '
+
+local text_dark=232
+local text_light=255
+local vim_mode_text='1;38;5;232m'
+
+local vim_mode_color_fg='38;5;120m'
+local vim_mode_color_bg='48;5;120m'
+
+local dir_color=33
+local dir_icon=
+local err_color=52
+local err_icon=󰅗
+local job_color=172
+local job_icon=󱜯
+local shl_color=21
+local shl_icon=󰨊
+local sud_color=196
+local sud_icon=󰆥
+local sud_end_icon=' '
+
+local prompt2_color=93
+local prompt2_end_icon=''
+
+case "$ICON_TYPE" in
+    'dashline')
+        icon_start=''
+        icon_end=''
+        separator=''
+    ;;
+    'powerline')
+        icon_start=''
+        icon_end=''
+        separator=''
+    ;; *)
+        icon_start=''
+        icon_end=''
+        separator=' '
+        text_dark=0
+        text_light=7
+        vim_mode_text='1;30m'
+        vim_mode_color_fg='92m'
+        vim_mode_color_bg='102m'
+        dir_color=2
+        dir_icon=PWD
+        err_color=1
+        err_icon=ERR
+        job_color=3
+        job_icon=JOB
+        shl_color=4
+        shl_icon=SHLVL
+        sud_color=5
+        sud_icon=SU
+        prompt2_color=5
+        prompt2_end_icon='>'
+        sud_end_icon=''
+    ;;
+esac
+
+# }}}
+# The prompt {{{
+
+PROMPT_VIM_MODE_TEXT="[${vim_mode_color_bg}[${vim_mode_text} Vi [0m[${vim_mode_color_fg}${icon_end}[0m"
+
+# directory
+# exit code
+# number of jobs
+# SHLVL
+# sudo
+
+export PROMPT="%k%f
+%K{$dir_color}%F{$text_light}%B ${dir_icon} %~ %b%f%k%F{${dir_color}}$icon_end%f\
+%(0?..${separator}%F{$err_color}$icon_start%f%K{$err_color}%F{$text_light}%B ${err_icon} %? %b%f%k%F{$err_color}$icon_end%f)\
+%(1j.${separator}%F{$job_color}$icon_start%f%K{$job_color}%F{$text_dark}%B ${job_icon} %j %b%f%k%F{$job_color}$icon_end%f.)\
+%(2L.${separator}%F{$shl_color}$icon_start%f%K{$shl_color}%F{$text_light}%B ${shl_icon} %L %b%f%k%F{$shl_color}$icon_end%f.)\
+%(135V.${separator}%F{$sud_color}$icon_start%f%K{$sud_color}%F{$text_light}%B ${sud_icon} %b%f%k%F{$sud_color}${sud_end_icon}%f.)\
+ "
+
+# default: %_>
+export PROMPT2="%(1_.%K{$prompt2_color}$F{$text_light}%B %_ %b%f%k.)%F{$prompt2_color}${prompt2_end_icon}%f "
+# default: ?#
+export PROMPT3="%K{$prompt2_color}$F{$text_light}%B ?# %b%f%k%F{$prompt2_color}${prompt2_end_icon}%f "
+
+export BASEPROMPT="$PROMPT"
+unset RPROMPT # I don't like bugs
+export PROMPT_EOL_MARK=''
+
+# }}}

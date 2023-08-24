@@ -24,13 +24,6 @@ HISTSIZE=60000
 
     [ ! -d "$ZPLUGIN_DIR" ] && zsh-recompile.sh --install-plugins
 
-    local has_defer_plugin=false
-    if [ -f "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh" ]; then
-        has_defer_plugin=true
-        . "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
-        #autoload -Uz "$ZPLUGIN_DIR/zsh-defer/zsh-defer"
-    fi
-
     for i in \
         zcalc \
         zmv \
@@ -38,22 +31,32 @@ HISTSIZE=60000
         do
         autoload -Uz "$i"
     done
-    . "$ZDOTDIR/globals/vlkpromptrc"
-    . "$ZDOTDIR/globals/vlkrc"
+}
+. "$ZDOTDIR/globals/vlkpromptrc"
+#. "$HOME/bin/vlkpromptrc-new-new"
+. "$ZDOTDIR/globals/vlkrc"
 
-    if ((COLUMNS > 55)); then
-        command -v dumbfetch &>/dev/null && dumbfetch
-        command -v fortune &>/dev/null && fortune -a -s | (
-            if command -v lolcrab &>/dev/null; then
-                lolcrab
-            elif command -v lolcat &>/dev/null; then
-                lolcat
-            else
-                tee
-            fi
-        )
+if ((COLUMNS > 55)); then
+    command -v dumbfetch &>/dev/null && dumbfetch
+    command -v fortune &>/dev/null && fortune -a -s | (
+        if command -v lolcrab &>/dev/null; then
+            lolcrab
+        elif command -v lolcat &>/dev/null; then
+            lolcat
+        else
+            tee
+        fi
+    )
+fi
+lsdiff
+
+() {
+    local has_defer_plugin=false
+    if [ -f "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh" ]; then
+        has_defer_plugin=true
+        . "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
+        #autoload -Uz "$ZPLUGIN_DIR/zsh-defer/zsh-defer"
     fi
-    lsdiff
 
     for i in \
         "$ZPLUGIN_DIR/atuin.zsh" \

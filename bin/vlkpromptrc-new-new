@@ -1,0 +1,328 @@
+#!/usr/bin/bash
+# shellcheck shell=bash
+# vim:foldmethod=marker:ft=sh
+# shellcheck disable=SC2317
+
+if [ -z "${ZSH_VERSION:-$BASH_VERSION}" ]; then
+    return 1
+    exit 1
+    echo 'unreachable code statement! vlk is truly bad at coding!!' >&2
+fi
+
+declare -A vlkp_setting
+
+declare -A vlkp_icon
+
+vlkp_icon[dir_ro]=
+vlkp_icon[dir_rw]=
+vlkp_icon[git]=󰊢
+vlkp_icon[vim]=
+vlkp_icon[err]=󰅗
+vlkp_icon[job]=󱜯
+vlkp_icon[hos]=󰇅
+vlkp_icon[end_sudo]=' '
+
+case "${ICON_TYPE:-}" in
+'dashline')
+    vlkp_icon[end]=
+    ;;
+'powerline')
+    vlkp_icon[end]=
+    ;;
+*)
+    vlkp_icon[dir_ro]='-'
+    vlkp_icon[dir_rw]='.'
+    vlkp_icon[git]='G'
+    vlkp_icon[vim]='V'
+    vlkp_icon[err]='X'
+    vlkp_icon[job]='J'
+    vlkp_icon[hos]='H'
+    vlkp_icon[end_sudo]=']#'
+    vlkp_icon[end]=']'
+    ;;
+esac
+
+declare -A vlkp_color_int
+
+__vlkprompt_colorterm="${VLKPROMPT_COLOR_OVERRIDE:-$(tput colors)}"
+
+if ((__vlkprompt_colorterm < 8)); then
+    return
+elif ((__vlkprompt_colorterm < 256)); then
+    vlkp_setting[fg_text_pre]='\x1b[1;3'
+    vlkp_setting[fg_pre]='\x1b[0;3'
+    vlkp_setting[bg_pre]='\x1b[4'
+
+    vlkp_color_int[ligh_text]=7
+    vlkp_color_int[dark_text]=0
+    vlkp_color_int[dir]=4
+    vlkp_color_int[git]=5
+    vlkp_color_int[vim]=2
+    vlkp_color_int[err]=1
+    vlkp_color_int[job]=3
+    vlkp_color_int[hos]=4
+    vlkp_color_int[sud]=6
+    vlkp_color_int[ps2]=5
+    vlkp_color_int[ps3]=5
+else
+    vlkp_setting[fg_text_pre]='\e[1;38;5;'
+    vlkp_setting[fg_pre]='\e[38;5;' # add 0; if tty looks weird
+    vlkp_setting[bg_pre]='\e[48;5;'
+
+    vlkp_color_int[ligh_text]=255
+    vlkp_color_int[dark_text]=232
+    vlkp_color_int[dir]=33
+    vlkp_color_int[git]=141
+    vlkp_color_int[vim]=120
+    vlkp_color_int[err]=52
+    vlkp_color_int[job]=172
+    vlkp_color_int[hos]=18
+    vlkp_color_int[sud]=196
+    vlkp_color_int[ps2]=93
+    vlkp_color_int[ps3]=95
+fi
+
+declare -A vlkp_color
+declare -A vlkp_symbol
+
+if [ -n "${BASH_VERSION:-}" ]; then
+    vlkp_setting[color_section_pre]='\['
+    vlkp_setting[color_section_suf]='\]'
+    vlkp_setting[color_suf]='m'
+
+    vlkp_setting[reset]='\e[0m'
+
+    vlkp_symbol[dir]='\w'
+    vlkp_symbol[err]='$?'
+    vlkp_symbol[job]='\j'
+    vlkp_symbol[hos]='\h'
+    vlkp_symbol[ps2]='>'
+    vlkp_symbol[ps3]='#?'
+
+elif [ -n "${ZSH_VERSION:-}" ]; then
+    vlkp_setting[color_section_pre]=''
+    vlkp_setting[color_section_suf]=''
+    vlkp_setting[color_suf]='}'
+
+    vlkp_setting[reset]='%k%f%b%u%s'
+    #vlkp_setting[reset]=''
+
+    vlkp_setting[fg_text_pre]='%B%f%F{'
+    vlkp_setting[fg_pre]='%b%f%F{'
+    vlkp_setting[bg_pre]='%k%K{'
+
+    vlkp_symbol[dir]='%VLKP_SYMBOL_DIR_COLUMNS_REPLACE<..<%~'
+    vlkp_symbol[err]='%?'
+    vlkp_symbol[job]='%j'
+    vlkp_symbol[hos]='%m'
+    vlkp_symbol[ps2]='%_'
+    vlkp_symbol[ps3]='%_'
+fi
+
+declare -A vlkp_c
+
+# precomputed module strings (for runtime performance)
+
+vlkp_c[sgr]="${vlkp_setting[color_section_pre]}${vlkp_setting[reset]}${vlkp_setting[color_section_suf]}"
+
+vlkp_c[dir_ro]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[dir]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[ligh_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_icon[dir_ro]} ${vlkp_symbol[dir]} ${vlkp_c[sgr]}"
+vlkp_c[dir_rw]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[dir]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[ligh_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_icon[dir_rw]} ${vlkp_symbol[dir]} ${vlkp_c[sgr]}"
+vlkp_c[git]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[git]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[dark_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_icon[git]} ${vlkp_symbol[dir]} ${vlkp_c[sgr]}"
+vlkp_c[vim]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[vim]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[dark_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_icon[vim]} ${vlkp_symbol[dir]} ${vlkp_c[sgr]}"
+vlkp_c[err]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[err]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[ligh_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_icon[err]} ${vlkp_symbol[err]} ${vlkp_c[sgr]}"
+vlkp_c[job]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[job]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[ligh_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_icon[job]} ${vlkp_symbol[job]} ${vlkp_c[sgr]}"
+vlkp_c[hos]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[hos]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[ligh_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_icon[hos]} ${vlkp_symbol[hos]} ${vlkp_c[sgr]}"
+
+vlkp_c[sud]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[sud]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_c[sgr]}${vlkp_setting[color_section_pre]}${vlkp_setting[fg_pre]}${vlkp_color_int[sud]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end_sudo]} ${vlkp_c[sgr]}"
+
+vlkp_c[ps2]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[hos]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[ligh_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_symbol[ps2]} ${vlkp_c[sgr]}"
+vlkp_c[ps3]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[hos]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[ligh_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_symbol[ps3]} ${vlkp_c[sgr]}"
+
+vlkp_c[dir_short]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[dir]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[ligh_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_symbol[dir]} ${vlkp_c[sgr]}"
+vlkp_c[git_short]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[git]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[dark_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_symbol[dir]} ${vlkp_c[sgr]}"
+vlkp_c[vim_short]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[vim]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[dark_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_symbol[dir]} ${vlkp_c[sgr]}"
+vlkp_c[err_short]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[err]}${vlkp_setting[color_suf]}${vlkp_setting[fg_text_pre]}${vlkp_color_int[ligh_text]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]} ${vlkp_symbol[err]} ${vlkp_c[sgr]}"
+
+# precomputed powerline icon module borders
+
+vlkp_c[hos_to_err]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[err]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[hos]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[hos_to_job]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[job]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[hos]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[hos_to_dir]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[dir]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[hos]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[hos_to_git]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[git]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[hos]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[hos_to_vim]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[vim]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[hos]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+
+vlkp_c[err_to_job]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[job]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[err]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[err_to_dir]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[dir]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[err]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[err_to_git]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[git]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[err]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[err_to_vim]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[vim]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[err]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+
+vlkp_c[job_to_dir]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[dir]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[job]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[job_to_git]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[git]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[job]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[job_to_vim]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[vim]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[job]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+
+vlkp_c[dir_to_sud]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[sud]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[dir]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[git_to_sud]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[sud]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[git]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[vim_to_sud]="${vlkp_setting[color_section_pre]}${vlkp_setting[bg_pre]}${vlkp_color_int[sud]}${vlkp_setting[color_suf]}${vlkp_setting[fg_pre]}${vlkp_color_int[vim]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+
+vlkp_c[dir_to]="${vlkp_setting[color_section_pre]}${vlkp_setting[fg_pre]}${vlkp_color_int[dir]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[git_to]="${vlkp_setting[color_section_pre]}${vlkp_setting[fg_pre]}${vlkp_color_int[git]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+vlkp_c[vim_to]="${vlkp_setting[color_section_pre]}${vlkp_setting[fg_pre]}${vlkp_color_int[vim]}${vlkp_setting[color_suf]}${vlkp_setting[color_section_suf]}${vlkp_icon[end]}${vlkp_c[sgr]}"
+
+__vlk_prompt_command() {
+    local -i errs="$?"
+    local jobs="$(jobs)"
+    local has_host=''
+    local has_errs=''
+    local has_jobs=''
+    local has_write=''
+    local has_git=''
+    local has_vim=''
+    local has_sudo=''
+    if [[ "${HOSTNAME:=$(hostname)}" != "${CURRENT_HOSTNAME:-}" ]]; then
+        has_host=true
+    fi
+    if ((errs != 0)); then
+        has_errs=true
+    fi
+    if [ -n "${jobs:-}" ]; then
+        has_jobs=true
+    fi
+    if [ -w "$PWD" ]; then
+        has_write=true
+    fi
+    if git status &>/dev/null; then
+        has_git=true
+    fi
+    if [ -n "${__vlkprompt_vi_mode:-}" ]; then
+        has_vim=true
+    fi
+    if sudo -vn &>/dev/null; then
+        has_sudo=true
+    fi
+
+    declare -a prompt_arr
+
+    if [ -n "$has_host" ]; then
+        prompt_arr+=("${vlkp_c[hos]}")
+        if [ -n "$has_errs" ]; then
+            prompt_arr+=("${vlkp_c[hos_to_err]}")
+        elif [ -n "$has_jobs" ]; then
+            prompt_arr+=("${vlkp_c[hos_to_job]}")
+        elif [ -n "$has_vim" ]; then
+            prompt_arr+=("${vlkp_c[hos_to_vim]}")
+        elif [ -n "$has_git" ]; then
+            prompt_arr+=("${vlkp_c[hos_to_git]}")
+        else
+            prompt_arr+=("${vlkp_c[hos_to_dir]}")
+        fi
+    fi
+    if [ -n "$has_errs" ]; then
+        prompt_arr+=("${vlkp_c[err]}")
+        if [ -n "$has_jobs" ]; then
+            prompt_arr+=("${vlkp_c[err_to_job]}")
+        elif [ -n "$has_vim" ]; then
+            prompt_arr+=("${vlkp_c[err_to_vim]}")
+        elif [ -n "$has_git" ]; then
+            prompt_arr+=("${vlkp_c[err_to_git]}")
+        else
+            prompt_arr+=("${vlkp_c[err_to_dir]}")
+        fi
+    fi
+    if [ -n "$has_jobs" ]; then
+        prompt_arr+=("${vlkp_c[job]}")
+        if [ -n "$has_vim" ]; then
+            prompt_arr+=("${vlkp_c[job_to_vim]}")
+        elif [ -n "$has_git" ]; then
+            prompt_arr+=("${vlkp_c[job_to_git]}")
+        else
+            prompt_arr+=("${vlkp_c[job_to_dir]}")
+        fi
+    fi
+    if [ -n "$has_vim" ]; then
+        prompt_arr+=("${vlkp_c[vim]}")
+        if [ -n "$has_sudo" ]; then
+            prompt_arr+=("${vlkp_c[vim_to_sud]}")
+        else
+            prompt_arr+=("${vlkp_c[vim_to]}")
+        fi
+    elif [ -n "$has_git" ]; then
+        prompt_arr+=("${vlkp_c[git]}")
+        if [ -n "$has_sudo" ]; then
+            prompt_arr+=("${vlkp_c[git_to_sud]}")
+        else
+            prompt_arr+=("${vlkp_c[git_to]}")
+        fi
+    else
+        if [ -n "$has_write" ]; then
+            prompt_arr+=("${vlkp_c[dir_rw]}")
+        else
+            prompt_arr+=("${vlkp_c[dir_ro]}")
+        fi
+        if [ -n "$has_sudo" ]; then
+            prompt_arr+=("${vlkp_c[dir_to_sud]}")
+        else
+            prompt_arr+=("${vlkp_c[dir_to]}")
+        fi
+    fi
+    if [ -n "$has_sudo" ]; then
+        prompt_arr+=("${vlkp_c[sud]}")
+    fi
+    #local prompt=
+    #export PS1="${prompt_arr[*]}"
+    printf '%s' "${prompt_arr[@]}" | sed "s/VLKP_SYMBOL_DIR_COLUMNS_REPLACE/$((COLUMNS / 2))/g"
+    #"${prompt//VLKP_SYMBOL_DIR_COLUMNS_REPLACE/$((COLUMNS / 2))}"
+}
+
+if [ -n "${BASH_VERSION:-}" ]; then
+    PROMPT_COMMAND='__vlk_prompt_command'
+fi
+[ -n "${BASH_VERSION:-}" ] && return 0
+
+# begin ZSH
+
+setopt promptsubst
+
+__vlk_prompt_precmd() {
+    unset __vlkprompt_vi_mode
+}
+
+export -U precmd_functions
+precmd_functions+=('__vlk_prompt_precmd')
+
+PROMPT_COMMAND='$(__vlk_prompt_command)'
+
+PS1="$PROMPT_COMMAND"
+
+function zle-line-init zle-keymap-select {
+    if [[ "$KEYMAP" == vicmd ]]; then
+        __vlkprompt_vi_mode=true
+    else
+        __vlkprompt_vi_mode=''
+    fi
+    zle reset-prompt
+}
+zle -N zle-keymap-select
+
+__vlk-zle-line-init () {
+    [[ "$CONTEXT" == 'start' ]] || return 0
+    (( $+zle_bracketed_paste )) && print -r -n - $zle_bracketed_paste[1]
+    zle recursive-edit
+    local -i ret=$?
+    (( $+zle_bracketed_paste )) && print -r -n - $zle_bracketed_paste[2]
+    if [[ "$ret" == 0 && "$KEYS" == $'\4' ]]; then
+        __vlkprompt_short=1
+        zle reset-prompt
+        exit
+    fi
+    __vlkprompt_short=1
+    zle reset-prompt
+    __vlkprompt_short=''
+    if (( ret )); then
+        zle send-break
+    else
+        zle accept-line
+    fi
+    return ret
+}
+
+zle -N zle-line-init __vlk-zle-line-init
