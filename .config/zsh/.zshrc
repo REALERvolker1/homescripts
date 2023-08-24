@@ -51,11 +51,11 @@ fi
 lsdiff
 
 () {
-    local has_defer_plugin=false
     if [ -f "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh" ]; then
-        has_defer_plugin=true
         . "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
         #autoload -Uz "$ZPLUGIN_DIR/zsh-defer/zsh-defer"
+    else
+        zsh-defer () {$@}
     fi
 
     for i in \
@@ -65,11 +65,7 @@ lsdiff
         "$ZPLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
         do
         [ -f "$i" ] || continue
-        if "$has_defer_plugin"; then
-            zsh-defer . "$i"
-        else
-            . "$i"
-        fi
+        zsh-defer . "$i"
     done
 } "$@"
 
