@@ -158,9 +158,9 @@ window#waybar.empty .modules-center {
 #pulseaudio.bluetooth {
     box-shadow: inset 3px -3px @blue_3;
 }
-#pulseaudio.muted {
+/* #pulseaudio.muted {
     box-shadow: inset 3px -3px @warning_bg_color;
-}
+}*/
 #mpris.brave,
 #mpris.firefox,
 #mpris.vlc {
