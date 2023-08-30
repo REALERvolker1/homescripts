@@ -6,6 +6,9 @@ if [ -n "$WAYLAND_DISPLAY" ]; then
     ozone="--enable-features=UseOzonePlatform --ozone-platform=wayland"
 fi
 
+# browser_class='firefox' or 'LibreWolf' or 'brave-browser'
+# hyprctl clients -j | jq ".[] | select(.class == \"$browser_class\")"
+
 case "$1" in
 1)
     shift 1
