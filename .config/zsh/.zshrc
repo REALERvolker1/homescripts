@@ -7,12 +7,14 @@ setopt inc_append_history share_history \
     hist_reduce_blanks hist_no_store hist_ignore_space \
     hist_fcntl_lock extended_history \
     auto_cd auto_pushd pushd_ignore_dups multios \
-    extended_glob glob_complete glob_dots interactive_comments \
-    prompt_subst
+    extended_glob glob_complete complete_in_word glob_dots interactive_comments \
+    prompt_subst nobgnice
 
 HISTFILE="$XDG_STATE_HOME/zshist"
 SAVEHIST=50000
 HISTSIZE=60000
+
+MAILCHECK=0
 
 # zshrc loading
 () {

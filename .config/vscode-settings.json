@@ -119,5 +119,5 @@
     "rust-analyzer.diagnostics.enable": false,
     "[properties]": {
         "editor.defaultFormatter": null
-    }
+    },
 }

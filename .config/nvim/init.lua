@@ -84,6 +84,7 @@ require('packer').startup(function(use)
         ts_update()
         end,
     }
+    use { "luckasRanarison/tree-sitter-hypr" }
     -- UX
     use 'karb94/neoscroll.nvim'
     use 'lukas-reineke/indent-blankline.nvim'
@@ -112,6 +113,15 @@ require('packer').startup(function(use)
     }
 end)
 
+local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+parser_config.hypr = {
+  install_info = {
+    url = "https://github.com/luckasRanarison/tree-sitter-hypr",
+    files = { "src/parser.c" },
+    branch = "master",
+  },
+  filetype = "hypr",
+}
 -- disabled {{{
 --[[
     use 'ray-x/cmp-treesitter'
