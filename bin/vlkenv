@@ -31,6 +31,7 @@ export QT_STYLE_OVERRIDE='kvantum'
 
 export MOZ_ENABLE_WAYLAND=1
 export UWUFETCH_CACHE_ENABLED=true
+export GTK_USE_PORTAL=1
 
 eval "$(dircolors -b "$XDG_CONFIG_HOME/dircolors/dir_colors" || echo 'echo error loading dircolors')"
 export GREP_COLORS="mt=01;91:fn=03;32:ln=33:bn=36:se=35"
