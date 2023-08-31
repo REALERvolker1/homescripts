@@ -267,7 +267,7 @@ alias touchpad-gaming='xinput set-prop $(xinput | grep -oP "Touchpad\s*id=\K[0-9
 #command -v steam >/dev/null && alias steam='flatpak run --branch=stable --arch=x86_64 --command=/app/bin/steam-wrapper --file-forwarding com.valvesoftware.Steam'
 
 alias font-reset='fc-cache -fv'
-alias font-search="fc-list | cut -d ':' -f 2 | sed 's/,/, /g' | fzf"
+alias font-search="fc-list | cut -d ':' -f 2 | sed 's/,/, /g' | sort | uniq | fzf"
 
 alias pipl='pip list | fzf'
 alias fenv='printenv | fzf'
