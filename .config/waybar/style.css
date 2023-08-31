@@ -123,16 +123,17 @@ window#waybar.empty .modules-center {
 #taskbar button:last-child {
     border-radius: 0px 0px 10px 0px;
 }
+/* fun fact: using an animated gradient border uses a lot of CPU */
 #workspaces button.active,
 #taskbar button.active {
-    animation-name: rgb_border_bottom;
+/* #animation-name: rgb_border_bottom; */
     animation-duration: 5s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
     box-shadow: inset 0px -3px @accent_bg_color;
 }
 #taskbar button.active:last-child {
-    animation-name: rgb_border_right;
+    /* animation-name: rgb_border_right; */
     animation-duration: 5s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;

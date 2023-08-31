@@ -246,4 +246,9 @@ done
         "Inherits=${cursor[theme]}"
 ) >"${pth[cursor]}"
 
-# 
+# xsettingsd
+command -v xsettingsd &>/dev/null && (
+    for i in "${!gtk3[@]}"; do
+        printf "gtk-%s=%s\n" "$i" "${gtk3[$i]}"
+    done
+)
