@@ -2,7 +2,7 @@
 # vim:foldmethod=marker:ft=i3config
 
 # x11 stuff
-$exec dbus-update-activation-environment --systemd --verbose DISPLAY XAUTHORITY WAYLAND_DISPLAY
+$exec dbus-update-activation-environment --systemd --verbose DISPLAY XAUTHORITY
 $exec xrdb -merge "$XRESOURCES"
 $exec xlayoutdisplay --quiet
 
@@ -41,14 +41,11 @@ $exec flameshot
 $exec picom
 $exec flashfocus
 $exec "killall gammastep; gammastep -P"
-$exec set-cursor-theme.sh --session
-#$exec nitrogen --restore
-# the following gets called in ~/.config/xplugrc
-#$exec hsetroot -cover ~/.local/share/backgrounds/subnautica-alan.jpg
+#$exec set-cursor-theme.sh --session
 
 #$exec scratchpad_terminal.sh
 
 # exec_always field
 #$execa hsetroot -cover "$(printf '%s\n' $XDG_DATA_HOME/backgrounds/* | shuf | head -n 1)"
-$execa vlkbg
+$execa vlkbg.sh
 $execa kitti3 -s 0.75 1.0 -p RC

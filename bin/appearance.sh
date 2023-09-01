@@ -298,15 +298,15 @@ _set_xsettingsd() {
             'font-name')
                 key='Gtk/FontName'
                 ;;
-            'toolbar-icon-size')
-                key='Gtk/ToolbarIconSize'
-                ;;
+            #'toolbar-icon-size')
+            #    key='Gtk/ToolbarIconSize'
+            #    ;;
             'icon-theme-name')
                 key='Net/IconThemeName'
                 ;;
-            'toolbar-style')
-                key='Gtk/ToolbarStyle'
-                ;;
+            #'toolbar-style')
+            #    key='Gtk/ToolbarStyle'
+            #    ;;
             'enable-input-feedback-sounds')
                 key='Net/EnableInputFeedbackSounds'
                 ;;

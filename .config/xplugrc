@@ -14,7 +14,7 @@ if [[ "$STATUS" == "connected" ]]; then
         display)
             xlayoutdisplay --quiet
             #nitrogen --restore
-            vlkbg
+            vlkbg.sh
         ;;
         pointer)
             #pointer.sh -n
