@@ -1,4 +1,4 @@
-#!/usr/bin/dash
+#!/usr/bin/sh
 # This is a slightly nicer implementation of startx written by vlk for use on Fedora.
 
 unset DBUS_SESSION_BUS_ADDRESS

@@ -93,6 +93,10 @@ zp[if_write]='%(136V.'
 zp[if_sudo]='%(135V.'
 zp[if_small]='%(130V.'
 
+# PROMPT2='%_> '
+# PROMPT3='?# '
+# PROMPT4='+%N:%i> '
+
 declare -A vlkprompt
 
 vlkprompt[ln]="$reset${zp[if_small]}${zp[else]}

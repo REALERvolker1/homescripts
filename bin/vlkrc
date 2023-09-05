@@ -1,4 +1,4 @@
-#!/usr/bin/dash
+#!/usr/bin/bash
 # shellcheck shell=bash
 # vim:foldmethod=marker:ft=sh
 # shellcheck disable=SC2139
@@ -72,28 +72,29 @@ alias suod=sudo
 alias q=exit
 alias :q=exit
 
-session_end() {
-    local selected="${1:?Error, please select a session ending option}"
-    echo -n "[${selected}]Do you really want to end your session? [y/N] (n) > "
-    local answer
-    read -r answer
-    if [[ "${answer:-}" == 'y' ]]; then
-        case "${selected:-}" in
-        'shutdown')
-            systemctl poweroff
-            ;;
-        'reboot')
-            systemctl reboot
-            ;;
-        'logout')
-            loginctl kill-session "${XDG_SESSION_ID}"
-            ;;
-        esac
-    fi
-}
+# session_end() {
+#     local selected="${1:?Error, please select a session ending option}"
+#     echo -n "[${selected}]Do you really want to end your session? [y/N] (n) > "
+#     local answer
+#     read -r answer
+#     if [[ "${answer:-}" == 'y' ]]; then
+#         case "${selected:-}" in
+#         'shutdown')
+#             systemctl poweroff
+#             ;;
+#         'reboot')
+#             systemctl reboot
+#             ;;
+#         'logout')
+#             loginctl kill-session "${XDG_SESSION_ID}"
+#             ;;
+#         esac
+#     fi
+# }
 
-# alias shutdown='systemctl poweroff'
-# alias reboot='systemctl reboot'
+alias shutdown='systemctl poweroff'
+alias reboot='systemctl reboot'
+alias logout="loginctl kill-session '$XDG_SESSION_ID'"
 
 alias shutdown='session_end shutdown'
 alias reboot='session_end reboot'
@@ -134,22 +135,30 @@ alias glop='glow --pager'
 alias batop=battop
 alias battio=battop
 
+if [[ "${TERM:-}" == *'kitty'* ]]; then
+    alias icat='kitty +icat'
+elif command -v timg &>/dev/null; then
+    alias icat=timg
+elif command -v chafa &>/dev/null; then
+    alias icat=chafa
+fi
+
 if command -v difft &>/dev/null; then
     alias diff=difft
 fi
-
-alias icat=timg
-
 if command -v duf &>/dev/null; then
     alias df=duf
 fi
 if command -v dust &>/dev/null; then
     alias du=dust
 fi
+# if command -v ouch &>/dev/null; then
+#     alias extract='ouch decompress'
+# fi
+alias extract='ouch decompress'
 
 alias free='free -h'
 
-alias extract='ouch decompress'
 alias ra=ranger
 
 alias fr='flatpak run'
@@ -179,8 +188,6 @@ alias dash="$__homebin/run-subshell.sh dash"
 alias ksh="$__homebin/run-subshell.sh ksh"
 alias rksh=ksh
 alias sh="$__homebin/run-subshell.sh sh"
-
-# alias sh='env HISTFILE="$SHELLHIST" /usr/bin/sh'
 alias csh="echo 💀 && $__homebin/run-subshell.sh csh"
 alias tcsh="echo 💀 && $__homebin/run-subshell.sh tcsh"
 
@@ -263,8 +270,6 @@ alias ubikill='killall upc.exe; killall UbisoftGameLauncher.exe'
 alias steamfix='find "$HOME/.var/app/com.valvesoftware.Steam/.config" -maxdepth 1 -type l -delete'
 
 alias touchpad-gaming='xinput set-prop $(xinput | grep -oP "Touchpad\s*id=\K[0-9]*") "libinput Disable While Typing Enabled" 0'
-
-#command -v steam >/dev/null && alias steam='flatpak run --branch=stable --arch=x86_64 --command=/app/bin/steam-wrapper --file-forwarding com.valvesoftware.Steam'
 
 alias font-reset='fc-cache -fv'
 alias font-search="fc-list --format='%{family}\t%{style}\n' | sort | uniq | fzf"

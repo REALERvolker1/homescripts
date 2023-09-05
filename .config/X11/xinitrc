@@ -3,6 +3,7 @@
 xrdb -merge "${XRESOURCES:-$HOME/.Xresources}"
 
 session='i3'
+export XDG_SESSION_DESKTOP='i3'
 
 if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
     exec dbus-run-session -- "$session"
