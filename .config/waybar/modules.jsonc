@@ -1,7 +1,8 @@
 {
-    "wlr/workspaces": {
+    "hyprland/workspaces": {
         "format": "{name}", // {icon}
         "on-click": "activate",
+        "on-click-middle-release": "rofi -show powermenu",
         "format-icons": {
             "urgent": "󰗖",
             "active": "󰝥",

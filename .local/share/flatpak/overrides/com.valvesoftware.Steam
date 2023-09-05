@@ -1,2 +1,8 @@
 [Context]
-filesystems=!xdg-config/Kvantum;!xdg-config/fontconfig;!xdg-config/gtk-2.0;!xdg-config/gtk-4.0;!~/random;!xdg-config/gtk-3.0;/mnt/lmao/vlk/steam
+filesystems=!xdg-config/Kvantum;!xdg-config/fontconfig;!~/random;!xdg-config/gtk-2.0;!xdg-config/gtk-3.0;!xdg-config/gtk-4.0;/mnt/lmao/vlk/steam
+
+[Environment]
+PROTON_HIDE_NVIDIA_GPU=0
+PROTON_ENABLE_NVAPI=1
+VKD3D_CONFIG=dxr,dxr11
+PROTON_ENABLE_NGX_UPDATER=1

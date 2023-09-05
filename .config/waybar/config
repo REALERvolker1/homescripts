@@ -8,7 +8,7 @@
     "include": [
         "$XDG_CONFIG_HOME/waybar/modules.jsonc"
     ],
-    "modules-left": ["wlr/workspaces", "wlr/taskbar"],
+    "modules-left": ["hyprland/workspaces", "wlr/taskbar"],
     "modules-center": ["hyprland/window"],
     "modules-right": [
         "pulseaudio",
