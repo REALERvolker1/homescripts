@@ -43,7 +43,7 @@ fi
 for ((i = 0; i < 9999; i++)); do
     [ -e "/tmp/.X${i}-lock" ] ||
         [ -S "/tmp/.X11-unix/X${i}" ] ||
-        grep -q "/tmp/.X11-unix/X${i}" "/proc/net/unix" ||
+        grep -q "/tmp/.X11-unix/X${i}" /proc/net/unix ||
         break
 done
 display=":${i}"
@@ -114,18 +114,16 @@ original_stty="$(stty --save)"
 xauth "${xauth_args[@]}"
 
 trap '_cleanup; exit "${xorg:-0}"' EXIT
-echo trapped exit
 for signal in HUP INT QUIT TERM; do
     trap "_cleanup; trap - $signal EXIT; kill -s $signal $$" "$signal"
 done
-echo trapped signal loop
 trap 'DISPLAY=$display "${client_args[@]}" & wait "$!"' USR1
-echo trapped client stuff
-# trap '_cleanup' HUP INT QUIT ILL TRAP BUS TERM
+
 (trap '' USR1 && exec "${server_args[@]}") &
 server=$!
-echo started server
+echo "started X server on display $display"
 wait "$server"
+# trap '_cleanup' HUP INT QUIT ILL TRAP BUS TERM
 # xinit "${xinit_args[@]}" >"$ERRFILE"
 # retval=$?
 # _cleanup
