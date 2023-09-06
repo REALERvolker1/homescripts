@@ -19,12 +19,13 @@ fi
 [ -f "$HOME/.profile" ] && . "$HOME/.profile"
 
 declare -a server_args client_args
-
+# look for an X server RC to start the X server from
 if [ -f "${XSERVERRC:-$HOME/.xserverrc}" ]; then
     xserver_bin="${XSERVERRC:-$HOME/.xserverrc}"
 else
     xserver_bin=/usr/bin/Xorg
 fi
+# look for the xinitrc (if no X client command is given)
 if command -v "${1%% *}" &>/dev/null || [ -x "${1%% *}" ]; then
     for i in $1; do
         client_args+=("$i")
@@ -37,7 +38,6 @@ else
         client_args+=("$i")
     done
 fi
-# printf '%s\n' "${client_args[@]}"
 
 # determine unused display
 for ((i = 0; i < 9999; i++)); do
@@ -56,7 +56,7 @@ export ERRFILE="$xsessionfolder/xsession-errors"
 # Fedora specific mod to make X run as non root
 export XORG_RUN_AS_USER_OK=1
 export XDG_SESSION_TYPE=x11
-declare -a xauth_args xinit_args
+declare -a xauth_args
 
 xauth_args+=(
     "add"
@@ -75,17 +75,9 @@ server_args+=(
     "$XAUTHORITY"
 )
 
-# xinit_args+=(
-#     "$xclient_bin" # client, clientargs, --, server, display, serverargs
-#     "--"
-#     "$xserver_bin"
-#     "$display"
-#     "vt${my_tty##*[!0-9]}"
-#     "-keeptty"
-#     "-noreset"
-#     "-auth"
-#     "$XAUTHORITY"
-# )
+echo xauth "${xauth_args[@]}"
+echo "${server_args[@]}"
+[ -n "${debug_mode:-}" ] && exit 0
 
 _cleanup() {
     if [ "$server" ] && kill -0 "$server" 2>/dev/null; then
@@ -101,11 +93,6 @@ _cleanup() {
     deallocvt
     echo -e "\nCleaned up X server\n" >&2
 }
-
-echo xauth "${xauth_args[@]}"
-echo "${server_args[@]}"
-# echo xinit "${xinit_args[@]}"
-[ -n "${debug_mode:-}" ] && exit 0
 
 mkdir "$xsessionfolder"
 touch -- "$XAUTHORITY"
@@ -123,8 +110,3 @@ trap 'DISPLAY=$display "${client_args[@]}" & wait "$!"' USR1
 server=$!
 echo "started X server on display $display"
 wait "$server"
-# trap '_cleanup' HUP INT QUIT ILL TRAP BUS TERM
-# xinit "${xinit_args[@]}" >"$ERRFILE"
-# retval=$?
-# _cleanup
-# exit "$retval"
