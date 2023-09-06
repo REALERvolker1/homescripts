@@ -1,16 +1,8 @@
 # homescripts
 
-# IMPORTANT UPDATE!!!
-
-I have begun using Arch Linux (btw) and I have made many breaking changes. If you did not heed my advice, instead cloning and blindly copying my dotfiles, STBY ig then.
-
-I have also stopped updating my i3 dotfiles. personally I have all my fancy i3 packages on Arch, but I just don't use it at the moment, since I am doing the hyprland challenge.
-
-# README
-
 Useful shell scripts and dotfiles for Linux
 
-I currently use these dotfiles on Fedora 38, but they should be pretty distro-agnostic.
+I currently use these dotfiles on Fedora 38, but my scripts are also mostly compatible with Arch Linux as well.
 
 Included are configs for i3 window manager and the Hyprland compositor, as well as bash/zsh, gtk, picom, nvim, Kitty, rofi, waybar -- basically all the nerd shit TWM users like nowadays.
 
