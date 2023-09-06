@@ -126,7 +126,7 @@ window#waybar.empty .modules-center {
 /* fun fact: using an animated gradient border uses a lot of CPU */
 #workspaces button.active,
 #taskbar button.active {
-/* #animation-name: rgb_border_bottom; */
+    /* #animation-name: rgb_border_bottom; */
     animation-duration: 5s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
@@ -200,17 +200,22 @@ window#waybar.empty .modules-center {
 #memory.critical {
     box-shadow: inset 3px -3px @destructive_bg_color;
 }
-#battery {
+#battery,
+#custom-battery {
     border-radius: 0px 0px 10px 0px;
 }
-#battery.charging,
-#battery.plugged {
+#battery.harging,
+#battery.plugged,
+#custom-battery.Charging,
+#custom-battery.PendingCharge {
     box-shadow: inset -3px -3px @success_bg_color;
 }
-#battery.warning:not(.charging) {
+#battery.warning:not(.Charging),
+#custom-battery.warning:not(.Charging) {
     box-shadow: inset -3px -3px @warning_bg_color;
 }
-#battery.critical:not(.charging) {
+#battery.critical:not(.Charging),
+#custom-battery.critical:not(.Charging) {
     box-shadow: inset -3px -3px @destructive_bg_color;
 }
 
@@ -222,9 +227,12 @@ window#waybar.empty .modules-center {
     border-radius: 0px 0px 10px 0px;
 }
 
-#custom-pointer {
+#custom-supergfx_status {
     margin-left: 5px;
-    border-radius: 0px 0px 10px 10px;
+    border-radius: 0px 0px 0px 10px;
+}
+#custom-pointer {
+    border-radius: 0px 0px 10px 0px;
 }
 
 #tray {

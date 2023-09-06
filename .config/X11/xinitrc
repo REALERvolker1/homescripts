@@ -1,12 +1,47 @@
 #!/usr/bin/bash
+# shellcheck disable=SC1091 disable=SC1090
 
-xrdb -merge "${XRESOURCES:-$HOME/.Xresources}"
+[ -f '/etc/X11/xinit/xinitrc-common' ] && . '/etc/X11/xinit/xinitrc-common'
+
+if [ -d "${XDG_CONFIG_HOME:-$HOME/.config}/X11" ]; then
+    xcfg_dir="${XDG_CONFIG_HOME:-$HOME/.config}/X11"
+    xcfg_prefix='/'
+else
+    xcfg_dir="$HOME"
+    xcfg_prefix='/.'
+fi
+userresources="${xcfg_dir}${xcfg_prefix}/Xresources"
+userxkbmap="${xcfg_dir}${xcfg_prefix}/Xkbmap"
+usermodmap="${xcfg_dir}${xcfg_prefix}/Xmodmap"
+
+[ -f "$userresources" ] && xrdb -merge "$userresources"
+if [ -f "$userxkbmap" ]; then
+    setxkbmap "$(cat "$userxkbmap")"
+elif [ -f "$usermodmap" ]; then
+    xmodmap "$(cat "$usermodmap")"
+fi
 
 session='i3'
-export XDG_SESSION_DESKTOP='i3'
+session_args=''
+for i in "$@"; do
+    i_val="${i#*=}"
+    case "${i:-}" in
+    '--session='*)
+        if [ -x "$i_val" ] || command -v "$i_val" >/dev/null; then
+            session="$i_val"
+        fi
+        ;;
+    '--session-arg='*)
+        session_args="$session_args $i_val"
+        ;;
+    '--source='*)
+        [ -r "$i_val" ] && . "$i_val"
+        ;;
+    esac
+done
 
 if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
-    exec dbus-run-session -- "$session"
+    exec dbus-run-session -- $session${session_args}
 else
-    exec "$session"
+    exec $session${session_args}
 fi

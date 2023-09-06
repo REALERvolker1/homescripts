@@ -15,9 +15,11 @@
         "mpris",
         "bluetooth",
         "memory",
-        "battery",
+        // "battery",
+        "custom/battery",
         "clock",
         "custom/weather",
+        "custom/supergfx_status",
         "custom/pointer",
         //"keyboard-state",
         "tray"

@@ -60,7 +60,7 @@ normalize_input() {
     fi
 }
 
-TOUCHPAD_STATUS="$XDG_RUNTIME_DIR/touchpad-statusfile"
+[ -z "${TOUCHPAD_STATUS:-}" ] && TOUCHPAD_STATUS="$XDG_RUNTIME_DIR/touchpad-statusfile"
 if [ ! -f "$TOUCHPAD_STATUS" ]; then
     touch "$TOUCHPAD_STATUS"
 fi
@@ -128,6 +128,9 @@ case "$sel" in
 -n)
     normalize_input
     ;;
+-p)
+    echo "$TOUCHPAD_STATUS"
+    ;;
 *)
     printf '%s --option
 
@@ -137,6 +140,7 @@ case "$sel" in
 -td\tdisable touchpad
 -t\ttoggle touchpad
 -n\tnormalize touchpad (disable on mouse)
+-p\tprint path to statusfile
 ' "${0##*/}"
     exit 1
     ;;

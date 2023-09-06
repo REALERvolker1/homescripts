@@ -99,7 +99,14 @@
         "interval": 300
     },
     "custom/pointer": {
-        "exec": "pointer.sh -m"
+        "exec": "$XDG_CONFIG_HOME/bar-scripts/pointer-monitor/monitor.sh"
+    },
+    "custom/supergfx_status": {
+        "exec": "$XDG_CONFIG_HOME/bar-scripts/supergfx-status.sh"
+    },
+    "custom/battery": {
+        "exec": "$HOME/code/rust/upower-cli/target/release/upower-cli --waybar",
+        "return-type": "json"
     },
     "keyboard-state": {
         "format": "{icon}",

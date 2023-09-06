@@ -120,5 +120,6 @@
     "[properties]": {
         "editor.defaultFormatter": null
     },
-    "vscord.behaviour.suppressNotifications": true
+    "vscord.behaviour.suppressNotifications": true,
+    "explorer.confirmDragAndDrop": false
 }

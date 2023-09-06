@@ -1,1 +1,0 @@
-/home/vlk/dotfiles/bin/mini-startx.sh

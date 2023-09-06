@@ -1,1 +1,0 @@
-/home/vlk/dotfiles/.config/i3/autostart.i3.sh
