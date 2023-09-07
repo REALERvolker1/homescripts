@@ -1,35 +1,24 @@
-#!/usr/bin/zsh
-#vlk script
-# Steam is the only flatpak app I have that just cannot handle symlinked or bind-mounted directories!
-setopt NULL_GLOB
+#!/usr/bin/dash
+
+for i in $(pgrep 'steam-symlink-u'); do
+    [ "$i" = "$$" ] && continue
+    kill "$i"
+done
 
 steamdir="$HOME/.var/app/com.valvesoftware.Steam/.config"
-targetdir="${XDG_CONFIG_HOME:-$HOME/.config}"
 
-if [ ! -d "$steamdir" ]; then
-    echo "Error, steamdir '$steamdir' does not exist!"
-    exit 1
-fi
-
-cd "$steamdir" || exit 1
-
-copyfunc () {
-    for i in "$steamdir"/*(@); do
-        [ -z "$i" ] || [ ! -h "$i" ] && continue
-        target="$(realpath "$targetdir/${i##*/}")"
-        [ -z "$target" ] || [ ! -e "$target" ] && continue
-        echo "$target"
-        rm "$i"
-        cp -r "$target" "$steamdir"
-    done
+__fileop() {
+    if [ -L "$1" ]; then
+        rm "$1"
+        echo "removed $1"
+    fi
 }
 
-rmfunc () {
-    rm "$steamdir"/*(@) &>/dev/null && echo "removed symlinks"
-}
-
+for i in "$steamdir"/*; do
+    __fileop "$i"
+done
 
 while true; do
-    rmfunc
-    inotifywait -qe create "$steamdir"
+    file="$steamdir/$(inotifywait -qe create "$steamdir" | grep -oP "$steamdir/ CREATE \K.*")"
+    __fileop "$file"
 done

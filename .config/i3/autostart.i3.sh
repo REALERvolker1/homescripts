@@ -2,18 +2,22 @@
 # vim:foldmethod=marker:ft=i3config
 
 # x11 stuff
-$exec dbus-update-activation-environment --systemd --verbose DISPLAY XAUTHORITY
+# $exec dbus-update-activation-environment --systemd --verbose DISPLAY XAUTHORITY
+$exec autostart-dbus-activation-env.sh
 $exec xrdb -merge "$XRESOURCES"
 $exec xlayoutdisplay --quiet
 
 # DE stuff
-$exec xfce-polkit.sh
-$exec "killall dunst; dunst"
-#$exec gnome-keyring-daemon -r
+# $exec xfce-polkit.sh
+$exec autostart-polkit.sh
+$exec dunst
+# $exec "killall dunst; dunst"
+# $exec gnome-keyring-daemon -r
+$exec autostart-keyring.sh
 #$exec nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -l
 #$exec ~/.local/lib/hardcoded-keyring-unlocker
 $exec xsettingsd
-
+$exec ydotoold
 
 # scripts
 #$exec volbright.sh --brightness --volume --keyboard
@@ -32,7 +36,8 @@ $exec xmodmap -e "clear lock"
 $exec xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 
 # Bar icons
-$exec xfce4-clipman
+# $exec xfce4-clipman
+$exec clipboardmgr.sh
 $exec nm-applet
 # $exec rog-control-center
 $exec flameshot
@@ -40,7 +45,8 @@ $exec flameshot
 # visuals
 $exec picom
 $exec flashfocus
-$exec "killall gammastep; gammastep -P"
+# $exec "killall gammastep; gammastep -P -m randr"
+$exec autostart-gammastep.sh
 #$exec set-cursor-theme.sh --session
 
 #$exec scratchpad_terminal.sh
