@@ -21,6 +21,8 @@ elif [ -f "$usermodmap" ]; then
     xmodmap "$(cat "$usermodmap")"
 fi
 
+export XDG_SESSION_TYPE=x11
+
 session='i3'
 session_args=''
 for i in "$@"; do

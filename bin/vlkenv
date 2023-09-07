@@ -128,7 +128,6 @@ for i in \
     '/usr/share' \
     '/usr/local/share' \
     '/var/lib/flatpak/exports/share' \
-    "$HOME/.var/app/com.valvesoftware.Steam/data" \
     "$XDG_DATA_HOME/flatpak/exports/share" \
     "$XDG_DATA_HOME"; do
     if [ -d "$i" ]; then
@@ -145,6 +144,7 @@ for i in \
         __vlkenv_terminfodirs="$i/terminfo:$__vlkenv_terminfodirs"
     fi
 done
+#"$HOME/.var/app/com.valvesoftware.Steam/data" \
 export XDG_DATA_DIRS="$__vlkenv_tempdirs"
 export TERMINFO_DIRS="$__vlkenv_terminfodirs"
 

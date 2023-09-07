@@ -1,13 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/dash
 
-__vlkenv_data_dirs=''
-
-oldifs="$IFS"
-IFS=':'
-for i in $XDG_DATA_DIRS; do
-    [ ! -d "$i" ] && continue
-    __vlkenv_data_dirs="$i:${__vlkenv_data_dirs}"
+i='-1'
+while [ -z "${display:-}" ]; do
+    i=$((i + 1))
+    [ ! -S "/tmp/.X11-unix/X${i}" ] && display=":${i}"
 done
-IFS="$oldifs"
-
-echo "$__vlkenv_data_dirs"
+echo "$display"

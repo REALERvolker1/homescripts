@@ -1,112 +1,66 @@
-#!/usr/bin/bash
+#!/usr/bin/dash
 # a startx implementation, by vlk
-# intended to be interchangeable with Fedora's startx
-# shellcheck disable=SC1091 disable=SC1090
+# intended to replace Fedora's godawful startx
+# Many thanks to https://github.com/Earnestly/sx and the engineers at Red Hat for teaching me
+# Something of note: It does support passing custom client exec args, but does not support xserverrc
+# shellcheck disable=SC1091 disable=SC1090 disable=SC2064
 
-debug_mode=''
-my_tty="$(tty)"
-if [ "$TERM" != 'linux' ] && [ -z "${debug_mode:-}" ]; then
-    case "${my_tty:-}" in
-    '/dev/tty'*)
-        true
-        ;;
-    *)
-        echo "Invalid tty '$(tty)', running in debug mode" >&2
-        debug_mode=1
-        ;;
-    esac
+# forbid execution if in a graphical env
+# if [ "$TERM" != 'linux' ] || ! expr "$(tty)" : '/dev/tty*' >/dev/null; then
+# if pgrep -t "tty${XDG_VTNR}" Xorg >/dev/null; then
+if [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; then
+    echo "Error, detected a graphical environment on this VT." >&2
+    exit 1
 fi
-[ -f "$HOME/.profile" ] && . "$HOME/.profile"
 
-declare -a server_args client_args
-# look for an X server RC to start the X server from
-if [ -f "${XSERVERRC:-$HOME/.xserverrc}" ]; then
-    xserver_bin="${XSERVERRC:-$HOME/.xserverrc}"
-else
-    xserver_bin=/usr/bin/Xorg
-fi
+export XORG_RUN_AS_USER_OK=1 # Fedora-specific mod to make X run as non root
+
 # look for the xinitrc (if no X client command is given)
-if command -v "${1%% *}" &>/dev/null || [ -x "${1%% *}" ]; then
-    for i in $1; do
-        client_args+=("$i")
-    done
+if command -v "${1%% *}" >/dev/null || [ -x "${1%% *}" ]; then
+    xclient_cmd="$1"
+elif [ -x "${XINITRC:-$HOME/.xinitrc}" ]; then
+    xclient_cmd="${XINITRC:-$HOME/.xinitrc}"
 else
-    for i in "$XINITRC" \
-        "${XDG_CONFIG_HOME:-$HOME/.config}/X11/xinitrc" \
-        "$HOME/.xinitrc"; do
-        [ ! -x "$i" ] && continue
-        client_args+=("$i")
-    done
+    echo "Error, no X client specified! Please run '${0##*/} client-command' or make an xinitrc!" >&2
+    exit 2
 fi
 
 # determine unused display
-for ((i = 0; i < 9999; i++)); do
-    [ -e "/tmp/.X${i}-lock" ] ||
-        [ -S "/tmp/.X11-unix/X${i}" ] ||
-        grep -q "/tmp/.X11-unix/X${i}" /proc/net/unix ||
-        break
+i='-1'
+while [ -z "${display:-}" ]; do
+    i=$((i + 1))
+    [ ! -S "/tmp/.X11-unix/X${i}" ] && display=":${i}"
 done
-display=":${i}"
-
-# determine paths to stuff
-xsessionfolder="${XDG_RUNTIME_DIR:-/tmp}/xorg-$display"
-export XAUTHORITY="$xsessionfolder/Xauthority"
-export ERRFILE="$xsessionfolder/xsession-errors"
-
-# Fedora specific mod to make X run as non root
-export XORG_RUN_AS_USER_OK=1
-export XDG_SESSION_TYPE=x11
-declare -a xauth_args
-
-xauth_args+=(
-    "add"
-    "$display"
-    'MIT-MAGIC-COOKIE-1'
-    "$(mcookie)"
-)
-
-server_args+=(
-    "$xserver_bin"
-    "$display"
-    "vt${my_tty##*[!0-9]}"
-    "-keeptty"
-    "-noreset"
-    "-auth"
-    "$XAUTHORITY"
-)
-
-echo xauth "${xauth_args[@]}"
-echo "${server_args[@]}"
-[ -n "${debug_mode:-}" ] && exit 0
 
 _cleanup() {
+    # make sure the server is dead and buried!
     if [ "$server" ] && kill -0 "$server" 2>/dev/null; then
         kill "$server"
         wait "$server"
         xorg=$?
     fi
-    if ! stty "$original_stty"; then
-        stty sane
-    fi
+    # reset stuff ig lol
+    stty sane
     xauth remove "$display"
-    rm -r "$xsessionfolder"
     deallocvt
-    echo -e "\nCleaned up X server\n" >&2
+    printf "\nCleaned up X server\n" >&2
 }
 
-mkdir "$xsessionfolder"
-touch -- "$XAUTHORITY"
-touch -- "$ERRFILE"
-original_stty="$(stty --save)"
-xauth "${xauth_args[@]}"
+# add X authority
+export XAUTHORITY="${XDG_RUNTIME_DIR:-/tmp}/Xauthority-$display"
+touch -- "$XAUTHORITY" && xauth add "$display" 'MIT-MAGIC-COOKIE-1' "$(mcookie)"
 
+# on exit, run cleanup
 trap '_cleanup; exit "${xorg:-0}"' EXIT
 for signal in HUP INT QUIT TERM; do
     trap "_cleanup; trap - $signal EXIT; kill -s $signal $$" "$signal"
 done
-trap 'DISPLAY=$display "${client_args[@]}" & wait "$!"' USR1
 
-(trap '' USR1 && exec "${server_args[@]}") &
-server=$!
-echo "started X server on display $display"
+# Xorg will return a USR1 signal to the parent process indicating it is ready to accept connections if it
+# inherited a USR1 signal with a SIG_IGN disposition.  Consequently a client may be started directly from
+# a USR1 signal handler and obviate the need to poll for server readiness.
+trap 'DISPLAY=$display $xclient_cmd & wait "$!"' USR1
+(trap '' USR1 && exec Xorg "$display" "vt${XDG_VTNR}" -keeptty -noreset -auth "$XAUTHORITY") &
+server="$!"
+echo "started X server '$server' on display $display"
 wait "$server"

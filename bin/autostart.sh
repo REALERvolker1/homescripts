@@ -1,7 +1,5 @@
 #!/usr/bin/bash
 
-#set -u
-
 if [ -z "${WAYLAND_DISPLAY:-}" ]; then
     platform=xorg
 else
@@ -30,7 +28,7 @@ _execx () {
 _execw () {
     [ "${platform:-}" = 'wayland' ] && _exec "$@"
 }
- 
+
 __dbus_systemd_env () {
     _execx dbus-update-activation-environment --systemd DISPLAY XAUTHORITY
     _execw dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP
