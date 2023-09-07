@@ -16,7 +16,7 @@ $exec xsettingsd
 
 
 # scripts
-$exec volbright.sh --brightness --volume --keyboard
+#$exec volbright.sh --brightness --volume --keyboard
 $exec steam-symlink-unfucker.sh
 
 # Power management

@@ -96,10 +96,10 @@ alias shutdown='systemctl poweroff'
 alias reboot='systemctl reboot'
 alias logout="loginctl kill-session '$XDG_SESSION_ID'"
 
-alias shutdown='session_end shutdown'
-alias reboot='session_end reboot'
-alias restart='session_end reboot'
-alias logout='session_end logout'
+#alias shutdown='session_end shutdown'
+#alias reboot='session_end reboot'
+#alias restart='session_end reboot'
+#alias logout='session_end logout'
 
 __rmcmd="$(which --skip-alias rm)"
 
