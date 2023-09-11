@@ -1,0 +1,40 @@
+[bottom]
+# Shell commands to execute when hotcorner is triggered,
+# at least one is required.
+
+# Command to run when cursor enters hotcorner.
+# `command` is an alias for `enter_command`.
+enter_command = [ "dock-waybar.sh" ]
+# Command to run when cursor exits hotcorner.
+exit_command = [ "killall", "dock-waybar.sh" ]
+
+# Locations of the hot corners.
+# Options:
+# - for corners: top_left, top_right, bottom_right, and bottom_left;
+# - for edges: top, bottom, right, left.
+locations = ["bottom"]  # default
+
+# Size of the hot corners in pixels, for edges the size means the width
+# for vertical edges, and height for horizontal edges. The other dimension
+# will be the width/height of your display - the set margin.
+size = 10  # default
+
+# Margin on the sides of the hot edges, only applicable to edge locations.
+# See the comment with sizes attribute above.
+margin = 20  # default
+
+# Timeout in milliseconds before command is triggered.
+timeout_ms = 100  # default
+
+# Hex color of the corner when previewed, supports transparency. (#AARRGGBB or #RRGGBB)
+# (Useful for debuging purposes when setting up several hot corners.)
+color = "#FFFF00"  # default
+
+# Optional output config to specify what output to use.
+[bottom.output]
+# Regex to match output descriptions on.
+# Regex engine is similar to RE2: https://github.com/rust-lang/regex
+#
+# Use `swaymsg -t get_outputs` to get a list of outputs in the format:
+# Output ${NAME} '${DESCRIPTION}'
+description = ""  # default, empty means all outputs
