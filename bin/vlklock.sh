@@ -111,7 +111,8 @@ WRONG_BG_ACCENT="${WRONG_ACCENT}70"
 
 
 if [ -z "$WAYLAND_DISPLAY" ]; then
-    __i3lock
+    __i3lock_color
+    #__i3lock
 else
     __swaylock
 fi

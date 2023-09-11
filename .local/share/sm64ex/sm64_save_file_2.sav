@@ -1,7 +1,7 @@
 # Super Mario 64 save file
 # Comment starts with #
 # True = 1, False = 0
-# 2023-06-30 23:19:14
+# 2023-09-10 02:02:34
 
 [menu]
 coin_score_age = 0
@@ -26,7 +26,7 @@ bitfs_door = 0
 50star_door = 0
 
 [courses]
-bob = "31, 0001011, 1"
+bob = "31, 0001111, 1"
 wf = "0, 0000000, 0"
 jrb = "1, 0000001, 0"
 ccm = "0, 0000000, 0"

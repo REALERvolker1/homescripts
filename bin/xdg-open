@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ ! -e /run/.containerenv ] && [ ! -e /.dockerenv ]; then
+    /usr/bin/xdg-open "$@"
+else
+    distrobox-host-exec /usr/bin/xdg-open "$@"
+fi

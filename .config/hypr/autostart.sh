@@ -2,7 +2,8 @@
 
 [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && exit 69
 
-[ -f "$HOME/.xsession-errors" ] && rm "$HOME/.xsession-errors" &
+# [ -f "$HOME/.xsession-errors" ] && rm "$HOME/.xsession-errors" &
+autostart-remove.sh &
 
 autostart-dbus-activation-env.sh &
 xhost +local: &
