@@ -47,7 +47,7 @@ HISTCONTROL=erasedups:ignoreboth
 if command -v figlet &>/dev/null; then
     printf '%s -%s' "${0##*/}" "$-" | figlet -f smslant -w "$COLUMNS" | (command -v lolcat &>/dev/null && lolcat || tee)
 fi
-[ -n "${CONTAINER_ID}" ] && export PATH="$HOME/bin:$PATH"
+# [ -n "${CONTAINER_ID}" ] && export PATH="$HOME/bin:$PATH"
 if [[ ${BLE_VERSION-} ]]; then
     ble-attach
 fi

@@ -122,92 +122,55 @@ export NVM_DIR="$XDG_DATA_HOME/nvm"
 export BUN_INSTALL="$XDG_DATA_HOME/bun"
 export DENO_INSTALL="$XDG_DATA_HOME/deno"
 
-# __vlkenv_tempdirs="$XDG_DATA_DIRS"
-# __vlkenv_terminfodirs=''
-# for i in \
-#     '/usr/share' \
-#     '/usr/local/share' \
-#     '/var/lib/flatpak/exports/share' \
-#     "$XDG_DATA_HOME/flatpak/exports/share" \
-#     "$XDG_DATA_HOME"; do
-#     if [ -d "$i" ]; then
-#         case ":$__vlkenv_tempdirs:" in
-#         *:"$i":*)
-#             true
-#             ;;
-#         *)
-#             __vlkenv_tempdirs="$i:$__vlkenv_tempdirs"
-#             ;;
-#         esac
-#     fi
-#     if [ -d "$i/terminfo" ]; then
-#         __vlkenv_terminfodirs="$i/terminfo:$__vlkenv_terminfodirs"
-#     fi
-# done
-# #"$HOME/.var/app/com.valvesoftware.Steam/data" \
-# export XDG_DATA_DIRS="$__vlkenv_tempdirs"
-# export TERMINFO_DIRS="$__vlkenv_terminfodirs"
+__vlkenv_tempdirs="$XDG_DATA_DIRS"
+__vlkenv_terminfodirs=''
+for i in \
+    '/usr/share' \
+    '/usr/local/share' \
+    '/var/lib/flatpak/exports/share' \
+    "$XDG_DATA_HOME/flatpak/exports/share" \
+    "$XDG_DATA_HOME"; do
+    if [ -d "$i" ]; then
+        case ":$__vlkenv_tempdirs:" in
+        *:"$i":*)
+            true
+            ;;
+        *)
+            __vlkenv_tempdirs="$i:$__vlkenv_tempdirs"
+            ;;
+        esac
+    fi
+    if [ -d "$i/terminfo" ]; then
+        __vlkenv_terminfodirs="$i/terminfo:$__vlkenv_terminfodirs"
+    fi
+done
+#"$HOME/.var/app/com.valvesoftware.Steam/data" \
+export XDG_DATA_DIRS="$__vlkenv_tempdirs"
+export TERMINFO_DIRS="$__vlkenv_terminfodirs"
 
-__vlkenv_pathmunge_bin="$XDG_CONFIG_HOME/shell/pathmunge/target/release/pathmunge"
-
-if [ ! -x "$__vlkenv_pathmunge_bin" ]; then
-    __pathmunge() {
-        for i in "$@"; do
-            PATHMUNGE_PATH="$i:$PATHMUNGE_PATH"
-        done
-        echo "$PATHMUNGE_PATH"
-    }
-    __vlkenv_pathmunge_bin='__pathmunge'
-fi
-
-export XDG_DATA_DIRS="$(
-    PATHMUNGE_PATH="$XDG_DATA_DIRS" $__vlkenv_pathmunge_bin \
-        "$XDG_DATA_HOME" \
-        "$XDG_DATA_HOME/flatpak/exports/share" \
-        '/var/lib/flatpak/exports/share' \
-        '/usr/local/share' \
-        '/usr/share'
-)"
-export TERMINFO_DIRS="$(
-    PATHMUNGE_PATH="$TERMINFO_DIRS" $__vlkenv_pathmunge_bin $(echo "$XDG_DATA_DIRS:" | sed 's/:/\/terminfo /g')
-)"
-
-export PATH="$(
-    PATHMUNGE_PATH="$PATH" $__vlkenv_pathmunge_bin \
-        "$HOME/bin" \
-        "$HOME/.local/bin" \
-        "${CARGO_HOME:-CARGO_HOME}/bin" \
-        "${GOPATH:-GOPATH}/bin" \
-        "${BUN_INSTALL:-BUN_INSTALL}/bin" \
-        "${PNPM_HOME:-PNPM_HOME}" \
-        "${PYTHONUSERBASE:-PYTHONUSERBASE}/bin" \
-        '/var/lib/flatpak/exports/bin'
-)"
-[ "${__vlkenv_pathmunge_bin:-}" = '__pathmunge' ] && unset -f __pathmunge
-
-# __vlkenv_tempdirs="$PATH"
-# for i in \
-#     $(echo "$PATH" | sed 's/:/\n/g' | tac) \
-#     "/var/lib/flatpak/exports/bin" \
-#     "${PYTHONUSERBASE:-PYTHONUSERBASE}/bin" \
-#     "${PNPM_HOME:-PNPM_HOME}" \
-#     "${BUN_INSTALL:-BUN_INSTALL}/bin" \
-#     "${GOPATH:-GOPATH}/bin" \
-#     "${CARGO_HOME:-CARGO_HOME}/bin" \
-#     "$HOME/.local/bin" \
-#     "$HOME/bin"; do
-#     if [ -d "$i" ]; then
-#         case ":$__vlkenv_tempdirs:" in
-#         *:"$i":*)
-#             continue
-#             ;;
-#         *)
-#             __vlkenv_tempdirs="$i:$__vlkenv_tempdirs"
-#             ;;
-#         esac
-#     fi
-# done
-# export PATH="$__vlkenv_tempdirs"
+__vlkenv_tempdirs="$PATH"
+for i in \
+    $(echo "$PATH" | sed 's/:/\n/g' | tac) \
+    "/var/lib/flatpak/exports/bin" \
+    "${PYTHONUSERBASE:-PYTHONUSERBASE}/bin" \
+    "${PNPM_HOME:-PNPM_HOME}" \
+    "${BUN_INSTALL:-BUN_INSTALL}/bin" \
+    "${GOPATH:-GOPATH}/bin" \
+    "${CARGO_HOME:-CARGO_HOME}/bin" \
+    "$HOME/.local/bin" \
+    "$HOME/bin"; do
+    if [ -d "$i" ]; then
+        case ":$__vlkenv_tempdirs:" in
+        *:"$i":*)
+            continue
+            ;;
+        *)
+            __vlkenv_tempdirs="$i:$__vlkenv_tempdirs"
+            ;;
+        esac
+    fi
+done
+export PATH="$__vlkenv_tempdirs"
 
 unset ICON_TYPE
 __vlkenv_term="${TERM:-}"
