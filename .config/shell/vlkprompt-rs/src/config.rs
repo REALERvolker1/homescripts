@@ -3,6 +3,7 @@ use std::{
     process,
     env,
 };
+use serde::{Serialize, Deserialize};
 
 // #[derive(Debug, PartialEq, Clone, Copy)]
 // pub enum IconType {
@@ -12,13 +13,13 @@ use std::{
 // }
 
 // I might need to expand this to include ksh or ash
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
 pub enum Shell {
     Bash,
     Zsh,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct Icons {
     pub git: &'static str,
     pub vim: &'static str,
@@ -30,7 +31,7 @@ pub struct Icons {
     //end: &'static str,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct Colors {
     pub text_light: &'static str,
     pub text_dark: &'static str,
@@ -55,7 +56,7 @@ pub struct Colors {
     pub fg_ps3: &'static str,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct Config {
     pub shell: Shell,
     pub icons: Icons,
@@ -131,9 +132,9 @@ pub const ASCII_ICONS: Icons = Icons {
     end_sudo: "#",
 };
 
-pub fn generate_config() -> Result<Config, io::Error> {
+pub fn generate_config(current_shell: &str) -> Result<Config, io::Error> {
 
-    let shell = match env::var("VLKPROMPT_SHELL").unwrap_or("bash".to_string()).as_str() {
+    let shell = match current_shell {
         "zsh" => Shell::Zsh,
         "bash" => Shell::Bash,
         _ => Shell::Bash,
