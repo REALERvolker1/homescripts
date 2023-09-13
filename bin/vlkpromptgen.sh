@@ -68,6 +68,30 @@ psvar[dir]=133
 TAB=$'\t'
 LINE=$'\n'
 
+_array_fill() {
+    local arr="${1:?Error, please provide a name for the array}"
+    if ! _array_validate "$arr" &>/dev/null; then
+        shift 1
+        [ -z "${*:-}" ] && return 0
+        local -a eval_arr
+        eval_arr+=("declare -A $arr")
+        local i key val
+        for i in "$@"; do
+            if [[ "$i" == *'='* ]]; then
+                key="${i%%=*}"
+                val="${i#*=}"
+                eval_arr+=("${arr}[$key]=\"$val\"")
+            else
+                eval_arr+=("${arr}[$i]=''")
+            fi
+        done
+        printf '%s\n' "${eval_arr[@]}"
+    else
+        echo "Error, array '$arr' already exists!"
+        return 1
+    fi
+}
+
 _array_validate() {
     [ -z "${*:-}" ] && return 1
     local i err
@@ -108,7 +132,7 @@ _array_sandwich() { #array_name, output_array, text_pattern
     for i in $(_print_assoc "$arr" =); do
         key="${i%%=*}"
         val="${i#*=}"
-        eval "${output_array}[${key}]='${pattern//\`/$val}'"
+        eval "${output_array}[${key}]=\"${pattern//\`/$val}\""
     done
 }
 
@@ -120,7 +144,10 @@ _array_sandwich hicolor hicolor_bg '%{\e[48;5;`m%}'
 _array_sandwich locolor locolor_fg '%{\e[3`m%}'
 _array_sandwich locolor locolor_bg '%{\e[4`m%}'
 
-_print_assoc locolor_fg
+# declare -A hicolor_prompt locolor_prompt hicolor_border locolor_border
+eval "$(_array_fill hicolor_prompt err job dir_ro dir_rw git vim sud)"
+
+_print_assoc hicolor_prompt
 
 # for i in "${!hicolor_fg[@]}"; do
 #     printf '%s\t%s\n' "$i" "${hicolor_fg[$i]}"

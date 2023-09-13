@@ -1,0 +1,186 @@
+#!/usr/bin/zsh
+# shellcheck shell=bash
+[ -z "${ZSH_VERSION:-}" ] && {
+    return 1
+    exit 1
+}
+
+declare -A sym
+declare -A icon
+declare -A color
+
+local vlkprompt_colorterm="${VLKPROMPT_COLOR_OVERRIDE:-$(tput colors)}"
+
+if ((vlkprompt_colorterm < 8)); then
+    unset color
+    return
+elif ((vlkprompt_colorterm < 256)); then
+
+    color[ligh_text]=7
+    color[dark_text]=0
+    color[dir]=4
+    color[git]=5
+    color[vim]=2
+    color[err]=1
+    color[job]=3
+    color[sud]=6
+    color[ps2]=5
+    color[ps3]=5
+else
+
+    color[ligh_text]=255
+    color[dark_text]=232
+    color[dir]=33
+    color[git]=141
+    color[vim]=120
+    color[err]=52
+    color[job]=172
+    color[sud]=196
+    color[ps2]=93
+    color[ps3]=95
+fi
+
+icon[dir_ro]=
+icon[dir_rw]=
+icon[git]=󰊢
+icon[vim]=
+icon[err]=󰅗
+icon[job]=󱜯
+icon[end_sudo]=' '
+
+case "${ICON_TYPE:-}" in
+'dashline')
+    icon[end]=
+    ;;
+'powerline')
+    icon[end]=
+    ;;
+*)
+    icon[dir_ro]='-'
+    icon[dir_rw]='.'
+    icon[git]='G'
+    icon[vim]='V'
+    icon[err]='X'
+    icon[job]='J'
+    icon[end_sudo]=']#'
+    icon[end]=']'
+    ;;
+esac
+
+icon[git]="%(130V..${icon[git]} )"
+icon[vim]="%(130V..${icon[vim]} )"
+icon[err]="%(130V..${icon[err]} )"
+icon[job]="%(130V..${icon[job]} )"
+icon[dir]="%(130V..%(136V.${icon[dir_rw]}.${icon[dir_ro]}) )"
+
+sym[dir]='%$((COLUMNS / 2))<..<%~'
+sym[err]='%?'
+sym[job]='%j'
+sym[hos]='%m'
+sym[ps2]='%_'
+sym[ps3]='%_'
+
+local reset='%k%f%b%u%s'
+
+declare -A zp
+zp[if_job]='%(1j.'
+zp[if_err_do_nothing_else]='%(0?..'
+zp[else]='.'
+zp[fi]=')'
+zp[if_vim]='%(138V.'
+zp[if_git]='%(137V.'
+zp[if_write]='%(136V.'
+zp[if_sudo]='%(135V.'
+zp[if_small]='%(130V.'
+
+# PROMPT2='%_> '
+# PROMPT3='?# '
+# PROMPT4='+%N:%i> '
+
+declare -A vlkprompt
+
+vlkprompt[ln]="$reset${zp[if_small]}${zp[else]}
+${zp[fi]}"
+
+vlkprompt[job]="$reset${zp[if_job]}\
+%B%F{${color[dark_text]}}%K{${color[job]}} ${icon[job]}${sym[job]} \
+${zp[else]}${zp[fi]}$reset"
+
+vlkprompt[err]="$reset${zp[if_err_do_nothing_else]}\
+%B%F{${color[ligh_text]}}%K{${color[err]}} ${icon[err]}${sym[err]} \
+${zp[fi]}$reset"
+
+vlkprompt[dir_open_fg]="$reset${zp[if_vim]}\
+%B%F{${color[dark_text]}}%K{${color[vim]}} ${icon[vim]}${sym[dir]} $reset%F{${color[vim]}}\
+${zp[else]}${zp[if_git]}\
+%B%F{${color[dark_text]}}%K{${color[git]}} ${icon[git]}${sym[dir]} $reset%F{${color[git]}}\
+${zp[else]}\
+%B%F{${color[ligh_text]}}%K{${color[dir]}} ${icon[dir]}${sym[dir]} $reset%F{${color[dir]}}\
+${zp[fi]}\
+${zp[fi]}"
+
+vlkprompt[sudo_accepts_fg]="${zp[if_sudo]}\
+%K{${color[sud]}}${icon[end]} ${reset}%F{${color[sud]}}${icon[end_sudo]}\
+${zp[else]}\
+${icon[end]}\
+${zp[fi]}$reset "
+
+PS1="${vlkprompt[ln]}${vlkprompt[job]}${vlkprompt[err]}${vlkprompt[dir_open_fg]}${vlkprompt[sudo_accepts_fg]}"
+
+unset sym icon color zp vlkprompt
+
+__vlk_precmd() {
+    if sudo -vn &>/dev/null; then # sudo
+        psvar[135]=1
+    else
+        psvar[135]=''
+    fi
+    if [ -w "$PWD" ]; then # dir icon
+        psvar[136]=1
+    else
+        psvar[136]=''
+    fi
+    if git status &>/dev/null; then # git color
+        psvar[137]=1
+    else
+        psvar[137]=''
+    fi
+    psvar[138]='' # vicmd
+}
+export -U precmd_functions
+precmd_functions+=('__vlk_precmd')
+
+# I have no idea why this works, I'm just not gonna question it
+function zle-line-init zle-keymap-select {
+    if [[ "$KEYMAP" == vicmd ]]; then
+        psvar[138]=1
+    else
+        psvar[138]=''
+    fi
+    zle reset-prompt
+}
+zle -N zle-keymap-select
+
+__vlk-zle-line-init () {
+    [[ "$CONTEXT" == 'start' ]] || return 0
+    (( $+zle_bracketed_paste )) && print -r -n - $zle_bracketed_paste[1]
+    zle recursive-edit
+    local -i ret=$?
+    (( $+zle_bracketed_paste )) && print -r -n - $zle_bracketed_paste[2]
+    if [[ "$ret" == 0 && "$KEYS" == $'\4' ]]; then
+        psvar[130]=1
+        zle reset-prompt
+        exit
+    fi
+    psvar[130]=1
+    zle reset-prompt
+    psvar[130]=''
+    if (( ret )); then
+        zle send-break
+    else
+        zle accept-line
+    fi
+    return ret
+}
+
+zle -N zle-line-init __vlk-zle-line-init
