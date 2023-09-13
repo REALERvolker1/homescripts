@@ -12,7 +12,7 @@ fi
 # the following are just some random notes :3
 # sudo virsh console fedora38-server #username: root, password: root
 # distrobox-create --name ARCH --image archlinux:latest
-
+alias ARCH='distrobox enter ARCH'
 [ -f "$HOME/.xsel.log" ] && rm "$HOME/.xsel.log" &>/dev/null
 
 __homebin="$HOME/bin"
