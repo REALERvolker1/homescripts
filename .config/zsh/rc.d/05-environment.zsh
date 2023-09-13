@@ -33,10 +33,16 @@ https://github.com/zsh-users/zsh-autosuggestions"
 
 READNULLCMD="$PAGER"
 
+if command -v lsd &>/dev/null; then
+    __cd_ls_cmd=lsd
+else
+    __cd_ls_cmd=ls
+fi
+
 __cd_ls() {
     declare -i fcount="$($(which --skip-alias ls) -A1 | wc -l)"
     if ((fcount < 30)); then
-        lsd
+        $__cd_ls_cmd
     else
         echo -e "\e[${${${LS_COLORS:-01;34}##*:di=}%%:*}m${fcount}\e[0m items in this folder"
     fi

@@ -1,0 +1,9 @@
+local readmecmd
+if command -v 'glow' &>/dev/null; then
+    readmecmd='glow'
+elif command -v 'bat' &>/dev/null; then
+    readmecmd='bat'
+else
+    readmecmd='cat'
+fi
+$readmecmd "$(printf '%s\n' ./* | grep -i 'readme' | fzf --select-1)"

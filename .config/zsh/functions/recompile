@@ -1,0 +1,9 @@
+# vim:ft=sh
+
+command -v recompile.zsh &>/dev/null || return 1
+
+local line
+recompile.zsh --recompile | while read -r line; do
+    [ ! -f "$line" ] && echo "$line" && continue
+    zcompile "$line"
+done

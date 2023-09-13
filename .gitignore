@@ -6,6 +6,7 @@
 .config/zsh/.zcalc_history
 .config/bar-scripts/**/target
 .config/shell/**/target
+.config/shell/**/*.zwc
 .config/tmux/plugins
 .config/nushell/history.txt
 .config/btop/btop.log

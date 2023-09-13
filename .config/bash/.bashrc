@@ -28,11 +28,7 @@ __cd_ls() {
     ((retval != 0)) && return "$retval"
     declare -i fcount="$($(which --skip-alias ls) -A1 | wc -l)"
     if ((fcount < 30)); then
-        if command -v lsd &>/dev/null; then
-            lsd
-        else
-            ls
-        fi
+        ls
     else
         local bash_sucks_ass="${LS_COLORS:-01;34}"
         bash_sucks_ass="${bash_sucks_ass##*:di=}"
@@ -51,3 +47,4 @@ fi
 if [[ ${BLE_VERSION-} ]]; then
     ble-attach
 fi
+

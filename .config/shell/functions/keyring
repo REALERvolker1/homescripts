@@ -1,0 +1,9 @@
+if pgrep 'gnome-keyring-d' &>/dev/null; then
+    busctl --user get-property 'org.gnome.keyring' \
+        '/org/freedesktop/secrets/collection/login' \
+        'org.freedesktop.Secret.Collection' \
+        'Locked' | sed 's/^b //g'
+else
+    echo "Error, gnome-keyring-daemon doesn't seem to be running!"
+    return 1
+fi

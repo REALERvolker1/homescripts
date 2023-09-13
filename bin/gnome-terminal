@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-exec kitty "$@"
+exec vlk-sensible-terminal 1 "$@"

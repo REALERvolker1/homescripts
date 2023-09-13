@@ -1,0 +1,3 @@
+# vim:ft=sh
+# I need this function to exist so my autoloading functions work properly
+echo hello world

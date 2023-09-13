@@ -33,7 +33,7 @@ MAILCHECK=0
         do
         autoload -Uz "$i"
     done
-}
+} # "$XDG_CONFIG_HOME/shell/functions/"^*.zwc(.)
 . "$ZDOTDIR/globals/vlkpromptrc"
 #. "$HOME/bin/vlkpromptrc"
 . "$ZDOTDIR/globals/vlkrc"

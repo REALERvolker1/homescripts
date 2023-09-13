@@ -2,7 +2,7 @@
 # a script by vlk to recompile my zsh shit
 
 set -euo pipefail
-#setopt extendedglob
+setopt extendedglob
 
 ZDOTDIR="${ZDOTDIR:-$HOME}"
 ZPLUGIN_DIR="${ZPLUGIN_DIR:?Error, please set ZPLUGIN_DIR}"
@@ -83,8 +83,9 @@ compile_everything() {
         "$atuin_gen" \
         "$dircolor_gen" \
         "$ZDOTDIR/rc.d/"*".zsh" \
-        "$ZDOTDIR/functions/"* \
-        "$ZDOTDIR/globals/"*; do
+        "$ZDOTDIR/functions/"*^*.zwc(.) \
+        "$ZDOTDIR/globals/"* \
+        "$XDG_CONFIG_HOME/shell/functions"/^*.zwc(.); do
         [ ! -f "$i" ] && continue
         echo "$i"
         # zcompile uses the script's env instead of the interactive env

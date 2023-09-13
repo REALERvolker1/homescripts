@@ -19,7 +19,7 @@ for line in "$@"; do
     args+=("$line")
 done
 
-original_stty="$(stty --save)"
+original_stty="$(stty --save && echo "Saved stty settings" >&2)"
 
 export HISTFILE="${SHELLHIST:-/dev/null}"
 
@@ -33,4 +33,4 @@ else
     $shellsel
 fi
 
-stty "$original_stty" && echo "I restored your stty settings for ya :D"
+stty "$original_stty" && echo "Restored stty settings" >&2
