@@ -43,15 +43,15 @@ workspace $ws8 output DP-1 DP-1-0 eDP-1
 font pango:monospace bold 12
 mouse_warping output
 
-bindsym Mod4+t exec --no-startup-id i3-sensible-terminal
-
 # included range {{{
 
-include autostart.i3.sh
+# include autostart.i3.sh
 include classes.i3.sh
 include keybinds.i3.sh
 
 # }}}
+$exec "$XDG_CONFIG_HOME/i3/autostart.sh"
+$execa "$XDG_CONFIG_HOME/i3/exec-always.sh"
 # Window Decorations {{{
 
 gaps inner $gapsize

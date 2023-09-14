@@ -15,5 +15,18 @@ __cexec() {
 if [ -n "${WAYLAND_DISPLAY:-}" ]; then
     __cexec 'wl-clip-persist' --clipboard both
 elif [ -n "${DISPLAY:-}" ]; then
+    monitor_path="$XDG_CONFIG_HOME/shell/rustcfg/clipboard-monitor"
+    monitor_bin="$monitor_path/target/release/clipboard-monitor"
+    if [ -d "$monitor_path" ]; then
+        if [ -x "$monitor_bin" ]; then
+            exec "$monitor_bin"
+        else
+            if command -v cargo; then
+                cd "$monitor_path"
+                cargo build --release
+                exec "$monitor_bin"
+            fi
+        fi
+    fi
     pgrep 'xfce4-clipman' >/dev/null || __cexec 'xfce4-clipman'
 fi

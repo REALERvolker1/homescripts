@@ -6,54 +6,56 @@ floating_modifier $mod
 
 # vlkenv {{{
 
-#bindsym $mod + d $exec rofi -show drun
-bindsym $mod + d $exec vlkexec --menu 1
-bindsym $mods + d $exec vlkexec --menu 2
-bindsym $modc + d $exec vlkexec --menu 3
+bindsym $mod + d $exec rofi -show drun
+#bindsym $mod + d $exec rofi -modi 'drun,run' -show drun -sidebar-mode
+bindsym $mods + d $exec rofi -show run
+bindsym $modc + d $exec wofi -S drun
 
-bindsym $mod + Tab $exec vlkexec --window 1
+bindsym $mod + Tab $exec rofi -modi window -show window
 
-bindsym --release $mod + BackSpace $exec vlkexec --browser 1
-bindsym --release $mods + BackSpace $exec vlkexec --browser 2
-bindsym --release $modc + BackSpace $exec vlkexec --browser 3
+bindsym --release $mod + BackSpace $exec vlk-sensible-browser 1
+bindsym --release $mods + BackSpace $exec vlk-sensible-browser 2
+bindsym --release $modc + BackSpace $exec vlk-sensible-browser 3
 
-bindsym --release $mod + z $exec vlkexec --browser 1
-bindsym --release $mods + z $exec vlkexec --browser 2
-bindsym --release $modc + z $exec vlkexec --browser 3
+bindsym --release $mod + z $exec vlk-sensible-browser 1
+bindsym --release $mods + z $exec vlk-sensible-browser 2
+bindsym --release $modc + z $exec vlk-sensible-browser 3
 
-bindsym --release $mod + backslash $exec vlkexec --mgmt 1
-bindsym --release $mods + backslash $exec vlkexec --editor 1
-bindsym --release $modc + backslash $exec vlkexec --editor 2
+bindsym --release $mod + backslash $exec nemo
+bindsym --release $mods + backslash $exec mousepad
+bindsym --release $modc + backslash $exec codium
 
-bindsym --release $mod + x $exec vlkexec --mgmt 1
-bindsym --release $mods + x $exec vlkexec --editor 1
-bindsym --release $modc + x $exec vlkexec --editor 2
+bindsym --release $mod + x $exec nemo
+bindsym --release $mods + x $exec mousepad
+bindsym --release $modc + x $exec codium
 
-bindsym $mod + Return $exec vlkexec --term 1
-bindsym $mods + Return $exec vlkexec --term 2
-bindsym $modc + Return $exec vlkexec --term 3
+bindsym $mod + Return $exec vlk-sensible-terminal 1
+bindsym $mods + Return $exec vlk-sensible-terminal 2
+bindsym $modc + Return $exec vlk-sensible-terminal 3
+bindsym $mod + t $exec vlk-sensible-terminal 1
+bindsym $mods + t $exec vlk-sensible-terminal 2
+bindsym $modc + t $exec vlk-sensible-terminal 3
 
-bindsym $mod + period $exec vlkexec --charmap 1
-bindsym $mods + period $exec vlkexec --charmap 2
-bindsym $modc + period $exec vlkexec --charmap 3
+bindsym $mod + period $exec rofi-charamap-menu.sh
 
-bindsym XF86Calculator $exec vlkexec --calc 1
-bindsym --release $mod + KP_Enter $exec vlkexec --calc 1
+bindsym XF86Calculator $exec gnome-calculator
+bindsym --release $mod + KP_Enter $exec gnome-calculator
 
-bindsym --release Print $exec vlkexec --screenshot 1
-bindsym --release shift + Print $exec vlkexec --screenshot 2
-bindsym --release $mod + Print $exec vlkexec --screenshot 3
-bindsym --release $mods + Print $exec vlkexec --screenshot 4
+bindsym --release Print $exec vlk-sensible-screenshot 1
+bindsym --release shift + Print $exec vlk-sensible-screenshot 2
+bindsym --release ctrl + shift + Print $exec vlk-sensible-screenshot 3
+bindsym --release $mod + Print $exec vlk-sensible-screenshot 1
+bindsym --release $mods + Print $exec vlk-sensible-screenshot 2
+bindsym --release $modc + Print $exec vlk-sensible-screenshot 3
 
-bindsym $mod + Escape $exec vlkexec --power 2
-#bindsym $mods + Escape $exec vlkexec --power 2
+bindsym $mod + Escape $exec rofi -show powermenu
 
-bindsym $mod + equal $exec vlkexec --power 1
+bindsym $mod + equal $exec vlklock.sh
 
-bindsym $modc + v $exec vlkexec --window 2
-
-bindsym $mod + XF86Launch3 $exec vlkexec --settings 1
-bindsym $mods + XF86Launch3 $exec vlkexec --settings 2
+bindsym $mod + XF86Launch3 $exec gfxmenu.sh
+bindsym $mods + XF86Launch3 $exec $XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --toggle
+bindsym $mod + Scroll_Lock $exec gfxmenu.sh
+bindsym $mods + Scroll_Lock $exec $XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --toggle
 
 # }}}
 # Media ctrl {{{
@@ -92,6 +94,11 @@ bindsym $mod + F10 $exec pointer.sh -t
 
 bindsym $mod + p $exec "ps -A | grep 'picom' && killall picom || picom"
 bindsym $mods + p $exec "killall picom && picom"
+
+bindsym $alt + h $exec ydotool key '102:1' '102:0' # home
+bindsym $alt + l $exec ydotool key '107:1' '107:0' # end
+bindsym $alt + Left $exec ydotool key '102:1' '102:0'
+bindsym $alt + Right $exec ydotool key '107:1' '107:0'
 
 # }}}
 

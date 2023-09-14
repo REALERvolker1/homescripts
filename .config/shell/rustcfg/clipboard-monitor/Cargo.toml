@@ -1,0 +1,7 @@
+[package]
+name = "clipboard-monitor"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+arboard = { version = "3.2.1", features = ["wayland-data-control"] }

@@ -37,7 +37,7 @@ $exec xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 
 # Bar icons
 # $exec xfce4-clipman
-$exec clipboardmgr.sh
+$exec autostart-clipboard.sh
 $exec nm-applet
 # $exec rog-control-center
 $exec flameshot
