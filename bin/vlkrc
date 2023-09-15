@@ -18,7 +18,7 @@ alias ARCH='distrobox enter ARCH'
 __homebin="$HOME/bin"
 
 # hardcoded path
-__lscmd="$(which --skip-alias ls)"
+__lscmd="$(/bin/which --skip-alias ls)"
 __lsargs='--color=auto --group-directories-first'
 
 if command -v lsd &>/dev/null; then
@@ -30,7 +30,7 @@ else
     alias ls="$__lscmd $__lsargs -A"
     alias ll="$__lscmd $__lsargs -Al"
 
-    if which --skip-alias tree &>/dev/null; then
+    if /bin/which --skip-alias tree &>/dev/null; then
         true
     else
         alias tree="$__lscmd $__lsargs -AR"
@@ -101,7 +101,7 @@ alias shutdown='systemctl poweroff'
 alias reboot='systemctl reboot'
 alias logout="loginctl kill-session '$XDG_SESSION_ID'"
 
-__rmcmd="$(which --skip-alias rm)"
+__rmcmd="$(/bin/which --skip-alias rm)"
 
 alias fuck="$__rmcmd -rf"
 alias frick='trash -fvi'

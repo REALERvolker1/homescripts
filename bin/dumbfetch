@@ -9,7 +9,7 @@ prop4="$(
     if command -v 'rpm' >/dev/null; then
         rpm -q xorg-x11-drv-nvidia | cut -d '-' -f 5
     elif command -v 'pacman' >/dev/null; then
-        pacman -Q nvidia-dkms | grep -oP '^.* \K[^-]*'
+        pacman -Q nvidia-dkms 2>/dev/null | grep -oP '^.* \K[^-]*'
     else
         echo 'unsupported distro'
     fi
@@ -24,12 +24,11 @@ length_string="$(printf "%-${len}s\n" '' | sed 's/ /─/g')"
 
 printf '%s\n' "${box_color}╭─────────────────┬─────────────${length_string}╮[0m"
 printf "${box_color}│[0m[92m%s${box_color}│[0m%s   [1m%-${len}s [0m${box_color}│[0m\n" \
-                           '          _      ' '[94m  SHLVL ' "$prop0" \
-                           '  _______| |__   ' '[95m 󰅐 Uptime' "$prop1" \
-                           ' |_  / __| `_ \  ' '[96m  Term  ' "$prop2" \
-                           '  / /\__ \ | | | ' '[93m 󰋊 Disk  ' "$prop3" \
-                           ' /___|___/_| |_| ' '[92m 󰾲 Nvidia' "$prop4" \
-                           '                 ' '[91m  Kernel' "$prop5"
+    '          _      ' '[94m  SHLVL ' "$prop0" \
+    '  _______| |__   ' '[95m 󰅐 Uptime' "$prop1" \
+    ' |_  / __| `_ \  ' '[96m  Term  ' "$prop2" \
+    '  / /\__ \ | | | ' '[93m 󰋊 Disk  ' "$prop3" \
+    ' /___|___/_| |_| ' '[92m 󰾲 Nvidia' "$prop4" \
+    '                 ' '[91m  Kernel' "$prop5"
 printf '%s\n' "${box_color}╰─────────────────┴─────────────${length_string}╯[0m"
 # ┴
-

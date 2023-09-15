@@ -35,7 +35,7 @@ MAILCHECK=0
     done
 } # "$XDG_CONFIG_HOME/shell/functions/"^*.zwc(.)
 . "$ZDOTDIR/globals/vlkpromptrc"
-#. "$HOME/bin/vlkpromptrc"
+
 . "$ZDOTDIR/globals/vlkrc"
 
 if ((COLUMNS > 55)); then
@@ -59,7 +59,7 @@ lsdiff
     else
         zsh-defer () {$@}
     fi
-
+    local i
     for i in \
         "$ZPLUGIN_DIR/atuin.zsh" \
         "$ZPLUGIN_DIR/fzf-tab/fzf-tab.plugin.zsh" \

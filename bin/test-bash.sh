@@ -2,14 +2,19 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-distrobox_script="command -v pacman >/dev/null 2>&1 && sudo pacman -Syu;
-command -v dnf >/dev/null 2>&1 && sudo dnf upgrade --refresh;
-command -v apt >/dev/null 2>&1 && sudo apt update && sudo apt upgrade;"
+declare -A hello
 
-if command -v distrobox &>/dev/null; then
-    boxes="$(distrobox ls --no-color | cut -d '|' -f 2 | tail -n '+2' | sed 's/^[ ]*//g ; s/[ ]*$//g')"
-    for i in $boxes; do
-        echo "entering distrobox $i"
-        distrobox-enter -n "$i" -- /bin/sh -c "$distrobox_script"
-    done
-fi
+hello[foo]='foof'
+hello[bar]='barb'
+
+for i in "${!hello[@]}"; do
+    echo "hello[$i]=${hello[$i]}"
+done
+
+for i in "${!hello[@]}"; do
+    declare "hello[$i]=dd${hello[$i]}dd"
+done
+
+for i in "${!hello[@]}"; do
+    echo "hello[$i]=${hello[$i]}"
+done

@@ -49,6 +49,7 @@ __cd_ls() {
 }
 chpwd_functions+=('__cd_ls')
 
+
 PROMPT='%k%f
 %B %F{14}%~%f %(0?.%F{10}%#.%F{9}%? %#) %b%f'
 ZLE_RPROMPT_INDENT=0

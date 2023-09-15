@@ -45,13 +45,14 @@ mouse_warping output
 
 # included range {{{
 
+$exec "$XDG_CONFIG_HOME/i3/autostart.sh"
+$execa "$XDG_CONFIG_HOME/i3/exec-always.sh"
+
 # include autostart.i3.sh
 include classes.i3.sh
 include keybinds.i3.sh
 
 # }}}
-$exec "$XDG_CONFIG_HOME/i3/autostart.sh"
-$execa "$XDG_CONFIG_HOME/i3/exec-always.sh"
 # Window Decorations {{{
 
 gaps inner $gapsize

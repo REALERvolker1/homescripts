@@ -1,4 +1,6 @@
 
+((${#$(typeset -f compinit | grep -oP 'builtin.*-XUz\K.*$')} > 0)) || return
+
 zstyle :compinstall filename "$ZDOTDIR/.zshrc"
 autoload -Uz compinit
 compinit -d "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION"
