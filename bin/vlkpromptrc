@@ -19,10 +19,12 @@ icons[hos]=󰟀
 icons[log]=󰌆
 content[sud_end]=' '
 content[end]=
+content[end_r]=
 
 case "$ICON_TYPE" in
 powerline)
     content[end]=
+    content[end_r]=
     ;;
 fallback)
     icons[cwd_ro]='-'
@@ -35,6 +37,7 @@ fallback)
     icons[log]='l'
     content[sud_end]=']#'
     content[end]=']'
+    content[end_r]='['
     ;;
 esac
 
@@ -134,6 +137,10 @@ not found \e[0m\e[3${set[ansi]}${colorsfg[err]}m${content[end]}\e[0m"
     content[newline]="${set[sgr]}
 "
 
+    if [[ ${BLE_VERSION:-} ]]; then
+        bleopt prompt_rps1="$(echo -en "${set[sgr]}${colorsfg[vim]}${content[end_r]}${set[sgr]}${colorsbg[vim]}${colorstx[d]} \# ${set[sgr]}")"
+    fi
+
     unset next_color
     __vlk_precmd () {
         local err="$?"
@@ -171,7 +178,7 @@ not found \e[0m\e[3${set[ansi]}${colorsfg[err]}m${content[end]}\e[0m"
             err_content=''
         fi
 
-        if [ $(jobs | wc -l) -ne 0 ]; then
+        if [ $(jobs | wc -l) -gt 0 ]; then
             job_content="${colorsbg[job]}${colorstx[d]} ${icons[job]} \j ${set[sgr]}${colorsfg[job]}${next_color}${content[end]}${set[sgr]}"
         else
             job_content=''
@@ -198,7 +205,8 @@ not found \e[0m\e[3${set[ansi]}${colorsfg[err]}m${content[end]}\e[0m"
     PROMPT_COMMAND+=('__vlk_precmd')
 
     command_not_found_handle () {
-        echo "[bash] Error, command '$1' does not exist!"
+        # echo "[bash] Error, command '$1' does not exist!"
+        echo -e "${COMMAND_NOT_FOUND_STR//+/$1}"
         return 127
     }
 

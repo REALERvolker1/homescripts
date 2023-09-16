@@ -49,7 +49,7 @@ bleopt editor="${EDITOR:-vi}"
 ## center and the top right corner, respectively.
 
 bleopt vbell_default_message='*beeps aggressively*'
-#bleopt vbell_duration=2000
+bleopt vbell_duration=500
 bleopt vbell_align=right
 
 
@@ -157,29 +157,29 @@ bleopt prompt_ps1_transient=trim
 ## "prompt_rps1_final" if it has a non-empty value, or otherwise, the right
 ## prompt vanishes if "prompt_rps1_transient" is set to a non-empty value,
 
-case "$ICON_TYPE" in
-    dashline)
-        __VLK_BLE_RPS1_ICON=''
-        ;;
-    powerline)
-        __VLK_BLE_RPS1_ICON=''
-        ;;
-    *)
-        __VLK_BLE_RPS1_ICON='['
-        ;;
-esac
+# case "$ICON_TYPE" in
+#     dashline)
+#         __VLK_BLE_RPS1_ICON=''
+#         ;;
+#     powerline)
+#         __VLK_BLE_RPS1_ICON=''
+#         ;;
+#     *)
+#         __VLK_BLE_RPS1_ICON='['
+#         ;;
+# esac
 
-if (($(tput colors) < 256)); then
-    __VLK_BLE_RPS1_COLOR=2
-else
-    __VLK_BLE_RPS1_COLOR='8;5;120'
-fi
+# if (($(tput colors) < 256)); then
+#     __VLK_BLE_RPS1_COLOR=2
+# else
+#     __VLK_BLE_RPS1_COLOR='8;5;120'
+# fi
 
-bleopt prompt_rps1="\[\e[0m\e[3${__VLK_BLE_RPS1_COLOR}m\]${__VLK_BLE_RPS1_ICON}\[\e[0m\e[4${__VLK_BLE_RPS1_COLOR}m\e[1;30m\] \# \[\e[0m\]"
+# bleopt prompt_rps1="\[\e[0m\e[3${__VLK_BLE_RPS1_COLOR}m\]${__VLK_BLE_RPS1_ICON}\[\e[0m\e[4${__VLK_BLE_RPS1_COLOR}m\e[1;30m\] \# \[\e[0m\]"
 #bleopt prompt_rps1_final=
 #bleopt prompt_rps1_transient=''
 
-unset __VLK_BLE_RPS1_COLOR __VLK_BLE_RPS1_ICON
+# unset __VLK_BLE_RPS1_COLOR __VLK_BLE_RPS1_ICON
 
 ## The following settings specify the content of terminal titles and status
 ## lines.  "prompt_xterm_title" specifies the terminal title which can be set
@@ -202,9 +202,9 @@ unset __VLK_BLE_RPS1_COLOR __VLK_BLE_RPS1_ICON
 ## line is not shown.  "prompt_status_align" controls the position of the
 ## content in the status line.
 
-bleopt prompt_status_line="Bash: $BASH_VERSION | Linux: $(uname -r) | Ble.sh: ${BLE_VERSION:-Null}"
+bleopt prompt_status_line="Bash: $BASH_VERSION | Linux: $(uname -r)${BLE_VERSION+ | Ble.sh: $BLE_VERSION}"
 bleopt prompt_status_align=center
-
+#  | Ble.sh: ${BLE_VERSION:-Null}
 
 ## "prompt_eol_mark" specifies the contents of the mark used to indicate the
 ## command output is not ended with newlines. The value can contain ANSI escape
@@ -869,9 +869,9 @@ bleopt highlight_variable=ja
 #ble-face -s auto_complete             fg=238,bg=254
 #ble-face -s menu_filter_fixed         bold
 #ble-face -s menu_filter_input         fg=16,bg=229
-#ble-face -s vbell                     reverse
-#ble-face -s vbell_erase               bg=252
-#ble-face -s vbell_flash               fg=green,reverse
+ble-face -s vbell                     fg=red,bold
+ble-face -s vbell_erase               bg=reset
+ble-face -s vbell_flash               fg=red,reverse
 #ble-face -s prompt_status_line        fg=231,bg=240
 
 #ble-face -s syntax_default            none

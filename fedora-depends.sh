@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# see useless shit
+# printf '%s\n' ~dots/**/*{(N.L0),(N/^F),(N-@)}
+
 if [ "$(ls -l "$(command -v dnf)" | grep -oP ' -> \K.*$')" = 'dnf-3' ]; then
     echo 'dnf-3 found'
     echo -e '\e[1mYou will have to babysit this installer btw\e[0m'

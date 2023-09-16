@@ -3,16 +3,19 @@
 # vim:foldmethod=marker:ft=sh
 # shellcheck disable=SC2139
 
-if [ "$(expr "$-" : '.*i')" = 0 ] || [ -z "${ZSH_VERSION:-$BASH_VERSION}" ]; then
+if ! [[ 1 ]] 2>/dev/null || [[ "$-" != *i* ]] 2>/dev/null; then
     echo "Error, you must source this file with interactive zsh or bash" >&2
-    return 1
+    return 1 2>/dev/null
     exit 1
 fi
 
 # the following are just some random notes :3
+
+# bash feature test: [[ 1 ]] 2>/dev/null
+# zsh feature test: ( true "${(q)0}" ) 2>/dev/null
+
 # sudo virsh console fedora38-server #username: root, password: root
 # distrobox-create --name ARCH --image archlinux:latest
-alias ARCH='distrobox enter ARCH'
 [ -f "$HOME/.xsel.log" ] && rm "$HOME/.xsel.log" &>/dev/null
 
 __homebin="$HOME/bin"
@@ -275,35 +278,22 @@ alias font-reset='fc-cache -fv'
 alias font-search="fc-list --format='%{family}\t%{style}\n' | sort | uniq | fzf"
 
 alias pipl='pip list | fzf'
-alias fenv='printenv | fzf'
 
 alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 
-# ___cd_ls() {
-#     builtin cd "$@"
-#     local retval="$?"
-#     ((retval == 0)) || return "$retval"
-#     local -i cdls_max=30
-#     local -i fcount
-#     fcount="$($(which --skip-alias ls) -A1 | wc -l)"
-#     if ((fcount < cdls_max)); then
-#         ls
-#     else
-#         local dir_color="${LS_COLORS:-01;34}"
-#         dir_color="${dir_color##*:di=}"
-#         echo -e "\e[${dir_color%%:*}m${fcount}\e[0m items in this folder"
-#     fi
-# }
-
+alias ARCH='distrobox-enter -n ARCH'
 if [ -n "${ZSH_VERSION:-}" ]; then
-    # chpwd_functions+=('___cd_ls')
     alias refresh='exec zsh'
     alias uncompile="recompile.zsh --uncompile"
     alias lsh="hash -dL | sed 's/hash -d //g ; s/=/  \t  /g' | fzf"
+    #alias ARCH='distrobox-enter -n ARCH -- /usr/bin/zsh'
+    alias aliases='printf "\e[1;93m%s\e[0m = \e[92m%s\e[0m\n" "${(@kv)aliases}"'
+    alias fenv='typeset | fzf'
 
 elif [ -n "${BASH_VERSION:-}" ]; then
-    # alias cd='___cd_ls'
     alias refresh='exec bash'
+    #alias ARCH='distrobox-enter -n ARCH -- /usr/bin/bash'
+    alias fenv='printenv | fzf'
 fi
 
 case "${CURRENT_DISTRO:-}" in

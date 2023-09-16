@@ -32,5 +32,7 @@ elif [ -z "${stdin[*]}" ] && [ -n "$*" ]; then
 else
     $shellsel
 fi
+retval="$?"
 
 stty "$original_stty" && echo "Restored stty settings" >&2
+exit "$retval"
