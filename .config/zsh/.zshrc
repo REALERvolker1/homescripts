@@ -35,7 +35,7 @@ MAILCHECK=0
     done
 } # "$XDG_CONFIG_HOME/shell/functions/"^*.zwc(.)
 . "$ZDOTDIR/globals/vlkpromptrc"
-
+# cat /proc/$$/cmdline | cut -d $'\0' -f 1
 . "$ZDOTDIR/globals/vlkrc"
 
 if ((COLUMNS > 55)); then

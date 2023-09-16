@@ -1,5 +1,6 @@
 
-((${#$(typeset -f compinit | grep -oP 'builtin.*-XUz\K.*$')} > 0)) || return
+# ((${#$(typeset -f compinit | grep -oP 'builtin.*-XUz\K.*$')} > 0)) || return
+# [ -n "${DISTROBOX_ENTER_PATH:-}" ] && return
 
 zstyle :compinstall filename "$ZDOTDIR/.zshrc"
 autoload -Uz compinit

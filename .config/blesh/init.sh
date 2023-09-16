@@ -50,7 +50,7 @@ bleopt editor="${EDITOR:-vi}"
 
 bleopt vbell_default_message='*beeps aggressively*'
 #bleopt vbell_duration=2000
-#bleopt vbell_align=right
+bleopt vbell_align=right
 
 
 ##-----------------------------------------------------------------------------

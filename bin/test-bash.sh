@@ -1,20 +1,15 @@
-#!/usr/bin/bash
-set -euo pipefail
-IFS=$'\n\t'
+#!/usr/bin/zsh
 
-declare -A hello
+typeset -A assoc=(
+  'key1' 'value 1'
+  'key2' 'value 2'
+)
 
-hello[foo]='foof'
-hello[bar]='barb'
+eval "$(printf 'declare "assoc[%s]=hh%shh"\n' "${(@kv)assoc}")"
 
-for i in "${!hello[@]}"; do
-    echo "hello[$i]=${hello[$i]}"
+printf '%s=%s\n' "${(@kv)assoc}"
+
+for i in "${(@k)colorsbg}"; do
+    declare ""
 done
-
-for i in "${!hello[@]}"; do
-    declare "hello[$i]=dd${hello[$i]}dd"
-done
-
-for i in "${!hello[@]}"; do
-    echo "hello[$i]=${hello[$i]}"
-done
+eval "$(printf "declare 'colorsbg[%s]=${set[o]}${set[bg_esc]}%s${set[end_esc]}${set[c]}'\n" "${(@kv)colorsbg}")"
