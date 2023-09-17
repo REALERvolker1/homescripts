@@ -40,6 +40,7 @@ _initialize () {
     sudo dnf install asusctl supergfxctl asusctl-rog-gui power-profiles-daemon
 
     sudo systemctl enable supergfxd.service
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
     cmdline="$(grep -oP '^GRUB_CMDLINE_LINUX="\K[^"]*' /etc/default/grub)"
 
@@ -58,6 +59,10 @@ _pkginst () {
         #sudo dnf install hyprland hyprpaper hyprpicker hyprshot hyprprop grimblast waybar-git xdg-desktop-portal-hyprland swaylock swayidle
 	true
     fi
+    sudo dnf group install "C Development Tools and Libraries"
+    git clone --depth 1 https://github.com/wbthomason/packer.nvim\
+     ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
     sudo dnf install --allowerasing ffmpeg ffmpeg-devel
 
