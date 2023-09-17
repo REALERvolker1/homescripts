@@ -138,6 +138,9 @@ alias glop='glow --pager'
 alias batop=battop
 alias battio=battop
 
+alias ytmp3="yt-dlp --extract-audio --audio-format mp3 "
+alias ytmp4="yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --progress --remux-video mp4 "
+
 if [[ "${TERM:-}" == *'kitty'* ]]; then
     alias icat='kitty +icat'
 elif command -v timg &>/dev/null; then
@@ -158,6 +161,8 @@ fi
 # if command -v ouch &>/dev/null; then
 #     alias extract='ouch decompress'
 # fi
+
+alias unfuck-old-backup='tar --keep-directory-symlink -xzf '
 alias extract='ouch decompress'
 
 alias free='free -h'
@@ -193,6 +198,8 @@ alias rksh=ksh
 alias sh="$__homebin/run-subshell.sh sh"
 alias csh="echo 💀 && $__homebin/run-subshell.sh csh"
 alias tcsh="echo 💀 && $__homebin/run-subshell.sh tcsh"
+
+alias pypip="pypy3 -m pip "
 
 alias pnpmi='pnpm install --global'
 alias pnpml='pnpm list --global | fzf'

@@ -1,2 +1,2 @@
 [Context]
-filesystems=home
+filesystems=xdg-run;xdg-run/org.prismlauncher.Prismlauncher;home
