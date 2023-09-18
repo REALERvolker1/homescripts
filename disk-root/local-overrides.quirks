@@ -1,3 +1,4 @@
 [Never Debounce]
 MatchName=Glorious Model O Wireless
+MatchUdevType=mouse
 ModelBouncingKeys=1
