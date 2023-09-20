@@ -7,8 +7,10 @@ filterstr='(^$|\.i686|\.src|..-debuginfo|..-debugsource|^Last metadata expiratio
 cosmetic_sedstr='s/-devel\./\x1b[1m-devel\x1b[0m\./g
 s/\.x86_64$/\.\x1b[92mx86_64\x1b[0m/g
 s/\.noarch$/\.\x1b[93mnoarch\x1b[0m/g'
-
-if [[ "$(realpath "$(command -v dnf)")" != *'dnf-3' ]]; then
+if ! command -v dnf &>/dev/null; then
+    echo "Error, you must have the DNF package manager installed to use this script!"
+    exit 1
+elif [[ "$(realpath "$(command -v dnf)")" != *'dnf-3' ]]; then
     echo "Error, ${0##*/} does not work with dnf5 yet!"
     exit 1
 fi
