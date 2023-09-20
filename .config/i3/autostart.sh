@@ -5,6 +5,7 @@
 autostart-dbus-activation-env.sh &
 xrdb -merge "$XRESOURCES" &
 xlayoutdisplay --quiet &
+# nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -
 
 autostart-polkit.sh &
 autostart-keyring.sh &
@@ -15,6 +16,7 @@ xsettingsd &
 ydotoold &
 steam-symlink-unfucker.sh &
 autostart-gammastep.sh &
+# volbright.sh --brightness --volume --keyboard
 
 xset -dpms &
 xss-lock -l "vlklock.sh" &

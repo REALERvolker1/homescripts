@@ -48,9 +48,8 @@ mouse_warping output
 $exec "$XDG_CONFIG_HOME/i3/autostart.sh"
 $execa "$XDG_CONFIG_HOME/i3/exec-always.sh"
 
-# include autostart.i3.sh
-include classes.i3.sh
-include keybinds.i3.sh
+include classes.i3
+include keybinds.i3
 
 # }}}
 # Window Decorations {{{
