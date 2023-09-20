@@ -266,6 +266,10 @@ alias fls='flatpak search'
 alias fll='flatpak list | fzf'
 alias flc='flatpak remote-ls --updates'
 
+alias unfuck-pacman-cache="sudo pacman -Qk | grep '[^0] missing files'"
+alias pmi='sudo pacman -S '
+alias pmr='sudo pacman -Rcns '
+
 alias xclassget='xprop | grep WM_CLASS'
 alias xkeyget="xev -event keyboard | grep -Eo 'keycode.*\)'"
 

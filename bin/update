@@ -1,23 +1,34 @@
 #!/usr/bin/bash
 IFS=$'\n\t'
 
+_head () {
+    echo -e "\e[0m\e[1m[\e[${1:-$distro_color}m${2:?Put header here}\e[0m\e[1m]\e[0m"
+}
+distro_color="$(grep -oP '^ANSI_COLOR="\K[^"]*' /etc/os-release)"
+[ -z "${distro_color:-}" ] && distro_color='31'
+
 if command -v dnf >/dev/null; then
     # support dnf5 on Fedora Rawhide
     if file /usr/bin/dnf | grep 'dnf5$'; then
+        _head "$distro_color" 'dnf5'
         sudo dnf makecache
         sudo dnf upgrade
     else
+        _head "$distro_color" 'dnf'
         sudo dnf upgrade --refresh
     fi
 fi
 
 if command -v yay >/dev/null; then
+    _head 35 'yay'
     yay -Syu
 elif command -v pacman >/dev/null; then
+    _head 92 'pacman'
     sudo pacman -Syu
 fi
 
 if command -v apt >/dev/null; then
+    _head 91 'apt'
     sudo apt update
     sudo apt upgrade
 fi
@@ -28,17 +39,25 @@ command -v dnf >/dev/null 2>&1 && sudo dnf upgrade --refresh;\
 command -v apt >/dev/null 2>&1 && sudo apt update && sudo apt upgrade"
 
 if command -v distrobox &>/dev/null; then
-    boxes="$(distrobox ls --no-color | cut -d '|' -f 2 | tail -n '+2' | sed 's/^[ ]*//g ; s/[ ]*$//g')"
+    boxes="$(distrobox ls --no-color 2>/dev/null | cut -d '|' -f 2 | tail -n '+2' | sed 's/^[ ]*//g ; s/[ ]*$//g')"
     for i in $boxes; do
+        _head 96 "distrobox $i"
         echo "entering distrobox $i"
         distrobox-enter -n "$i" -- /bin/sh -c "$distrobox_script"
     done
 fi
 
 if [ -d "$HOME/.local/opt/codium" ] && command -v codium-install.sh >/dev/null; then
+    _head 94 'codium'
     codium-install.sh
 fi
 
-command -v flatpak >/dev/null && flatpak update -y
+if command -v flatpak >/dev/null; then
+    _head 34 'flatpak'
+    flatpak update -y
+fi
 
-command -v cargo-install-update >/dev/null && cargo install-update -a -g
+if command -v cargo-install-update >/dev/null; then
+    _head 43 'cargo'
+    cargo install-update -a -g
+fi
