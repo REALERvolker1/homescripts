@@ -8,9 +8,11 @@ unset MAILCHECK
 [ -n "${VIRTUAL_ENV:-}" ] && deactivate && echo "\$VIRTUAL_ENV '$VIRTUAL_ENV' deactivated"
 
 export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
-export CURRENT_HOSTNAME="Josiah" # The hostname of my main pc
+#export CURRENT_HOSTNAME="Josiah"
+export CURRENT_HOSTNAME="JOE" # The hostname of my main pc
 
 export HOME="${HOME:-/home/$(whoami)}"
+export HOSTNAME="${HOSTNAME:-$(hostname)}"
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CACHE_HOME="$HOME/.cache"

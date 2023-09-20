@@ -40,7 +40,7 @@ else
 fi
 
 __cd_ls() {
-    declare -i fcount="$($(which --skip-alias ls) -A1 | wc -l)"
+    declare -i fcount="$($(/bin/which --skip-alias ls) -A1 | wc -l)"
     if ((fcount < 30)); then
         $__cd_ls_cmd
     else

@@ -6,7 +6,9 @@ echo 'blocking GPU sleep'
 # [ "$(xrandr | grep -c ' connected')" -gt 1 ] || 
 
 _getmon () {
-    if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+    if [ "$(cat /sys/class/power_supply/ACAD/online)" -eq 1 ]; then
+        echo 999
+    elif [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
         hyprctl monitors | grep -c '^Monitor'
     else
         xrandr | grep -c ' connected'
