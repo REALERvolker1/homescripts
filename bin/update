@@ -58,6 +58,6 @@ if command -v flatpak >/dev/null; then
 fi
 
 if command -v cargo-install-update >/dev/null; then
-    _head 43 'cargo'
+    _head 33 'cargo'
     cargo install-update -a -g
 fi
