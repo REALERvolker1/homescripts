@@ -24,7 +24,7 @@ MAILCHECK=0
         . "$i"
     done
 
-    [ ! -d "$ZPLUGIN_DIR" ] && zsh-recompile.sh --install-plugins
+    [ ! -d "$ZPLUGIN_DIR" ] && recompile.zsh --install-plugins
 
     for i in \
         zcalc \
