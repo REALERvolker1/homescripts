@@ -142,7 +142,7 @@ alias ytmp3="yt-dlp --extract-audio --audio-format mp3 "
 alias ytmp4="yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --progress --remux-video mp4 "
 
 if [[ "${TERM:-}" == *'kitty'* ]]; then
-    alias icat='kitty +icat'
+    alias icat='kitten icat'
 elif command -v timg &>/dev/null; then
     alias icat=timg
 elif command -v chafa &>/dev/null; then
