@@ -122,5 +122,4 @@
     },
     "vscord.behaviour.suppressNotifications": true,
     "explorer.confirmDragAndDrop": false,
-    "workbench.iconTheme": "vscode-icons"
 }
