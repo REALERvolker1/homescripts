@@ -41,7 +41,8 @@ bindsym $mod + period $exec rofi-charamap-menu.sh
 bindsym XF86Calculator $exec gnome-calculator
 bindsym --release $mod + KP_Enter $exec gnome-calculator
 
-bindsym --release Print $exec vlk-sensible-screenshot 1
+bindsym --release Print $exec flameshot gui
+#bindsym --release Print $exec vlk-sensible-screenshot 1
 bindsym --release shift + Print $exec vlk-sensible-screenshot 2
 bindsym --release ctrl + shift + Print $exec vlk-sensible-screenshot 3
 bindsym --release $mod + Print $exec vlk-sensible-screenshot 1

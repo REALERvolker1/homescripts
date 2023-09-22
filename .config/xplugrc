@@ -7,27 +7,26 @@ STATUS="$3"
 shift 3
 DESC="$*"
 
-
 if [[ "$STATUS" == "connected" ]]; then
     echo "xplug detected $TYPE"
     case "$TYPE" in
-        display)
-            xlayoutdisplay --quiet
-            #nitrogen --restore
-            vlkbg.sh
+    display)
+        # xlayoutdisplay --quiet
+        # vlk-xrandr.sh
+        vlkbg.sh
         ;;
-        pointer)
-            #pointer.sh -n
+    pointer)
+        #pointer.sh -n
         ;;
     esac
 else
     case "$TYPE" in
-        display)
-            xrandr --output "$DEVICE" --off
+    display)
+        # xrandr --output "$DEVICE" --off
+        # vlk-xrandr.sh
         ;;
-        pointer)
-            pointer.sh -n
+    pointer)
+        pointer.sh -n
         ;;
     esac
 fi
-

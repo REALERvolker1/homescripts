@@ -4,8 +4,9 @@
 
 autostart-dbus-activation-env.sh &
 xrdb -merge "$XRESOURCES" &
-xlayoutdisplay --quiet &
-# nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -
+vlk-xrandr.sh --monitor &
+# xlayoutdisplay --quiet & # I got rid of this dependency hell yeah
+[ -f "$XDG_CONFIG_HOME/nvidia/settings" ] && nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -
 
 autostart-polkit.sh &
 autostart-keyring.sh &
