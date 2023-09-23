@@ -1,6 +1,6 @@
 [Context]
 devices=shm;dri
-filesystems=!xdg-config/fontconfig;!xdg-config/gtk-2.0;!xdg-config/Kvantum;!xdg-config/gtk-4.0;!~/random;!xdg-config/gtk-3.0;/mnt/lmao/vlk/steam
+filesystems=!xdg-config/gtk-3.0;!~/random;!xdg-config/gtk-4.0;!xdg-config/Kvantum;!xdg-config/gtk-2.0;!xdg-config/fontconfig;/mnt/lmao/vlk/steam
 
 [Environment]
 PROTON_HIDE_NVIDIA_GPU=0
