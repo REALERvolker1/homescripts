@@ -111,8 +111,12 @@ WRONG_BG_ACCENT="${WRONG_ACCENT}70"
 
 
 if [ -z "$WAYLAND_DISPLAY" ]; then
-    __i3lock_color
-    #__i3lock
+    # i3lock-color --help mentions reading the manpage, because it has tons more features
+    if i3lock --help 2>&1 | grep -q 'manpage'; then
+        __i3lock_color
+    else
+        __i3lock
+    fi
 else
     __swaylock
 fi
