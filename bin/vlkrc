@@ -230,12 +230,19 @@ dotfiles_git_interact() {
 }
 
 throwaway-docker() {
+    local stty="$(stty --save)"
+    local docker_dir="$XDG_CACHE_HOME/throwaway-docker"
+    mkdir -p "$docker_dir"
+
     local sucmd='sudo '
-    local container="fedora:latest"
     [[ "$(id "$USER")" == *'(docker)'* ]] && sucmd=''
+
+    local container="fedora:latest"
     ${sucmd}docker pull "$container"
-    echo -e "\n===[Entering container]===\n"
-    ${sucmd}docker run --rm -ti "$container" bash -c "dnf update -y; bash -i"
+    printf '%s\n' '' "===[Entering container]===" "Shared directory: $(tput bold)${docker_dir} -> /$USER$(tput sgr0)" ''
+
+    ${sucmd}docker run --privileged=true -v "$docker_dir":"/$USER" --rm -ti "$container" bash -i
+    stty "$stty" || stty sane
 }
 
 alias dotm='dotfiles_git_interact m'
