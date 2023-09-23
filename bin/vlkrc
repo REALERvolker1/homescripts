@@ -14,6 +14,7 @@ fi
 # bash feature test: [[ 1 ]] 2>/dev/null
 # zsh feature test: ( true "${(q)0}" ) 2>/dev/null
 
+# docker container ls --no-trunc --format json | grep -c '"ID":' || true
 # sudo virsh console fedora38-server #username: root, password: root
 # distrobox-create --name ARCH --image archlinux:latest
 [ -f "$HOME/.xsel.log" ] && rm "$HOME/.xsel.log" &>/dev/null
@@ -226,6 +227,15 @@ dotfiles_git_interact() {
     *) echo 'Error, please specify a git action to take on dotfiles' ;;
     esac
     cd "$current_dir" &>/dev/null || return 1
+}
+
+throwaway-docker() {
+    local sucmd='sudo '
+    local container="fedora:latest"
+    [[ "$(id "$USER")" == *'(docker)'* ]] && sucmd=''
+    ${sucmd}docker pull "$container"
+    echo -e "\n===[Entering container]===\n"
+    ${sucmd}docker run --rm -ti "$container" bash -c "dnf update -y; bash -i"
 }
 
 alias dotm='dotfiles_git_interact m'

@@ -92,7 +92,9 @@ _run() {
     # forcibly switch to the lower refresh rate if not plugged in
     [ "$(cat /sys/class/power_supply/ACAD/online)" -eq 0 ] && rate="$LORATE"
 
-    args="xrandr --output '$PRIMARY' --primary --mode '$RES' --rate '$rate' $args"
+    # temporary stopgap
+    args="xrandr --output '$PRIMARY' --primary --mode '$RES' --rate '$HIRATE' $args"
+    #args="xrandr --output '$PRIMARY' --primary --mode '$RES' --rate '$rate' $args"
 
     if ! $dry; then
         if ! sh -c "$args"; then
@@ -100,6 +102,9 @@ _run() {
         fi
         echo "sh -c \"$args\""
     fi
+    (
+        command -v vlkbg.sh &>/dev/null && vlkbg.sh &
+    )
 }
 
 if $monitor; then
