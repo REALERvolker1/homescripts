@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=Super Mario 64
+GenericName=Mario
+Comment=Super Mario 64 pc port
+TryExec=sm64
+Exec=sm64
+#Icon=emblem-new
+Icon=mario_star
+Terminal=false
+Type=Application
+Keywords=Mario;game;
+Categories=Game;
+StartupNotify=false
+X-Desktop-File-Install-Version=0.26

@@ -3,7 +3,8 @@
 
 { [ -n "${BASH_VERSION:-}" ] && [[ $- == *i* ]]; } || return 69
 
-shopt -s autocd checkwinsize histappend
+shopt -s autocd cdspell cmdhist checkwinsize histappend
+bind "set completion-ignore-case on"
 
 for i in \
     '/etc/bashrc' '/etc/bash.bashrc' \

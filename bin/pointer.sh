@@ -1,172 +1,128 @@
 #!/usr/bin/dash
-# script by vlk
-# vim:foldmethod=marker:ft=sh
-
+# rewrite of my touchpad script to be a bit nicer, work with Waybar better, and use Hyprland 0.30.0 device query
 set -eu
-get_status_icon() {
-    case "$(cat "$TOUCHPAD_STATUS")" in
-    1)
-        echo "󰟸"
-        ;;
-    0)
-        echo "󰤳"
-        ;;
-    *)
-        echo "󰟸 ?"
-        ;;
-    esac
-}
+IFS="$(printf "\n\t")"
+_error() { notify-send -a "${0##*/}" "Error" "$*" && exit 1; }
 
-touchpad_operation() {
-    local operation="${1:?Error, please select a state for the touchpad}"
-    local fs_state
-    case "$operation" in
-    'enable')
-        fs_state=1
-        ;;
-    'disable')
-        fs_state=0
-        ;;
-    esac
-    case "$PLATFORM" in
-    'x11')
-        if xinput "$operation" "$touchpad_name"; then
-            printf '%s' "$fs_state" >"$TOUCHPAD_STATUS"
-            printf "Touchpad %s\n" "$1"
-        fi
-        ;;
-    'hyprland')
-        if [ "$(hyprctl keyword device:"$touchpad_name":enabled "$fs_state")" = 'ok' ]; then
-            printf '%s' "$fs_state" >"$TOUCHPAD_STATUS" && printf "Touchpad %s\n" "$operation"
-        fi
-        hyprctl keyword device:"$touchpad_name":natural_scroll true >/dev/null
-        ;;
-    esac
-}
+arg="${1:-}"
 
-normalize_input() {
-    local inputs
-    case "$PLATFORM" in
-    'x11') inputs="$(xinput)" ;;
-    'hyprland') inputs="$(hyprctl devices)" ;;
-    esac
+icon_on='󰟸'
+icon_off='󰤳'
+icon_unk='󰟸 ?'
+true "${TOUCHPAD_STATUS:=$XDG_RUNTIME_DIR/touchpad-statusfile}"
 
-    if echo "$inputs" | grep -Ev "$egrep_mouse_blacklist" | grep -qE "$egrep_mouse_name"; then
-        echo 'mouse detected. Disabling trackpad'
-        touchpad_operation disable
-    else
-        echo 'no mouse detected. Enabling trackpad'
-        touchpad_operation enable
-    fi
-}
-
-[ -z "${TOUCHPAD_STATUS:-}" ] && TOUCHPAD_STATUS="$XDG_RUNTIME_DIR/touchpad-statusfile"
-if [ ! -f "$TOUCHPAD_STATUS" ]; then
-    touch "$TOUCHPAD_STATUS"
-fi
-
-if [ -z "${WAYLAND_DISPLAY:-}" ]; then
-    touchpad_name='ASUP1205:00 093A:2003 Touchpad'
-    wireless_name='Glorious Model O Wireless'
-    wired_name='Glorious Model O'
-    egrep_mouse_name='(Glorious Model O Wireless|Glorious Model O)  '
-    egrep_mouse_blacklist="(\
-${wired_name} Keyboard|\
-${wireless_name} Keyboard|\
-${wireless_name} System Control|\
-${wireless_name} Consumer Control\
-)"
-    PLATFORM='x11'
-elif [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+    platform='hyprland'
     touchpad_name='asup1205:00-093a:2003-touchpad'
     wireless_name='glorious-model-o-wireless'
     wired_name='glorious-model-o'
-    egrep_mouse_name='(glorious-model-o-wireless|glorious-model-o)'
-    egrep_mouse_blacklist="(\
-${wired_name}-keyboard|\
-${wired_name}-system-control|\
-${wired_name}-consumer-control|\
-${wireless_name}-keyboard|\
-${wireless_name}-consumer-control|\
-${wireless_name}-system-control\
-)"
-    PLATFORM='hyprland'
+elif [ -n "$DISPLAY" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
+    platform='x11'
+    touchpad_name='ASUP1205:00 093A:2003 Touchpad'
+    wireless_name='Glorious Model O Wireless'
+    wired_name='Glorious Model O'
+else
+    _error "unsupported platform!"
 fi
+egrep_mouse_name="(${wireless_name}|${wired_name})"
 
-sel="${1:-}"
+has_mouse() {
+    case "$platform" in
+    x11)
+        xinput | grep -qE "↳ ${egrep_mouse_name}[[:space:]]*id"
+        ;;
+    hyprland)
+        hyprctl devices -j | grep -qE "\"name\": \"${egrep_mouse_name}\""
+        ;;
+    esac
+}
 
-case "$sel" in
--i)
-    get_status_icon
+query_status() {
+    case "$platform" in
+    x11)
+        xinput list-props "$touchpad_name" | grep -oP '^[[:space:]]*Device Enabled \(.*:[[:space:]]*\K[0-9]*'
+        ;;
+
+    hyprland)
+        hyprctl getoption device:"$touchpad_name":enabled | grep -oP 'int: \K[0-9]*'
+        ;;
+    esac
+}
+
+status_print() {
+    case "$1" in
+    1) status="$icon_on" ;;
+    0) status="$icon_off" ;;
+    *) status="$icon_unk" ;;
+    esac
+    echo -n "$status" >"$TOUCHPAD_STATUS"
+}
+
+touchpad_operation() {
+    status="$1"
+    retval="$(
+        case "$platform" in
+        x11)
+            xinput set-prop "$touchpad_name" 'Device Enabled' "$status" >/dev/null || echo false
+            ;;
+        hyprland)
+            [ "$(hyprctl keyword device:"$touchpad_name":enabled "$status")" = 'ok' ] || echo false
+            ;;
+        esac
+    )"
+    if ${retval:-true}; then # Have to write it like this or shfmt will get mad at me
+        status_print "$status"
+    else
+        _error "Could not set touchpad status to '$status'"
+    fi
+
+}
+
+case "$arg" in
+-i | --icon)
+    cat "$TOUCHPAD_STATUS"
     ;;
--m)
+-m | --monitor)
     while true; do
-        get_status_icon
+        cat "$TOUCHPAD_STATUS"
         inotifywait -qe close_write "$TOUCHPAD_STATUS" >/dev/null
     done
     ;;
--te)
-    touchpad_operation enable
+-te | --enable)
+    touchpad_operation 1
     ;;
--td)
-    touchpad_operation disable
+-td | --disable)
+    touchpad_operation 0
     ;;
--t)
-    case "$(cat "$TOUCHPAD_STATUS")" in
-    1)
-        touchpad_operation disable
-        ;;
-    0)
-        touchpad_operation enable
-        ;;
-    *)
-        printf 'Error, touchpad is not normalized yet. Normalizing...\n'
-        normalize_input
-        ;;
+-t | --toggle)
+    touchpad_status="$(query_status)"
+    case "${touchpad_status:-}" in
+    1) touchpad_operation 0 ;;
+    0) touchpad_operation 1 ;;
+    *) _error "Touchpad status '${touchpad_status:-}' is not properly defined!" ;;
     esac
     ;;
--n)
-    normalize_input
+-n | --normalize)
+    if has_mouse; then
+        touchpad_operation 0
+    else
+        touchpad_operation 1
+    fi
     ;;
--p)
+-p | --print-location)
     echo "$TOUCHPAD_STATUS"
     ;;
 *)
-    printf '%s --option
-
--i\tget statusline icon
--m\tmonitor statusline icon
--te\tenable touchpad
--td\tdisable touchpad
--t\ttoggle touchpad
--n\tnormalize touchpad (disable on mouse)
--p\tprint path to statusfile
-' "${0##*/}"
+    echo "${0##*/} --arg"
+    printf '%s (%s) %s\n' \
+        '--icon' '-i' 'get statusline icon' \
+        '--monitor' '-m' 'monitor icon' \
+        '--enable' '-te' 'enable touchpad' \
+        '--disable' '-td' 'disable touchpad' \
+        '--toggle' '-t' 'toggle touchpad' \
+        '--normalize' '-n' 'normalize settings' \
+        '--xplug-workaround' '-x' 'save xinput to fix xplugd' \
+        '--print-location' '-p' 'print statusfile location'
     exit 1
     ;;
 esac
-
-# Query device {{{
-
-# xinput | while read line; do [[ $line == *"ASUP1205:00 093A:2003 Touchpad"* ]] && line="${${line##*id=}%%[0-9]* }" && echo "==$line=="; done
-
-# swaymsg input type:touchpad events <enabled|disabled|disabled_on_external_mouse|toggle>
-
-# xorg.conf settings {{{
-# /etc/X11/xorg.conf.d
-#   30-mouse.conf
-#       Section "InputClass"
-#           Identifier "Mouse Fix"
-#           MatchIsPointer "on"
-#           Option "AccelProfile" "flat"
-#           Option "AccelSpeed" "0"
-#       EndSection
-#
-#   31-touchpad.conf
-#       Section "InputClass"
-#           Identifier "Touchpad options"
-#           MatchIsTouchpad "on"
-#           Option "Tapping" "on"
-#           Option "NaturalScrolling" "on"
-#       EndSection
-# }}}

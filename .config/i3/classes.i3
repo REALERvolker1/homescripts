@@ -104,7 +104,7 @@ for_window [class="Ristretto"] floating enable resize set 900 700
 for_window [class="Apostrophe"] border none
 for_window [class="(?i)audacious"] floating enable
 
-#for_window [class="Minecraft.*"] floating enable border none
+for_window [class="Minecraft.*"] floating enable border none
 for_window [class="quadrapassel"] floating enable
 
 for_window [class="librewolf" title="^Picture-in-Picture$"] sticky enable border none
@@ -128,5 +128,9 @@ for_window [class="^Steam$" title="^Steam - Self Updater$"] floating enable
 for_window [class="^Steam$" title="^Screenshot Uploader$"] floating enable
 for_window [class="^Steam$" title="^Steam Guard - Computer Authorization Required$"] floating enable
 for_window [title="^Steam Keyboard$"] floating enable
+
+# new steam
+for_window [class="^steam$" title="^Friends List$"] floating enable
+for_window [class="^steam$" title="^Steam Settings$"] floating enable
 
 # }}}

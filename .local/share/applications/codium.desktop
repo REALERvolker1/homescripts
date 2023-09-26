@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=VSCodium (portable)
+Comment=Code Editing. Redefined.
+TryExec=codium
+Exec=codium
+Icon=codium
+Categories=TextEditor;Development;IDE;
+MimeType=text/plain;application/x-codium-workspace;
+Keywords=vscode;
+Type=Application
+StartupNotify=false

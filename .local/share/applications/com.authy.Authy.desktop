@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Authy Desktop
+TryExec=/var/lib/flatpak/exports/bin/com.authy.Authy
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=authy --file-forwarding com.authy.Authy @@u %U @@
+Terminal=false
+Type=Application
+Icon=com.authy.Authy
+StartupWMClass=Authy Desktop
+Comment=Twilio Authy two factor authentication desktop application
+Categories=Utility;
+X-Flatpak-Tags=proprietary;
+X-Flatpak=com.authy.Authy

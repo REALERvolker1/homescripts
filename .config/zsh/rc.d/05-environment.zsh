@@ -10,9 +10,10 @@ hash -d data="$XDG_DATA_HOME"
 hash -d cache="$XDG_CACHE_HOME"
 hash -d cfg="$XDG_CONFIG_HOME"
 hash -d run="$XDG_RUNTIME_DIR"
+[ -d "$HOME/random" ] && hash -d rnd="$HOME/random"
 
 hash -d i3="$XDG_CONFIG_HOME/i3"
-hash -d i3s="$XDG_CONFIG_HOME/i3status-rust"
+# hash -d i3s="$XDG_CONFIG_HOME/i3status-rust"
 hash -d hypr="$XDG_CONFIG_HOME/hypr"
 
 fpath=(

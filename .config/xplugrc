@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 echo "$1 $2 $3"
 TYPE="$1"
@@ -7,16 +7,26 @@ STATUS="$3"
 shift 3
 DESC="$*"
 
+xinputfile="$XDG_RUNTIME_DIR/xinput-old"
+_normalize_pointer() {
+    local my_xinput="$(xinput)"
+    [ ! -f "$xinputfile" ] && echo "$my_xinput" >"$xinputfile"
+    if ! diff -q "$xinputfile" <(echo "$my_xinput"); then
+        pointer.sh -n
+        echo "$my_xinput" >"$xinputfile"
+    fi
+}
+
 if [[ "$STATUS" == "connected" ]]; then
     echo "xplug detected $TYPE"
     case "$TYPE" in
     display)
         # xlayoutdisplay --quiet
         # vlk-xrandr.sh
-        vlkbg.sh
+        # vlkbg.sh
         ;;
     pointer)
-        #pointer.sh -n
+        _normalize_pointer
         ;;
     esac
 else
@@ -26,7 +36,7 @@ else
         # vlk-xrandr.sh
         ;;
     pointer)
-        pointer.sh -n
+        _normalize_pointer
         ;;
     esac
 fi

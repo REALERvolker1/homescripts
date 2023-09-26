@@ -105,7 +105,7 @@
         "exec": "$XDG_CONFIG_HOME/bar-scripts/supergfx-status.sh"
     },
     "custom/battery": {
-        "exec": "$HOME/code/rust/upower-cli/target/release/upower-cli --waybar",
+        "exec": "$XDG_CONFIG_HOME/bar-scripts/upower-cli/target/release/upower-cli --waybar",
         "return-type": "json"
     },
     "keyboard-state": {

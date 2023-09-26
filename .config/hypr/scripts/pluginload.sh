@@ -3,7 +3,7 @@
 hyprlib='/usr/lib64/hyprland'
 
 plugins=(
-    "$HOME/.local/src/hyprfocus/hyprfocus.so"
+    "$HOME/src/hyprfocus/hyprfocus.so"
     #"$hyprlib/libborders-plus-plus.so"
     "$hyprlib/libcsgo-vulkan-fix.so"
     #"$HOME/.local/src/hy3/build/libhy3.so"

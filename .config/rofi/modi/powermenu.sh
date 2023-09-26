@@ -1,13 +1,26 @@
 #!/usr/bin/env bash
 # script by vlk
 
+_kill_flatpaks () {
+    command -v flatpak &>/dev/null || return
+    flatpak ps 2>/dev/null | cut -f 3 | while read -r line; do
+        flatpak kill "$line" &>/dev/null
+    done
+}
+
 case "$@" in
 "Shut Down")
-    coproc (systemctl poweroff &>/dev/null)
+    coproc (
+        _kill_flatpaks
+        systemctl poweroff &>/dev/null
+    )
     exit 0
     ;;
 "Restart")
-    coproc (systemctl reboot &>/dev/null)
+    coproc (
+        _kill_flatpaks
+        systemctl reboot &>/dev/null
+    )
     exit 0
     ;;
 "Log Out")
@@ -19,7 +32,10 @@ case "$@" in
     exit 0
     ;;
 "UEFI Reboot")
-    coproc (systemctl reboot --firmware-setup &>/dev/null)
+    coproc (
+        _kill_flatpaks
+        systemctl reboot --firmware-setup &>/dev/null
+    )
     exit 0
     ;;
 esac

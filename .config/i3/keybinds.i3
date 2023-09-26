@@ -6,8 +6,7 @@ floating_modifier $mod
 
 # vlkenv {{{
 
-bindsym $mod + d $exec rofi -show drun
-#bindsym $mod + d $exec rofi -modi 'drun,run' -show drun -sidebar-mode
+bindsym $mod + d $exec "rofi -modi 'drun,run' -show drun -sidebar-mode"
 bindsym $mods + d $exec rofi -show run
 bindsym $modc + d $exec wofi -S drun
 

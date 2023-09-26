@@ -7,8 +7,7 @@ fi
 
 export TOUCHPAD_STATUS="$XDG_RUNTIME_DIR/touchpad-statusfile"
 if [ ! -f "$TOUCHPAD_STATUS" ]; then
-    pointer.sh -n #&
-    # disown
+    pointer.sh -n
 fi
 
 exec "$(dirname "$0")/target/release/pointer-monitor"

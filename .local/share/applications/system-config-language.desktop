@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Language
+Comment=Change the default system language
+Icon=preferences-desktop-locale
+Exec=/usr/bin/system-config-language
+Type=Application
+StartupNotify=true
+Terminal=false
+X-Desktop-File-Install-Version=0.26
+Categories=System;Settings;X-Red-Hat-Base;
+NoDisplay=true

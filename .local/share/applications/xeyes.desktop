@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=xeyes
+Comment=Xwayland apps exposed ?!?!?!?
+GenericName=Xeyes
+TryExec=xeyes
+Exec=xeyes
+Icon=video-display
+Terminal=false
+Type=Application
+Keywords=wayland;x11;display;racism;
+Categories=Utility;
+StartupNotify=false
