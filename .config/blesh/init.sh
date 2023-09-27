@@ -157,29 +157,9 @@ bleopt prompt_ps1_transient=trim
 ## "prompt_rps1_final" if it has a non-empty value, or otherwise, the right
 ## prompt vanishes if "prompt_rps1_transient" is set to a non-empty value,
 
-# case "$ICON_TYPE" in
-#     dashline)
-#         __VLK_BLE_RPS1_ICON=''
-#         ;;
-#     powerline)
-#         __VLK_BLE_RPS1_ICON=''
-#         ;;
-#     *)
-#         __VLK_BLE_RPS1_ICON='['
-#         ;;
-# esac
-
-# if (($(tput colors) < 256)); then
-#     __VLK_BLE_RPS1_COLOR=2
-# else
-#     __VLK_BLE_RPS1_COLOR='8;5;120'
-# fi
-
-# bleopt prompt_rps1="\[\e[0m\e[3${__VLK_BLE_RPS1_COLOR}m\]${__VLK_BLE_RPS1_ICON}\[\e[0m\e[4${__VLK_BLE_RPS1_COLOR}m\e[1;30m\] \# \[\e[0m\]"
+[ -n "${VLKPROMPT_RPS1:-}" ] && bleopt prompt_rps1="$(echo -en "$VLKPROMPT_RPS1")"
 #bleopt prompt_rps1_final=
 #bleopt prompt_rps1_transient=''
-
-# unset __VLK_BLE_RPS1_COLOR __VLK_BLE_RPS1_ICON
 
 ## The following settings specify the content of terminal titles and status
 ## lines.  "prompt_xterm_title" specifies the terminal title which can be set

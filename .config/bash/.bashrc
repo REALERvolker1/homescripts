@@ -9,13 +9,25 @@ bind "set completion-ignore-case on"
 for i in \
     '/etc/bashrc' '/etc/bash.bashrc' \
     "$HOME/bin/vlkenv" \
-    '/usr/share/blesh/ble.sh' "$XDG_DATA_HOME/gitmgmt/ble.sh/out/ble.sh" \
     "$HOME/bin/vlkpromptrc" \
     "$HOME/bin/vlkrc"; do
-    [[ "$i" == *'ble.sh' ]] && ba='--noattach' || ba=''
     [ -f "$i" ] && . "$i" "$ba"
 done
 unset i ba
+
+#. "$XDG_DATA_HOME/gitmgmt/ble.sh/out/ble.sh" --noattach
+export BPLUGIN_DIR="$XDG_DATA_HOME/bash-plugins"
+[ ! -f "$BPLUGIN_DIR/blesh/out/ble.sh" ] && command -v git &>/dev/null && {
+    echo -e "\e[1mCloning ble.sh\e[0m"
+    __ble_cwd="$PWD"
+    mkdir -p "$BPLUGIN_DIR/blesh" || return
+    git clone 'https://github.com/akinomyoga/ble.sh.git' "$BPLUGIN_DIR/blesh"
+    cd "$BPLUGIN_DIR/blesh" || return
+    make
+    cd "$__ble_cwd"
+    unset __ble_cwd
+} || :
+[ -f "$BPLUGIN_DIR/blesh/out/ble.sh" ] && . "$BPLUGIN_DIR/blesh/out/ble.sh" --noattach
 
 HISTFILE="$XDG_STATE_HOME/bash_history"
 HISTCONTROL='erasedups:ignoreboth'

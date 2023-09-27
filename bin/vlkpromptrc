@@ -103,14 +103,7 @@ ${icons[err]} ERROR \e[0m\e[3${set[ansi]}${colorsfg[sud]}m\e[4${set[ansi]}${colo
 not found \e[0m\e[3${set[ansi]}${colorsfg[err]}m${content[end]}\e[0m"
 
 [ -n "${BASH_VERSION:-}" ] && {
-
-    # if declare -f command_not_found_handle &>/dev/null; then
-    #     unset -f command_not_found_handle
-    # fi
-    # command_not_found_handle () {
-    #     echo "${COMMAND_NOT_FOUND_STR//+/$1}"
-    #     return 127
-    # }
+    # WARNING: does not work properly without ble.sh
 
     set[sgr]='\[\x1b[0m\]'
 
@@ -137,9 +130,7 @@ not found \e[0m\e[3${set[ansi]}${colorsfg[err]}m${content[end]}\e[0m"
     content[newline]="${set[sgr]}
 "
 
-    if [[ ${BLE_VERSION:-} ]]; then
-        bleopt prompt_rps1="$(echo -en "${set[sgr]}${colorsfg[vim]}${content[end_r]}${set[sgr]}${colorsbg[vim]}${colorstx[d]} \# ${set[sgr]}")"
-    fi
+    VLKPROMPT_RPS1="${set[sgr]}${colorsfg[vim]}${content[end_r]}${set[sgr]}${colorsbg[vim]}${colorstx[d]} \# ${set[sgr]}"
 
     unset next_color
     __vlk_precmd () {

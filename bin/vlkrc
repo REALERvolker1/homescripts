@@ -22,7 +22,7 @@ fi
 __homebin="$HOME/bin"
 
 # hardcoded path
-__lscmd="$(/bin/which --skip-alias ls)"
+__lscmd="$(which --skip-alias ls)"
 __lsargs='--color=auto --group-directories-first'
 
 if command -v lsd &>/dev/null; then
@@ -34,7 +34,7 @@ else
     alias ls="$__lscmd $__lsargs -A"
     alias ll="$__lscmd $__lsargs -Al"
 
-    if /bin/which --skip-alias tree &>/dev/null; then
+    if which --skip-alias tree &>/dev/null; then
         true
     else
         alias tree="$__lscmd $__lsargs -AR"
@@ -105,7 +105,7 @@ alias shutdown='systemctl poweroff'
 alias reboot='systemctl reboot'
 alias logout="loginctl kill-session '$XDG_SESSION_ID'"
 
-__rmcmd="$(/bin/which --skip-alias rm)"
+__rmcmd="$(which --skip-alias rm)"
 
 alias fuck="$__rmcmd -rf"
 alias frick='trash -fvi'
@@ -322,6 +322,7 @@ elif [ -n "${BASH_VERSION:-}" ]; then
     alias refresh='exec bash'
     #alias ARCH='distrobox-enter -n ARCH -- /usr/bin/bash'
     alias fenv='printenv | fzf'
+    #[[ "${BASH_VERSION//5.2/aaaaaaaa}" != 'aaaaaaaa'* ]] && echo nowhich
 fi
 
 case "${CURRENT_DISTRO:-}" in

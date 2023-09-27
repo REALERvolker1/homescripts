@@ -18,6 +18,7 @@ MAILCHECK=0
 
 # zshrc loading
 () {
+    alias which='alias | /usr/bin/which --tty-only --read-alias --show-tilde --show-dot'
     export ZPLUGIN_DIR="$XDG_DATA_HOME/zsh-plugins"
     local i
     for i in "$ZDOTDIR/rc.d/"*'.zsh'; do
@@ -27,6 +28,7 @@ MAILCHECK=0
     [ ! -d "$ZPLUGIN_DIR" ] && recompile.zsh --install-plugins
 
     for i in \
+        compinit \
         zcalc \
         zmv \
         "$ZDOTDIR/functions"/^*.zwc(.)
@@ -34,6 +36,7 @@ MAILCHECK=0
         autoload -Uz "$i"
     done
 } # "$XDG_CONFIG_HOME/shell/functions/"^*.zwc(.)
+
 . "$ZDOTDIR/globals/vlkpromptrc"
 # cat /proc/$$/cmdline | cut -d $'\0' -f 1
 . "$ZDOTDIR/globals/vlkrc"
