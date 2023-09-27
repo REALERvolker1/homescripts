@@ -1,0 +1,32 @@
+#!/usr/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
+
+for i in /usr/lib/os-release /etc/os-release; do
+    [ -f "$i" ] && . "$i" && break
+done
+
+echo "$NAME"
+
+# # detect bootloader
+# for i in grub2-install grub-install lilo; do
+#     if command -v "$i" &>/dev/null; then
+#         bootloader="$("$i" --version 2>&1)"
+#         break
+#     fi
+# done
+# [ -z "$bootloader" ] && bootloader="Unknown"
+# echo "$bootloader"
+
+# grub boot
+if [ -f /etc/default/grub ]; then
+    grub_cmdline="$(grep -oP '^GRUB_CMDLINE_LINUX="\K[^"]*' /etc/default/grub)"
+fi
+if command -v vulkaninfo &>/dev/null; then
+    vkinfo="$(vulkaninfo)"
+    gpus="$(echo "$vkinfo" | grep -oP '^GPU id : [0-9]* \(\K.*(?=\):)')"
+    if command -v nvidia-smi &>/dev/null; then
+        smi="$(nvidia-smi)"
+        procs="$(lsof /dev/nvidia0 | tail -n +2)"
+    fi
+fi

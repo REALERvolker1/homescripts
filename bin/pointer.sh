@@ -9,7 +9,9 @@ arg="${1:-}"
 icon_on='󰟸'
 icon_off='󰤳'
 icon_unk='󰟸 ?'
+UDEV_FILE="$XDG_RUNTIME_DIR/touchpad-udev-statusfile"
 true "${TOUCHPAD_STATUS:=$XDG_RUNTIME_DIR/touchpad-statusfile}"
+touch -- "$UDEV_FILE" "$TOUCHPAD_STATUS"
 
 if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
     platform='hyprland'
@@ -55,7 +57,7 @@ status_print() {
     0) status="$icon_off" ;;
     *) status="$icon_unk" ;;
     esac
-    echo -n "$status" >"$TOUCHPAD_STATUS"
+    echo "$status" >"$TOUCHPAD_STATUS"
 }
 
 touchpad_operation() {
@@ -78,14 +80,22 @@ touchpad_operation() {
 
 }
 
+normalize_operation() {
+    if has_mouse; then
+        touchpad_operation 0
+    else
+        touchpad_operation 1
+    fi
+}
+
 case "$arg" in
 -i | --icon)
     cat "$TOUCHPAD_STATUS"
     ;;
 -m | --monitor)
-    while true; do
+    cat "$TOUCHPAD_STATUS"
+    inotifywait -qme close_write "$TOUCHPAD_STATUS" | while read -r line; do
         cat "$TOUCHPAD_STATUS"
-        inotifywait -qe close_write "$TOUCHPAD_STATUS" >/dev/null
     done
     ;;
 -te | --enable)
@@ -103,11 +113,19 @@ case "$arg" in
     esac
     ;;
 -n | --normalize)
-    if has_mouse; then
-        touchpad_operation 0
-    else
-        touchpad_operation 1
-    fi
+    normalize_operation
+    ;;
+-um | --udev-monitor)
+    normalize_operation
+    udevadm monitor --udev --subsystem-match=usb | grep -Eo --line-buffered '(add|remove)' | while read -r line; do
+        [ "$(cat "$UDEV_FILE")" = "$line" ] && continue
+        (
+            sleep 1
+            normalize_operation
+        ) &
+        echo "$line" >"$UDEV_FILE"
+        echo "$line"
+    done
     ;;
 -p | --print-location)
     echo "$TOUCHPAD_STATUS"
@@ -121,7 +139,7 @@ case "$arg" in
         '--disable' '-td' 'disable touchpad' \
         '--toggle' '-t' 'toggle touchpad' \
         '--normalize' '-n' 'normalize settings' \
-        '--xplug-workaround' '-x' 'save xinput to fix xplugd' \
+        '--udev-monitor' '-um' 'monitor device remove/add, then normalize' \
         '--print-location' '-p' 'print statusfile location'
     exit 1
     ;;

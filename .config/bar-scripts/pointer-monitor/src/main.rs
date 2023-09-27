@@ -35,7 +35,7 @@ fn main() -> Result<(), io::Error> {
     inotify.watches().add(&filepath, WatchMask::MODIFY)?;
     let mut buffer = [0; 1024];
     loop {
-        println!("{}", fs::read_to_string(&filepath).unwrap_or("󰟸 ??".to_string()));
+        println!("{}", fs::read_to_string(&filepath).unwrap_or("󰟸 ??".to_string()).trim());
         inotify.read_events_blocking(&mut buffer)?;
     }
 }

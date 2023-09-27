@@ -1,5 +1,5 @@
 #!/usr/bin/dash
-# xrandr script so I don't ever have to use xlayoutdisplay again
+# xrandr script to automatically set my xrandr settings
 set -eu
 IFS='
 '
@@ -20,25 +20,24 @@ RELATIVE_POS='--left-of'
 # Less fortunate people can just set it to '' I think
 NORATEREDUCE=':HDMI-1-0:DP-1-0:'
 
-# state monitoring for monitor mode
-STATEPATH="${XDG_RUNTIME_DIR:-/tmp}/vlk-xrandr-state"
+# path to print last monitor state
+STATEPATH="${STATEPATH:-$XDG_RUNTIME_DIR/vlk-xrandr-state}"
 
 dry=false
-monitor=false
 case "${1:-}" in
 '--dry-run')
     echo "dry run -- command will not run"
     dry=true
     ;;
-'--monitor')
-    if command -v xev >/dev/null; then
-        echo "[${0##*/}] monitoring for 'XRROutputChangeNotifyEvent'"
-        monitor=true
-    else
-        echo "Error, dependency 'xev' not found!"
-        exit 1
-    fi
-    ;;
+    # '--monitor')
+    #     if command -v xev >/dev/null; then
+    #         echo "[${0##*/}] monitoring for 'XRROutputChangeNotifyEvent'"
+    #         monitor=true
+    #     else
+    #         echo "Error, dependency 'xev' not found!"
+    #         exit 1
+    #     fi
+    #     ;;
 '')
     true
     ;;
@@ -52,70 +51,53 @@ case "${1:-}" in
     ;;
 esac
 
-_run() {
-    rate="$HIRATE"
-    has_primary=false
-    # args="xrandr --output '$PRIMARY' --primary --auto"
-    args=''
-    previous="$PRIMARY"
+rate="$HIRATE"
+has_primary=false
+# args="xrandr --output '$PRIMARY' --primary --auto"
+args=''
+previous="$PRIMARY"
 
-    for i in $(xrandr | grep -oP '^.*(?= connected)'); do
-        i_msg="detected monitor $i"
-        case "$i" in
-        "$PRIMARY")
-            i_msg="$i_msg -- \$PRIMARY"
-            # make sure we actually have the primary monitor here
-            has_primary=true
+for i in $(xrandr | grep -oP '^.*(?= connected)'); do
+    i_msg="detected monitor $i"
+    case "$i" in
+    "$PRIMARY")
+        i_msg="$i_msg -- \$PRIMARY"
+        # make sure we actually have the primary monitor here
+        has_primary=true
+        ;;
+    *)
+        case :"$NORATEREDUCE": in
+        *:"$i":*)
+            i_msg="$i_msg -- dGPU-connected"
             ;;
         *)
-            case :"$i": in
-            *"$NORATEREDUCE"*)
-                i_msg="$i_msg -- dGPU-connected"
-                ;;
-            *)
-                i_msg="$i_msg -- iGPU-connected"
-                rate="$LORATE"
-                ;;
-            esac
-            args="$args --output '$i' --auto $RELATIVE_POS '$previous'"
-            previous="$i"
+            i_msg="$i_msg -- iGPU-connected"
+            rate="$LORATE"
             ;;
         esac
-        echo "$i_msg"
-    done
+        args="$args --output '$i' --auto $RELATIVE_POS '$previous'"
+        previous="$i"
+        ;;
+    esac
+    echo "$i_msg"
+done
 
-    if ! $has_primary; then
-        echo "Error, \$PRIMARY monitor '$PRIMARY' not detected!"
-        exit 1
-    fi
+if ! $has_primary; then
+    echo "Error, \$PRIMARY monitor '$PRIMARY' not detected!"
+    exit 1
+fi
 
-    # forcibly switch to the lower refresh rate if not plugged in
-    [ "$(cat /sys/class/power_supply/ACAD/online)" -eq 0 ] && rate="$LORATE"
+# forcibly switch to the lower refresh rate if not plugged in
+[ "$(cat /sys/class/power_supply/ACAD/online)" -eq 0 ] && rate="$LORATE"
 
-    # temporary stopgap
-    args="xrandr --output '$PRIMARY' --primary --mode '$RES' --rate '$HIRATE' $args"
-    #args="xrandr --output '$PRIMARY' --primary --mode '$RES' --rate '$rate' $args"
+# temporary stopgap
+args="xrandr --output '$PRIMARY' --primary --auto $args"
+# args="xrandr --output '$PRIMARY' --primary --mode '$RES' --rate '$rate' $args"
 
-    if ! $dry; then
-        if ! sh -c "$args"; then
-            echo "Error, failed to run command"
-        fi
-        echo "sh -c \"$args\""
-    fi
-    (
-        command -v vlkbg.sh &>/dev/null && vlkbg.sh &
-    )
-}
+$dry || sh -c "$args"
 
-if $monitor; then
-    touch -- "$STATEPATH" && echo monitoring -- using "$STATEPATH"
-    _run
-    xev -root -event randr | grep --line-buffered 'XRROutputChangeNotifyEvent' | while read -r line; do
-        if [ "$args" != "$(cat "$STATEPATH")" ]; then
-            _run
-            echo "$args" >"$STATEPATH"
-        fi
-    done
-else
-    _run
+echo "sh -c \"$args\""
+
+if ! $dry && command -v vlkbg.sh >/dev/null 2>&1; then
+    vlkbg.sh &
 fi

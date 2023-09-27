@@ -21,7 +21,6 @@
     "files.eol": "\n",
     "files.trimTrailingWhitespace": true,
     "workbench.enableExperiments": false,
-    "workbench.startupEditor": "readme",
     "workbench.welcomePage.extraAnnouncements": false,
     "workbench.colorTheme": "One Dark Pro Darker",
     "workbench.preferredDarkColorTheme": "One Dark Pro Darker",
@@ -122,4 +121,5 @@
     },
     "vscord.behaviour.suppressNotifications": true,
     "explorer.confirmDragAndDrop": false,
+    "workbench.startupEditor": "none"
 }

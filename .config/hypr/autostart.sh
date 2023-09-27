@@ -13,7 +13,7 @@ autostart-polkit.sh &
 ydotoold &
 asusctl -c 80 &
 
-"$XDG_CONFIG_HOME/hypr/scripts/pluginload.sh" &
+# "$XDG_CONFIG_HOME/hypr/scripts/pluginload.sh" &
 vlkbg.sh &
 autostart-gammastep.sh &
 dunst &
@@ -24,7 +24,8 @@ nm-applet &
 
 set-cursor-theme.sh --session &
 steam-symlink-unfucker.sh &
-pointer.sh -n &
+# pointer.sh -n &
+pointer.sh -um &
 pmgmt.sh &
 scratchpad_terminal.sh &
 
