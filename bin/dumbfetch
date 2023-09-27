@@ -5,15 +5,21 @@ prop0="${SHLVL:-999}"
 prop1="$(uptime -p | sed 's/^up // ; s/hour/hr/g ; s/minute/min/g')"
 prop2="${TERM:-Undefined}"
 prop3="$(printf '%s\t' $(df -h -l -t btrfs --output=pcent) | cut -f 2)"
-prop4="$(
-    if command -v 'rpm' >/dev/null; then
-        rpm -q xorg-x11-drv-nvidia | cut -d '-' -f 5
-    elif command -v 'pacman' >/dev/null; then
-        pacman -Q nvidia-dkms 2>/dev/null | grep -oP '^.* \K[^-]*'
-    else
-        echo 'unsupported distro'
-    fi
-)"
+if [ -n "${CONTAINER_ID:-}" ]; then
+    prop4="${CONTAINER_ID:-}"
+    prop4_label='󰏖 Distbx'
+else
+    prop4="$(
+        if command -v 'rpm' >/dev/null; then
+            rpm -q xorg-x11-drv-nvidia | cut -d '-' -f 5
+        elif command -v 'pacman' >/dev/null; then
+            pacman -Q nvidia-dkms 2>/dev/null | grep -oP '^.* \K[^-]*'
+        else
+            echo 'unsupported distro'
+        fi
+    )"
+    prop4_label='󰾲 Nvidia'
+fi
 prop5="$(uname -r | grep -o '^[^-]*-[^.]*')"
 
 len=0
@@ -28,7 +34,7 @@ printf "${box_color}│[0m[92m%s${box_color}│[0m%s   [1m%-${len}s [0m${bo
     '  _______| |__   ' '[95m 󰅐 Uptime' "$prop1" \
     ' |_  / __| `_ \  ' '[96m  Term  ' "$prop2" \
     '  / /\__ \ | | | ' '[93m 󰋊 Disk  ' "$prop3" \
-    ' /___|___/_| |_| ' '[92m 󰾲 Nvidia' "$prop4" \
+    ' /___|___/_| |_| ' "[92m $prop4_label" "$prop4" \
     '                 ' '[91m  Kernel' "$prop5"
 printf '%s\n' "${box_color}╰─────────────────┴─────────────${length_string}╯[0m"
 # ┴

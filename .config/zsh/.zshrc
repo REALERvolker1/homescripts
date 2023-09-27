@@ -18,7 +18,6 @@ MAILCHECK=0
 
 # zshrc loading
 () {
-    alias which='alias | /usr/bin/which --tty-only --read-alias --show-tilde --show-dot'
     export ZPLUGIN_DIR="$XDG_DATA_HOME/zsh-plugins"
     local i
     for i in "$ZDOTDIR/rc.d/"*'.zsh'; do

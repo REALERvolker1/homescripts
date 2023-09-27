@@ -9,12 +9,14 @@ if ! [[ 1 ]] 2>/dev/null || [[ "$-" != *i* ]] 2>/dev/null; then
     exit 1
 fi
 
+#[ -n "${CONTAINER_ID:-}" ] && [ -n "${ZSH_VERSION:-}" ] && alias which='alias | /usr/bin/which --tty-only --read-alias --show-tilde --show-dot'
+alias which='( alias; declare -f ) | /bin/which --tty-only --read-alias --read-functions --show-tilde --show-dot'
+
 # the following are just some random notes :3
 
 # bash feature test: [[ 1 ]] 2>/dev/null
 # zsh feature test: ( true "${(q)0}" ) 2>/dev/null
 
-# docker container ls --no-trunc --format json | grep -c '"ID":' || true
 # sudo virsh console fedora38-server #username: root, password: root
 # distrobox-create --name ARCH --image archlinux:latest
 [ -f "$HOME/.xsel.log" ] && rm "$HOME/.xsel.log" &>/dev/null
