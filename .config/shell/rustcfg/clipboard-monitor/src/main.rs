@@ -1,7 +1,5 @@
-use std::{
-    error,
-};
 use arboard::{self, SetExtLinux};
+use std::error;
 
 fn main() -> Result<(), Box<dyn error::Error>> {
     // let cachefile = format!("{}/clip-monitor", env::var("XDG_RUNTIME_DIR").unwrap_or("/tmp".to_string()));
@@ -19,13 +17,11 @@ fn clipboard_x() -> Result<(), Box<dyn error::Error>> {
             let text = text_res.unwrap();
             println!("text\n{}", text);
             set.wait().text(text)?;
-        }
-        else if img_res.is_ok() {
+        } else if img_res.is_ok() {
             let img = img_res.unwrap();
             println!("img");
             set.wait().image(img)?;
-        }
-        else {
+        } else {
             println!("clipboard empty");
             set.wait().text("")?;
         }

@@ -3,7 +3,7 @@
 
 icons_format = "<span font_family='FiraCode Nerd Font'>{icon}</span>"
 error_format = " $short_error_message |X"
-error_fullscreen_format = "<span>$full_error_message</span>" # does not work
+error_fullscreen_format = "<span>$full_error_message</span>"          # does not work
 
 [theme]
 theme = "/home/vlk/.config/i3status-rust/theme.toml"
@@ -29,8 +29,8 @@ block = "dnf"
 interval = 600
 format = "  $icon  ($count)  "
 format_up_to_date = ""
-warning_updates_regex = "(asus|i3|wayland|lightdm|selinux|vulkan)"
-critical_updates_regex = "(systemd|kernel|nvidia|plymouth|iwl|grub|mesa)"
+warning_updates_regex = "(asus|i3|wayland|vulkan|mesa)"
+critical_updates_regex = "(systemd|kernel|nvidia|selinux|grub)"
 [[block.click]]
 button = "right"
 cmd = "dnf list -q --upgrades | tail -n +2 | rofi -dmenu"
@@ -101,7 +101,7 @@ format = "  $icon $percentage{ $power.eng(u:W)|}  "
 not_charging_format = "  $icon $percentage  "
 full_format = "  $icon $percentage{ $power.eng(u:W)|}  "
 
-full_threshold  = 100
+full_threshold = 100
 empty_format = "  $icon $percentage{ $power.eng(u:W)|}  $time  "
 empty_threshold = 5
 info = 100
@@ -127,7 +127,6 @@ critical_mem = 90
 block = "custom"
 format = "  $text  "
 interval = 300
-#command = "curl -s 'v2n.wttr.in?format=%c%t' | sed 's/ //g ; s/+/ / ; s/F//;s/ /  /g ; s/Unknown.*/ ?/'"
 command = "$XDG_CONFIG_HOME/bar-scripts/weather.sh"
 hide_when_empty = true
 
@@ -147,7 +146,7 @@ action = "toggle_mute"
 [[block.click]]
 button = "right"
 action = "none"
-cmd = "pavucontrol-qt"
+cmd = "pavucontrol"
 
 # }}}
 # Mouse {{{
