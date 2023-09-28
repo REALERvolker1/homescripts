@@ -337,7 +337,7 @@ __vlk_precmd_writable () {
     fi
 }
 __vlk_precmd_git () {
-    if git status &>/dev/null ; then # git color
+    if git status &>/dev/null; then # git color
         psvar[${index[git]}]=1
     else
         psvar[${index[git]}]=''

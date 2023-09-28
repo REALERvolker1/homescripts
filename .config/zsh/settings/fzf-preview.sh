@@ -1,4 +1,4 @@
-#!/bin/dash
+#!/usr/bin/dash
 # requires: python3-csvkit, lsd, figlet, chafa, perl-Image-ExifTool, odt2txt, pdf2svg from dnf, xsv from cargo
 
 set -eu
