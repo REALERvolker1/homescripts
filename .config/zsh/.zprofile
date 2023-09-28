@@ -1,1 +1,1 @@
-[ -f ~/.profile ] && . ~/.profile "$@"
+/home/vlk/random/homescripts/.profile
