@@ -55,12 +55,14 @@ fi
 lsdiff
 
 () {
-    if [ -f "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh" ]; then
-        . "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
-        #autoload -Uz "$ZPLUGIN_DIR/zsh-defer/zsh-defer"
-    else
-        zsh-defer () {$@}
-    fi
+    # if [ -f "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh" ]; then
+    #     . "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
+    #     #autoload -Uz "$ZPLUGIN_DIR/zsh-defer/zsh-defer"
+    # else
+    #     zsh-defer () {$@}
+    # fi
+    # command -v atuin &>/dev/null && . <(atuin init zsh)
+    . "$ZDOTDIR/globals/zsh-defer.plugin.zsh"
     local i
     for i in \
         "$ZPLUGIN_DIR/atuin.zsh" \
@@ -71,6 +73,7 @@ lsdiff
         [ -f "$i" ] || continue
         zsh-defer . "$i"
     done
+    # "$ZPLUGIN_DIR/atuin.zsh" \
 } "$@"
 
 if [[ "${FAST_THEME_NAME:-}" != 'vlk-fsyh' ]] && typeset -f 'fast-theme' &>/dev/null && [ -f "$ZDOTDIR/settings/vlk-fsyh.ini" ]; then
