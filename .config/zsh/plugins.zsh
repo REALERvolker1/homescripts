@@ -58,7 +58,23 @@ plugin_init() {
     done
     printf '%s\n' "${installed_plugins[@]}"
 }
-{
+
+export ZPLUGIN_DIR="$HOME/zsh-plugins"
+for i in 'Aloxaf/fzf-tab' 'zdharma-continuum/fast-syntax-highlighting' 'zsh-users/zsh-autosuggestions'; do
+    filepath="$ZPLUGIN_DIR/${i#*/}/${i#*/}.plugin.zsh"
+    if [ -f "$filepath" ]; then
+        echo "$filepath"
+    else
+        giturl="https://github.com/${i}"
+        if [ ! -d "$ZPLUGIN_DIR" ]; then
+            if [ -e "$ZPLUGIN_DIR" ]; then
+                echo "Error loading plugins -- \"$ZPLUGIN_DIR\" already exists!"
+        git clone "$giturl"
+        echo "$giturl"
+    fi
+done
+
+lol() {
     if [ -f "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh" ]; then
         . "$ZPLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
     else

@@ -47,25 +47,6 @@ __zle_vlk_sudo_prefix() {
 
 zle -N __zle_vlk_sudo_prefix
 bindkey -M main "${keymap[AshiftS]}" __zle_vlk_sudo_prefix
-
-# __zle_vlk_unalias_command() {
-#     [[ $BUFFER == [[:space:]]# ]] && zle .up-history
-#     local cmd="${LBUFFER%% *}"
-#     local cmd_bin="$(which --skip-alias "$cmd" 2>/dev/null)"
-#     local args
-#     if [[ "$LBUFFER" != "$cmd "* ]]; then
-#         args=''
-#     else
-#         args="${LBUFFER#* }"
-#     fi
-#     if [ -x "$cmd_bin" ]; then
-#         LBUFFER="$cmd_bin $args"
-#         zle self-insert
-#         zle backward-delete-char # needed to delete ^[s character
-#     fi
-# }
-# zle -N __zle_vlk_unalias_command
-# bindkey -M main "${keymap[As]}" __zle_vlk_unalias_command
 bindkey -M main "${keymap[As]}" expand-cmd-path
 
 __zle_vlk_replace_multiple_dots() {

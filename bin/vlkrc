@@ -70,9 +70,6 @@ rp() {
     fi
 }
 
-if command -v doas &>/dev/null; then
-    alias sudo='doas --'
-fi
 alias suod=sudo
 
 alias q=exit
@@ -161,9 +158,9 @@ fi
 if command -v dust &>/dev/null; then
     alias du=dust
 fi
-# if command -v ouch &>/dev/null; then
-#     alias extract='ouch decompress'
-# fi
+if command -v ouch &>/dev/null; then
+    alias extract='ouch decompress'
+fi
 
 alias unfuck-old-backup='tar --hole-detection=seek --keep-directory-symlink -xzf '
 alias extract='ouch decompress'
@@ -314,7 +311,6 @@ alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 alias ARCH='distrobox-enter -n ARCH'
 if [ -n "${ZSH_VERSION:-}" ]; then
     alias refresh='exec zsh'
-    alias uncompile="recompile.zsh --uncompile"
     alias lsh="hash -dL | sed 's/hash -d //g ; s/=/  \t  /g' | fzf"
     #alias ARCH='distrobox-enter -n ARCH -- /usr/bin/zsh'
     alias aliases='printf "\e[1;93m%s\e[0m = \e[92m%s\e[0m\n" "${(@kv)aliases}"'
@@ -327,14 +323,11 @@ elif [ -n "${BASH_VERSION:-}" ]; then
     #[[ "${BASH_VERSION//5.2/aaaaaaaa}" != 'aaaaaaaa'* ]] && echo nowhich
 fi
 
-case "${CURRENT_DISTRO:-}" in
-'Arch')
-    alias grubcfg='sudo grub-mkconfig -o /boot/grub/grub.cfg'
-    ;;
-'Fedora')
+if command -v grub2-mkconfig &>/dev/null; then
     alias grubcfg='sudo grub2-mkconfig -o /etc/grub2.cfg'
-    ;;
-esac
+elif command -v grub-mkconfig &>/dev/null; then
+    alias grubcfg='sudo grub-mkconfig -o /boot/grub/grub.cfg'
+fi
 
 mkcd() {
     local directory="${1:?Error, please choose a directory name!}"

@@ -1,0 +1,15 @@
+#!/usr/bin/dash
+
+dumbfetch &
+command -v fortune >/dev/null 2>&1 && fortune -a -s | (
+    if command -v lolcrab >/dev/null 2>&1; then
+        lolcrab
+    elif command -v lolcat >/dev/null 2>&1; then
+        lolcat
+    else
+        tee
+    fi
+    lsdiff
+) &
+
+wait
