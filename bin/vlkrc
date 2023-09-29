@@ -127,9 +127,10 @@ alias %="$__homebin/\$"
 alias copy="$__homebin/copy"
 alias copycat="$__homebin/copy --cat"
 
-alias grep='/usr/bin/grep --color=auto'
-alias egrep='/usr/bin/egrep --color=auto'
-alias igrep='/usr/bin/grep -i --color=auto'
+alias grep="grep --color=auto"
+alias egrep="egrep --color=auto"
+alias fgrep="fgrep --color=auto"
+alias igrep="grep -i --color=auto"
 
 alias mime='file -bL --mime-type'
 
@@ -198,6 +199,13 @@ alias rksh=ksh
 alias sh="$__homebin/run-subshell.sh sh"
 alias csh="echo 💀 && $__homebin/run-subshell.sh csh"
 alias tcsh="echo 💀 && $__homebin/run-subshell.sh tcsh"
+#dash () {
+#    if [ -f "$XDG_CONFIG_HOME/shell/dashrc" ]; then
+#        ENV="$XDG_CONFIG_HOME/shell/dashrc" run-subshell.sh dash
+#    else
+#        run-subshell.sh dash
+#    fi
+#}
 
 alias pypip="pypy3 -m pip "
 

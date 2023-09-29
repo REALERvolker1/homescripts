@@ -48,6 +48,7 @@ export XSERVERRC="$XDG_CONFIG_HOME/X11/xserverrc"
 export XRESOURCES="$XDG_CONFIG_HOME/X11/Xresources"
 #export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
 
+export ENV="$XDG_CONFIG_HOME/shell/dashrc" # posix sh rcfile
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 export BDOTDIR="$XDG_CONFIG_HOME/bash"
 

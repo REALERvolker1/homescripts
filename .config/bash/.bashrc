@@ -1,8 +1,11 @@
 # .bashrc
 # shellcheck shell=bash
 
-{ [ -n "${BASH_VERSION:-}" ] && [[ $- == *i* ]]; } || return 69
-
+if [ -z "${BASH_VERSION:-}" ] || [ -n "${BASHRC_LOADED:-}" ] || [[ $- != *i* ]]; then
+    echo "doublesourced ${BASH_SOURCE:-bashrc}"
+    return
+    exit
+fi
 shopt -s autocd cdspell cmdhist checkwinsize histappend
 bind "set completion-ignore-case on"
 
@@ -54,3 +57,4 @@ printf '%s -%s' "${0##*/}" "$-" | (
 )
 
 [[ ${BLE_VERSION:-} ]] && ble-attach || :
+BASHRC_LOADED=true
