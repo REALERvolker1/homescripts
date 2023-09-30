@@ -32,6 +32,7 @@ export -U precmd_functions
 HISTFILE="$XDG_STATE_HOME/zshist"
 SAVEHIST=50000
 HISTSIZE=60000
+READNULLCMD="${PAGER:-less}"
 
 PROMPT='%k%f
 %B %F{14}%~%f %(0?.%F{10}%#.%F{9}%? %#) %b%f'
