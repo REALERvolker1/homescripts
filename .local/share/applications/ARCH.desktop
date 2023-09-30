@@ -3,6 +3,7 @@ Name=ARCH
 GenericName=Terminal entering ARCH
 Comment=Terminal entering ARCH
 Categories=Distrobox;System;Utility
+TryExec=distrobox
 Exec=/usr/bin/distrobox enter  ARCH
 Icon=/home/vlk/.local/share/icons/distrobox/arch.png
 Keywords=distrobox;
