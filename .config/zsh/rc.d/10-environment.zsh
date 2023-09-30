@@ -47,10 +47,3 @@ __vlk_zsh_plugins=(
 for i in "$ZDOTDIR/functions"/^*.zwc(.N); do
     [[ -f "$i" ]] && autoload -Uz "$i"
 done
-
-__cd_ls() {
-    local -i fcount="$(printf '%s\n' ./*(N) | wc -l)"
-    ((fcount < 30)) && { ls; return; }
-    echo -e "\e[${${${LS_COLORS:-01;34}##*:di=}%%:*}m${fcount}\e[0m items in this folder"
-}
-chpwd_functions+=('__cd_ls')

@@ -27,24 +27,28 @@ __homebin="$HOME/bin"
 __lscmd="$(which --skip-alias ls)"
 __lsargs='--color=auto --group-directories-first'
 
-if command -v lsd &>/dev/null; then
-    alias ls=lsd
-    alias ll='lsd -l'
+# if command -v lsd &>/dev/null; then
+#     alias ls=lsd
+#     alias ll='lsd -l'
 
-    alias tree='lsd --tree'
-else
-    alias ls="$__lscmd $__lsargs -A"
-    alias ll="$__lscmd $__lsargs -Al"
+#     alias tree='lsd --tree'
+# else
+#     alias ls="$__lscmd $__lsargs -A"
+#     alias ll="$__lscmd $__lsargs -Al"
 
-    if which --skip-alias tree &>/dev/null; then
-        true
-    else
-        alias tree="$__lscmd $__lsargs -AR"
-    fi
-fi
+#     if which --skip-alias tree &>/dev/null; then
+#         true
+#     else
+#         alias tree="$__lscmd $__lsargs -AR"
+#     fi
+# fi
 
-alias la="$__lscmd $__lsargs -A"
-alias lah="$__lscmd $__lsargs -AFsh"
+[[ -n "${LS_COMMAND:-}" ]] && alias ls="$LS_COMMAND"
+[[ -n "${LL_COMMAND:-}" ]] && alias ll="$LL_COMMAND"
+[[ -n "${LA_COMMAND:-}" ]] && alias la="$LA_COMMAND"
+
+# alias la="$__lscmd $__lsargs -A"
+# alias lah="$__lscmd $__lsargs -AFsh"
 
 unset __lscmd __lsargs
 
@@ -199,13 +203,6 @@ alias rksh=ksh
 alias sh="$__homebin/run-subshell.sh sh"
 alias csh="echo 💀 && $__homebin/run-subshell.sh csh"
 alias tcsh="echo 💀 && $__homebin/run-subshell.sh tcsh"
-#dash () {
-#    if [ -f "$XDG_CONFIG_HOME/shell/dashrc" ]; then
-#        ENV="$XDG_CONFIG_HOME/shell/dashrc" run-subshell.sh dash
-#    else
-#        run-subshell.sh dash
-#    fi
-#}
 
 alias pypip="pypy3 -m pip "
 
@@ -313,6 +310,7 @@ alias font-reset='fc-cache -fv'
 alias font-search="fc-list --format='%{family}\t%{style}\n' | sort | uniq | fzf"
 
 alias pipl='pip list | fzf'
+alias printfn="printf '%s\n' "
 
 alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 
@@ -323,6 +321,13 @@ if [ -n "${ZSH_VERSION:-}" ]; then
     #alias ARCH='distrobox-enter -n ARCH -- /usr/bin/zsh'
     alias aliases='printf "\e[1;93m%s\e[0m = \e[92m%s\e[0m\n" "${(@kv)aliases}"'
     alias fenv='typeset | fzf'
+
+    __cd_ls() {
+        local -i fcount="$(printf '%s\n' ./*(N) | wc -l)"
+        ((fcount < 30)) && { ls; return; }
+        echo -e "\e[${${${LS_COLORS:-01;34}##*:di=}%%:*}m${fcount}\e[0m items in this folder"
+    }
+    chpwd_functions+=('__cd_ls')
 
 elif [ -n "${BASH_VERSION:-}" ]; then
     alias refresh='exec bash'

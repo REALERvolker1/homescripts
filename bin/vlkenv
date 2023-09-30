@@ -25,6 +25,18 @@ export MANPAGER='nvim +Man\!'
 export TERMINAL='vlk-sensible-terminal 1'
 export BROWSER='vlk-sensible-browser 1'
 
+# custom LS commands for vlkrc
+export LA_COMMAND='/bin/ls --color=auto --group-directories-first -A'
+if command -v lsd >/dev/null 2>&1; then
+    export LS_COMMAND='lsd'
+    export LL_COMMAND='lsd -l'
+else
+    export LS_COMMAND="$LA_COMMAND"
+    export LL_COMMAND="$LA_COMMAND -l"
+fi
+
+export ENV="$XDG_CONFIG_HOME/dashrc" # posix sh rcfile
+
 export QT_QPA_PLATFORMTHEME='qt5ct'
 export QT_STYLE_OVERRIDE='kvantum'
 
@@ -48,7 +60,6 @@ export XSERVERRC="$XDG_CONFIG_HOME/X11/xserverrc"
 export XRESOURCES="$XDG_CONFIG_HOME/X11/Xresources"
 #export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
 
-export ENV="$XDG_CONFIG_HOME/shell/dashrc" # posix sh rcfile
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 export BDOTDIR="$XDG_CONFIG_HOME/bash"
 

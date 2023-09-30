@@ -1,226 +1,328 @@
-#!/usr/bin/dash
+#!/usr/bin/zsh
+# shellcheck shell=bash
+# shellcheck disable=SC2296
 
-if [ -z "${ZSH_VERSION:-$BASH_VERSION}" ]; then
+if [ -z "${ZSH_VERSION:-$BASH_VERSION}" ] || ! expr "$-" : '.*i' >/dev/null; then
     return 1
     exit 1
 fi
 
-declare -A vlkprompt
+declare -A icons colorsbg colorsfg colorstx content set ends index
 
-vlkprompt[git_icon]=󰊢
-vlkprompt[vim_icon]=
-vlkprompt[ro_icon]=
-vlkprompt[rw_icon]=
-vlkprompt[err_icon]=󰅗
-vlkprompt[job_icon]=󱜯
-vlkprompt[hos_icon]=󰟀
-vlkprompt[sud_end_icon]=' '
+icons[cwd_ro]=
+icons[cwd_rw]=
+icons[git]=󰊢
+icons[vim]=
+icons[err]=󰅗
+icons[job]=󱜯
+icons[hos]=󰟀
+icons[log]=󰌆
+content[sud_end]=' '
+content[end]=
+content[end_r]=
+
 case "$ICON_TYPE" in
-    dashline)
-        vlkprompt[end_icon]=
-    ;; powerline)
-        vlkprompt[end_icon]=
-    ;; *)
-        vlkprompt[end_icon]=']'
-        vlkprompt[git_icon]='G'
-        vlkprompt[vim_icon]='V'
-        vlkprompt[ro_icon]='-'
-        vlkprompt[rw_icon]='.'
-        vlkprompt[err_icon]='X'
-        vlkprompt[job_icon]='J'
-        vlkprompt[hos_icon]='H'
-        vlkprompt[sud_end_icon]="${vlkprompt[end_icon]}"
+powerline)
+    content[end]=
+    content[end_r]=
+    ;;
+fallback)
+    icons[cwd_ro]='-'
+    icons[cwd_rw]='&'
+    icons[git]='G'
+    icons[vim]='V'
+    icons[err]='X'
+    icons[job]='J'
+    icons[hos]='H'
+    icons[log]='l'
+    content[sud_end]=']#'
+    content[end]=']'
+    content[end_r]='['
     ;;
 esac
 
-vlkprompt[colorterm]="${VLKPROMPT_COLOR_OVERRIDE:-$(tput colors)}"
-if ((vlkprompt[colorterm] < 8 )); then
-    return
-elif ((vlkprompt[colorterm] < 256 )); then
-    vlkprompt[bash_color_prefix]=''
-    vlkprompt[light_color]=7
-    vlkprompt[dark_color]=0
-    vlkprompt[cwd_color]=4
-    vlkprompt[git_color]=5
-    vlkprompt[vim_color]=2
-    vlkprompt[err_color]=1
-    vlkprompt[job_color]=3
-    vlkprompt[hos_color]=4
-    vlkprompt[sud_color]=6
-    vlkprompt[ps2_color]=5
-    vlkprompt[ps3_color]=5
+# if ((VLKPROMPT_COLOR_OVERRIDE < 9)); then
+if (($(tput colors) < 255)); then
+
+    set[ansi]=''
+
+    colorstx[l]=7
+    colorstx[d]=0
+
+    colorsfg[cwd]=4
+    colorsfg[git]=5
+    colorsfg[vim]=2
+    colorsfg[err]=1
+    colorsfg[job]=3
+    colorsfg[hos]=4
+    colorsfg[sud]=6
+    colorsfg[ps2]=5
+    colorsfg[ps3]=5
+
+    colorsbg[cwd]=4
+    colorsbg[git]=5
+    colorsbg[vim]=2
+    colorsbg[err]=1
+    colorsbg[job]=3
+    colorsbg[hos]=4
+    colorsbg[sud]=6
+    colorsbg[ps2]=5
+    colorsbg[ps3]=5
+
 else
-    vlkprompt[bash_color_prefix]='8;5;'
-    vlkprompt[light_color]=255
-    vlkprompt[dark_color]=232
-    vlkprompt[cwd_color]=33
-    vlkprompt[git_color]=141
-    vlkprompt[vim_color]=120
-    vlkprompt[err_color]=52
-    vlkprompt[job_color]=172
-    vlkprompt[hos_color]=17
-    vlkprompt[sud_color]=196
-    vlkprompt[ps2_color]=93
-    vlkprompt[ps3_color]=95
+
+    set[ansi]='8;5;'
+    colorstx[l]=255
+    colorstx[d]=232
+
+    colorsfg[cwd]=33
+    colorsfg[git]=141
+    colorsfg[vim]=120
+    colorsfg[err]=52
+    colorsfg[job]=172
+    colorsfg[hos]=18
+    colorsfg[sud]=196
+    colorsfg[ps2]=93
+    colorsfg[ps3]=89
+
+    colorsbg[cwd]=33
+    colorsbg[git]=141
+    colorsbg[vim]=120
+    colorsbg[err]=52
+    colorsbg[job]=172
+    colorsbg[hos]=18
+    colorsbg[sud]=196
+    colorsbg[ps2]=93
+    colorsbg[ps3]=89
+
 fi
 
-if [ -n "${BASH_VERSION:-}" ]; then # bash-specific stuff
+COMMAND_NOT_FOUND_STR="\e[0m\e[4${set[ansi]}${colorsbg[sud]}m\e[1;3${set[ansi]}${colorstx[d]}m \
+${icons[err]} ERROR \e[0m\e[3${set[ansi]}${colorsfg[sud]}m\e[4${set[ansi]}${colorsbg[err]}m${content[end]} \
+\e[3${set[ansi]}${colorstx[l]}mCommand '\e[1m+\e[0m\e[4${set[ansi]}${colorsbg[err]}m\e[3${set[ansi]}${colorstx[l]}m' \
+not found \e[0m\e[3${set[ansi]}${colorsfg[err]}m${content[end]}\e[0m"
 
-vlkprompt[sgr]="\[\e[0m\]"
+[ -n "${BASH_VERSION:-}" ] && {
+    # WARNING: does not work properly without ble.sh
 
-vlkprompt[light_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[light_color]}m"
-vlkprompt[dark_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[dark_color]}m"
-vlkprompt[cwd_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[cwd_color]}m"
-vlkprompt[git_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[git_color]}m"
-vlkprompt[vim_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[vim_color]}m"
-vlkprompt[err_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[err_color]}m"
-vlkprompt[job_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[job_color]}m"
-vlkprompt[hos_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[hos_color]}m"
-vlkprompt[sud_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[sud_color]}m"
-vlkprompt[ps2_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[ps2_color]}m"
-vlkprompt[ps3_color_fg]="\e[1;3${vlkprompt[bash_color_prefix]}${vlkprompt[ps3_color]}m"
+    set[sgr]='\[\x1b[0m\]'
 
-vlkprompt[light_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[light_color]}m"
-vlkprompt[dark_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[dark_color]}m"
-vlkprompt[cwd_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[cwd_color]}m"
-vlkprompt[git_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[git_color]}m"
-vlkprompt[vim_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[vim_color]}m"
-vlkprompt[err_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[err_color]}m"
-vlkprompt[job_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[job_color]}m"
-vlkprompt[hos_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[hos_color]}m"
-vlkprompt[sud_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[sud_color]}m"
-vlkprompt[ps2_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[ps2_color]}m"
-vlkprompt[ps3_color_bg]="\e[1;4${vlkprompt[bash_color_prefix]}${vlkprompt[ps3_color]}m"
+    set[fg_esc]="\x1b[3${set[ansi]}"
+    set[bg_esc]="\x1b[4${set[ansi]}"
+    set[tx_esc]="\x1b[1;3${set[ansi]}"
+    set[end_esc]='m'
+
+    # set[o]='\['
+    # set[c]='\]'
+    set[0]=''
+    set[c]=''
+
+    for i in "${!colorsbg[@]}"; do
+        declare "colorsbg[$i]=${set[o]}${set[bg_esc]}${colorsbg[$i]}${set[end_esc]}${set[c]}"
+    done
+    for i in "${!colorsfg[@]}"; do
+        declare "colorsfg[$i]=${set[o]}${set[fg_esc]}${colorsfg[$i]}${set[end_esc]}${set[c]}"
+    done
+    for i in "${!colorstx[@]}"; do
+        declare "colorstx[$i]=${set[o]}${set[tx_esc]}${colorstx[$i]}${set[end_esc]}${set[c]}"
+    done
+
+    content[newline]="${set[sgr]}
+"
+
+    VLKPROMPT_RPS1="${set[sgr]}${colorsfg[vim]}${content[end_r]}${set[sgr]}${colorsbg[vim]}${colorstx[d]} \# ${set[sgr]}"
+
+    unset next_color
+    __vlk_precmd () {
+        local err="$?"
+
+        # local -i has_job has_err has_sudo has_git
+        local filestr_icon filestr_color filestr_content filestr_next_color next_color ending err_content job_content host_content login_content
+        if git status &>/dev/null; then
+            filestr_icon="${icons[git]}"
+            filestr_color="${colorsbg[git]}${colorstx[d]}"
+            # filestr_prev_color="${colorsbg[git]}"
+            filestr_next_color="${colorsfg[git]}"
+            next_color="${colorsbg[git]}"
+        else
+            if [ -w "$PWD" ]; then
+                filestr_icon="${icons[cwd_rw]}"
+            else
+                filestr_icon="${icons[cwd_ro]}"
+            fi
+            filestr_color="${colorsbg[cwd]}${colorstx[l]}"
+            filestr_next_color="${colorsfg[cwd]}"
+            next_color="${colorsbg[cwd]}"
+        fi
+        filestr_content="${filestr_color} ${filestr_icon} \w ${set[sgr]}"
+
+        if sudo -vn &>/dev/null && [ -z "${DISTROBOX_ENTER_PATH:-}" ]; then
+            ending="${filestr_next_color}${colorsbg[sud]}${content[end]} ${set[sgr]}${colorsfg[sud]}${content[sud_end]}${set[sgr]}"
+        else
+            ending="${filestr_next_color}${content[end]}${set[sgr]}"
+        fi
+
+        if ((err != 0)); then
+            err_content="${colorsbg[err]}${colorstx[l]} ${icons[err]} ${err} ${set[sgr]}${colorsfg[err]}${next_color}${content[end]}${set[sgr]}"
+            next_color="${colorsbg[err]}"
+        else
+            err_content=''
+        fi
+
+        if [ $(jobs | wc -l) -gt 0 ]; then
+            job_content="${colorsbg[job]}${colorstx[d]} ${icons[job]} \j ${set[sgr]}${colorsfg[job]}${next_color}${content[end]}${set[sgr]}"
+        else
+            job_content=''
+        fi
+
+        if [[ "$HOSTNAME" != "$CURRENT_HOSTNAME" ]]; then
+            host_content="${colorsbg[hos]}${colorstx[l]} $HOSTNAME ${set[sgr]}${colorsfg[hos]}${next_color}${content[end]}${set[sgr]}"
+            next_color="${colorsbg[hos]}"
+        else
+            host_content=''
+        fi
+
+        if shopt -q login_shell; then
+            login_content="${colorsbg[ps2]}${colorstx[l]} ${icons[log]} ${set[sgr]}${colorsfg[ps2]}${next_color}${content[end]}${set[sgr]}"
+            next_color="${colorsbg[ps2]}"
+        else
+            login_content=''
+        fi
+
+        PS1="$(echo -e "${content[newline]}${login_content}${host_content}${job_content}${err_content}${filestr_content}${ending}") "
+
+    }
+
+    PROMPT_COMMAND+=('__vlk_precmd')
+
+    command_not_found_handle () {
+        # echo "[bash] Error, command '$1' does not exist!"
+        echo -e "${COMMAND_NOT_FOUND_STR//+/$1}"
+        return 127
+    }
+
+    return 0
+
+}
+
+command_not_found_handler () {
+    echo "${COMMAND_NOT_FOUND_STR//+/$1}"
+    return 127
+}
+
+
+set[sgr]='%k%f%b%u%s'
+
+set[fg_esk]='%%F{'
+set[bg_esk]='%%K{'
+set[tx_esk]='%%B%%F{'
+set[end_esc]='}'
+
+eval "$(printf "declare 'colorsbg[%s]=${set[bg_esk]}%s${set[end_esc]}'\n" "${(@kv)colorsbg}")"
+eval "$(printf "declare 'colorsfg[%s]=${set[fg_esk]}%s${set[end_esc]}'\n" "${(@kv)colorsfg}")"
+eval "$(printf "declare 'colorstx[%s]=${set[tx_esk]}%s${set[end_esc]}'\n" "${(@kv)colorstx}")"
+
+index[transient]=130
+index[sudo]=135
+index[writable]=136
+index[git]=137
+index[vim]=138
+
+icons[cwd]="%(${index[writable]}V.${icons[cwd_rw]}.${icons[cwd_ro]})"
+# echo "${icons[cwd]}"
+eval "$(printf "declare 'icons[%s]=%%(${index[transient]}V.. %s)'\n" "${(@kv)icons}")"
+# for i in "${(@k)icons}"; do
+#     declare "icons[$i]=%(${index[transient]}V.. ${icons[$i]})"
+# done
+
+set[has_job]='1j'
+set[has_no_err]='0?'
+
+content[newline]="${set[sgr]}%(${index[transient]}V..
+)"
+
+set[color_next]=''
 
 if [[ "$HOSTNAME" != "$CURRENT_HOSTNAME" ]]; then
-    vlkprompt[computed_hostname]="\[${vlkprompt[hos_color_bg]}${vlkprompt[light_color_fg]}\] $HOSTNAME \[${vlkprompt[sgr]}\]"
+    content[hostname]="${colorsbg[hos]}${colorstx[l]} $HOSTNAME ${set[sgr]}"
+    set[color_next]="${colorsbg[hos]}"
 else
-    vlkprompt[computed_hostname]=''
+    content[hostname]=''
+    set[color_next]=''
 fi
-# export PS2="$(echo -en "${vlkprompt[ps2_color_bg]}${vlkprompt[light_color_fg]} > \e[0m${vlkprompt[ps2_color_fg]}${vlkprompt[end_icon]}\e[0m ")"
-export PS3="$(echo -en "${vlkprompt[ps3_color_bg]}${vlkprompt[light_color_fg]} #? \e[0m${vlkprompt[ps3_color_fg]}${vlkprompt[end_icon]}\e[0m ")"
 
-PROMPT_COMMAND=__vlk_bash_prompt_command
-__vlk_bash_prompt_command() {
-    local retval="$?"
-    local jobcount="$(jobs | wc -l)"
+if [[ "$-" =~ 'l' ]]; then
+    content[login]="${colorsbg[ps2]}${colorstx[l]}${icons[log]} ${set[sgr]}"
+else
+    content[login]=''
+fi
 
-    # cwd
-    local computed_filestr_color
-    local computed_filestr_next_icon_fg_color
-    local computed_filestr_previous_icon_bg_color
-    local computed_filestr_icon
-    if git status &>/dev/null; then
-        computed_filestr_color="${vlkprompt[dark_color_fg]}${vlkprompt[git_color_bg]}"
-        computed_filestr_next_icon_fg_color="${vlkprompt[git_color_fg]}"
-        computed_filestr_previous_icon_bg_color="${vlkprompt[git_color_bg]}"
-        computed_filestr_icon="${vlkprompt[git_icon]}"
-    else
-        computed_filestr_color="${vlkprompt[light_color_fg]}${vlkprompt[cwd_color_bg]}"
-        computed_filestr_next_icon_fg_color="${vlkprompt[cwd_color_fg]}"
-        computed_filestr_previous_icon_bg_color="${vlkprompt[cwd_color_bg]}"
-        if [ -w "$PWD" ]; then
-            computed_filestr_icon="${vlkprompt[rw_icon]}"
+content[job]="%(${set[has_job]}.${set[sgr]}${colorsbg[job]}${colorstx[d]}${icons[job]} %j ${set[sgr]}.)"
+content[err]="%(${set[has_no_err]}..${set[sgr]}${colorsbg[err]}${colorstx[l]}${icons[err]} %? ${set[sgr]})"
+
+content[cwd_icon]="%(${index[vim]}V.${colorsbg[vim]}${colorstx[d]}${icons[vim]}.%(${index[git]}V.${colorsbg[git]}${colorstx[d]}${icons[git]}.${colorsbg[cwd]}${colorstx[l]}${icons[cwd]}))"
+content[cwd]="${set[sgr]}${content[cwd_icon]} %\$((COLUMNS / 2))<..<%~ ${set[sgr]}"
+content[sudo]="%(${index[sudo]}V.${set[sgr]}${colorsbg[sud]} ${set[sgr]}${colorsfg[sud]}${content[sud_end]}${set[sgr]}.)"
+
+ends[dir_bg]="%(${index[vim]}V.${colorsbg[vim]}.%(${index[git]}V.${colorsbg[git]}.${colorsbg[cwd]}))"
+
+ends[job]="%(${index[transient]}V..%(${set[has_job]}.${colorsfg[job]}%(${set[has_no_err]}.${ends[dir_bg]}.${colorsbg[err]})${content[end]}.))"
+ends[err]="%(${index[transient]}V..%(${set[has_no_err]}..${colorsfg[err]}${ends[dir_bg]}${content[end]}))"
+ends[cwd]="%(${index[sudo]}V.${colorsbg[sud]}.)%(${index[vim]}V.${colorsfg[vim]}.%(${index[git]}V.${colorsfg[git]}.${colorsfg[cwd]}))${content[end]}${set[sgr]}"
+
+PS1="${content[newline]}${content[login]}${content[hostname]}\
+${content[job]}${ends[job]}\
+${content[err]}${ends[err]}\
+${content[cwd]}${ends[cwd]}${content[sudo]} "
+
+# PS2="${colorsbg[ps2]}${colorstx[l]} %_ ${set[sgr]}${colorsfg[ps2]}\
+# %(${index[sudo]}V.${colorsbg[sud]}${content[end]} ${set[sgr]}${colorsfg[sud]}${content[sud_end]}.${content[end]})${set[sgr]} "
+
+for i in 2 3; do
+    declare "PS$i=${set[sgr]}${colorsbg[ps$i]}${colorstx[l]} %_ ${set[sgr]}${colorsfg[ps$i]}%(${index[sudo]}V.${colorsbg[sud]}${content[end]} ${set[sgr]}${colorsfg[sud]}${content[sud_end]}.${content[end]})${set[sgr]} "
+done
+
+SUDO_PROMPT="$(print -P "${colorsbg[sud]}${colorstx[l]} entering sudo mode ${set[sgr]}${colorsfg[sud]}${content[sud_end]}${set[sgr]}") "
+
+unset icons colorsbg colorsfg colorstx content set ends
+
+
+if [ -z "${DISTROBOX_ENTER_PATH:-}" ]; then
+    __vlk_precmd_sudo () {
+        if sudo -vn &>/dev/null && [ -z "${DISTROBOX_ENTER_PATH:-}" ]; then # sudo
+            psvar[${index[sudo]}]=1
         else
-            computed_filestr_icon="${vlkprompt[ro_icon]}"
+            psvar[${index[sudo]}]=''
         fi
-    fi
-    local computed_filestr="${vlkprompt[sgr]}\[${computed_filestr_color}\] ${computed_filestr_icon} \w "
-
-    # end icon
-    local computed_end_color_slice
-    local computed_end_icon
-    if sudo -vn &>/dev/null; then
-        computed_end_color_slice="${vlkprompt[sud_color_bg]}"
-        computed_end_icon="${vlkprompt[end_icon]} ${vlkprompt[sgr]}\[${vlkprompt[sud_color_fg]}\]${vlkprompt[sud_end_icon]}"
-    else
-        computed_end_color_slice=""
-        computed_end_icon="${vlkprompt[end_icon]}"
-    fi
-    local computed_end="${vlkprompt[sgr]}\[${computed_filestr_next_icon_fg_color}${computed_end_color_slice}\]${computed_end_icon}"
-
-    # error code
-    local computed_err_previous_icon_bg_color
-    local computed_err
-    if ((retval != 0)); then
-        computed_err_previous_icon_bg_color="${vlkprompt[err_color_bg]}"
-        computed_err="${vlkprompt[sgr]}\[${vlkprompt[light_color_fg]}${vlkprompt[err_color_bg]}\] ${vlkprompt[err_icon]} ${retval} \[${vlkprompt[err_color_fg]}${computed_filestr_previous_icon_bg_color}\]${vlkprompt[end_icon]}"
-    else
-        computed_err_previous_icon_bg_color="${computed_filestr_previous_icon_bg_color}"
-        computed_err=""
-    fi
-
-    # jobs
-    local computed_jobs_previous_icon_bg_color
-    local computed_jobs
-    if ((jobcount != 0)); then
-        computed_jobs="${vlkprompt[sgr]}\[${vlkprompt[dark_color_fg]}${vlkprompt[job_color_bg]}\] ${vlkprompt[job_icon]} ${jobcount} \[${vlkprompt[job_color_fg]}${computed_err_previous_icon_bg_color}\]${vlkprompt[end_icon]}"
-        computed_jobs_previous_icon_bg_color="${vlkprompt[job_color_bg]}"
-    else
-        computed_jobs=""
-        computed_jobs_previous_icon_bg_color="${computed_err_previous_icon_bg_color}"
-    fi
-
-    export PS1="${vlkprompt[sgr]}\n${vlkprompt[computed_hostname]}${computed_jobs}${computed_err}${computed_filestr}${computed_end}${vlkprompt[sgr]} "
-}
+    }
+else
+    __vlk_precmd_sudo () { :; }
 fi
-[ -n "${BASH_VERSION:-}" ] && return 0
-
-#####            #####
-#: BEGIN ZSH PROMPT :#
-#####            #####
-
-autoload -Uz vcs_info
-zstyle ':vcs_info:*' enable git
-
-vlkprompt[sgr]="%k%f%b%u%s"
-
-PS1="${vlkprompt[sgr]}%B%(130V..
-)%(0?..%K{${vlkprompt[err_color]}}%F{${vlkprompt[light_color]}}%(130V.. ${vlkprompt[err_icon]}) %? %k%f)\
-%(130V..%(1j.%K{${vlkprompt[job_color]}}%F{${vlkprompt[dark_color]}} ${vlkprompt[job_icon]} %j %k%f.))\
-%(138V.%K{${vlkprompt[vim_color]}}%F{${vlkprompt[dark_color]}}%(130V.. ${vlkprompt[vim_icon]}) %\$((COLUMNS / 2))<..<%~ %k%f%F{${vlkprompt[vim_color]}}.\
-%(137V.%K{${vlkprompt[git_color]}}%F{${vlkprompt[dark_color]}}%(130V.. ${vlkprompt[git_icon]}) %\$((COLUMNS / 2))<..<%~ %k%f%F{${vlkprompt[git_color]}}.\
-%K{${vlkprompt[cwd_color]}}%F{${vlkprompt[light_color]}}%(130V.. %(136V.${vlkprompt[rw_icon]}.${vlkprompt[ro_icon]})) %\$((COLUMNS / 2))<..<%~ %k%f%F{${vlkprompt[cwd_color]}}))\
-%(135V.%K{${vlkprompt[sud_color]}}${vlkprompt[end_icon]} %k%f%F{${vlkprompt[sud_color]}}${vlkprompt[sud_end_icon]}.%k${vlkprompt[end_icon]})\
-${vlkprompt[sgr]} "
-
-PS2="${vlkprompt[sgr]}%B%K{${vlkprompt[ps2_color]}}%F{${vlkprompt[light_color]}} %_ %F{${vlkprompt[ps2_color]}}\
-%(135V.%K{${vlkprompt[sud_color]}}${vlkprompt[end_icon]} %k%f%F{${vlkprompt[sud_color]}}${vlkprompt[sud_end_icon]}.%k${vlkprompt[end_icon]})${vlkprompt[sgr]} "
-
-PS3="${vlkprompt[sgr]}%B%K{${vlkprompt[ps3_color]}}%F{${vlkprompt[light_color]}} %_ %F{${vlkprompt[ps3_color]}}\
-%(135V.%K{${vlkprompt[sud_color]}}${vlkprompt[end_icon]} %k%f%F{${vlkprompt[sud_color]}}${vlkprompt[sud_end_icon]}.%k${vlkprompt[end_icon]})${vlkprompt[sgr]} "
-
-SUDO_PROMPT="$(print -P "${vlkprompt[sgr]}%B%K{${vlkprompt[sud_color]}}%F{${vlkprompt[light_color]}} password %k%F{${vlkprompt[sud_color]}}${vlkprompt[sud_end_icon]}${vlkprompt[sgr]}") "
-
-unset vlkprompt
-
-__vlk_precmd () {
-    if sudo -vn &>/dev/null; then # sudo
-        psvar[135]=1
-    else
-        psvar[135]=''
-    fi
+__vlk_precmd_writable () {
     if [ -w "$PWD" ]; then # dir icon
-        psvar[136]=1
+        psvar[${index[writable]}]=1
     else
-        psvar[136]=''
+        psvar[${index[writable]}]=''
     fi
-    vcs_info &>/dev/null
-    if [ -n "${vcs_info_msg_0_:-}" ]; then # git color
-        psvar[137]=1
+}
+__vlk_precmd_git () {
+    if git status &>/dev/null; then # git color
+        psvar[${index[git]}]=1
     else
-        psvar[137]=''
+        psvar[${index[git]}]=''
     fi
-    psvar[138]='' # vicmd
+}
+__vlk_precmd () {
+    psvar[${index[vim]}]='' # vicmd
 }
 export -U precmd_functions
-precmd_functions+=('__vlk_precmd')
+precmd_functions+=('__vlk_precmd' '__vlk_precmd_sudo' '__vlk_precmd_writable' '__vlk_precmd_git')
 
 function zle-line-init zle-keymap-select {
     if [[ "$KEYMAP" == vicmd ]]; then
-        psvar[138]=1
+        psvar[${index[vim]}]=1
     else
-        psvar[138]=''
+        psvar[${index[vim]}]=''
     fi
     zle reset-prompt
 }
@@ -233,13 +335,13 @@ __vlk-zle-line-init () {
     local -i ret=$?
     (( $+zle_bracketed_paste )) && print -r -n - $zle_bracketed_paste[2]
     if [[ "$ret" == 0 && "$KEYS" == $'\4' ]]; then
-        psvar[130]=1
+        psvar[${index[transient]}]=1
         zle reset-prompt
         exit
     fi
-    psvar[130]=1
+    psvar[${index[transient]}]=1
     zle reset-prompt
-    psvar[130]=''
+    psvar[${index[transient]}]=''
     if (( ret )); then
         zle send-break
     else
@@ -249,3 +351,9 @@ __vlk-zle-line-init () {
 }
 
 zle -N zle-line-init __vlk-zle-line-init
+
+# command_not_found_handler () { # in bash, called command_not_found_handle
+#     echo "${COMMAND_NOT_FOUND_STR//+/$1}"
+#     return 127
+# }
+
