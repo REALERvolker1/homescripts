@@ -57,6 +57,7 @@ _initialize () {
 _pkginst () {
     if dnf copr list | grep -q 'solopasha/hyprland'; then
         #sudo dnf install hyprland hyprpaper hyprpicker hyprshot hyprprop grimblast waybar-git xdg-desktop-portal-hyprland swaylock swayidle
+        # hyprland hyprland-devel hyprland-plugins hyprpaper hyprpicker hyprland-contrib waybar-git xdg-desktop-portal-hyprland aylurs-gtk-shell hyprshot grimblast swaylock swayidle
 	true
     fi
     sudo dnf group install "C Development Tools and Libraries"

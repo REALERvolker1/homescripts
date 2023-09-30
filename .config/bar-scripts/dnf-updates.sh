@@ -20,3 +20,4 @@ if command -v cargo-install-update; then
     up[cargo]="$(cargo install-update -a -g --list)"
 fi
 
+"$XDG_CONFIG_HOME"/vim/vimrc
