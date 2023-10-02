@@ -1,0 +1,157 @@
+#!/usr/bin/bash
+# shellcheck shell=bash disable=1091
+set -euo pipefail
+IFS=$'\n\t'
+
+_panic() {
+    local panic_color exit panicflag i
+    local -a panic_reason
+    for i in "$@"; do
+        case "${i:-}" in
+        --)
+            [[ "${panicflag:-}" != "$i" ]] && panicflag="$i"
+            ;;
+        --warn)
+            if [[ "${panicflag:-}" != "$i" ]] || [[ "${panicflag:-}" != -- ]]; then
+                panicflag="$i"
+                panic_color='33'
+                exit=false
+            else
+                continue
+            fi
+            ;;
+        *)
+            panic_reason+=("$i")
+            ;;
+        esac
+    done
+    [ -z "${panic_reason[*]}" ] && panic_reason+=("Unspecified error")
+    printf "\e[0m\e[1m[\e[${panic_color:-31}m${0##*/}\e[0m\e[1m]\e[0m %s\n" "${panic_reason[@]}" >&2
+    if ${exit:-true}; then
+        exit 1
+    else
+        return 1
+    fi
+}
+
+declare -A config
+
+config[type]='area'
+config[method]='auto'
+config[filepath]=''
+config[interactive]=true
+# argparse
+current_prop=''
+for i in "$@"; do
+    if [ -n "${current_prop:-}" ]; then
+        config[$current_prop]="$i"
+    else
+        case "${i:=}" in
+        --filepath | -f)
+            current_prop='filepath'
+            ;;
+        --type | -t)
+            current_prop='type'
+            ;;
+        # --interactive | -i)
+        #     current_prop='interactive'
+        #     ;;
+        --method | -m)
+            current_prop='method'
+            ;;
+        -*)
+            printf '%b\n' \
+                "Invalid argument specified: \e[1m$i\e[0m" \
+                "\e[1m${0##*/}\e[0m --arg property --arg2 property2" \
+                '' "Here are some examples:" ''
+            printf '\e[1m%s    (%s)\e[0m  \e[32m%s\e[0m\n\t%s\n\n' \
+                '--filepath' '-f' "/path/to/screenshot-%m-%d-%y.png" \
+                "Path of the output image, with a '%' string to be interpreted by the \`date\` command" \
+                '--type' '-t' "${config[type]}" \
+                'one of: area, window, output, full' \
+                '--method' '-m' "${config[method]}" \
+                'Not recommended to set this manually, and available methods may change at any time'
+            exit 69
+            # '--interactive' '-i' "${config[interactive]}" \
+            #     'boolean true, false' \
+            ;;
+        esac
+    fi
+done
+
+if [ -n "${config[filepath]}" ] && [ ! -d "${config[filepath]}" ]; then
+    # make sure this path is legit or not
+    SENSIBLE_SCREENSHOT="${config[filepath]}"
+    [[ "$SENSIBLE_SCREENSHOT" == *'/' ]] && _panic "Error, filepath ${config[filepath]} may not end with a '/'"
+    SENSIBLE_SCREENSHOT="${SENSIBLE_SCREENSHOT%/*}"
+    if [ ! -w "$SENSIBLE_SCREENSHOT" ]; then
+        _panic "Current user ${USER:-$(whoami)} does not have write perms for $SENSIBLE_SCREENSHOT"
+    elif [ ! -d "$SENSIBLE_SCREENSHOT" ]; then
+        _panic "$SENSIBLE_SCREENSHOT must exist! Invalid filepath given ${config[filepath]}"
+    fi
+    # echo "$SENSIBLE_SCREENSHOT"
+else
+    [ -f "${XDG_CONFIG_HOME:=$HOME/.config}/user-dirs.dirs" ] && . "$XDG_CONFIG_HOME/user-dirs.dirs"
+    : "${XDG_PICTURES_DIR:=$HOME/Pictures}" "${XDG_SCREENSHOTS_DIR:=$XDG_PICTURES_DIR/Screenshots}"
+    for i in \
+        "${SENSIBLE_SCREENSHOT:-}" \
+        "$XDG_SCREENSHOTS_DIR" \
+        "$XDG_PICTURES_DIR" \
+        "$HOME"; do
+        if [[ -d "$i" ]]; then
+            SENSIBLE_SCREENSHOT="$i"
+            break
+        fi
+    done
+    config[filepath]="${SENSIBLE_SCREENSHOT}/${0##*/}_%m-%d-%y_%H-%M-%S.png"
+fi
+
+if [[ "${config[method]}" == 'auto' ]]; then
+    declare -a dependencies optional_dependencies
+    if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+        dependencies+=(
+            'grim'
+            'slurp'
+            'wl-copy'
+        )
+        optional_dependencies+=('swappy')
+        if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+            config[method]='hyprland'
+        elif [ -n "${SWAYSOCK:-}" ]; then
+            config[method]='sway'
+        else
+            config[method]='wlr'
+            dependencies+=('wlr-randr')
+        fi
+    elif [ -n "${DISPLAY:-}" ]; then
+        config[method]='xorg'
+        dependencies+=(
+            'scrot'
+            'xprop'
+            'xclip'
+        )
+    fi
+    [ -z "${config[method]}" ] && _panic "only supports wlroots-Wayland and X11 screenshots!"
+    for i in "${dependencies[@]}"; do
+        command -v "$i" &>/dev/null || _panic "Failed to find required dependency '$i'"
+    done
+    for i in "${optional_dependencies[@]}"; do
+        command -v "$i" &>/dev/null || _panic --warn "Missing optional dependency '$i'"
+    done
+fi
+
+# typeset -p config
+
+# _hypr_get_windows() {
+#     local monitors="$(hyprctl -j monitors)"
+#     local clients="$(hyprctl -j clients | jq -r '[.[] | select(.workspace.id | contains('"$(echo "$monitors" | jq -r 'map(.activeWorkspace.id) | join(",")')"'))]')"
+#     local boxes="$(echo "$clients" | jq -r '.[] | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])\(.title)"')"
+#     slurp -r <<<"$boxes"
+# }
+
+if "${config[interactive]}"; then
+    echo ye
+else
+    echo na
+fi
+_hypr_get_windows
