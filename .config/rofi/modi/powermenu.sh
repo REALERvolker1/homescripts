@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # script by vlk
 
-_kill_flatpaks () {
+_kill_flatpaks() {
     command -v flatpak &>/dev/null || return
     flatpak ps 2>/dev/null | cut -f 3 | while read -r line; do
         flatpak kill "$line" &>/dev/null
@@ -45,7 +45,7 @@ printf "
 \0active\x1f2
 Log Out\0icon\x1f<span color='${ROFI_ICON_NORMAL:-#FFFFFF}'></span>
 Restart\0icon\x1f<span color='${ROFI_ICON_URGENT:-#000000}'></span>
-Suspend\0icon\x1f<span color='${ROFI_ICON_ACTIVE:-#000000}'>⏼</span>
-UEFI Reboot\0icon\x1f<span color='${ROFI_ICON_NORMAL:-#FFFFFF}'></span>
-Shut Down\0icon\x1f<span color='${ROFI_ICON_URGENT:-#000000}'>⏻</span>
+Suspend\0icon\x1f<span color='${ROFI_ICON_ACTIVE:-#000000}'>󰤄</span>
+UEFI Reboot\0icon\x1f<span color='${ROFI_ICON_NORMAL:-#FFFFFF}'>󰍛</span>
+Shut Down\0icon\x1f<span color='${ROFI_ICON_URGENT:-#000000}'>󰐥</span>
 "

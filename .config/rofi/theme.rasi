@@ -21,7 +21,10 @@
     color-element-selected-normal: #596273;
     color-element-alternate-normal: #333842aa;
     color-element-selected-normal-border: #7b57ff; /*hsl(200, 80%, 60%);*/
-    color-element-selected-normal-text: env(ROFI_ICON_NORMAL, #e2e4e9); // #e2e4e9
+    color-element-selected-normal-text: env(
+        ROFI_ICON_NORMAL,
+        #e2e4e9
+    ); // #e2e4e9
     color-element-text-normal: #c5cad3;
 
     color-element-normal-urgent: #eb4763;
@@ -58,7 +61,6 @@
 
     listview-columns: 2;
     listview-lines: 14;
-    listview-scrollbar: false;
     listview-resize: true;
     listview-wayland-fix: false;
 
@@ -87,7 +89,6 @@ mainbox {
     border-color: @color-window-widget;
 }
 
-
 inputbar {
     padding: @widget-padding;
     spacing: @widget-spacing;
@@ -97,7 +98,11 @@ inputbar {
     children: @inputbar-children;
 }
 
-case-indicator, textbox-current-entry, icon-current-entry { enabled: false; }
+case-indicator,
+textbox-current-entry,
+icon-current-entry {
+    enabled: false;
+}
 
 prompt {
     padding: @widget-side-padding;
@@ -130,7 +135,8 @@ entry {
     placeholder-color: @color-element-selected-normal;
 }
 
-num-rows, num-filtered-rows {
+num-rows,
+num-filtered-rows {
     vertical-align: 1;
     padding: 0px;
 
@@ -139,8 +145,9 @@ num-rows, num-filtered-rows {
     text-transform: bold italic;
 }
 
-
-message, error-message, mode-switcher {
+message,
+error-message,
+mode-switcher {
     background-color: @color-window-child;
     spacing: @widget-spacing;
 }
@@ -152,7 +159,6 @@ textbox {
     background-color: @color-window-widget;
 }
 
-
 listview {
     padding: 0px;
     spacing: @widget-spacing;
@@ -163,10 +169,16 @@ listview {
     dynamic: @listview-resize;
     cycle: true;
 
-    scrollbar: @listview-scrollbar;
+    scrollbar: false;
     scrollbar-width: @widget-padding;
 
     background-color: @color-window-child;
+}
+
+@media ( enabled: env(ROFI_SCROLLBAR, false)) {
+    listview {
+        scrollbar: true;
+    }
 }
 
 scrollbar {
@@ -175,7 +187,8 @@ scrollbar {
     border-color: transparent;
 }
 
-element, button {
+element,
+button {
     padding: @widget-padding;
     spacing: @widget-spacing;
     border-radius: @widget-radius;
@@ -183,11 +196,13 @@ element, button {
     cursor: pointer;
 }
 
-element normal.normal, button normal.normal {
+element normal.normal,
+button normal.normal {
     background-color: @color-element-normal-normal;
     text-color: @color-element-text-normal;
 }
-element selected.normal, button selected.normal{
+element selected.normal,
+button selected.normal {
     background-color: @color-element-selected-normal;
     text-color: @color-element-selected-normal-text;
     text-transform: bold;
@@ -196,16 +211,19 @@ element selected.normal {
     border: @element-selected-border;
     border-color: @color-element-selected-normal-border;
 }
-element alternate.normal, button alternate.normal {
+element alternate.normal,
+button alternate.normal {
     background-color: @color-element-alternate-normal;
     text-color: @color-element-text-normal;
 }
 
-element normal.urgent, button normal.urgent {
+element normal.urgent,
+button normal.urgent {
     background-color: @color-element-normal-urgent;
     text-color: @color-element-text-urgent;
 }
-element selected.urgent, button selected.urgent {
+element selected.urgent,
+button selected.urgent {
     background-color: @color-element-selected-urgent;
     text-color: @color-element-selected-urgent-text;
     text-transform: bold;
@@ -214,16 +232,19 @@ element selected.urgent {
     border: @element-selected-border;
     border-color: @color-element-selected-urgent-border;
 }
-element alternate.urgent, button alternate.urgent {
+element alternate.urgent,
+button alternate.urgent {
     background-color: @color-element-alternate-urgent;
     text-color: @color-element-text-urgent;
 }
 
-element normal.active, button normal.active {
+element normal.active,
+button normal.active {
     background-color: @color-element-normal-active;
     text-color: @color-element-text-active;
 }
-element selected.active, button selected.active {
+element selected.active,
+button selected.active {
     background-color: @color-element-selected-active;
     text-color: @color-element-selected-active-text;
     text-transform: bold;
@@ -232,21 +253,26 @@ element selected.active {
     border: @element-selected-border;
     border-color: @color-element-selected-active-border;
 }
-element alternate.active, button alternate.active {
+element alternate.active,
+button alternate.active {
     background-color: @color-element-alternate-active;
     text-color: @color-element-text-active;
 }
 
-element-icon, button-icon {
+element-icon,
+button-icon {
     size: 24px;
     vertical-align: 0.5;
     background-color: @color-window-child;
     cursor: inherit;
 }
 
-element-index { enabled: false; }
+element-index {
+    enabled: false;
+}
 
-element-text, button-text {
+element-text,
+button-text {
     background-color: @color-window-child;
     vertical-align: 0.5;
     highlight: @color-element-selection-text-highlight;
@@ -254,4 +280,3 @@ element-text, button-text {
     text-transform: inherit;
     cursor: inherit;
 }
-

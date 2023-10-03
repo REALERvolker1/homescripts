@@ -1,0 +1,9 @@
+
+* {
+    font-search: "sans-serif 20";
+    font-item: "monospace 14";
+
+    window-width: 40%;
+
+}
+

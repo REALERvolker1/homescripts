@@ -4,6 +4,7 @@
 */
 
 @theme "theme.rasi"
+// @theme "newtheme.rasi"
 
 configuration {
     // prompts
@@ -21,7 +22,7 @@ configuration {
     modes: [
         "drun",
         "run",
-        "powermenu:/home/vlk/.config/rofi/modi/powermenu.sh"
+        "powermenu:~/.config/rofi/modi/powermenu.sh"
     ];
 
     // make this work more better-er
@@ -35,7 +36,7 @@ configuration {
     sorting-method: "fzf";
 
     // this doesn't do shit
-    terminal: "kitty";
+    terminal: "vlk-sensible-terminal 1";
     run-shell-command: "{terminal} -e {cmd}";
     // this does but also runs with drun
     // run-command: "{terminal} -e {cmd}";
@@ -46,8 +47,8 @@ configuration {
     show-icons: true;
     //icon-theme: "Newaita-reborn-deep-purple-dark";
     drun {
-        //fallback-icon: "application-x-addon";
-        fallback-icon: "<span color='#FFFFFF'>󰀶</span>";
+        fallback-icon: "application-x-addon";
+        // fallback-icon: "<span color='#FFFFFF'>󰀶</span>";
     }
     run {
         fallback-icon: "system-run";
