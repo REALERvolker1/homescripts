@@ -4,7 +4,7 @@ box_color="[38;5;$(shuf -i 1-255 -n 1)m"
 prop0="${SHLVL:-999}"
 prop1="$(uptime -p | sed 's/^up // ; s/hour/hr/g ; s/minute/min/g')"
 prop2="${TERM:-Undefined}"
-prop3="$(printf '%s\t' $(df -h -l -t btrfs --output=pcent) | cut -f 2)"
+prop3="$(printf '%s ' $(df -h -l -t btrfs -t xfs -t ext4 --output=pcent | grep -v '^[A-Za-z]' | uniq))"
 if [ -n "${CONTAINER_ID:-}" ]; then
     prop4="${CONTAINER_ID:-}"
     prop4_label='󰏖 Distbx'
@@ -28,15 +28,17 @@ len=0
 for i in "$prop1" "$prop2" "$prop4" "$prop5"; do
     [ "${#i}" -gt "$len" ] && len="${#i}"
 done
-length_string="$(printf "%-${len}s\n" '' | sed 's/ /─/g')"
 
-printf '%s\n' "${box_color}╭─────────────────┬─────────────${length_string}╮[0m"
+length_string="$(printf "%-${len}s\n" '' | sed 's/ /─/g')"
+# length_string="$(printf "%-${len}s\n" '' | tr '[:blank:]' '─')"
+
+printf '%s\n' "${box_color}╭────────────────┬─────────────${length_string}╮[0m"
 printf "${box_color}│[0m[92m%s${box_color}│[0m%s   [1m%-${len}s [0m${box_color}│[0m\n" \
-    '          _      ' '[94m  SHLVL ' "$prop0" \
-    '  _______| |__   ' '[95m 󰅐 Uptime' "$prop1" \
-    ' |_  / __| `_ \  ' '[96m  Term  ' "$prop2" \
-    '  / /\__ \ | | | ' '[93m 󰋊 Disk  ' "$prop3" \
-    ' /___|___/_| |_| ' "[92m $prop4_label" "$prop4" \
-    '                 ' '[91m  Kernel' "$prop5"
-printf '%s\n' "${box_color}╰─────────────────┴─────────────${length_string}╯[0m"
+    '        _ _     ' '[94m  SHLVL ' "$prop0" \
+    ' __   _| | | __ ' '[95m 󰅐 Uptime' "$prop1" \
+    ' \ \ / / | |/ / ' '[96m  Term  ' "$prop2" \
+    '  \ V /| |   <  ' '[93m 󰋊 Disk  ' "$prop3" \
+    '   \_/ |_|_|\_\ ' "[92m $prop4_label" "$prop4" \
+    '                ' '[91m  Kernel' "$prop5"
+printf '%s\n' "${box_color}╰────────────────┴─────────────${length_string}╯[0m"
 # ┴

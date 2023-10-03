@@ -65,6 +65,8 @@ _pkginst () {
      ~/.local/share/nvim/site/pack/packer/start/packer.nvim
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
+    # https://www.azul.com/downloads/#prime
+
     sudo dnf install --allowerasing ffmpeg ffmpeg-devel
 
     sudo dnf install xinput xprop xev wev light gammastep inotify-tools lm_sensors lm_sensors-devel acpi acpica-tools acpitool clipman turbojpeg GraphicsMagick-c++ kvantum qt5ct qt6ct qt5-qtwayland qt6-qtwayland foot libadwaita-devel btop fish ranger xeyes xlsclients git-delta difftastic duf fastfetch chafa cava ranger tmux nodejs-npm typescript shellcheck shfmt git-extras pip gparted slop maim grim slurp pdf2svg sysstat python3-csvkit perl-Image-ExifTool odt2txt mpv vlc evtest hsetroot xsetroot mpv-mpris mangohud d-feet ripgrep socat gnome-keyring gnome-keyring-pam gucharmap gnome-font-viewer gnome-characters piper qpwgraph dconf-editor baobab mediawriter adwaita-qt6 ristretto gh docker distrobox blueman gamemode cmatrix cbonsai hidapi-devel bindfs awf-gtk2 awf-gtk3 awf-gtk4 gimp inkscape trash-cli golang fortune-mod adw-gtk3-theme rofi-wayland picom i3 kitty alacritty gnome-calculator flatpak xfce-polkit fzf git neovim zsh dash lolcat figlet cowsay bat lsd dbus-x11

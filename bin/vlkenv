@@ -13,6 +13,7 @@ export CURRENT_HOSTNAME="JOE" # The hostname of my main pc
 
 export HOME="${HOME:-/home/$(whoami)}"
 export HOSTNAME="${HOSTNAME:-$(hostname)}"
+export TTY="${TTY:-$(tty)}"
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CACHE_HOME="$HOME/.cache"
