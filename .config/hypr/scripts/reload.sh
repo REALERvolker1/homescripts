@@ -8,6 +8,7 @@ if [ "$XDG_CURRENT_DESKTOP" = 'Hyprland' ]; then
         kill "$line"
     done
     waybar &
+    pointer.sh -n &
     #vlkbg.sh
     #killall -SIGUSR2 waybar
 

@@ -16,6 +16,11 @@ else
     exit 1
 fi
 
+sudo dnf install kde-connect
+sudo netstat -tunelp | grep -i kdeconnect
+sudo firewall-cmd --permanent --zone=public --add-service=kdeconnect
+sudo firewall-cmd --reload
+
 _initialize () {
 
     sudo dnf update --refresh
