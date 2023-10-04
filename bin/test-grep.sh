@@ -1,3 +1,9 @@
-#!/usr/bin/zsh
+#!/usr/bin/bash
 
-( true "${(j:\n:)path}" ) 2>/dev/null || exit 77
+sh -c "while true; do nvidia-smi >/dev/null; sleep 5; done" &
+thatpid="$!"
+
+sleep 10
+kill "$thatpid"
+
+wait

@@ -171,7 +171,8 @@ export PATH="$(
         "${BUN_INSTALL:-BUN_INSTALL}/bin" \
         "${PNPM_HOME:-PNPM_HOME}" \
         "${PYTHONUSERBASE:-PYTHONUSERBASE}/bin" \
-        '/var/lib/flatpak/exports/bin'
+        '/var/lib/flatpak/exports/bin' \
+        '/usr/local/bin'
 )"
 [ "${__vlkenv_pathmunge_bin:-}" = '__pathmunge' ] && unset -f __pathmunge
 
