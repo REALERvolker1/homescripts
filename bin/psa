@@ -1,57 +1,83 @@
 #!/usr/bin/bash
-
 set -euo pipefail
+# IFS=$'\n\t'
+IFS=$' \n\t'
 
-declare -A actions
-
-actions[print]="print the full command"
-actions[kill]="Kill the process"
-actions[spawn]='Spawn a new instance'
-actions[tree]='Print process tree'
-
-if command -v pidstat >/dev/null; then
-    previewcmd='pidstat -p $(echo {} | grep -oP "^\\s*\\K[^ ]*")'
-    actions[stat]='run pidstat'
-else
-    echo "Please install 'sysstat' to provide the command 'pidstat'" >&2
-    previewcmd='echo {} | tr -s "[:blank:]" " "'
-fi
-
-selected_program="$(ps -eo pid,comm,exe | fzf --preview-window='down,25%' --header-lines=1 --preview="$previewcmd" -q "${1:-}" | tr -s '[:blank:]' ' ')"
-
-[ -z "${selected_program:-}" ] && exit 1
-
-pid="$(echo "$selected_program" | cut -d ' ' -f 2)"
-comm="$(echo "$selected_program" | cut -d ' ' -f 3)"
-exe="$(echo "$selected_program" | cut -d ' ' -f 4)"
-
-if [ "$exe" = '-' ]; then
-    echo "Error, no executable detected. Falling back to command name" >&2
-    exe="$comm"
-fi
-
-selected_action="$(printf '%s\n' "${actions[@]}" | tac | fzf --disabled)"
-
-case "$selected_action" in
-"${actions[print]}")
-    echo "$exe"
-    ;;
-"${actions[kill]}")
-    kill "$pid"
-    ;;
-"${actions[spawn]}")
-    if [ -x "${exe## *}" ]; then
-        exec $exe
-    else
-        echo "command '${exe## *}' was not found!"
+for i in pidstat fzf lscolors realpath dircolors; do
+    if ! command -v "$i" &>/dev/null; then
+        echo "Missing dependency command '$i'" >&2
         exit 1
     fi
+done
+[ -z "${LS_COLORS:-}" ] && eval "$(dircolors -b <(dircolors -p))"
+
+exe_color="[$(echo "$LS_COLORS" | tr -s ':' '\n' | grep -m 1 -oP 'ex=\K[^:]*')m"
+
+arg_colorizer() {
+    local i i_key i_val join firstarg
+    local -a output=()
+    for i in "$@"; do
+        if [ -z "${firstarg:-}" ]; then
+            if [ ! -e "$i" ] && command -v "$i" &>/dev/null && [[ "$i" != *'/'* ]]; then
+                i="${exe_color:-[1m}$i"
+                firstarg='y'
+                # i="[1m${i}[0m"
+            fi
+        fi
+        if [[ "$i" == *'='* ]]; then
+            i_key="${i%%=*}"
+            i_val="${i#*=}"
+            join='='
+        else
+            i_key="$i"
+            i_val=''
+            join=''
+        fi
+        if [ -e "$i_key" ]; then
+            i_key="$(lscolors "$i_key")"
+        elif [ -e "$i_val" ]; then
+            i_val="$(lscolors "$i_val")"
+        fi
+        output+=("${i_key}${join}${i_val}")
+        # echo -n "[0m${output}[0m "
+    done
+    printf '[0m%s[0m ' "${output[@]}"
+}
+
+PIDSTAT='pidstat --human -lRtU -p'
+export S_COLORS=always
+declare -A actions=(
+    [stat]='1: Get statistics'
+    [tree]='2: Print process tree'
+    [kill]='3: Kill process'
+)
+
+ps="$(
+    ps -eo pid,comm,args |
+        tr -s '[:blank:]' ' ' |
+        sed -E 's/^\s+([0-9]+) ([^ ]+)(\s+([^ ]+))?/[0m[1;33m\1[0m [1;94m\2[0m[32m\3/g' |
+        fzf --ansi --preview-window='down,25%' --header-lines=1 --preview="$PIDSTAT \$"'(echo {} | grep -oP "^\\s*\\K[^ ]*")' -q "${1:-}"
+)"
+[ -z "${ps:-}" ] && exit 1
+
+pid="${ps%% *}"
+tmpps="${ps#* }"
+comm="${tmpps%% *}"
+tmpps="${tmpps#* }"
+args="${tmpps# *}"
+
+commstr="[1mPID:[0m $pid
+[1mName:[0m $comm
+[0m$(arg_colorizer $args)[0m"
+
+case "$(printf '%s\n' "${actions[@]}" | sort | fzf --ansi --preview-window='down,25%' --preview="echo '$commstr'")" in
+"${actions[stat]}")
+    exec sh -c "$PIDSTAT $pid"
     ;;
 "${actions[tree]}")
     parent=''
     declare -a children
     found=''
-    IFS=$'\n\t'
     for i in $(ps -eo pid,comm --forest --no-headers); do
         if [[ "$i" == *"$pid"* ]]; then
             i="$(tput bold)$i$(tput sgr0)"
@@ -64,12 +90,19 @@ case "$selected_action" in
             parent="$i"
             children=()
         fi
-        # echo "$i"
     done
-    echo "$parent"
-    printf '%s\n' "${children[@]}"
+    printf '%s\n' "$parent" "${children[@]}"
     ;;
-"${actions[stat]}")
-    command -v pidstat >/dev/null && exec pidstat -p "$pid"
+"${actions[kill]}")
+    echo "Are you sure you want to kill process ${pid}?"
+    echo "$ps"
+    echo -n '[y/N] > '
+    read -r answer
+    [ "$answer" != y ] && exit 0
+    kill "$pid"
+    ;;
+*)
+    echo "Error, please select a valid action!" >&2
+    exit 1
     ;;
 esac
