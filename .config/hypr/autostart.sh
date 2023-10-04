@@ -14,9 +14,10 @@ ydotoold &
 asusctl -c 80 &
 
 # "$XDG_CONFIG_HOME/hypr/scripts/pluginload.sh" &
-vlkbg.sh &
+#vlkbg.sh &
 autostart-gammastep.sh &
 dunst &
+hyprpaper &
 
 # barcfg
 waybar &

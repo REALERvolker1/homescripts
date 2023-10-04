@@ -8,7 +8,7 @@ if [ "$XDG_CURRENT_DESKTOP" = 'Hyprland' ]; then
         kill "$line"
     done
     waybar &
-    vlkbg.sh
+    #vlkbg.sh
     #killall -SIGUSR2 waybar
 
     #notify-send -a "$XDG_CURRENT_DESKTOP" 'reload' 'manually reloaded configuration'
