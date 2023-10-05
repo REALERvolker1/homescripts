@@ -3,59 +3,34 @@
 # vim:foldmethod=marker:ft=sh
 # shellcheck disable=SC2139
 
-if ! [[ 1 ]] 2>/dev/null || [[ "$-" != *i* ]] 2>/dev/null; then
+[[ "$-" == *i* ]] || {
     echo "Error, you must source this file with interactive zsh or bash" >&2
-    return 1 2>/dev/null
+    return 1
     exit 1
-fi
+}
 
-#[ -n "${CONTAINER_ID:-}" ] && [ -n "${ZSH_VERSION:-}" ] && alias which='alias | /usr/bin/which --tty-only --read-alias --show-tilde --show-dot'
-alias which='( alias; declare -f ) | /bin/which --tty-only --read-alias --read-functions --show-tilde --show-dot'
+: "${DIRECTORY_COLOR:=1;34}"
 
-# the following are just some random notes :3
-
-# bash feature test: [[ 1 ]] 2>/dev/null
-# zsh feature test: ( true "${(q)0}" ) 2>/dev/null
-
-# sudo virsh console fedora38-server #username: root, password: root
-# distrobox-create --name ARCH --image archlinux:latest
-[ -f "$HOME/.xsel.log" ] && rm "$HOME/.xsel.log" &>/dev/null
+__which="$(which --skip-alias which)"
+alias which="( alias; declare -f ) | $__which --tty-only --read-alias --read-functions --show-tilde --show-dot"
+alias whihc="$__which"
 
 __homebin="$HOME/bin"
 
-# hardcoded path
-__lscmd="$(which --skip-alias ls)"
-__lsargs='--color=auto --group-directories-first'
+__ls="$($__which --skip-alias ls)"
+__lscmd="$__ls --color=auto --group-directories-first -A"
 
-# if command -v lsd &>/dev/null; then
-#     alias ls=lsd
-#     alias ll='lsd -l'
+alias ls="${LS_COMMAND:=$__lscmd}"
+alias ll="${LL_COMMAND:=$__lscmd -l}"
+alias la="${LA_COMMAND:=$__lscmd}"
 
-#     alias tree='lsd --tree'
-# else
-#     alias ls="$__lscmd $__lsargs -A"
-#     alias ll="$__lscmd $__lsargs -Al"
-
-#     if which --skip-alias tree &>/dev/null; then
-#         true
-#     else
-#         alias tree="$__lscmd $__lsargs -AR"
-#     fi
-# fi
-
-[[ -n "${LS_COMMAND:-}" ]] && alias ls="$LS_COMMAND"
-[[ -n "${LL_COMMAND:-}" ]] && alias ll="$LL_COMMAND"
-[[ -n "${LA_COMMAND:-}" ]] && alias la="$LA_COMMAND"
-
-# alias la="$__lscmd $__lsargs -A"
-# alias lah="$__lscmd $__lsargs -AFsh"
-
-unset __lscmd __lsargs
+unset __lscmd
 
 alias sl=ls
 alias l=ls
 alias s=ls
 
+unalias cd 2>/dev/null
 alias -- -='cd -'
 
 alias ...='cd ../..'
@@ -64,7 +39,7 @@ alias ....='cd ../../..'
 alias pw=pwd
 
 rp() {
-    if [ -z "${1:-}" ]; then
+    if [[ -z "${1:-}" ]]; then
         realpath "$PWD"
     else
         local i
@@ -79,43 +54,17 @@ alias suod=sudo
 alias q=exit
 alias :q=exit
 
-# session_end() {
-#     local selected="${1:?Error, please select a session ending option}"
-#     echo -n "[${selected}]Do you really want to end your session? [y/N] (n) > "
-#     local answer
-#     read -r answer
-#     if [[ "${answer:-}" == 'y' ]]; then
-#         case "${selected:-}" in
-#         'shutdown')
-#             systemctl poweroff
-#             ;;
-#         'reboot')
-#             systemctl reboot
-#             ;;
-#         'logout')
-#             loginctl kill-session "${XDG_SESSION_ID}"
-#             ;;
-#         esac
-#     fi
-# }
-
-# alias shutdown='session_end shutdown'
-# alias reboot='session_end reboot'
-# alias restart='session_end reboot'
-# alias logout='session_end logout'
-
 alias shutdown='systemctl poweroff'
 alias reboot='systemctl reboot'
 alias logout="loginctl kill-session '$XDG_SESSION_ID'"
 
-__rmcmd="$(which --skip-alias rm)"
-
-alias fuck="$__rmcmd -rf"
-alias frick='trash -fvi'
-alias rmf="$__rmcmd -rf"
-alias rm='trash -i -r'
-
-unset __rmcmd
+alias rmf="$($__which --skip-alias rm) -rf"
+if command -v trash &>/dev/null; then
+    alias rm='trash -i -r'
+else
+    alias rm=rmf
+fi
+[[ -f "$HOME/.xsel.log" ]] && rmf "$HOME/.xsel.log" &>/dev/null
 
 alias touchc="$__homebin/touchx.sh --codium"
 alias touchv="$__homebin/touchx.sh --nvim"
@@ -143,6 +92,9 @@ alias glop='glow --pager'
 alias batop=battop
 alias battio=battop
 
+# OpenAI whisper -- run `pip install --user --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git`
+alias whisp='whisper --model medium.en --device cuda --output_format txt --language en'
+
 alias ytmp3="yt-dlp --extract-audio --audio-format mp3 "
 alias ytmp4="yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --progress --remux-video mp4 "
 
@@ -154,30 +106,19 @@ elif command -v chafa &>/dev/null; then
     alias icat=chafa
 fi
 
-if command -v difft &>/dev/null; then
-    alias diff=difft
-fi
-if command -v duf &>/dev/null; then
-    alias df=duf
-fi
-if command -v dust &>/dev/null; then
-    alias du=dust
-fi
-if command -v ouch &>/dev/null; then
-    alias extract='ouch decompress'
-fi
+command -v difft &>/dev/null && alias diff=difft
+command -v duf &>/dev/null && alias df=duf
+command -v dust &>/dev/null && alias du=dust
+command -v ouch &>/dev/null && alias extract='ouch decompress'
 
 alias unfuck-old-backup='tar --hole-detection=seek --keep-directory-symlink -xzf '
-alias extract='ouch decompress'
 
 alias free='free -h'
 
 alias ra=ranger
 
 alias fr='flatpak run'
-alias whihc=which
 
-#alias startx='startx "$XINITRC"'
 alias wget='wget --show-progress'
 
 alias bg-gen='convert +append -resize x1080'
@@ -218,7 +159,7 @@ alias gitd='git fetch && git diff "origin/$(git branch | grep -oP "\*[[:space:]]
 alias uncommit='git reset --soft HEAD~'
 
 dotfiles_git_interact() {
-    if [ ! -d "${HOMESCRIPTS:-}" ]; then
+    if [[ ! -d "${HOMESCRIPTS:-}" ]]; then
         echo "Error, directory '${HOMESCRIPTS:-}' does not exist!"
         return 1
     fi
@@ -234,18 +175,19 @@ dotfiles_git_interact() {
 }
 
 throwaway-docker() {
-    local stty="$(stty --save)"
+    if [[ "$(id "$USER")" != *'(docker)'* ]]; then
+        echo "Error, $USER must be in group 'docker' (sudo usermod -aG '$USER' 'docker')"
+        return 1
+    fi
+    local stty
+    stty="$(stty --save)"
     local docker_dir="$XDG_CACHE_HOME/throwaway-docker"
     mkdir -p "$docker_dir"
-
-    local sucmd='sudo '
-    [[ "$(id "$USER")" == *'(docker)'* ]] && sucmd=''
-
     local container="fedora:latest"
-    ${sucmd}docker pull "$container"
+    docker pull "$container"
     printf '%s\n' '' "===[Entering container]===" "Shared directory: $(tput bold)${docker_dir} -> /$USER$(tput sgr0)" ''
 
-    ${sucmd}docker run --privileged=true -v "$docker_dir":"/$USER" --rm -ti "$container" bash -i
+    docker run --privileged=true -v "${docker_dir}:/$USER" --rm -ti "$container" bash -i
     stty "$stty" || stty sane
 }
 
@@ -293,7 +235,6 @@ alias pmr='sudo pacman -Rcns '
 
 alias xclassget='xprop | grep WM_CLASS'
 alias xkeyget="xev -event keyboard | grep -Eo 'keycode.*\)'"
-
 alias numlock-query="xset q | grep -Po 'Num Lock: *\K[a-z]*'"
 
 alias gpu=switcherooctl
@@ -315,25 +256,26 @@ alias printfn="printf '%s\n' "
 alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 
 alias ARCH='distrobox-enter -n ARCH'
-if [ -n "${ZSH_VERSION:-}" ]; then
+__cd_ls() {
+    local -i fcount="$(\ls -A1 | wc -l)"
+    ((fcount < 30)) && ls || echo -e "\e[${DIRECTORY_COLOR}m${fcount}\e[0m items in this folder"
+}
+
+if [[ -n "${ZSH_VERSION:-}" ]]; then
     alias refresh='exec zsh'
     alias lsh="hash -dL | sed 's/hash -d //g ; s/=/  \t  /g' | fzf"
-    #alias ARCH='distrobox-enter -n ARCH -- /usr/bin/zsh'
     alias aliases='printf "\e[1;93m%s\e[0m = \e[92m%s\e[0m\n" "${(@kv)aliases}"'
     alias fenv='typeset | fzf'
 
-    __cd_ls() {
-        local -i fcount="$(printf '%s\n' ./*(N) | wc -l)"
-        ((fcount < 30)) && { ls; return; }
-        echo -e "\e[${${${LS_COLORS:-01;34}##*:di=}%%:*}m${fcount}\e[0m items in this folder"
-    }
     chpwd_functions+=('__cd_ls')
 
-elif [ -n "${BASH_VERSION:-}" ]; then
+elif [[ -n "${BASH_VERSION:-}" ]]; then
     alias refresh='exec bash'
-    #alias ARCH='distrobox-enter -n ARCH -- /usr/bin/bash'
     alias fenv='printenv | fzf'
-    #[[ "${BASH_VERSION//5.2/aaaaaaaa}" != 'aaaaaaaa'* ]] && echo nowhich
+    cd() {
+        builtin cd "$@" || return
+        __cd_ls
+    }
 fi
 
 if command -v grub2-mkconfig &>/dev/null; then
@@ -341,21 +283,6 @@ if command -v grub2-mkconfig &>/dev/null; then
 elif command -v grub-mkconfig &>/dev/null; then
     alias grubcfg='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 fi
-
-mkcd() {
-    local directory="${1:?Error, please choose a directory name!}"
-    directory="$(realpath -m "$directory")"
-    local dircolor="${LS_COLORS##*:di=}"
-    dircolor="${dircolor%%:*}"
-    dircolor="${dircolor:-1;94}"
-
-    if mkdir -p "$directory"; then
-        echo "made dir $directory"
-        cd "$directory" && printf '\033[92m+\033[0m \033[%sm%s\033[0m' "$dircolor" "$directory"
-    else
-        return 1
-    fi
-}
 
 gitc() {
     local git_link="${1?:Error. Specify link to clone}"
@@ -366,25 +293,26 @@ gitc() {
     fi
     echo -e "Cloning \033[4m$git_link\033[0m "
     git clone "$git_link"
-    cd "${git_dir%.git}"
+    cd "${git_dir%.git}" || return 1
 }
 
 readme() {
-    local readmecmd
-    if command -v 'glow' &>/dev/null; then
-        readmecmd='glow'
-    elif command -v 'bat' &>/dev/null; then
-        readmecmd='bat'
-    else
-        readmecmd='cat'
-    fi
-    $readmecmd "$(printf '%s\n' ./* | grep -i 'readme' | fzf --select-1)"
+    : "${1:=$(printf '%s\n' ./* | grep -i 'readme' | fzf --select-1)}"
+    (
+        if command -v 'glow' &>/dev/null; then
+            glow "$1"
+        elif command -v 'bat' &>/dev/null; then
+            bat "$1"
+        else
+            cat "$1"
+        fi
+    )
 }
 
 dotadd() {
     local dotfolder="${1:?Error, please choose a folder!}"
     dotfolder="$(realpath -e "$dotfolder")"
-    [ -e "$dotfolder" ] || return 1
+    [[ -e "$dotfolder" ]] || return 1
 
     local linkfolder
     case "$dotfolder" in
@@ -401,20 +329,7 @@ dotadd() {
 }
 
 fzfify() {
-    : "${1:?Error, please enter a list of stuff to fzfify!}"
-    printf '%s\n' "$@" | fzf
+    printf '%s\n' "${@:-Error, please enter a list of stuff to fzfify!}" | fzf
 }
 
-keyring() {
-    if pgrep 'gnome-keyring-d' &>/dev/null; then
-        busctl --user get-property 'org.gnome.keyring' \
-            '/org/freedesktop/secrets/collection/login' \
-            'org.freedesktop.Secret.Collection' \
-            'Locked' | sed 's/^b //g'
-    else
-        echo "Error, gnome-keyring-daemon doesn't seem to be running!"
-        return 1
-    fi
-}
-
-unset __homebin
+unset __homebin __ls __which

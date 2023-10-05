@@ -1,17 +1,16 @@
 # .zshrc
-if [ -z "${ZSH_VERSION:-}" ] || [ -n "${ZSHRC_LOADED:-}" ] || [[ $- != *i* ]] 2>/dev/null; then
-    echo "doublesourced $0"
-    return
-    exit
+# if ! true "${(q)0}" || [[ -n "${ZSHRC_LOADED:-}" ]] || [[ $- != *i* ]]; then
+if [[ -n $ZSH_VERSION && -z $ZSHRC_LOADED && $- == *i* ]]; then
+    :
+else
+    echo "failed to load zshrc"
+    return 1
+    exit 1
 fi
-#{ [ -n "${ZSH_VERSION:-}" ] && [ -z "${ZSHRC_LOADED:-}" ] && [[ $- == *i* ]] } || return || exit
-
-# A note to any beleaguered viewers of my public dotfiles: browse .config/zsh/rc.d
 
 for i in "$ZDOTDIR/rc.d"/*.zsh; do
     #[[ "$i" == *vlkprompt* ]] && continue
     if [[ "$i" == *.defer.zsh ]]; then
-        # lazy-load
         zsh-defer . "$i"
     else
         . "$i"

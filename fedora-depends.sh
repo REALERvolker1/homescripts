@@ -71,6 +71,9 @@ _pkginst () {
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
     # https://www.azul.com/downloads/#prime
+    #
+    # # sudo virsh console fedora38-server #username: root, password: root
+# distrobox-create --name ARCH --image archlinux:latest
 
     sudo dnf install --allowerasing ffmpeg ffmpeg-devel
 
