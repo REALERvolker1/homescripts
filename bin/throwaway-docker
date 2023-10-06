@@ -1,0 +1,29 @@
+#!/usr/bin/bash
+
+set -eu
+
+CONTAINER="fedora:latest"
+DOCKER_DIR="$XDG_CACHE_HOME/throwaway-docker"
+
+stty="$(stty --save)"
+
+if [[ "$(id "$USER")" != *'(docker)'* ]]; then
+    echo "Error, $USER must be in group 'docker' (sudo usermod -aG '$USER' 'docker')"
+    return 1
+fi
+
+mkdir -p "$DOCKER_DIR"
+
+docker pull "$CONTAINER"
+
+cat <<EOF
+
+===[Entering container]===
+Shared directory: $(tput bold)${DOCKER_DIR} -> /${USER}$(tput sgr0)
+
+EOF
+set +eu
+# run with priveleged to be able to share folder on SELinux systems
+docker run --privileged=true -v "${DOCKER_DIR}:/$USER" --rm -ti "$CONTAINER" bash -i
+
+stty "$stty" || stty sane

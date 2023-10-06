@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 # shellcheck shell=bash
 # vim:foldmethod=marker:ft=sh
-# shellcheck disable=SC2139
+# shellcheck disable=2139,2317,2012
 
 [[ "$-" == *i* ]] || {
     echo "Error, you must source this file with interactive zsh or bash" >&2
@@ -13,7 +13,7 @@
 
 __which="$(which --skip-alias which)"
 alias which="( alias; declare -f ) | $__which --tty-only --read-alias --read-functions --show-tilde --show-dot"
-alias whihc="$__which"
+alias whihc=which
 
 __homebin="$HOME/bin"
 
@@ -158,42 +158,30 @@ alias tit='echo 😜 && git '
 alias gitd='git fetch && git diff "origin/$(git branch | grep -oP "\*[[:space:]]*\K.*\$")"'
 alias uncommit='git reset --soft HEAD~'
 
-dotfiles_git_interact() {
-    if [[ ! -d "${HOMESCRIPTS:-}" ]]; then
-        echo "Error, directory '${HOMESCRIPTS:-}' does not exist!"
-        return 1
-    fi
-    local current_dir="$PWD"
-    cd "$HOMESCRIPTS" &>/dev/null || return 1
-    case "${1:-}" in
-    'm') gitm ;;
-    'p') git push ;;
-    'd') gitd ;;
-    *) echo 'Error, please specify a git action to take on dotfiles' ;;
-    esac
-    cd "$current_dir" &>/dev/null || return 1
-}
+# dotfiles_git_interact() {
+#     if [[ ! -d "${HOMESCRIPTS:-}" ]]; then
+#         echo "Error, directory '${HOMESCRIPTS:-}' does not exist!"
+#         return 1
+#     fi
+#     local current_dir="$PWD"
+#     cd "$HOMESCRIPTS" &>/dev/null || return 1
+#     case "${1:-}" in
+#     'm') gitm ;;
+#     'p') git push ;;
+#     'd') gitd ;;
+#     *) echo 'Error, please specify a git action to take on dotfiles' ;;
+#     esac
+#     cd "$current_dir" &>/dev/null || return 1
+# }
 
-throwaway-docker() {
-    if [[ "$(id "$USER")" != *'(docker)'* ]]; then
-        echo "Error, $USER must be in group 'docker' (sudo usermod -aG '$USER' 'docker')"
-        return 1
-    fi
-    local stty
-    stty="$(stty --save)"
-    local docker_dir="$XDG_CACHE_HOME/throwaway-docker"
-    mkdir -p "$docker_dir"
-    local container="fedora:latest"
-    docker pull "$container"
-    printf '%s\n' '' "===[Entering container]===" "Shared directory: $(tput bold)${docker_dir} -> /$USER$(tput sgr0)" ''
+# alias dotm='dotfiles_git_interact m'
+# alias dotp='dotfiles_git_interact p'
+# alias dotd='dotfiles_git_interact d'
 
-    docker run --privileged=true -v "${docker_dir}:/$USER" --rm -ti "$container" bash -i
-    stty "$stty" || stty sane
-}
-
-alias dotm='dotfiles_git_interact m'
-alias dotp='dotfiles_git_interact p'
-alias dotd='dotfiles_git_interact d'
+alias dotm="$__homebin/dotfiles.sh --git commit"
+alias dotp="$__homebin/dotfiles.sh --git push"
+alias dotd="$__homebin/dotfiles.sh --git diff"
+alias dotadd="$__homebin/dotfiles.sh --dotadd"
 
 alias cr='cargo run -- '
 alias cbr='cargo build --release'
@@ -210,7 +198,7 @@ alias dfnr=dnfr
 alias dnfu='sudo dnf update --refresh'
 alias dfnu=dnfu
 
-#alias dnfs="dnf search "
+command -v dnfs &>/dev/null || alias dnfs="dnf search "
 alias dfns=dnfs
 
 alias dnfl='dnf list --installed | fzf'
@@ -257,21 +245,20 @@ alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 
 alias ARCH='distrobox-enter -n ARCH'
 __cd_ls() {
-    local -i fcount="$(\ls -A1 | wc -l)"
+    local -i fcount
+    fcount="$(\ls -A1 | wc -l)"
     ((fcount < 30)) && ls || echo -e "\e[${DIRECTORY_COLOR}m${fcount}\e[0m items in this folder"
 }
+alias fenv='declare | fzf'
 
 if [[ -n "${ZSH_VERSION:-}" ]]; then
     alias refresh='exec zsh'
     alias lsh="hash -dL | sed 's/hash -d //g ; s/=/  \t  /g' | fzf"
     alias aliases='printf "\e[1;93m%s\e[0m = \e[92m%s\e[0m\n" "${(@kv)aliases}"'
-    alias fenv='typeset | fzf'
-
     chpwd_functions+=('__cd_ls')
 
 elif [[ -n "${BASH_VERSION:-}" ]]; then
     alias refresh='exec bash'
-    alias fenv='printenv | fzf'
     cd() {
         builtin cd "$@" || return
         __cd_ls
@@ -283,6 +270,8 @@ if command -v grub2-mkconfig &>/dev/null; then
 elif command -v grub-mkconfig &>/dev/null; then
     alias grubcfg='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 fi
+
+unset __homebin __ls __which
 
 gitc() {
     local git_link="${1?:Error. Specify link to clone}"
@@ -309,27 +298,29 @@ readme() {
     )
 }
 
-dotadd() {
-    local dotfolder="${1:?Error, please choose a folder!}"
-    dotfolder="$(realpath -e "$dotfolder")"
-    [[ -e "$dotfolder" ]] || return 1
+# dotadd() {
+#     local symlink dotfolder linkfolder
+#     dotfolder="${1:?Error, please choose a folder!}"
+#     dotfolder="$(realpath -e "$dotfolder")"
+#     if [[ ! -e "$dotfolder" ]] || [[ ! -e "${HOMESCRIPTS:-}" ]]; then
+#         return 1
+#     fi
 
-    local linkfolder
-    case "$dotfolder" in
-    "$HOME/"*)
-        linkfolder="$HOMESCRIPTS/${dotfolder//$HOME/}"
-        ;;
-    *)
-        linkfolder="$HOMESCRIPTS/disk-root${dotfolder}"
-        ;;
-    esac
-    mkdir -p "${linkfolder%/*}"
-    mv "$dotfolder" "$linkfolder"
-    ln -s "$linkfolder" "$dotfolder"
-}
-
-fzfify() {
-    printf '%s\n' "${@:-Error, please enter a list of stuff to fzfify!}" | fzf
-}
-
-unset __homebin __ls __which
+#     case "$dotfolder" in
+#     "$HOME/"*)
+#         symlink=true
+#         linkfolder="$HOMESCRIPTS/${dotfolder//$HOME/}"
+#         ;;
+#     *)
+#         symlink=false
+#         linkfolder="$HOMESCRIPTS/disk-root${dotfolder}"
+#         ;;
+#     esac
+#     mkdir -p "${linkfolder%/*}" || return 1
+#     if $symlink; then
+#         mv -i "$dotfolder" "$linkfolder"
+#         ln -si "$linkfolder" "$dotfolder"
+#     else
+#         cp -ri "$dotfolder" "$linkfolder"
+#     fi
+# }

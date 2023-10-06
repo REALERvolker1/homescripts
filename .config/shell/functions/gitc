@@ -1,9 +1,0 @@
-local git_link="${1?:Error. Specify link to clone}"
-local git_dir="$PWD/${git_link##*/}"
-if [ "$PWD" = "$HOME" ]; then
-    echo "Error: don't clone a git file to '$PWD'!"
-    return 1
-fi
-echo -e "Cloning \033[4m$git_link\033[0m "
-git clone "$git_link"
-cd "${git_dir%.git}"

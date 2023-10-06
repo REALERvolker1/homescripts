@@ -28,10 +28,8 @@ else
         command -v "$i" >/dev/null && export EDITOR="$i" && break
     done
 fi
-
 export VISUAL="$EDITOR"
 export PAGER='less'
-
 export TERMINAL='vlk-sensible-terminal 1'
 export BROWSER='vlk-sensible-browser 1'
 
@@ -161,9 +159,9 @@ export XDG_DATA_DIRS="$(
         '/usr/local/share' \
         '/usr/share'
 )"
-export TERMINFO_DIRS="$(
-    PATHMUNGE_PATH="$TERMINFO_DIRS" $__vlkenv_pathmunge_bin $(echo "$XDG_DATA_DIRS:" | sed 's/:/\/terminfo /g')
-)"
+# export TERMINFO_DIRS="$(
+#     PATHMUNGE_PATH="$TERMINFO_DIRS" $__vlkenv_pathmunge_bin $(echo "$XDG_DATA_DIRS:" | sed 's/:/\/terminfo /g')
+# )"
 
 export PATH="$(
     PATHMUNGE_PATH="$PATH" $__vlkenv_pathmunge_bin \
@@ -183,7 +181,7 @@ unset ICON_TYPE
 __vlkenv_term="${TERM:-}"
 [ -n "${VTE_VERSION:-}" ] && __vlkenv_term='vte_alacritty'
 case "$__vlkenv_term" in
-*'kitty')
+*'kitty'*)
     ICON_TYPE='dashline'
     ;;
 *'alacritty'*)

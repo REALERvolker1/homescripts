@@ -1,2 +1,0 @@
-: "${1:?Error, please enter a list of stuff to fzfify!}"
-printf '%s\n' "$@" | fzf

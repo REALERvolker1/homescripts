@@ -153,7 +153,7 @@ unset icons colorsbg colorsfg colorstx colors content set ends __vlkprompt_i
 __vlk_precmd() {
     git status &>/dev/null && psvar[${index[git]}]=1
     [[ -w "$PWD" ]] && psvar[${index[writable]}]=1
-    [[ -z $DISTROBOX_ENTER_PATH ]] && sudo -vn &>/dev/null && psvar[${index[sudo]}]=1
+    [[ -z "${DISTROBOX_ENTER_PATH:-}" ]] && sudo -vn &>/dev/null && psvar[${index[sudo]}]=1
 }
 export -U precmd_functions=('__vlk_precmd')
 
