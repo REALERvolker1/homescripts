@@ -34,35 +34,9 @@ if [[ ! -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && command -v git &>/dev/null; the
 fi
 [[ -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && . "$BPLUGIN_DIR/blesh/out/ble.sh" --noattach
 
-# temporary fix copied directoy from my dashrc
-if command -v lscolors >/dev/null 2>&1; then
-    _colorhome="$(lscolors "$HOME" | sed 's|/.*|~|')"
-    __wdprint() {
-        # dash supports the `local` keyword for some reason
-        local __trailing_slash
-        [ "${PWD:=NULLPWD}" != "$HOME" ] && __trailing_slash='/'
-        case "$PWD" in
-        "$HOME"*)
-            echo "${_colorhome}${__trailing_slash:-}$(lscolors "$PWD" | grep -oP '/[^/]*/[^/]*/\K.*')"
-            ;;
-        *)
-            lscolors "$PWD"
-            ;;
-        esac
-    }
-else
-    __wdprint() {
-        case "${PWD:=NULLPWD}" in
-        "$HOME"*)
-            echo "$PWD" | sed "s|${HOME}|~|"
-            ;;
-        *)
-            echo "$PWD"
-            ;;
-        esac
-    }
-fi
-PS1='$(__wdprint) $ '
+[[ "${HOSTNAME:=$(hostname)}" != "${CURRENT_HOSTNAME:-ud}" ]] && hcol="@\[\e[94m\]\H\[\e[0m\]"
+PS1="\[\e[0m\]\n\$(r=\"\$?\";((r>0))&&echo \"\[\e[1;91m\]\$r\[\e[0m\] \")\[\e[1m\][\[\e[0;92m\]\u\[\e[0m\]${hcol:-}\[\e[1m\]]\[\e[0m\]\[\e[${DIRECTORY_COLOR:=1;34}m\] \w \[\e[0m\]$ "
+unset PROMPT_COMMAND hcol
 
 HISTFILE="$XDG_STATE_HOME/bash_history"
 HISTCONTROL='erasedups:ignoreboth'

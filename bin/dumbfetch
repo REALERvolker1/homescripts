@@ -30,7 +30,9 @@ for i in "$prop1" "$prop2" "$prop3" "$prop4" "$prop5"; do
     [ "${#i}" -gt "$len" ] && len="${#i}"
 done
 
-length_string="$(printf "%-${len}s\n" '' | sed 's/ /─/g')"
+# length_string="$(printf "%-${len}s\n" '' | sed 's/ /─/g')"
+length_string="$(printf "%0.s─" $(seq 1 "$len"))"
+# printf -v length_string "%0.s─" $(seq 1 "$len")
 
 printf '%s\n' "${box_color}╭────────────────┬─────────────${length_string}╮[0m"
 printf "${box_color}│[0m[92m%s${box_color}│[0m%s   [1m%-${len}s [0m${box_color}│[0m\n" \
