@@ -8,10 +8,15 @@ if [[ ! -d "${HOMESCRIPTS:-}" ]]; then
 fi
 
 git_interact() {
+    local default commitmsg
+    default="$(date +"Commit from ${0##*/} at %D %r")"
     cd "$HOMESCRIPTS"
     case "${1:-}" in
     'commit')
-        echo -e "What would you like the commit message to say?\n(enter 'q' or 'exit' to quit, leave blank to print default)\n> "
+        echo -en "What would you like the commit message to say?
+(enter 'q' or 'exit' to quit, leave blank to print default)
+$default
+> "
         read -r commitmsg
         case "${commitmsg:-}" in
         q | quit | exit)
@@ -19,7 +24,7 @@ git_interact() {
             return 1
             ;;
         '')
-            commitmsg="$(date +"Commit from ${0##*/} at %D %r")"
+            commitmsg="$default"
             ;;
         esac
         git add -A

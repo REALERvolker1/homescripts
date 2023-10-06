@@ -158,26 +158,6 @@ alias tit='echo 😜 && git '
 alias gitd='git fetch && git diff "origin/$(git branch | grep -oP "\*[[:space:]]*\K.*\$")"'
 alias uncommit='git reset --soft HEAD~'
 
-# dotfiles_git_interact() {
-#     if [[ ! -d "${HOMESCRIPTS:-}" ]]; then
-#         echo "Error, directory '${HOMESCRIPTS:-}' does not exist!"
-#         return 1
-#     fi
-#     local current_dir="$PWD"
-#     cd "$HOMESCRIPTS" &>/dev/null || return 1
-#     case "${1:-}" in
-#     'm') gitm ;;
-#     'p') git push ;;
-#     'd') gitd ;;
-#     *) echo 'Error, please specify a git action to take on dotfiles' ;;
-#     esac
-#     cd "$current_dir" &>/dev/null || return 1
-# }
-
-# alias dotm='dotfiles_git_interact m'
-# alias dotp='dotfiles_git_interact p'
-# alias dotd='dotfiles_git_interact d'
-
 alias dotm="$__homebin/dotfiles.sh --git commit"
 alias dotp="$__homebin/dotfiles.sh --git push"
 alias dotd="$__homebin/dotfiles.sh --git diff"
@@ -276,7 +256,7 @@ unset __homebin __ls __which
 gitc() {
     local git_link="${1?:Error. Specify link to clone}"
     local git_dir="$PWD/${git_link##*/}"
-    if [ "$PWD" = "$HOME" ]; then
+    if [[ "$PWD" == "$HOME" ]]; then
         echo "Error: don't clone a git file to '$PWD'!"
         return 1
     fi
@@ -297,30 +277,3 @@ readme() {
         fi
     )
 }
-
-# dotadd() {
-#     local symlink dotfolder linkfolder
-#     dotfolder="${1:?Error, please choose a folder!}"
-#     dotfolder="$(realpath -e "$dotfolder")"
-#     if [[ ! -e "$dotfolder" ]] || [[ ! -e "${HOMESCRIPTS:-}" ]]; then
-#         return 1
-#     fi
-
-#     case "$dotfolder" in
-#     "$HOME/"*)
-#         symlink=true
-#         linkfolder="$HOMESCRIPTS/${dotfolder//$HOME/}"
-#         ;;
-#     *)
-#         symlink=false
-#         linkfolder="$HOMESCRIPTS/disk-root${dotfolder}"
-#         ;;
-#     esac
-#     mkdir -p "${linkfolder%/*}" || return 1
-#     if $symlink; then
-#         mv -i "$dotfolder" "$linkfolder"
-#         ln -si "$linkfolder" "$dotfolder"
-#     else
-#         cp -ri "$dotfolder" "$linkfolder"
-#     fi
-# }
