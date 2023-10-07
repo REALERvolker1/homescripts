@@ -1,5 +1,6 @@
 #!/usr/bin/dash
-# a screenshot script that tries its best to work on both xorg and wayland
+# a screenshot script by vlk that tries its best to work on both xorg and wayland
+# https://github.com/REALERvolker1/homescripts
 
 _panic() {
     type="${1:-Unspecified}"
@@ -9,7 +10,7 @@ _panic() {
     [ "${3:-}" = '--warn' ] || exit 1
 }
 
-deps='swappy'
+deps='swappy jq'
 if [ -n "${WAYLAND_DISPLAY}" ]; then
     deps="$deps grim slurp"
 elif [ -n "${DISPLAY:-}" ]; then
@@ -66,12 +67,9 @@ case "${sel:-}" in
     printf '%s\n' \
         "${0##*/} error, unrecognized option $sel" \
         "Available options:" \
+        '' \
         '--region    select an area to capture' \
-        "$vss_cmd1" \
         "--active-output    Wayland only, capture the currently active monitor" \
-        "$vss_cmd2" \
-        '--full    capture entire multi-monitor screen' \
-        "$vss_cmd3" \
-        ''
+        '--full    capture entire multi-monitor screen'
     ;;
 esac
