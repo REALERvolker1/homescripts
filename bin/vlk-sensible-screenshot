@@ -1,4 +1,5 @@
 #!/usr/bin/dash
+# a screenshot script that tries its best to work on both xorg and wayland
 
 _panic() {
     type="${1:-Unspecified}"
@@ -43,6 +44,7 @@ case "${sel:-}" in
             active_monitor="$(hyprctl activeworkspace -j | jq -r '.monitor')"
         else
             # fallback option. We need to avoid triggering this
+            _panic 'Unknown Wayland compositor' 'Cannot automatically select active output. Falling back to interactive selection' --warn
             active_monitor="$(slurp -o)"
         fi
         grim -o "$active_monitor" - | swappy -f -
