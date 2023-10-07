@@ -1,33 +1,66 @@
-#!/usr/bin/bash
+#!/usr/bin/dash
 
-declare -A _vss_cmd
-ss_dir="$HOME/Pictures/Screenshots"
-# ss_path_grimblast="$HOME/Pictures/Screenshots/grimblast-$(date +"%y-%m-%d_%H-%M-%S").png"
-# ss_path_swappy="- | swappy -f -" # edit config savedir location in ~/.config/swappy/config
-# ss_path_flameshot="$HOME/Pictures/Screenshots/flameshot-$(date +"%y-%m-%d_%H-%M-%S").png"
+_panic() {
+    type="${1:-Unspecified}"
+    msg="${2:-Error}"
+    echo "[${0##*/}] [$type] $msg"
+    notify-send -a "${0##*/}" "$type" "$msg"
+    exit 1
+}
+
+swappy="- | swappy -f -"
 
 if [ -n "${WAYLAND_DISPLAY}" ]; then
+    outputdesc='capture active monitor output (Wayland)'
     if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-        if ! command -v grimblast &>/dev/null; then
-            echo "Error, could not find grimblast"
-            exit 2
-        fi
-        _vss_cmd[1]="grimblast --freeze save area"
-        _vss_cmd[2]="grimblast --cursor --freeze save output"
-        _vss_cmd[3]="grimblast --cursor --freeze save screen"
-        if command -v swappy &>/dev/null; then
-            for i in {1..3}; do
-                declare "_vss_cmd[${i}]=${_vss_cmd[$i]} - | swappy -f -"
-            done
-        else
-            for i in {1..3}; do
-                declare "_vss_cmd[${i}]=${_vss_cmd[$i]} '$ss_dir/grimblast-$(date +"%y-%m-%d_%H-%M-%S").png'"
-            done
-        fi
-        # printf '%s\n' "${_vss_cmd[@]}"
+        prog='grimblast'
+        vss_cmd1="$prog --freeze save area $swappy"
+        vss_cmd2="$prog --cursor --freeze save output $swappy"
+        vss_cmd3="$prog --cursor --freeze save screen $swappy"
+    elif [ -n "${SWAYSOCK:-}" ]; then
+        prog='grimshot'
+        vss_cmd1="$prog save area -"
+        vss_cmd2="$prog --cursor save output $swappy"
+        vss_cmd3="$prog --cursor save screen $swappy"
     else
-        notify-send "Error, current wayland desktop '${XDG_CURRENT_DESKTOP:-Unknown}' is not supported!"
-        exit 1
+        _panic 'Wayland error' "Current wayland platform '${XDG_CURRENT_DESKTOP:-}' is not supported!"
     fi
+elif [ -n "${DISPLAY:-}" ]; then
+    # only supports active window, not active monitor
+    outputdesc='capture active window (X11)'
+    prog='scrot'
+    vss_cmd1="$prog -s -l mode=edge $swappy"
+    vss_cmd2="$prog -up $swappy"
+    vss_cmd3="$prog -mp $swappy"
 fi
-exec sh -c "${_vss_cmd[$1]}"
+
+[ -z "${prog:-}" ] && _panic 'Platform error' "Current platform '${XDG_CURRENT_DESKTOP:-}' on tty '$(tty)' is not supported!"
+
+missingdeps=''
+for i in swappy "$prog"; do
+    if ! command -v "$i" >/dev/null; then
+        missingdeps="${missingdeps}$i "
+    fi
+done
+[ -z "${missingdeps:-}" ] || _panic 'Dependency error' "Missing required dependencies: $missingdeps"
+
+sel="${1:-}"
+case "${sel:-}" in
+1 | 2 | 3)
+    comm=''
+    eval "comm=\"\$vss_cmd${sel}\""
+    dash -c "$comm"
+    ;;
+*)
+    printf '%s\n' \
+        "${0##*/} error, unrecognized option $sel" \
+        "Available options:" \
+        '1    select an area to capture' \
+        "$vss_cmd1" \
+        "2    $outputdesc" \
+        "$vss_cmd2" \
+        '3    capture entire multi-monitor screen' \
+        "$vss_cmd3" \
+        ''
+    ;;
+esac

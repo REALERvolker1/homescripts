@@ -118,6 +118,7 @@ alias free='free -h'
 alias ra=ranger
 
 alias fr='flatpak run'
+alias fps='flatpak ps'
 
 alias wget='wget --show-progress'
 

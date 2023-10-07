@@ -5,8 +5,9 @@ find_deps() {
     local i freak
     for i in \
         file \
+        realpath \
         pandoc \
-        glow \
+        exiftool \
         chafa \
         ffmpeg \
         stat \
@@ -17,15 +18,15 @@ find_deps() {
 }
 
 depcheck() {
-    if ! command -v "${1:-}" &>/dev/null; then
-        echo -e "\e[1;31mError\e[0;1m, failed to find dependency '${1:-}'! ($$)\e[0m"
-        return 1
-    fi
+    command -v "${1:-}" &>/dev/null && return 0
+    echo -e "\e[1;31mError\e[0;1m, failed to find dependency '${1:-}'! ($$)\e[0m"
+    return 1
 }
 
 view_img() {
     chafa --format='symbols' --symbols all --animate=off "${1:-}"
 }
+
 tmpimg="$XDG_RUNTIME_DIR/tmp.jpg"
 
 find_deps
@@ -49,9 +50,12 @@ for i in "$@"; do
         view_img "$tmpimg"
         exiftool "$i"
         ;;
+    'image/heic')
+        exiftool "$i"
+        ;;
     'image/'*)
         ffmpeg -y -i "$i" -q:v 2 "$tmpimg" &>/dev/null
-        view_img "$i"
+        view_img "$tmpimg"
         exiftool "$i"
         ;;
     'audio/'*)
@@ -63,13 +67,13 @@ for i in "$@"; do
     *)
         case "${ext:-}" in
         doc)
-            pandoc -f docx -t markdown "$i" | glow
+            pandoc -f docx -t markdown "$i" | bat
             ;;
         odt | docx | org | rtf | html | epub | latex | textile | csv)
-            pandoc -f "$ext" -t markdown "$i" | glow
+            pandoc -f "$ext" -t markdown "$i" | bat
             ;;
         md)
-            glow "$i"
+            bat "$i"
             ;;
         xls | xlsx | ods)
             if depcheck in2csv; then
