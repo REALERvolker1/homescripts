@@ -13,8 +13,8 @@ zstyle ':completion:*:manuals'      separate-sections   true
 zstyle ':completion:*:*:*:*:processes' command "ps -e -u $USER -o pid,user,comm -w -w"
 
 # fzf completion config
-
-zstyle ':fzf-tab:complete:*:*' fzf-preview '$ZDOTDIR/settings/fzf-preview.sh ${(Q)realpath}'
+# $ZDOTDIR/settings/fzf-preview.sh
+zstyle ':fzf-tab:complete:*:*' fzf-preview 'txtpreview.sh ${(Q)realpath}'
 #zstyle ':fzf-tab:complete:*:*' fzf-preview 'env LESSOPEN="|$ZDOTDIR/settings/lessfilter.sh %s" less ${(Q)realpath}'
 zstyle ':fzf-tab:complete:(kill|ps):argument-rest' 'fzf-preview [[ $group == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
 zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap

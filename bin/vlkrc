@@ -108,7 +108,7 @@ fi
 
 command -v difft &>/dev/null && alias diff=difft
 command -v duf &>/dev/null && alias df=duf
-command -v dust &>/dev/null && alias du=dust
+command -v dutree &>/dev/null && alias du=dutree
 command -v ouch &>/dev/null && alias extract='ouch decompress'
 
 alias unfuck-old-backup='tar --hole-detection=seek --keep-directory-symlink -xzf '
