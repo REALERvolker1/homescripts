@@ -5,61 +5,70 @@ _panic() {
     msg="${2:-Error}"
     echo "[${0##*/}] [$type] $msg"
     notify-send -a "${0##*/}" "$type" "$msg"
-    exit 1
+    [ "${3:-}" = '--warn' ] || exit 1
 }
 
-swappy="- | swappy -f -"
-
+deps='swappy'
 if [ -n "${WAYLAND_DISPLAY}" ]; then
-    outputdesc='capture active monitor output (Wayland)'
-    if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-        prog='grimblast'
-        vss_cmd1="$prog --freeze save area $swappy"
-        vss_cmd2="$prog --cursor --freeze save output $swappy"
-        vss_cmd3="$prog --cursor --freeze save screen $swappy"
-    elif [ -n "${SWAYSOCK:-}" ]; then
-        prog='grimshot'
-        vss_cmd1="$prog save area -"
-        vss_cmd2="$prog --cursor save output $swappy"
-        vss_cmd3="$prog --cursor save screen $swappy"
-    else
-        _panic 'Wayland error' "Current wayland platform '${XDG_CURRENT_DESKTOP:-}' is not supported!"
-    fi
+    deps="$deps grim slurp"
 elif [ -n "${DISPLAY:-}" ]; then
-    # only supports active window, not active monitor
-    outputdesc='capture active window (X11)'
-    prog='scrot'
-    vss_cmd1="$prog -s -l mode=edge $swappy"
-    vss_cmd2="$prog -up $swappy"
-    vss_cmd3="$prog -mp $swappy"
+    deps="$deps scrot"
+else
+    _panic 'Platform error' "Current platform '${XDG_CURRENT_DESKTOP:-}' on tty '$(tty)' is not supported!"
 fi
 
-[ -z "${prog:-}" ] && _panic 'Platform error' "Current platform '${XDG_CURRENT_DESKTOP:-}' on tty '$(tty)' is not supported!"
-
 missingdeps=''
-for i in swappy "$prog"; do
+for i in $deps; do
     if ! command -v "$i" >/dev/null; then
         missingdeps="${missingdeps}$i "
     fi
 done
 [ -z "${missingdeps:-}" ] || _panic 'Dependency error' "Missing required dependencies: $missingdeps"
 
+# active_window="$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')"
+
 sel="${1:-}"
 case "${sel:-}" in
-1 | 2 | 3)
-    comm=''
-    eval "comm=\"\$vss_cmd${sel}\""
-    dash -c "$comm"
+--region)
+    if [ -n "${WAYLAND_DISPLAY}" ]; then
+        grim -g "$(slurp)" - | swappy -f -
+    else
+        scrot -s -l mode=edge - | swappy -f -
+    fi
     ;;
+
+--active-output)
+    if [ -n "${WAYLAND_DISPLAY}" ]; then
+        if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+            active_monitor="$(hyprctl activeworkspace -j | jq -r '.monitor')"
+        else
+            # fallback option. We need to avoid triggering this
+            active_monitor="$(slurp -o)"
+        fi
+        grim -o "$active_monitor" - | swappy -f -
+    else
+        _panic 'X11 screenshot' "No method for finding the active output on x11. Falling back to active window" --warn
+        scrot -up - | swappy -f -
+    fi
+    ;;
+
+--full)
+    if [ -n "${WAYLAND_DISPLAY}" ]; then
+        grim - | swappy -f -
+    else
+        scrot -mp - | swappy -f -
+    fi
+    ;;
+
 *)
     printf '%s\n' \
         "${0##*/} error, unrecognized option $sel" \
         "Available options:" \
-        '1    select an area to capture' \
+        '--region    select an area to capture' \
         "$vss_cmd1" \
-        "2    $outputdesc" \
+        "--active-output    Wayland only, capture the currently active monitor" \
         "$vss_cmd2" \
-        '3    capture entire multi-monitor screen' \
+        '--full    capture entire multi-monitor screen' \
         "$vss_cmd3" \
         ''
     ;;
