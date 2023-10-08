@@ -123,9 +123,10 @@ EXEC 01;38;5;46 # files with execute permission
 .sz 1;38;5;124 # Google Snappy archive
 
 .april 38;5;124 # April Speech to Text model
-
 .asar 1;38;5;124 # JavaScript Electron archive
 .phar 1;38;5;124 # PHP archive file
+.mcpack 1;38;5;124 # Minecraft Bedrock resource pack/addon
+.mcworld 1;38;5;124 # Minecraft Bedrock world
 
 .swm 1;38;5;124 # Split windows imaging format
 .dwm 1;38;5;124
@@ -153,6 +154,8 @@ EXEC 01;38;5;46 # files with execute permission
 .apk 1;38;5;128 # Android/Alpine Linux package
 .ipa 1;38;5;128 # iOS app
 .vsix 1;38;5;128 # VSCode extension
+.ebuild 38;5;128 # Gentoo Ebuild
+.eclass 38;5;128 # Gentoo Eclass
 .crx 38;5;128 # Chromium extension
 .repo 38;5;128 # RPM/Yum repo
 .spec 38;5;128 # RPM spec
@@ -168,12 +171,12 @@ EXEC 01;38;5;46 # files with execute permission
 .avif 38;5;135 # AV1-codec image
 .aiff 38;5;135 # lossless audio
 .heic 38;5;135 # iOS image
-.jpg 1;38;5;135 # jpegs
-.jpeg 1;38;5;135
+.jpg 38;5;135 # jpegs
+.jpeg 38;5;135
 .mjpg 38;5;135 # motion-jpeg
 .mjpeg 38;5;135
-.gif 1;38;5;135 # animated
-.bmp 1;38;5;135 # windows bitmap
+.gif 38;5;135 # animated
+.bmp 38;5;135 # windows bitmap
 .pbm 38;5;135 # black/white bitmap
 .pgm 38;5;135 # grayscale map
 .ppm 38;5;135 # portable Pixmap -- plaintext image
@@ -185,16 +188,18 @@ EXEC 01;38;5;46 # files with execute permission
 .ico 38;5;135 # windows icon
 .icns 38;5;135 # mac OS icon
 .icon 38;5;135 # icon images might be named this
-.png 1;38;5;135 # png
+.png 38;5;135 # png
 .mng 38;5;135 # Multiple-Image network graphics (animated png)
 .pcx 38;5;135 # paintbrush bitmap from some DOS program
 .rli 38;5;135 # RealWorld Layered Image
 .psf 38;5;135 # Photoshop Proof settings
 .xcf 38;5;135 # GIMP saves
 .xwd 38;5;135 # X Windows Dump
-.webp 1;38;5;135 # Web image
+.webp 38;5;135 # Web image
 .rgba16 38;5;135 # binary image data
 .ia16 38;5;135 # more binary image data
+.raw 38;5;135 # RAW Image data
+.exr 38;5;135 # EXR Image data
 
 # Vector graphics
 .svg 1;38;5;134 # vector graphics
@@ -226,6 +231,25 @@ EXEC 01;38;5;46 # files with execute permission
 .flv 38;5;132 # Adobe Flash video
 .yuv 38;5;132 # video in YUV encoding
 .m64 38;5;132 # Mupen64 Movie file
+
+.stl 38;5;133 # 3d model format that everyone uses
+.obj 38;5;133 # 3d Object
+.fbx 38;5;133 # Autodesk Filmbox
+.step 38;5;133 # Standard for Exchange of Product model
+.amf 38;5;133 # 3d printing format
+.iges 38;5;133 # super old model format
+.3ds 38;5;133 # 3D Studio file
+.max 38;5;133 # 3DS Max proprietary file
+.x3d 38;5;133 # Web 3d
+.3mf 38;5;133 # 3d model format
+.dae 38;5;133 # Digital asset Exchange
+.zae 38;5;53 # Compressed Digital asset Exchange
+.g 38;5;133 # G code
+.gco 38;5;133 # G code
+.gcode 38;5;133 # G code
+.ctm 38;5;133 # Compressed Triangle Mesh
+.gltf 38;5;133 # GL Transmission Format
+.glb 38;5;53 # Binary GLTF
 
 # Audio
 .xspf 38;5;141 # XML shareable playlist
@@ -318,6 +342,9 @@ EXEC 01;38;5;46 # files with execute permission
 .mask 38;5;238
 .trashinfo 38;5;238 # trash information file
 .zcompdump 38;5;238 # zsh completion
+.bash_history 38;5;238
+.zsh_history 38;5;238
+*objdump 38;5;238 # Object dump for compiled langs
 
 # cryptography
 .gpg 38;5;238 # GPG encrypted file
@@ -345,10 +372,13 @@ EXEC 01;38;5;46 # files with execute permission
 .o 1;38;5;238 # compiled C-lang object file
 .out 1;38;5;238 # Compiled executable
 .wasm 38;5;238 # Webassembly
+.vlx 38;5;238 # Compiled AutoLISP
 .exe 38;5;238 # Windows executable
 .chm 38;5;238 # Windows compiled HTML help
 .cmi 38;5;238 # Compiled OCaml Interface
 .rlib 38;5;238 # Rust static library
+.qm 38;5;238 # QT compiled translation file
+.cljc 38;5;238 # Clojure compiled I think?
 
 .db 38;5;242 # Database
 .sqlite 38;5;242 # sqlite database
@@ -366,29 +396,17 @@ EXEC 01;38;5;46 # files with execute permission
 .srm 38;5;237 # Nintendo SNES save
 .dem 38;5;241 # Game demo file
 
+.8xp 38;5;130 # TI-84+ file
+.8xv 38;5;130 # TI-84+ Variable file
+.8xg 38;5;130 # TI-84+ Group file
+.8ck 38;5;130 # TI-84 Silver application
+
 # hashes
 .md5 38;5;237
 .crc 38;5;237
 .sha1 38;5;237
 .sha128 38;5;237
 .sha267 38;5;237
-
-# Shell config
-*rc 38;5;113 # basically anything ending with rc is 99% going to be a config file
-*profile 38;5;113 # anything ending with profile is also probably a config
-*config 38;5;113 # same for this
-.dir_colors 38;5;113 # dir colors
-.Xresources 38;5;113 # Xorg X resources
-.bash_history 38;5;113
-.zsh_history 38;5;113
-#.conf 38;5;113
-#.zshenv 38;5;113
-#.env 38;5;113
-*env 38;5;113 # environment
-*environment 38;5;113 # also environment
-*login 38;5;113
-*logout 38;5;113
-# *fstab 38;5;113 # mainly /etc/fstab. idk
 
 .csv 38;5;116 # Comma-separated values
 .yaml 38;5;116 # yet another markup language
@@ -398,8 +416,14 @@ EXEC 01;38;5;46 # files with execute permission
 .ini 38;5;116 # key=value config with headers that look like [this]
 .json 38;5;116 # json
 .jsonc 38;5;116 # json but with comments
-.xml 38;5;116 # eXtensible Markup Language
+.jsonld 38;5;116 # json
+.json5 38;5;116 # ECMAScript 5.1 json
+.geojson 38;5;116 # json for people who touch grass
+.topojson 38;5;116 # Topographical json
+.jq 38;5;116 # JSONiq
+*xml 38;5;116 # eXtensible Markup Language
 .xbel 38;5;116 # Bookmarks file
+.rss 38;5;116 # Bookmarks file
 
 .torrent 38;5;130 # 🤨
 .magnet 38;5;130 # 🤨
@@ -408,13 +432,22 @@ EXEC 01;38;5;46 # files with execute permission
 .schematic 38;5;95 # Worldedit schematic from Minecraft
 .mcmeta 38;5;95 # Minecraft metadata
 .mca 38;5;95 # Minecraft map region
-.zs 38;5;95 # Some scripting language for Minecraft modpacks
+.mcfunction 38;5;95 # Minecraft Bedrock edition function
+.zs 38;5;95 # MineTweaker ZenScript
+.sk 38;5;95 # Skript Minecraft server plugin
 
 .i3 38;5;116 # vlk i3 window manager config
+.hypr 38;5;116 # vlk hyprland config
 .xlayoutdisplay 38;5;116 # Xlayoutdisplay config
+.kvconfig 38;5;116 # qt Kvantum config
+.yuck 38;5;108 # Elkowar's Wacky Widgets config
+
+.syntax 38;5;116 # Syntax file
 .conf 38;5;116 # generic config
 .properties 38;5;116 # generic config
 .defaults 38;5;116 # the default config
+.prefs 38;5;116 # Preferences
+.pro 38;5;116 # Properties
 .def 38;5;116 # definitions
 .local 38;5;116
 .locale 38;5;116 # language
@@ -431,6 +464,9 @@ EXEC 01;38;5;46 # files with execute permission
 .bconf 38;5;116 # no idea what this was from
 .lst 38;5;116 # list
 .list 38;5;116 # list
+
+.zone 38;5;116 # DNS zone
+.arpa 38;5;116 # DNS arpa
 
 .example 38;5;153
 .template 38;5;153
@@ -462,9 +498,13 @@ EXEC 01;38;5;46 # files with execute permission
 .trans 38;5;147
 .defs 38;5;147
 .colors 38;5;147
+.gnu 38;5;147 # GNU plot
+.gnuplot 38;5;147
+.plot 38;5;147
 
 .desktop 38;5;99 # Freedesktop Desktop Entry
 .theme 38;5;99 # Freedesktop theme
+.run 38;5;99 # Run executable
 
 .sql 38;5;116 # SQL script
 .spdx 38;5;116
@@ -483,26 +523,53 @@ EXEC 01;38;5;46 # files with execute permission
 .symvers 38;5;116
 .builtin 38;5;116
 
-# SCRIPT {{{
+# Shell config
+*rc 38;5;113 # basically anything ending with rc is 99% going to be a config file
+*profile 38;5;113 # anything ending with profile is also probably a config
+*config 38;5;113 # same for this
+# .dir_colors 38;5;113 # dir colors
+*dir_colors 38;5;113 # dir colors
+.Xresources 38;5;113 # Xorg X resources
+.tmux 38;5;113
+#.conf 38;5;113
+#.zshenv 38;5;113
+#.env 38;5;113
+*env 38;5;113 # environment
+*environment 38;5;113 # also environment
+*login 38;5;113
+*logout 38;5;113
+# *fstab 38;5;113 # mainly /etc/fstab. idk
+
 # Shell
-.sh 38;5;70 # Shell script
-.ash 38;5;70 # Almquist shell script
-.dash 38;5;70 # Debian Almquist shell script
-.bash 38;5;70 # Bruh Almighty shell script
-.ksh 38;5;70 # Kornography shell script
+.sh 38;5;71 # Shell script
+.ash 38;5;71 # Almquist shell script
+.dash 38;5;71 # Debian Almquist shell script
+.bash 38;5;71 # Bruh Almighty shell script
+.ksh 38;5;71 # Kornography shell script
 .csh 38;5;70 # A crime against humanity
 .tcsh 38;5;70 # A slightly less awful crime against humanity
-.zsh 38;5;70 # Hello, my name is ${(M)array:#${~${(O@)array//?/?}[1]}}, nice to meet you
-.ztst 38;5;70 # zsh test
-.zsh-theme 38;5;70 # Oh My ZSH theme
+.zsh 38;5;71 # Hello, my name is ${(M)array:#${~${(O@)array//?/?}[1]}}, nice to meet you
+.ztst 38;5;71 # zsh test
+.zsh-theme 38;5;71 # Oh My ZSH theme
 .fish 38;5;70 # technically a shell script
-.nu 38;5;70 # Nushell script
+.nu 38;5;71 # Nushell script
+.command 38;5;71 # generic commands
+.tool 38;5;71 # generic tool script
+.sh-session 1;38;5;71 # Shell session
+*-bash 38;5;34 # Something related to bash
+*-zsh 38;5;34 # Something related to zsh
 
-# app-specific
+# script
 .pl 38;5;67 # perl scripts
+.perl 38;5;67 # perl scripts
 .pm 38;5;67 # perl modules
+.ph 38;5;67 # perl Headers
+.plx 1;38;5;67 # perl Headers
+.pod 1;38;5;67 # perl "Plain Old Documentation"
 .sed 38;5;67 # sed script
 .awk 38;5;67 # awk script
+.auk 38;5;67 # awk script
+.gawk 38;5;67 # GNU awk script
 .m4 38;5;67 # UNIX macro processing
 
 # CSS
@@ -511,34 +578,73 @@ EXEC 01;38;5;46 # files with execute permission
 .sass 1;38;5;57 # SASS stylesheet
 .lss 1;38;5;57 # CSS LESS
 .less 1;38;5;57 # CSS LESS
+.qss 1;38;5;57 # QT CSS
 .xsl 1;38;5;57 # XML stylesheet similar to a CSS file
+.styl 1;38;5;57 # Stylus
 
-# Science
+# Python
 .py 38;5;226 # Python script
 .pyd 38;5;226 # Python bynamic module
 .pyo 38;5;226 # Python optimized code
+.pyw 38;5;226 # Windows python
 .rpy 38;5;226 # Python script
 .whl 1;38;5;226 # Python wheel package
-.npy 38;5;226 # Numpy Array file
 .typed 1;38;5;226 # typed python hints
-.ipynb 38;5;226 # Jupyter Notebook
-.jl 38;5;226 # Julia source code
-.R 38;5;226 # R-lang source
+.npy 38;5;226 # Numpy Array file
+.numpy 38;5;226 # Numpy file
+.numpyw 38;5;226 # Windows Numpy
+# Cython
+.pyx 38;5;226 # Pyrex Cython source
+.pxd 38;5;226 # Pyrex Cython definition
+.pxi 38;5;226 # Pyrex Cython include
+
+# Jupyter
+.ipynb 1;38;5;93 # Jupyter Notebook
+.jl 38;5;93 # Julia source code
+.r 38;5;93 # R-lang source
+.R 38;5;93 # R-LANG SOURCE
+.rd 38;5;93 # R-lang data?
+.rsx 38;5;93 # R-lang
+
+# ADA
+.ada 38;5;226 # ADA source
+.adb 38;5;226 # ADA Body file
+.ads 38;5;226 # ADA Spec file
+
+# Fortran
+.f 38;5;95 # Generic fortran
+.fpp 38;5;95 # Generic fortran
+.for 38;5;95 # Fortran 1977
+.f77 38;5;95 # Fortran 1977
+.f90 38;5;95 # Fortran 1990
+.f95 38;5;95 # Fortran 1995
+.f03 38;5;95 # Fortran 2003
+.f08 38;5;95 # Fortran 2003
 
 # shitty proprietary
 .swf 38;5;196 # Adobe Flash Script
 .swift 38;5;196 # Apple programming language
 .m 38;5;196 # Apple Objective-C
+.mm 38;5;196 # Apple Objective-C++
+.matlab 38;5;196 # MATLAB code
+.metal 38;5;248 # I think htis is Apple Metal shader lang
+
 # java
 .class 38;5;198 # JAVA class
 .java 38;5;198 # JAVA java
+.javaw 38;5;198 # Windows Java
 .kt 38;5;200 # Kotlin source code
+.ktm 38;5;200 # Kotlin module
 .kts 38;5;200 # Kotlin script
+.ml 38;5;200 # OCaml
 .cma 38;5;200 # OCaml
-.gradle 38;5;197 # Java Gradle build system
+.clj 38;5;200 # Clojure
+.boot 38;5;200 # Clojure
+.cl2 38;5;200 # Clojure
 
 # GNOME GTK
 .vala 38;5;164 # GNOME programming lang
+.vapi 38;5;164 # Vala API file
 .gresource 38;5;164 # GTK resource file
 .gir 38;5;164 # GObject-Introspection file
 .ui 38;5;164 # User interface file
@@ -547,27 +653,60 @@ EXEC 01;38;5;46 # files with execute permission
 # Rust
 .rs 1;38;5;202 # Rust language
 .crs 38;5;202 # Rust script
+
 # asm
 .s 38;5;107 # generic source code (assembly?)
 .S 38;5;107 # SOARSE COD
 .asm 38;5;107 # assembly src
+.a51 38;5;107 # A51 Assembler src
+.nasm 38;5;107 # Netwide Assembler src
+.mss 38;5;107 # Microprocessor Software Spec
+
+.ll 38;5;107 # LLVM
+
 # C
 .inc 38;5;87 # Include file
 .c 38;5;84 # C-lang src
 .C 38;5;84 # C-LANG SOURCE
 .h 38;5;113 # C header file
 .H 38;5;113 # C HEADER FILE
+.w 38;5;113 # C word I think? idk
+.cats 38;5;84 # C-lang src
+
 # Cpp
+.ipp 38;5;87 # Inline guard macro
 .c++ 38;5;86 # very obscure C++ source code extension
 .h++ 38;5;115 # very obscure C++ header extension
+.tcc 38;5;86 # C++ source code
+.tpp 38;5;86 # C++ source code
 .cxx 38;5;86 # C++ source code
 .hxx 38;5;115 # C++ header
 .cc 38;5;86 # C++ source code
+.hh 38;5;115 # C++ header
 .cpp 38;5;86 # C++ source code
 .hpp 38;5;115 # C++ header
+.cp 38;5;86 # C++ source code (or component pascal)
 .inl 38;5;87 # C++ Inline File
+
 # csharp
 .cs 38;5;84 # Csharp source code
+.csx 38;5;84 # Visual Csharp script
+.cake 38;5;84 # Csharp stuff
+
+# D
+.d 38;5;142 # D-lang source code
+.di 38;5;142 # D-lang include
+
+# Fsharp
+.fs 38;5;89 # F sharp
+.fsx 38;5;89 # F sharp script
+.fsi 38;5;89 # F sharp signature
+
+# Haskell
+.hs 38;5;108 # Haskell script
+.hsc 38;5;108 # Haskell something
+.chs 38;5;108 # C2hs Haskell
+.lhs 38;5;108 # Literate Haskell script
 
 # libs
 .dll 38;5;220 # Windows dynamic linked library
@@ -576,71 +715,158 @@ EXEC 01;38;5;46 # files with execute permission
 .so 38;5;220 # shared library
 .po 38;5;220 # portable object
 
-.d 38;5;142 # D-lang source code
+# random
+
 .hx 38;5;142 # HaXe source code
 .nim 38;5;142 # Nim-lang source code
 .cr 38;5;142 # Crystal lang source code
 .nix 38;5;142 # Nix Package Manager script
 .ch 38;5;142 # Clipper lang header, as well as chroma file
-
-.qm 38;5;35 # QT compiled translation file
-.qml 38;5;35 # QT Markup Language
-
+.apl 38;5;142 # APL source code
+.ahk 38;5;142 # AutoHotKey script
+.ahkl 38;5;142 # AutoHotKey script
+.gd 38;5;142 # Godot script
+.gml 38;5;142 # GameMaker script
+.ex 38;5;142 # Euphoria code
+.exs 38;5;108 # Elixir code
+.elm 38;5;108 # ELM code
+.erl 38;5;105 # Erlang
+.jade 38;5;105 # Jade
+.j 38;5;105 # Jasmine
+.flux 38;5;142 # Flux
+.glf 38;5;142 # Glyph
+.prolog 38;5;108 # Prolog
+.scala 38;5;108 # Scala
+.sc 38;5;108 # More Scala
+.zig 38;5;105 # zig lang
+.dart 38;5;108 # Dart source code
+.groovy 38;5;108 # Groovy baby
+.gvy 38;5;108 # Groovy baby
+.go 38;5;105 # golang source code
+.pas 38;5;108 # Pascal
+.cps 38;5;108 # Component Pascal
+.em 38;5;202 # emberscript
+.emberscript 38;5;202 # emberscript
+# https://github.com/REALERvolker1/homescripts
+# Javascript
 .js 38;5;149 # JavaScript
 .mjs 38;5;149 # ECMAscript Module JS
 .cjs 38;5;149 # CommonJS
 .ts 38;5;45 # Typescript
-.coffee 38;5;94 # Coffee Script
 .mts 38;5;45 # ECMAscript Module TS
 .cts 38;5;45 # ECMAscript Module JS
+.coffee 38;5;94 # Coffee Script
+.litcoffee 38;5;94 # Literate Coffee Script
 .map 38;5;117 # Typescript Source map
 .tsx 38;5;43 # Typescript JSX React
 .jsx 38;5;43 # Javascript JSX React
+.cjsx 38;5;94 # Coffee JSX
 .vue 38;5;40 # Vue Javascript framework
 .lit 38;5;33 # Lit Javascript framework
+.djs 38;5;149 # DogeScript
+.ls 38;5;149 # Microsoft LiveScript
 
+# HTML
 .htm 38;5;166 # HTML but for old computers
-.html 38;5;166 # HTML but normal
-.php 38;5;166 # Pretty Hawful Programminglanguage
+*html 38;5;166 # Normal HTML -- globbed because there are a bunch of things that are like html
+.haml 38;5;167 # HTML but better for ruby programmers
+.handlebars 38;5;167 # OSHA-approved HTML
+.hbs 38;5;167 # Handle bars
+.qml 38;5;166 # QT Markup Language
+.php 38;5;168 # Pretty Hawful Programminglanguage
+.fcgi 38;5;166 # FastCGI Perl web server stuff
+# .phtml 38;5;166 # PHP + HTML
 .asp 38;5;166 # Microsoft PHP
 .aspx 38;5;166 # Microsoft PHP
+.jsp 38;5;166 # PHP but it's actually java
+.htmx 38;5;167 # HTML but with more interactivity (Javascript framework)
 .svelte 38;5;172 # Svelte javascript framework (basically looks like html)
 .astro 38;5;172 # Astro javascript framework (basically looks like html)
-.htaccess 38;5;192 # Apache htaccess
 
+# Networking
+.htaccess 38;5;192 # Apache htaccess
+.apacheconf 38;5;192 # Apache config
+.nginxconf 38;5;192 # NGINX config
+.vhost 38;5;192 # Apache vhost
+.http 38;5;198 # hypertext transfer protocol
+.https 38;5;198 # hypertext transfer protocol Secure
+
+# Lua
 .lua 38;5;27 # oh god not this bullshit
 .luacov 38;5;32 # Lua code coverage I think?
 .rockspec 38;5;32 # Luarocks package stuff
+.wlua 38;5;27 # Windows Lua -- the combination from hell
+.rbxs 38;5;27 # Roblox
+# VIM
 .vim 38;5;34 # VIMScript
+.nvim 38;5;34 # NEOVIMScript
+.viminfo 38;5;34 # VIM info file
 
+# GPU stuff
 .glsl 38;5;105 # OpenGL shader language
-.hlsl 38;5;105 # Microsoft DirectX shader language
-.frag 38;5;105 # fragment shader
+.hlsl 38;5;99 # Microsoft DirectX shader language
+.fx 38;5;98 # D3d Effects
+.fxh 38;5;98 # D3d Effects
+.hlsli 38;5;99 # DirectX Image? Idk
+.fp 38;5;104 # Fragment Program
+.frag 38;5;104 # fragment shader
+.fshader 38;5;104 # fragment shader
 .vert 38;5;105 # vertex shader
-.fsh 38;5;105 # fragment shader
+.fsh 38;5;104 # fragment shader
 .vsh 38;5;105 # vertex shader
+.vshader 38;5;105 # vertex shader
+.geo 38;5;99 # Geometry file
+.geom 38;5;99 # Geometry file
+.gshader 38;5;105 # Geometry shader I think?
+.glslv 38;5;105 # opengl something
+.shader 38;5;105 # Shader
+# CUDA
+.cu 38;5;34 # CUDA source code
+.cuh 38;5;34 # CUDA headers or something?
+.curnel 38;5;34 # CUDA kernel
+.cl 38;5;45 # OpenCL
+.opencl 38;5;45 # OpenCL
 
-.zig 38;5;108 # zig lang
-.hs 38;5;108 # Haskell script
-.lhs 38;5;108 # Literate Haskell script
-.dart 38;5;108 # Dart source code
-.go 38;5;108 # golang source code
-.scm 38;5;108 # Scheme lisp code
-.el 38;5;108 # Emacs Lisp code
-.lsp 38;5;108 # Normal lisp code
-.lisp 38;5;108 # Lisp code
-.vbs 38;5;108 # Visual Basic
-.vbx 38;5;108 # More Visual basic
-.yuck 38;5;108 # Elkowar's Wacky Widgets config
+# lithp
+.lisp 38;5;190 # Lisp code
+.lsp 38;5;190 # Normal lisp code
+.asd 38;5;190 # Autistic lisp code
+.scm 38;5;190 # Scheme lisp code
+.el 38;5;190 # Emacs Lisp code
+.emacs 38;5;190 # More Emacs Lisp code
+.ny 38;5;190 # Audacity Lisp code
+.cl 38;5;190 # Common Lisp code
+.podsl 38;5;190 # Less Common Lisp code
+.nl 38;5;190 # New Lisp code
+.l 38;5;190 # Take an L with Lisp
 
+# Ruby
 .rb 38;5;124 # Ruby code
+.ruby 38;5;124 # Ruby code
 .rspec 38;5;124 # Ruby specfile
+.gemspec 38;5;124 # Ruby gemspecfile
+.mspec 38;5;124 # Ruby mspecfile
+.pluginspec 38;5;124 # Ruby pluginspecfile
+.podspec 38;5;124 # Ruby podspecfile
+.god 38;5;124 # Checkmate atheists
+.erb 38;5;124 # Ruby templating
+
+# esolangs
+.b 38;5;124 # Brainfuck
+.bf 38;5;124 # Brainfuck
+.lol 38;5;124 # LOLcode
+.pig 38;5;124 # Pig latin
 
 # Windows
 .cmd 38;5;148 # Windows NT Command script
 .com 38;5;148 # MS-DOS Command script
 .bat 38;5;148 # MS-DOS Batch script
 .ps1 38;5;148 # Windows Powershell script
+.psd1 38;5;148 # Windows Powershell data files
+.psm1 38;5;148 # Windows Powershell modules
+.vbs 38;5;108 # Visual Basic
+.vba 38;5;108 # Visual Basic
+.vbx 38;5;108 # More Visual basic
 
 # Linux
 .dts 38;5;187 # Linux kernel device tree
@@ -655,36 +881,46 @@ EXEC 01;38;5;46 # files with execute permission
 .patch 38;5;202 # source code diff file, used to update source code
 .ld 38;5;184 # Linker script
 .lds 38;5;184 # ld linker script
-.mk 38;5;184 # Makefile
 .pp 38;5;184 # puppet
 .clang-format 38;5;184 # clang formatting file
 .clang-tidy 38;5;184
 .asciidoc 38;5;184 # ASCIIdoc documentation
 .adoc 38;5;184 # ASCIIdoc documentation
 .diff 38;5;184 # diff files
+.bison 38;5;184 # GNU Bison
 *Doxyfile 38;5;184 # Doxygen file for generating docs
 *Dockerfile 38;5;202 # Docker container config
+.dockerfile 38;5;202 # Docker container config
 .cabal 38;5;184 # Cabal build system
 .cmake 38;5;184 # C make
 .ninja 38;5;184 # Fortnite dude from 2018
 .build 38;5;184 # generic build
-.am 38;5;184 # automake template
+.builder 38;5;184 # generic builder
+.gradle 38;5;184 # Java Gradle build system
+.am 38;5;202 # automake template
 .ac 38;5;184 # autoconf
 .gyp 38;5;184 # Generate Your Projects config
+.ecl 38;5;184 # Eclipse
+.mk 38;5;202 # Makefile
+.mak 38;5;184 # Makefile
 *Makefile 38;5;202 # GNU Makefile
 *makefile 38;5;202
 *MAKEFILE 38;5;202
 
 # DOCUMENT {{{
-# texlive
+# LaTeX
 .ltx 38;5;252 # latex source files
-.tex 38;5;252 # texlive
-.tfm 38;5;252 # texlive font metrics
-.vf 38;5;252 # texlive virtual fonts
-.sty 38;5;252 # texlive latex package
+.aux 38;5;252 # Latex auxillary file
+.bbx 38;5;252 # Latex
+.tex 38;5;252 # latex
+.tfm 38;5;252 # latex font metrics
+.toc 38;5;252 # latex table of contents
+.vf 38;5;252 # latex virtual fonts
+.sty 38;5;252 # Latex style
 
 .md 38;5;159 # markdown
 .MD 38;5;159 # MARKDOWN
+.markdown 38;5;159 # markdown
 .cat 38;5;159 # some doc format
 .rtf 38;5;159 # rich text
 .rst 38;5;159 # ReStructured Text for python docs
@@ -692,7 +928,9 @@ EXEC 01;38;5;46 # files with execute permission
 .org 38;5;159 # only people with no bitches know what this emacs shit is
 .ps 38;5;159 # PostScript page
 .txt 38;5;159 # plaintext file
-.pdf 38;5;159 # the worst document format ever created
+.mediawiki 38;5;159 # mediawiki file
+.wiki 38;5;159 # Wiki file
+.pdf 1;38;5;159 # the worst document format ever created
 # office docs
 .odt 38;5;27 # Opendocument text
 .odp 38;5;202 # open document presentation
@@ -719,14 +957,16 @@ EXEC 01;38;5;46 # files with execute permission
 *LICENSE 38;5;192 # license
 
 # manpages
-.1 38;5;159
-.2 38;5;159
-.3 38;5;159
-.4 38;5;159
-.5 38;5;159
-.6 38;5;159
-.7 38;5;159
-.8 38;5;159
-.9 38;5;159
-.0 38;5;159
+.man 38;5;158
+.roff 38;5;158
+.1 38;5;158
+.2 38;5;158
+.3 38;5;158
+.4 38;5;158
+.5 38;5;158
+.6 38;5;158
+.7 38;5;158
+.8 38;5;158
+.9 38;5;158
+.0 38;5;158
 
