@@ -1,4 +1,7 @@
 # vim:ft=dircolors
+# dir_colors, by vlk
+# https://github.com/REALERvolker1/homescripts
+
 # Terminal list
 COLORTERM ?*
 TERM Eterm
@@ -55,7 +58,7 @@ STICKY 37;44	# dir with the sticky bit set (+t) and not other-writable
 EXEC 01;38;5;46 # files with execute permission
 
 # Archives
-# https://en.wikipedia.org/wiki/List_of_archive_formats
+# https://en.wikipedia.org/wiki/List_of_archive_formats helped me a lot
 
 .tar 1;38;5;124 # tape archive
 
@@ -97,7 +100,7 @@ EXEC 01;38;5;46 # files with execute permission
 .lz4 1;38;5;124 # quick compression alg from 2011
 .zip 1;38;5;124 # zip folder
 .zipx 1;38;5;124 # zip folder
-.dz 1;38;5;124 # proprietary compression format
+.dz 1;38;5;124 # shitty proprietary compression format
 
 .lrz 1;38;5;124 # good for large files, long-distance redundancy
 .lz 1;38;5;124 # based on lzma, includes CRC checksum
@@ -627,6 +630,7 @@ EXEC 01;38;5;46 # files with execute permission
 .lisp 38;5;108 # Lisp code
 .vbs 38;5;108 # Visual Basic
 .vbx 38;5;108 # More Visual basic
+.yuck 38;5;108 # Elkowar's Wacky Widgets config
 
 .rb 38;5;124 # Ruby code
 .rspec 38;5;124 # Ruby specfile
