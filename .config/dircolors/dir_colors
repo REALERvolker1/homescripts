@@ -420,6 +420,7 @@ EXEC 01;38;5;46 # files with execute permission
 .kbd 38;5;116 # keyboard stuff
 .scripts 38;5;116 # multiple scripts
 .plugin 38;5;116
+.vdf 38;5;116 # Valve Data File
 #.cfg 38;5;116
 *cfg 38;5;116 # 99% likely config file
 .cnf 38;5;116 # another type of config
@@ -611,6 +612,7 @@ EXEC 01;38;5;46 # files with execute permission
 .glsl 38;5;105 # OpenGL shader language
 .hlsl 38;5;105 # Microsoft DirectX shader language
 .frag 38;5;105 # fragment shader
+.vert 38;5;105 # vertex shader
 .fsh 38;5;105 # fragment shader
 .vsh 38;5;105 # vertex shader
 
