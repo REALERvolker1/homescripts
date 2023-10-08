@@ -147,6 +147,7 @@ EXEC 01;38;5;46 # files with execute permission
 .dmg 1;38;5;128 # Apple proprietary disk image
 .deb 1;38;5;128 # Debian dpkg
 .rpm 1;38;5;128 # Red Hat dnf Package
+.srpm 38;5;128 # Source RPM
 .appimage 1;38;5;128 # App image
 .flatpakref 1;38;5;128 # Flatpak
 .apk 1;38;5;128 # Android/Alpine Linux package
