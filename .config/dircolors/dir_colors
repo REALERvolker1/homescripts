@@ -1,26 +1,5 @@
-# vim:ft=dircolors:foldmethod=marker
-# TERM {{{
-# This file goes in the /etc directory, and must be world readable.
-# You can override the system defaults by making a copy of this file
-# as ~/.dir_colors
-
-# Configuration file for dircolors, a utility to help you set the
-# LS_COLORS environment variable used by GNU ls with the --color option.
-
-# Copyright (C) 1996-2022 Free Software Foundation, Inc.
-# Copying and distribution of this file, with or without modification,
-# are permitted provided the copyright notice and this notice are preserved.
-
-# The keywords COLOR, OPTIONS, and EIGHTBIT (honored by the
-# slackware version of dircolors) are recognized but ignored.
-
-# Global config options can be specified before TERM or COLORTERM entries
-
-# For compatibility, the pattern "^COLOR.*none" is recognized as a way to
-# disable colorization.  See https://bugzilla.redhat.com/1349579 for details.
-
-# Below are TERM or COLORTERM entries, which can be glob patterns, which
-# restrict following config to systems with matching environment variables.
+# vim:ft=dircolors
+# Terminal list
 COLORTERM ?*
 TERM Eterm
 TERM ansi
@@ -47,18 +26,10 @@ TERM terminator
 TERM tmux*
 TERM vt100
 TERM xterm*
-# }}}
-# BASIC {{{
-# Below are the color init strings for the basic file types.
-# One can use codes for 256 or more colors supported by modern terminals.
-# The default color codes use the capabilities of an 8 color terminal
-# with some additional attributes as per the following codes:
-# Attribute codes:
-# 00=none 01=bold 04=underscore 05=blink 07=reverse 08=concealed
-# Text color codes:
-# 30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white
-# Background color codes:
-# 40=black 41=red 42=green 43=yellow 44=blue 45=magenta 46=cyan 47=white
+TERM alacritty
+
+# https://fileinfo.com/ helped me a bunch
+
 #NORMAL 00	# no color code at all
 #FILE 00	# regular file: use no color at all
 RESET 0		# reset to "normal" color
@@ -71,275 +42,684 @@ SOCK 01;35	# socket
 DOOR 01;35	# door
 BLK 40;33;01	# block device driver
 CHR 40;33;01	# character device driver
-ORPHAN 40;31;01 # symlink to nonexistent file, or non-stat'able file ...
+ORPHAN 30;1;48;5;196 # symlink to nonexistent file, or non-stat'able file ...
 MISSING 01;37;41 # ... and the files they point to
 SETUID 37;41	# file that is setuid (u+s)
 SETGID 30;43	# file that is setgid (g+s)
 CAPABILITY 00	# file with capability (very expensive to lookup)
 STICKY_OTHER_WRITABLE 30;42 # dir that is sticky and other-writable (+t,o+w)
-OTHER_WRITABLE 34;42 # dir that is other-writable (o+w) and not sticky
+OTHER_WRITABLE 1;42;38;5;21 # dir that is other-writable (o+w) and not sticky
 STICKY 37;44	# dir with the sticky bit set (+t) and not other-writable
 
-# This is for files with execute permission:
-EXEC 01;38;5;82
-# }}}
-# List any file extensions like '.gz' or '.tar' that you would like ls
-# to color below. Put the extension, a space, and the color init string.
-# (and any comments you want to add after a '#')
+# EXEC 01;38;5;82 # files with execute permission
+EXEC 01;38;5;46 # files with execute permission
 
-# If you use DOS-style suffixes, you may want to uncomment the following:
-#.cmd 01;32 # executables (bright green)
-#.exe 01;32
-#.com 01;32
-#.btm 01;32
-#.bat 01;32
-# Or if you want to color scripts even if they do not have the
-# executable bit actually set.
-#.sh  01;32
-#.csh 01;32
+# Archives
+# https://en.wikipedia.org/wiki/List_of_archive_formats
 
-# Archives {{{
- # archives or compressed (bright red)
-.tar 1;38;5;124
-.tgz 1;38;5;124
-.arc 1;38;5;124
-.arj 1;38;5;124
-.taz 1;38;5;124
-.lha 1;38;5;124
-.lz4 1;38;5;124
-.lzh 1;38;5;124
-.lzma 1;38;5;124
-.tlz 1;38;5;124
-.txz 1;38;5;124
-.tzo 1;38;5;124
-.t7z 1;38;5;124
-.zip 1;38;5;124
-.z   1;38;5;124
-.dz  1;38;5;124
-.gz  1;38;5;124
-.lrz 1;38;5;124
-.lz  1;38;5;124
-.lzo 1;38;5;124
-.xz  1;38;5;124
-.zst 1;38;5;124
-.tzst 1;38;5;124
-.bz2 1;38;5;124
-.bz  1;38;5;124
-.tbz 1;38;5;124
-.tbz2 1;38;5;124
-.tz  1;38;5;124
-.deb 1;38;5;124
-.rpm 1;38;5;124
-.jar 1;38;5;124
-.war 1;38;5;124
-.ear 1;38;5;124
-.sar 1;38;5;124
-.rar 1;38;5;124
-.alz 1;38;5;124
-.ace 1;38;5;124
-.zoo 1;38;5;124
-.cpio 1;38;5;124
-.7z  1;38;5;124
-.rz  1;38;5;124
-.cab 1;38;5;124
-.wim 1;38;5;124
-.swm 1;38;5;124
+.tar 1;38;5;124 # tape archive
+
+.tgz 1;38;5;124 # gzipped tar
+.gz 1;38;5;124 # GNU zipped file
+
+.taz 1;38;5;124 # .tar.z archive
+.z 1;38;5;124 # UNIX compressed file
+.tz 1;38;5;124 # UNIX tar + z file combo
+
+.txz 1;38;5;124 # xz-compressed tar, higher compression ratio than tar.gz
+.xz 1;38;5;124 # high-ratio compression alg based on LZMA
+
+.tzo 1;38;5;124 # tar lzo
+.lzo 1;38;5;124 # Faster decompression than gzip
+
+.t7z 1;38;5;124 # tar 7z
+.7z 1;38;5;124 # 7-Zip archive, compressed with open-src LZMA
+.s7z 1;38;5;124 # Apple Spotlight archive
+
+.tzst 1;38;5;124 # tar compressed with zstd
+.zst 1;38;5;124 # Z-standard compression alg, or ZSNES save
+
+.tlz 1;38;5;124 # tar lzma archive
+.lzma 1;38;5;124 # thing that's better than bzip2
+
+.tbz2 1;38;5;124 # Bzip2 tar
+.bz2 1;38;5;124 # Bzip2 file
+.tbz 1;38;5;124 # bzip1 tar
+.bz 1;38;5;124 # bzip1 file
+
+.arc 1;38;5;124 # ancient compression alg
+.sda 1;38;5;124 # Self-dissolving ARC archive
+.arj 1;38;5;124 # another ancient compression alg
+.sea 1;38;5;124 # Ancient Mac OS self-extracting archive
+.sfx 1;38;5;124 # At this point you may be wondering why I am including so many ancient formats no one uses anymore. This is because I want to have lots of different colors.
+.lha 1;38;5;124 # Amiga compression format
+.lzh 1;38;5;124 # Another Amiga format
+.lz4 1;38;5;124 # quick compression alg from 2011
+.zip 1;38;5;124 # zip folder
+.zipx 1;38;5;124 # zip folder
+.dz 1;38;5;124 # proprietary compression format
+
+.lrz 1;38;5;124 # good for large files, long-distance redundancy
+.lz 1;38;5;124 # based on lzma, includes CRC checksum
+
+.jar 1;38;5;124 # Java jar archive
+.war 1;38;5;124 # Java web archive
+.ear 1;38;5;124 # Java enterprise archive
+
+.sar 1;38;5;124 # enterprise SAPCAR archive
+.rar 1;38;5;124 # WinRAR archive
+.alz 1;38;5;124 # proprietary ALZip archive
+.ace 1;38;5;124 # proprietary WinAce archive
+.zoo 1;38;5;124 # Unix Zoo archive from the 80s
+.shar 1;38;5;124 # Unix self-extracting Bourne Shell archive
+.cpio 1;38;5;124 # Unix uncompressed Copy In, Copy Out thing sorta like a tar
+.cpgz 1;38;5;124 # cpio but gzipped
+.pea 1;38;5;124 # Linux Pzip archive
+.rz 1;38;5;124 # rzip UNIX format
+.br 1;38;5;124 # Brotli compression alg
+.sz 1;38;5;124 # Google Snappy archive
+
+.april 38;5;124 # April Speech to Text model
+
+.asar 1;38;5;124 # JavaScript Electron archive
+.phar 1;38;5;124 # PHP archive file
+
+.swm 1;38;5;124 # Split windows imaging format
 .dwm 1;38;5;124
-.esd 1;38;5;124
-# }}}
-# Media {{{
+.esd 1;38;5;124 # Encrypted Windows Update file
+
+.cab 1;38;5;124 # Windows cabinet native archive
+
+# discs
+.iso 1;38;5;126
+.img 1;38;5;126
+.wim 1;38;5;126 # Windows Imaging Format, for OS images
+.qemu 38;5;126 # random QEMU virtual machine file
+.qcow 1;38;5;126 # QEMU Copy-on-Write disk image
+.qcow2 1;38;5;126 # QCOW 2 electric boogaloo
+.qed 1;38;5;126 # QEMU Enhanced Disk image
+.hdd 1;38;5;126 # MacOS parallels hard disk
+
+# packages
+.dmg 1;38;5;128 # Apple proprietary disk image
+.deb 1;38;5;128 # Debian dpkg
+.rpm 1;38;5;128 # Red Hat dnf Package
+.appimage 1;38;5;128 # App image
+.flatpakref 1;38;5;128 # Flatpak
+.apk 1;38;5;128 # Android/Alpine Linux package
+.ipa 1;38;5;128 # iOS app
+.vsix 1;38;5;128 # VSCode extension
+.crx 38;5;128 # Chromium extension
+.repo 38;5;128 # RPM/Yum repo
+.spec 38;5;128 # RPM spec
+
+# critical system
+.efi 38;5;52
+.EFI 38;5;52
+.x86_64 38;5;52
+.aarch64 38;5;52
+.service 38;5;52
+
 # image formats
-.avif 38;5;135
-.jpg 38;5;135
-.jpeg 38;5;135
-.mjpg 38;5;135
+.avif 38;5;135 # AV1-codec image
+.aiff 38;5;135 # lossless audio
+.heic 38;5;135 # iOS image
+.jpg 1;38;5;135 # jpegs
+.jpeg 1;38;5;135
+.mjpg 38;5;135 # motion-jpeg
 .mjpeg 38;5;135
-.gif 38;5;135
-.bmp 38;5;135
-.pbm 38;5;135
-.pgm 38;5;135
-.ppm 38;5;135
-.tga 38;5;135
-.xbm 38;5;135
-.xpm 38;5;135
-.tif 38;5;135
+.gif 1;38;5;135 # animated
+.bmp 1;38;5;135 # windows bitmap
+.pbm 38;5;135 # black/white bitmap
+.pgm 38;5;135 # grayscale map
+.ppm 38;5;135 # portable Pixmap -- plaintext image
+.tga 38;5;135 # old image format from 1984
+.xbm 38;5;135 # Xorg bitmap image
+.xpm 38;5;135 # Xorg pixmap image
+.tif 38;5;135 # tagged image file format
 .tiff 38;5;135
-.png 38;5;135
-.svg 38;5;135
-.svgz 38;5;135
-.mng 38;5;135
-.pcx 38;5;135
-.mov 38;5;135
-.mpg 38;5;135
-.mpeg 38;5;135
-.m2v 38;5;135
-.mkv 38;5;135
-.webm 38;5;135
-.webp 38;5;135
-.ogm 38;5;135
-.mp4 38;5;135
-.m4v 38;5;135
-.mp4v 38;5;135
-.vob 38;5;135
-.qt  38;5;135
-.nuv 38;5;135
-.wmv 38;5;135
-.asf 38;5;135
-.rm  38;5;135
-.rmvb 38;5;135
-.flc 38;5;135
-.avi 38;5;135
-.fli 38;5;135
-.flv 38;5;135
-.gl 38;5;135
-.dl 38;5;135
-.xcf 38;5;135
-.xwd 38;5;135
-.yuv 38;5;135
-.cgm 38;5;135
-.emf 38;5;135
+.ico 38;5;135 # windows icon
+.icns 38;5;135 # mac OS icon
+.icon 38;5;135 # icon images might be named this
+.png 1;38;5;135 # png
+.mng 38;5;135 # Multiple-Image network graphics (animated png)
+.pcx 38;5;135 # paintbrush bitmap from some DOS program
+.rli 38;5;135 # RealWorld Layered Image
+.psf 38;5;135 # Photoshop Proof settings
+.xcf 38;5;135 # GIMP saves
+.xwd 38;5;135 # X Windows Dump
+.webp 1;38;5;135 # Web image
+.rgba16 38;5;135 # binary image data
+.ia16 38;5;135 # more binary image data
 
-# https://wiki.xiph.org/MIME_Types_and_File_Extensions
-.ogv 38;5;135
-.ogx 38;5;135
+# Vector graphics
+.svg 1;38;5;134 # vector graphics
+.svgz 38;5;134 # compressed SVG
+.cgm 38;5;134 # CAD Vector drawing
+.emf 38;5;134 # Enhanced Windows Metafile vector graphics
 
-# audio formats
-.aac 38;5;141
-.au 38;5;141
-.flac 38;5;141
-.m4a 38;5;141
-.mid 38;5;141
-.midi 38;5;141
-.mka 38;5;141
-.mp3 38;5;141
-.mpc 38;5;141
-.ogg 38;5;141
-.ra 38;5;141
-.wav 38;5;141
+# Video
+.mov 1;38;5;132 # QuickTime "movie"
+.mpg 38;5;132 # MPEG video
+.mpeg 38;5;132
+.m2v 38;5;132 # MPEG-2 video
+.mkv 1;38;5;132 # Matroska video
+.webm 1;38;5;132 # Web video
+.ogm 38;5;132 # Origin matrix graph (some scientific software)
+.mp4 1;38;5;132 # MPEG-4
+.mp4v 38;5;132 # MPEG-4 video
+.m4v 38;5;132 # iTunes video
+.vob 38;5;132 # DVD Video Object
+.qt  38;5;132 # Apple Quicktime movie
+.nuv 38;5;132 # NuppelVideo MythTV stuff
+.wmv 38;5;132 # Windows media video
+.asf 38;5;132 # Advanced Systems format
+.rm  38;5;132 # RealMedia file
+.rmvb 38;5;132 # RealMedia variable bitrate
+.flc 38;5;132 # AutoDesk FLIC
+.fli 38;5;132 # AutoDesk FLIC
+.avi 38;5;132 # Audio-Video Interleave
+.flv 38;5;132 # Adobe Flash video
+.yuv 38;5;132 # video in YUV encoding
+.m64 38;5;132 # Mupen64 Movie file
 
-# https://wiki.xiph.org/MIME_Types_and_File_Extensions
-.oga 38;5;141
-.opus 38;5;141
-.spx 38;5;141
-.xspf 38;5;141
-# }}}
-# BACKUP {{{
+# Audio
+.xspf 38;5;141 # XML shareable playlist
+.aac 38;5;141 # Advanced Audio Coding -- not as widely supported
+.au 38;5;141 # Audacity audio
+.flac 1;38;5;141 # uncompressed audio
+.m4a 38;5;141 # MPEG-4 audio
+.mid 38;5;141 # MIDI file
+.midi 38;5;141 # MIDI file
+.mka 38;5;141 # Matroska Audio
+.mp3 1;38;5;141 # MPEG-3 audio
+.mpc 38;5;141 # MusePack compressed audio
+.ra 38;5;141 # RealAudio file
+.wav 1;38;5;141 # uncompressed Windows audio
+.wave 38;5;141 # wave sound
+.mtm 38;5;141 # Multi-tracker model
+.mod 38;5;141 # Music Module file
+.weba 38;5;141 # WEBM audio
+.vlc 38;5;141 # VLC playlist
+.m3u 38;5;141 # M3U playlist
+.m3u8 38;5;141 # UTF-8 M3U playlist
+.aif 38;5;141 # Audio Interchange Format
+.aiff 38;5;141 # Audio Interchange File Format
+.aifc 38;5;141 # Compressed Audio interchange
+
+# OGG
+.ogg 1;38;5;141 # OGG audio
+.ogv 38;5;135 # OGG video
+.ogx 38;5;135 # OGG multiplex profile
+.oga 38;5;141 # OGG audio
+.opus 38;5;141 # OGG OPUS file
+.spx 38;5;141 # OGG Speex files
+
 # backup files
-*~ 38;5;242
-*# 38;5;242
-.bak 38;5;242
-.old 38;5;242
-.orig 38;5;242
-.part 38;5;242
-.rej 38;5;242
-.swp 38;5;242
-.tmp 38;5;242
+*~ 38;5;240 # editor backup 'file~'
+*# 38;5;240 # backup 'file#'
+.bak 38;5;240 # backup
+.old 38;5;240 # old version of a file
+.orig 38;5;240 # original version of a file
+
+# debian package
 .dpkg-dist 38;5;242
 .dpkg-old 38;5;242
+
+# Update configuration file
 .ucf-dist 38;5;242
 .ucf-new 38;5;242
 .ucf-old 38;5;242
+
+# Redhat RPM
 .rpmnew 38;5;242
 .rpmorig 38;5;242
 .rpmsave 38;5;242
 
-# Subsequent TERM or COLORTERM entries, can be used to add / override
-# config specific to those matching environment variables.
-# }}}
-# RCs {{{
-*rc 38;5;113
-*profile 38;5;113
-.zshenv 38;5;113
-.env 38;5;113
-# }}}
-# IGNORE {{{
-.dir_colors 38;5;247
-.gitattributes 38;5;247
-.gitignore 38;5;247
-.git 38;5;247
-.lock 38;5;247
-.Xresources 38;5;247
-.gsd-keyboard.settings-ported 38;5;247
-.login 38;5;247
+# git stuff
+.gitattributes 38;5;91
+.gitmodules 38;5;91
+.editorconfig 38;5;91 # Editorconfig for syncing editor settings
+.git 38;5;91
+.github 38;5;91
+.replit 38;5;91 # config for replit code platform
 
-.Xauthority 38;5;238
-.xsession-errors 38;5;238
-.xsession-errors.old 38;5;238
-.key 38;5;238
-.keys 38;5;238
-.zwc 38;5;238
-# }}}
-# DATA {{{
-.yaml 38;5;116
-.toml 38;5;116
-.ini 38;5;116
-.conf 38;5;116
-.json 38;5;116
-.jsonc 38;5;116
-.cfg 38;5;116
-.list 38;5;116
-.xml 38;5;116
-.htm 38;5;116
-.html 38;5;116
-.dirs 38;5;116
-.locale 38;5;116
-# }}}
+# Ignore
+.gitignore 38;5;238
+.hgignore 38;5;238 # Mercurial ignore
+.cvsignore 38;5;238 # CVS ignore
+.ignore 38;5;238
+.packignore 38;5;238 # prismlauncher modpack ignore
+
+.gsd-keyboard.settings-ported 38;5;239 # random GNOME settings daemon file
+.gdb 38;5;239 # database file
+.state 38;5;239 # the state of something
+.status 38;5;239 # the status of something
+.mount 38;5;239 # a mount
+
+.Xauthority 38;5;238 # Xorg X authority
+.xsession-errors 38;5;238 # Xorg Xsession errorfile
+.xsession-errors.old 38;5;238 # previous Xorg Xsession errorfile left over from lightdm
+.disabled 38;5;238
+.driver 38;5;238 # Device driver
+.directory 38;5;238 # a directory entry
+.pid 38;5;238 # the PID of a process
+.lock 38;5;238 # lockfile
+.part 38;5;238 # part of a download
+.swp 38;5;238 # swapfile
+.swap 38;5;238 # swapfile
+.tmp 38;5;238 # tmp file
+.sock 38;5;238 # "socket" file
+.history 38;5;238
+.mask 38;5;238
+.trashinfo 38;5;238 # trash information file
+.zcompdump 38;5;238 # zsh completion
+
+# cryptography
+.gpg 38;5;238 # GPG encrypted file
+.pki 38;5;238 # Public Key Infrastructure
+.key 38;5;238 # crypto key
+.pub 38;5;238 # crypto public key
+.pem 38;5;238 # Privacy-enhanced mail cert
+.pam 38;5;238 # PAM Linux auth
+.x509 38;5;238 # some crypto thing I found in my programming lang installs
+.keys 38;5;238 # multiple keys
+.keyring 38;5;238 # a keyring to store keys
+.keystore 38;5;238 # more key storage
+.genkey 38;5;238 # make keys
+.hmac 38;5;238 # crypto code
+.crt 38;5;238 # security certificate
+.asc 38;5;238 # Armored ASCII file
+.ocx 38;5;238 # ActiveX control
+
+# binary stuff
+.bin 38;5;238 # random ass binary
+.dat 38;5;238 # random Data file. Most likely compiled
+.compiled 38;5;238 # something that's probably compiled
+.zwc 38;5;238 # compiled ZSH script
+.pyc 38;5;238 # compiled Cpython
+.o 1;38;5;238 # compiled C-lang object file
+.out 1;38;5;238 # Compiled executable
+.wasm 38;5;238 # Webassembly
+.exe 38;5;238 # Windows executable
+.chm 38;5;238 # Windows compiled HTML help
+.cmi 38;5;238 # Compiled OCaml Interface
+.rlib 38;5;238 # Rust static library
+
+.db 38;5;242 # Database
+.sqlite 38;5;242 # sqlite database
+.sqlite3 38;5;242
+
+# ROM
+.z64 38;5;241 # Nintendo 64 ROM
+.gb 38;5;241 # Nintendo Gameboy ROM
+.gbc 38;5;241 # Nintendo Gameboy Color ROM
+.gba 38;5;241 # Nintendo Gameboy Advance ROM
+.nes 38;5;241 # Nintendo NES ROM
+.smc 38;5;241 # Nintendo SNES ROM
+.swc 38;5;241 # Nintendo SNES wildcard
+.sav 38;5;237 # Nintendo gb save
+.srm 38;5;237 # Nintendo SNES save
+.dem 38;5;241 # Game demo file
+
+# hashes
+.md5 38;5;237
+.crc 38;5;237
+.sha1 38;5;237
+.sha128 38;5;237
+.sha267 38;5;237
+
+# Shell config
+*rc 38;5;113 # basically anything ending with rc is 99% going to be a config file
+*profile 38;5;113 # anything ending with profile is also probably a config
+*config 38;5;113 # same for this
+.dir_colors 38;5;113 # dir colors
+.Xresources 38;5;113 # Xorg X resources
+.bash_history 38;5;113
+.zsh_history 38;5;113
+#.conf 38;5;113
+#.zshenv 38;5;113
+#.env 38;5;113
+*env 38;5;113 # environment
+*environment 38;5;113 # also environment
+*login 38;5;113
+*logout 38;5;113
+# *fstab 38;5;113 # mainly /etc/fstab. idk
+
+.csv 38;5;116 # Comma-separated values
+.yaml 38;5;116 # yet another markup language
+.yml 38;5;116 # Yaml
+.toml 38;5;116 # rust Cargo.toml language
+.ron 38;5;116 # rusty object notation
+.ini 38;5;116 # key=value config with headers that look like [this]
+.json 38;5;116 # json
+.jsonc 38;5;116 # json but with comments
+.xml 38;5;116 # eXtensible Markup Language
+.xbel 38;5;116 # Bookmarks file
+
+.torrent 38;5;130 # 🤨
+.magnet 38;5;130 # 🤨
+
+.nbt 38;5;95 # NBT Data file. Most likely from Minecraft
+.schematic 38;5;95 # Worldedit schematic from Minecraft
+.mcmeta 38;5;95 # Minecraft metadata
+.mca 38;5;95 # Minecraft map region
+.zs 38;5;95 # Some scripting language for Minecraft modpacks
+
+.i3 38;5;116 # vlk i3 window manager config
+.xlayoutdisplay 38;5;116 # Xlayoutdisplay config
+.conf 38;5;116 # generic config
+.properties 38;5;116 # generic config
+.defaults 38;5;116 # the default config
+.def 38;5;116 # definitions
+.local 38;5;116
+.locale 38;5;116 # language
+.rules 38;5;116 # rules config like for udev and whatnot
+.alias 38;5;116 # aliases
+*aliases 38;5;116 # more aliases
+.kbd 38;5;116 # keyboard stuff
+.scripts 38;5;116 # multiple scripts
+.plugin 38;5;116
+#.cfg 38;5;116
+*cfg 38;5;116 # 99% likely config file
+.cnf 38;5;116 # another type of config
+.bconf 38;5;116 # no idea what this was from
+.lst 38;5;116 # list
+.list 38;5;116 # list
+
+.example 38;5;153
+.template 38;5;153
+.login 38;5;153
+.deny 38;5;153
+.updated 38;5;153
+.blacklist 38;5;153
+.cache 38;5;153
+.version 38;5;153
+.changed 38;5;153
+.perms 38;5;153
+.ssh 38;5;153
+.site 38;5;153
+.id 38;5;153 # the ID of something
+.tag 38;5;153
+.TAG 38;5;153
+*hst 38;5;153 # history for something
+.log 38;5;153 # a log of something
+.info 38;5;153 # info
+.menu 38;5;153
+
+.ans 38;5;147 # ANSI text file
+.ansi 38;5;147 # ANSI text file
+.ascii 38;5;147 # ASCII text file
+.uni 38;5;147 # Unicode file
+.dirs 38;5;147 # xdg-data-dirs file
+.locale 38;5;147 # language file
+.options 38;5;147
+.trans 38;5;147
+.defs 38;5;147
+.colors 38;5;147
+
+.desktop 38;5;99 # Freedesktop Desktop Entry
+.theme 38;5;99 # Freedesktop theme
+
+.sql 38;5;116 # SQL script
+.spdx 38;5;116
+.split 38;5;116
+.skp 38;5;116 # SketchUp CAD file
+.ics 38;5;116 # Calendar file
+.eml 38;5;116 # Email
+.ctl 38;5;116
+.lnk 38;5;116 # Windows shortcut
+.tbl 38;5;116 # Table file
+.table 38;5;116 # Table file
+
+.config 38;5;116
+.order 38;5;116
+.platforms 38;5;116
+.symvers 38;5;116
+.builtin 38;5;116
+
 # SCRIPT {{{
-.sh 38;5;184
-.bash 38;5;184
-.csh 38;5;184
-.zsh 38;5;184
-.fish 38;5;184
-.css 38;5;184
-.py 38;5;184
-.python 38;5;184
-.ipynb 38;5;184
-.jl 38;5;184
-.R 38;5;184
-.Rsx 38;5;184
-.pl 38;5;184
-.swift 38;5;184
-.rs 38;5;184
-.crs 38;5;184
-.jar 38;5;184
-.class 38;5;184
-.java 38;5;184
-.vala 38;5;184
-.c 38;5;184
-.h 38;5;184
-.cpp 38;5;184
-.cx 38;5;184
-.cr 38;5;184
-.js 38;5;184
-.mjs 38;5;184
-.cjs 38;5;184
-.ts 38;5;184
-.mts 38;5;184
-.cts 38;5;184
-.nim 38;5;184
-.map 38;5;184
-.tsx 38;5;184
-.jsx 38;5;184
-.lua 38;5;184
-.kt 38;5;184
-.kts 38;5;184
-.gradle 38;5;184
-.hs 38;5;184
-.dart 38;5;184
-.go 38;5;184
-.zig 38;5;184
-.o 38;5;184
-.php 38;5;184
-.xlayoutdisplay 38;5;184
-# }}}
+# Shell
+.sh 38;5;70 # Shell script
+.ash 38;5;70 # Almquist shell script
+.dash 38;5;70 # Debian Almquist shell script
+.bash 38;5;70 # Bruh Almighty shell script
+.ksh 38;5;70 # Kornography shell script
+.csh 38;5;70 # A crime against humanity
+.tcsh 38;5;70 # A slightly less awful crime against humanity
+.zsh 38;5;70 # Hello, my name is ${(M)array:#${~${(O@)array//?/?}[1]}}, nice to meet you
+.ztst 38;5;70 # zsh test
+.zsh-theme 38;5;70 # Oh My ZSH theme
+.fish 38;5;70 # technically a shell script
+.nu 38;5;70 # Nushell script
+
+# app-specific
+.pl 38;5;67 # perl scripts
+.pm 38;5;67 # perl modules
+.sed 38;5;67 # sed script
+.awk 38;5;67 # awk script
+.m4 38;5;67 # UNIX macro processing
+
+# CSS
+.css 1;38;5;57 # CSS stylesheet
+.scss 1;38;5;57 # SCSS stylesheet
+.sass 1;38;5;57 # SASS stylesheet
+.lss 1;38;5;57 # CSS LESS
+.less 1;38;5;57 # CSS LESS
+.xsl 1;38;5;57 # XML stylesheet similar to a CSS file
+
+# Science
+.py 38;5;226 # Python script
+.pyd 38;5;226 # Python bynamic module
+.pyo 38;5;226 # Python optimized code
+.rpy 38;5;226 # Python script
+.whl 1;38;5;226 # Python wheel package
+.npy 38;5;226 # Numpy Array file
+.typed 1;38;5;226 # typed python hints
+.ipynb 38;5;226 # Jupyter Notebook
+.jl 38;5;226 # Julia source code
+.R 38;5;226 # R-lang source
+
+# shitty proprietary
+.swf 38;5;196 # Adobe Flash Script
+.swift 38;5;196 # Apple programming language
+.m 38;5;196 # Apple Objective-C
+# java
+.class 38;5;198 # JAVA class
+.java 38;5;198 # JAVA java
+.kt 38;5;200 # Kotlin source code
+.kts 38;5;200 # Kotlin script
+.cma 38;5;200 # OCaml
+.gradle 38;5;197 # Java Gradle build system
+
+# GNOME GTK
+.vala 38;5;164 # GNOME programming lang
+.gresource 38;5;164 # GTK resource file
+.gir 38;5;164 # GObject-Introspection file
+.ui 38;5;164 # User interface file
+.glade 38;5;164 # GTK3 Glade file
+
+# Rust
+.rs 1;38;5;202 # Rust language
+.crs 38;5;202 # Rust script
+# asm
+.s 38;5;107 # generic source code (assembly?)
+.S 38;5;107 # SOARSE COD
+.asm 38;5;107 # assembly src
+# C
+.inc 38;5;87 # Include file
+.c 38;5;84 # C-lang src
+.C 38;5;84 # C-LANG SOURCE
+.h 38;5;113 # C header file
+.H 38;5;113 # C HEADER FILE
+# Cpp
+.c++ 38;5;86 # very obscure C++ source code extension
+.h++ 38;5;115 # very obscure C++ header extension
+.cxx 38;5;86 # C++ source code
+.hxx 38;5;115 # C++ header
+.cc 38;5;86 # C++ source code
+.cpp 38;5;86 # C++ source code
+.hpp 38;5;115 # C++ header
+.inl 38;5;87 # C++ Inline File
+# csharp
+.cs 38;5;84 # Csharp source code
+
+# libs
+.dll 38;5;220 # Windows dynamic linked library
+.dylib 38;5;220 # macOS library
+.a 38;5;220 # static library
+.so 38;5;220 # shared library
+.po 38;5;220 # portable object
+
+.d 38;5;142 # D-lang source code
+.hx 38;5;142 # HaXe source code
+.nim 38;5;142 # Nim-lang source code
+.cr 38;5;142 # Crystal lang source code
+.nix 38;5;142 # Nix Package Manager script
+.ch 38;5;142 # Clipper lang header, as well as chroma file
+
+.qm 38;5;35 # QT compiled translation file
+.qml 38;5;35 # QT Markup Language
+
+.js 38;5;149 # JavaScript
+.mjs 38;5;149 # ECMAscript Module JS
+.cjs 38;5;149 # CommonJS
+.ts 38;5;45 # Typescript
+.coffee 38;5;94 # Coffee Script
+.mts 38;5;45 # ECMAscript Module TS
+.cts 38;5;45 # ECMAscript Module JS
+.map 38;5;117 # Typescript Source map
+.tsx 38;5;43 # Typescript JSX React
+.jsx 38;5;43 # Javascript JSX React
+.vue 38;5;40 # Vue Javascript framework
+.lit 38;5;33 # Lit Javascript framework
+
+.htm 38;5;166 # HTML but for old computers
+.html 38;5;166 # HTML but normal
+.php 38;5;166 # Pretty Hawful Programminglanguage
+.asp 38;5;166 # Microsoft PHP
+.aspx 38;5;166 # Microsoft PHP
+.svelte 38;5;172 # Svelte javascript framework (basically looks like html)
+.astro 38;5;172 # Astro javascript framework (basically looks like html)
+.htaccess 38;5;192 # Apache htaccess
+
+.lua 38;5;27 # oh god not this bullshit
+.luacov 38;5;32 # Lua code coverage I think?
+.rockspec 38;5;32 # Luarocks package stuff
+.vim 38;5;34 # VIMScript
+
+.glsl 38;5;105 # OpenGL shader language
+.hlsl 38;5;105 # Microsoft DirectX shader language
+.frag 38;5;105 # fragment shader
+.fsh 38;5;105 # fragment shader
+.vsh 38;5;105 # vertex shader
+
+.zig 38;5;108 # zig lang
+.hs 38;5;108 # Haskell script
+.lhs 38;5;108 # Literate Haskell script
+.dart 38;5;108 # Dart source code
+.go 38;5;108 # golang source code
+.scm 38;5;108 # Scheme lisp code
+.el 38;5;108 # Emacs Lisp code
+.lsp 38;5;108 # Normal lisp code
+.lisp 38;5;108 # Lisp code
+.vbs 38;5;108 # Visual Basic
+.vbx 38;5;108 # More Visual basic
+
+.rb 38;5;124 # Ruby code
+.rspec 38;5;124 # Ruby specfile
+
+# Windows
+.cmd 38;5;148 # Windows NT Command script
+.com 38;5;148 # MS-DOS Command script
+.bat 38;5;148 # MS-DOS Batch script
+.ps1 38;5;148 # Windows Powershell script
+
+# Linux
+.dts 38;5;187 # Linux kernel device tree
+.dtsi 38;5;187 # Linux kernel device tree include
+.ko 38;5;187 # Linux Kernel module
+.modinfo 38;5;187 # Linux kernel module info
+
+# Build tools
+.debug 38;5;184 # generic debug file
+.target 38;5;184 # generic target
+.in 38;5;202 # Autoconf input file
+.patch 38;5;202 # source code diff file, used to update source code
+.ld 38;5;184 # Linker script
+.lds 38;5;184 # ld linker script
+.mk 38;5;184 # Makefile
+.pp 38;5;184 # puppet
+.clang-format 38;5;184 # clang formatting file
+.clang-tidy 38;5;184
+.asciidoc 38;5;184 # ASCIIdoc documentation
+.adoc 38;5;184 # ASCIIdoc documentation
+.diff 38;5;184 # diff files
+*Doxyfile 38;5;184 # Doxygen file for generating docs
+*Dockerfile 38;5;202 # Docker container config
+.cabal 38;5;184 # Cabal build system
+.cmake 38;5;184 # C make
+.ninja 38;5;184 # Fortnite dude from 2018
+.build 38;5;184 # generic build
+.am 38;5;184 # automake template
+.ac 38;5;184 # autoconf
+.gyp 38;5;184 # Generate Your Projects config
+*Makefile 38;5;202 # GNU Makefile
+*makefile 38;5;202
+*MAKEFILE 38;5;202
+
 # DOCUMENT {{{
-.md 38;5;159
-.odt 38;5;159
-.docx 38;5;159
-.dot 38;5;159
-.txt 38;5;159
-.pdf 38;5;159
-.ttf 38;5;159
-.ttc 38;5;159
-.otf 38;5;159
-# }}}
+# texlive
+.ltx 38;5;252 # latex source files
+.tex 38;5;252 # texlive
+.tfm 38;5;252 # texlive font metrics
+.vf 38;5;252 # texlive virtual fonts
+.sty 38;5;252 # texlive latex package
+
+.md 38;5;159 # markdown
+.MD 38;5;159 # MARKDOWN
+.cat 38;5;159 # some doc format
+.rtf 38;5;159 # rich text
+.rst 38;5;159 # ReStructured Text for python docs
+.epub 38;5;159 # ebook
+.org 38;5;159 # only people with no bitches know what this emacs shit is
+.ps 38;5;159 # PostScript page
+.txt 38;5;159 # plaintext file
+.pdf 38;5;159 # the worst document format ever created
+# office docs
+.odt 38;5;27 # Opendocument text
+.odp 38;5;202 # open document presentation
+.ods 38;5;34 # open document spreadsheet
+.docx 38;5;27 # ms word doc
+.doc 38;5;27 # ms word doc legacy
+.pptx 38;5;202 # ms powerpoint
+.ppt 38;5;202 # ms powerpoint legacy
+.xlsx 38;5;34 # excel
+.xls 38;5;34 # excel legacy
+.dot 38;5;27 # ms word document template
+.pages 38;5;27 # Apple Pages doc
+.mdi 38;5;159 # Microsoft Document Imaging
+# fonts
+.ttf 38;5;159 # Windows font
+.ttc 38;5;159 # Truetype font collection
+.otf 38;5;159 # opentype font
+.psf 38;5;159 # console font (or photoshop proof)
+.fnt 38;5;159 # random ass font format
+.eot 38;5;159 # embedded opentype font
+.woff 38;5;159 # web font
+.woff2 38;5;159 # web font 2 electric boogaloo
+
+*LICENSE 38;5;192 # license
+
+# manpages
+.1 38;5;159
+.2 38;5;159
+.3 38;5;159
+.4 38;5;159
+.5 38;5;159
+.6 38;5;159
+.7 38;5;159
+.8 38;5;159
+.9 38;5;159
+.0 38;5;159
+
