@@ -92,7 +92,7 @@ $box_color = "\e[0;38;5;${box_color}m";
 # ╰┴─╯
 
 # my $boxtop = "─" x $user_length;
-my $boxtop = "${box_color}╭─" . "─" x $user_length . "─┬──" . "─" x $cmd_key_length . "─" x $len . "─╮\e[0m";
+my $boxtop = "${box_color}╭─" . "─" x $user_length . "─┬────" . "─" x $cmd_key_length . "─" x $len . "─╮\e[0m";
 
 print "${boxtop}\n";
 my $count = 0;
@@ -100,7 +100,7 @@ my $padded_ = "";
 foreach my $content (@cmds) {
     $content =~ s/.*$/sprintf("%-${len}s", $&)/e;
     # print "\e[0;38;5;${box_color}m│\e[0;${user_color}m $user[$count] \e[0;38;5;${box_color}m│\e[0;$cmd_keys[$count] \e[1m$_ \e[0;38;5;${box_color}m│\e[0m\n";
-    print "${box_color}│\e[0;${user_color}m $user[$count] ${box_color}│\e[0;$cmd_keys[$count] \e[1m$content ${box_color}│\e[0m\n";
+    print "${box_color}│\e[0;${user_color}m $user[$count] ${box_color}│\e[0;$cmd_keys[$count]   \e[1m$content ${box_color}│\e[0m\n";
     $count += 1;
 }
 $boxtop =~ s/╭/╰/g;
