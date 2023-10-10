@@ -7,33 +7,43 @@ if [[ ! -d "${HOMESCRIPTS:-}" ]]; then
     return 1
 fi
 
+diffcmd() {
+    git fetch
+    git diff "origin/$(git branch | grep -oP "\*[[:space:]]*\K.*\$")"
+}
+
 git_interact() {
     local default commitmsg
-    default="$(date +"Commit from ${0##*/} at %D %r")"
     cd "$HOMESCRIPTS"
     case "${1:-}" in
     'commit')
-        echo -en "What would you like the commit message to say?
-(enter 'q' or 'exit' to quit, leave blank to print default)
-$default
-> "
-        read -r commitmsg
-        case "${commitmsg:-}" in
-        q | quit | exit)
-            echo "Exiting..."
-            return 1
-            ;;
-        '')
+        default="$(date +"Commit from ${0##*/} at %D %r")"
+        if [ "${1:-}" == '-f' ]; then
             commitmsg="$default"
-            ;;
-        esac
+        else
+            diffcmd
+            printf '%s\n' \
+                'What would you like the commit message to say?' \
+                "(enter 'q' or 'exit' to quit, leave blank to print default)" \
+                "$default"
+            echo -n '> '
+            read -r commitmsg
+            case "${commitmsg:-}" in
+            q | quit | exit)
+                echo "Exiting..."
+                return 1
+                ;;
+            '')
+                commitmsg="$default"
+                ;;
+            esac
+        fi
         git add -A
         git commit -am "$commitmsg"
         ;;
     'push') git push ;;
     'diff')
-        git fetch
-        git diff "origin/$(git branch | grep -oP "\*[[:space:]]*\K.*\$")"
+        diffcmd
         ;;
     *) echo 'Error, please specify a git action to take on dotfiles' ;;
     esac
