@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 IFS=$'\n\t'
 
-_head () {
+_head() {
     echo -e "\e[0m\e[1m[\e[${1:-$distro_color}m${2:?Put header here}\e[0m\e[1m]\e[0m"
 }
 distro_color="$(grep -oP '^ANSI_COLOR="\K[^"]*' /etc/os-release)"

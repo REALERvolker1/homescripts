@@ -18,7 +18,7 @@ for i in "$ZDOTDIR/rc.d"/*.zsh; do
 done
 
 ((COLUMNS > 55)) && {
-    dumbfetch
+    dumbfetch.pl
     command -v fortune &>/dev/null && fortune -a -s | (
         if command -v lolcrab &>/dev/null; then
             lolcrab
