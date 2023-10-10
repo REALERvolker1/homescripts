@@ -16,3 +16,4 @@
 .config/gtk-2.0/gtkrc
 .config/gtk-3.0/settings.ini
 .config/gtk-4.0/settings.ini
+.config/**/.vscode
