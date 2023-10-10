@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 # shellcheck shell=bash
 # vim:foldmethod=marker:ft=sh
-# shellcheck disable=2139,2317,2012
+# shellcheck disable=2139,2317,2012,1090
 
 [[ "$-" == *i* ]] || {
     echo "Error, you must source this file with interactive zsh or bash" >&2
@@ -153,6 +153,23 @@ alias csh="echo 💀 && $__homebin/run-subshell.sh csh"
 alias tcsh="echo 💀 && $__homebin/run-subshell.sh tcsh"
 
 alias pypip="pypy3 -m pip "
+
+venv() {
+    local venv="$PWD/venv"
+    local venvb="$venv/bin/activate"
+    if [[ -f "$venvb" ]]; then
+        source "$venvb"
+    else
+        python -m venv "$venv"
+        if [[ -f "$venvb" ]]; then
+            source "$venvb"
+        else
+            echo "Error, failed to find python venv"
+            return 1
+        fi
+    fi
+}
+# alias venv='python -m venv "$PWD"'
 
 alias pnpmi='pnpm install --global'
 alias pnpml='pnpm list --global | fzf'
