@@ -3,7 +3,7 @@ set -euo pipefail
 # IFS=$'\n\t'
 IFS=$' \n\t'
 
-for i in pidstat fzf lscolors realpath dircolors; do
+for i in pidstat fzf lscolors realpath dircolors pstree; do
     if ! command -v "$i" &>/dev/null; then
         echo "Missing dependency command '$i'" >&2
         exit 1
@@ -75,23 +75,24 @@ case "$(printf '%s\n' "${actions[@]}" | sort | fzf --ansi --preview-window='down
     exec sh -c "$PIDSTAT $pid"
     ;;
 "${actions[tree]}")
-    parent=''
-    declare -a children
-    found=''
-    for i in $(ps -eo pid,comm --forest --no-headers); do
-        if [[ "$i" == *"$pid"* ]]; then
-            i="$(tput bold)$i$(tput sgr0)"
-            found=1
-        fi
-        if [[ "$i" == *'\_'* ]]; then
-            children+=("$i")
-        else
-            [ -n "$found" ] && break
-            parent="$i"
-            children=()
-        fi
-    done
-    printf '%s\n' "$parent" "${children[@]}"
+    pstree -sp "$pid"
+    # parent=''
+    # declare -a children
+    # found=''
+    # for i in $(ps -eo pid,comm --forest --no-headers); do
+    #     if [[ "$i" == *"$pid"* ]]; then
+    #         i="$(tput bold)$i$(tput sgr0)"
+    #         found=1
+    #     fi
+    #     if [[ "$i" == *'\_'* ]]; then
+    #         children+=("$i")
+    #     else
+    #         [ -n "$found" ] && break
+    #         parent="$i"
+    #         children=()
+    #     fi
+    # done
+    # printf '%s\n' "$parent" "${children[@]}"
     ;;
 "${actions[kill]}")
     echo "Are you sure you want to kill process ${pid}?"
