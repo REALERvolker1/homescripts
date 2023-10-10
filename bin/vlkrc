@@ -64,7 +64,13 @@ if command -v trash &>/dev/null; then
 else
     alias rm=rmf
 fi
-[[ -f "$HOME/.xsel.log" ]] && rmf "$HOME/.xsel.log" &>/dev/null
+# remove junk files
+for i in \
+    "$HOME/.xsel.log" \
+    "$HOME/.wget-hsts"; do
+    [[ -e "$i" ]] && rmf "$i"
+done
+#[[ -f "$HOME/.xsel.log" ]] && rmf "$HOME/.xsel.log" &>/dev/null
 
 alias touchc="$__homebin/touchx.sh --codium"
 alias touchv="$__homebin/touchx.sh --nvim"

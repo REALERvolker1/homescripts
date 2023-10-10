@@ -1,15 +1,16 @@
-#!/usr/bin/bash
-IFS=$'\n\t'
+#!/usr/bin/dash
+# IFS=$'\n\t'
+IFS="$(printf '\n\t')"
 
 _head() {
-    echo -e "\e[0m\e[1m[\e[${1:-$distro_color}m${2:?Put header here}\e[0m\e[1m]\e[0m"
+    printf '\033[0;1m[\033[%sm%s\033[0;1m]\033[0m\n' "${1:-$distro_color}" "${2:?Put header here}"
 }
 distro_color="$(grep -oP '^ANSI_COLOR="\K[^"]*' /etc/os-release)"
 [ -z "${distro_color:-}" ] && distro_color='31'
 
 if command -v dnf >/dev/null; then
     # support dnf5 on Fedora Rawhide
-    if file /usr/bin/dnf | grep 'dnf5$'; then
+    if file /usr/bin/dnf | grep -q 'dnf5$'; then
         _head "$distro_color" 'dnf5'
         sudo dnf makecache
         sudo dnf upgrade
@@ -38,7 +39,7 @@ command -v pacman >/dev/null 2>&1 && sudo pacman -Syu --noconfirm;\
 command -v dnf >/dev/null 2>&1 && sudo dnf upgrade --refresh -y;\
 command -v apt >/dev/null 2>&1 && sudo apt update && sudo apt upgrade -y"
 
-if command -v distrobox &>/dev/null; then
+if command -v distrobox >/dev/null; then
     boxes="$(distrobox ls --no-color 2>/dev/null | cut -d '|' -f 2 | tail -n '+2' | sed 's/^[ ]*//g ; s/[ ]*$//g')"
     for i in $boxes; do
         _head 96 "distrobox $i"

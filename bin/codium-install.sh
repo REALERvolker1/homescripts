@@ -17,8 +17,7 @@ codium_tgz="$codium_path/codium.tar.gz"
 for i in \
     'jq' \
     'curl' \
-    'wget'
-do
+    'lsof'; do
     #'gh' \
     if command -v "$i" >/dev/null; then
         true
@@ -38,15 +37,15 @@ check=0
 help=0
 for i in "$@"; do
     case "${i:-}" in
-        '--force'|'-f')
-            force=1
-            ;;
-        '--check'|'-c')
-            check=1
-            ;;
-        *)
-            help=1
-            ;;
+    '--force' | '-f')
+        force=1
+        ;;
+    '--check' | '-c')
+        check=1
+        ;;
+    *)
+        help=1
+        ;;
     esac
 done
 if [ "$help" -eq 1 ]; then
@@ -58,20 +57,41 @@ if [ "$help" -eq 1 ]; then
     exit 1
 fi
 
+trykill_codium() {
+    if [ "$(lsof +D "$codium_path")" = "" ]; then
+        echo "codium directory is not in use. Continuing"
+    else
+        echo "You have codium open right now! Want me to try and kill it?"
+        printf '[y/n] > '
+        read -r answer
+        if [ "$answer" = 'y' ]; then
+            killall codium
+            sleep 1
+            if [ "$(lsof +D "$codium_path")" != "" ]; then
+                echo "Error, killing codium did not unlock the directory. Updates cannot be completed."
+                exit 1
+            fi
+        else
+            echo "Aborting update"
+            exit 1
+        fi
+    fi
+}
 
+# exit if no connection to github
+if ! curl -sf -H 'Accept: application/vnd.github+json' 'https://api.github.com/' >/dev/null; then
+    echo "Error, could not connect to github"
+    exit 1
+fi
 # get the latest release url
 release_url="$(
-    #gh api \
-        #--header 'Accept: application/vnd.github+json' \
-        #--method GET \
-        #"/repos/$codium_id/releases/latest" \
     curl -s -H 'Accept: application/vnd.github+json' \
-        "https://api.github.com/repos/$codium_id/releases/latest" \
-        | jq -r ".assets | .[] | \
+        "https://api.github.com/repos/$codium_id/releases/latest" |
+        jq -r ".assets | .[] | \
             select(.name | startswith(\"$codium_version_prefix\")) | \
             select(.name | endswith(\"$codium_version_suffix\")) | \
-            .browser_download_url" \
-        | head -n 1
+            .browser_download_url" |
+        head -n 1
 )"
 installed_version="$(cat "$codium_version_file")"
 release_version="${release_url##*/}"
@@ -92,7 +112,7 @@ else
         "new:      $release_version"
     if [ "$force" -eq 0 ]; then
         answer=''
-        echo -n '[y/n] > '
+        printf '[y/n] > '
         read -r answer
         [ "$answer" = 'y' ] || exit 1
     fi
@@ -101,15 +121,17 @@ fi
 [ "$check" -eq 1 ] && exit 0
 
 # install updates
-#cd "$codium_path" || exit 1
+trykill_codium
 [ -e "$codium_tgz" ] && rm "$codium_tgz"
-wget -O "$codium_tgz" "$release_url"
-[ -f "$HOME/.wget-hsts" ] && rm "$HOME/.wget-hsts"
+# wget -O "$codium_tgz" "$release_url"
+curl -Lo "$codium_tgz" "$release_url"
+
+trykill_codium
 echo '
 extracting files...'
 tar -xzf "$codium_tgz" --overwrite -C "$codium_path"
 
-echo "$release_version" > "$codium_version_file"
+echo "$release_version" >"$codium_version_file"
 
 if [ ! -e "$HOME/.local/bin/codium" ]; then
     ln -s "$codium_path/bin/codium" "$HOME/.local/bin/codium"
@@ -125,10 +147,10 @@ if [ ! -e "$HOME/.local/share/applications/codium.desktop" ]; then
         'MimeType=text/plain;application/x-codium-workspace;' \
         'Keywords=vscode;' \
         'Type=Application' \
-        'StartupNotify=false' > "$HOME/.local/share/applications/codium.desktop"
+        'StartupNotify=false' >"$HOME/.local/share/applications/codium.desktop"
 fi
 
-if [ ! -f "${XDG_CONFIG_HOME:-$HOME/.config}/VSCodium" ]; then
+if [ ! -e "${XDG_CONFIG_HOME:-$HOME/.config}/VSCodium" ]; then
     mkdir -p "$codium_data/user-data"
     ln -s "$codium_data/user-data" "${XDG_CONFIG_HOME:-$HOME/.config}/VSCodium" || true
 fi
