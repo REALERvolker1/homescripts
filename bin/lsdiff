@@ -1,16 +1,46 @@
-#!/usr/bin/bash
+#!/usr/bin/perl
+# lsdiff.pl, by vlk
+# https://github.com/REALERvolker1/homescripts
+use strict;
+use warnings;
+use v5.36;
 
-diff_file_path="$XDG_CACHE_HOME/lsdiff"
-diff_folder="$HOME"
+my $diff_file = "$ENV{'XDG_CACHE_HOME'}/lsdiff.cache";
 
-command -v lsd &>/dev/null || exit 1
+my $diff_folder = "$ENV{'HOME'}";
 
-ls_opts="lsd --ignore-config -A --group-dirs first --color always --icon always '$diff_folder'"
+# my @content = split( "\n",
+# `lsd --ignore-config -A --group-dirs first --color always --icon always '$diff_folder'`
+# );
+my @content = split( "\n",
+    `ls --color=always --group-directories-first -A1 '$diff_folder'` );
 
-([[ "$1" == '--update' ]] || [ ! -f "$diff_file_path" ]) && eval "$ls_opts" >"$diff_file_path"
+if ( !defined $ARGV[0] && -f $diff_file ) {
+    open( my $in, '<', $diff_file ) or die $!;
+    my @fcontent = map { chomp; $_ } <$in>;
+    close $in or die "$in: $!";
+    my @out = (
+        map { "\e[0;1;92m+\e[0m $_" } grep {
+            my $el = $_;
+            not grep { $_ eq $el } @fcontent
+        } @content
+    );
+    push(
+        @out,
+        (
+            map { "\e[0;1;91m-\e[0m $_" } grep {
+                my $el = $_;
+                not grep { $_ eq $el } @content
+            } @fcontent
+        )
+    );
+    print join( "\n", @out ) . "\n";
+    exit(0);
+}
 
-diff <(eval "$ls_opts") "$diff_file_path" | while read -r line; do
-    #[[ "${line::1}" == '<' ]] && printf '\e[0m\e[1;92m+\e[0m %s\n' "$(lsd -d "$diff_folder/${line:2}")"
-    [[ "${line::1}" == '<' ]] && printf '\e[0m\e[1;92m+\e[0m %s\n' "${line:2}"
-    [[ "${line::1}" == '>' ]] && printf '\e[0m\e[1;31m-\e[0m \e[1;91m%s\e[0m\n' "${line:2}"
-done
+if ( ( defined $ARGV[0] && $ARGV[0] eq '--update' ) || !-f $diff_file ) {
+    open( my $fh, '>', $diff_file ) or die $!;
+    print "Updating...\n";
+    print $fh join( "\n", @content );
+    close $fh or die "$fh $!";
+}

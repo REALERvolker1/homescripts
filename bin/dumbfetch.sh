@@ -1,0 +1,46 @@
+#!/usr/bin/dash
+# shellcheck disable=3028
+box_color="[38;5;$(shuf -i 1-255 -n 1)m"
+
+prop0="${SHLVL:-999}"
+prop1="$(uptime -p | sed 's/^up // ; s/hour/hr/g ; s/minute/min/g')"
+prop2="${TERM:-Undefined}"
+prop3="$(df -h -l -t btrfs -t xfs -t ext4 --output=pcent | uniq | sed -z 's/\n/ /g ; s/  */ /g ; s/Use% //')"
+if [ -n "${CONTAINER_ID:-}" ]; then
+    prop4="${CONTAINER_ID:-}"
+    prop4_label='󰏖 Distbx'
+else
+    prop4="$(
+        if command -v 'rpm' >/dev/null 2>&1; then
+            rpm -q xorg-x11-drv-nvidia | cut -d '-' -f 5
+        elif command -v 'pacman' >/dev/null 2>&1; then
+            pacman -Q nvidia-dkms 2>/dev/null | grep -oP '^.* \K[^-]*'
+        elif command -v 'apt' >/dev/null 2>&1; then
+            apt list 2>/dev/null | grep -m 1 nvidia-driver | cut -d ' ' -f 2
+        else
+            echo 'unsupported distro'
+        fi
+    )"
+    prop4_label='󰾲 Nvidia'
+fi
+prop5="$(uname -r | grep -o '^[^-]*-[^.]*')"
+
+len=0
+for i in "$prop1" "$prop2" "$prop3" "$prop4" "$prop5"; do
+    [ "${#i}" -gt "$len" ] && len="${#i}"
+done
+
+# length_string="$(printf "%-${len}s\n" '' | sed 's/ /─/g')"
+length_string="$(printf "%0.s─" $(seq 1 "$len"))"
+# printf -v length_string "%0.s─" $(seq 1 "$len")
+
+printf '%s\n' "${box_color}╭────────────────┬─────────────${length_string}╮[0m"
+printf "${box_color}│[0m[92m%s${box_color}│[0m%s   [1m%-${len}s [0m${box_color}│[0m\n" \
+    '        _ _     ' '[94m  SHLVL ' "$prop0" \
+    ' __   _| | | __ ' '[95m 󰅐 Uptime' "$prop1" \
+    ' \ \ / / | |/ / ' '[96m  Term  ' "$prop2" \
+    '  \ V /| |   <  ' '[93m 󰋊 Disk  ' "$prop3" \
+    '   \_/ |_|_|\_\ ' "[92m $prop4_label" "$prop4" \
+    '                ' '[91m  Kernel' "$prop5"
+printf '%s\n' "${box_color}╰────────────────┴─────────────${length_string}╯[0m"
+# ┴

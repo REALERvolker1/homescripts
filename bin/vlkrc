@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 # shellcheck shell=bash
 # vim:foldmethod=marker:ft=sh
-# shellcheck disable=2139,2317,2012,1090
+# shellcheck nodisable=2139,2317,2012,1090
 
 [[ "$-" == *i* ]] || {
     echo "Error, you must source this file with interactive zsh or bash" >&2
@@ -246,6 +246,7 @@ alias pipl='pip list | fzf'
 alias printfn="printf '%s\n' "
 
 alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
+alias chars='perl -e "foreach(@ARGV){open(my \$f,\"<\",\"\$_\") or die \"\$!\";my \$c;while(read(\$f,\$c,1)){print \"\$c\n\";}close \$f;}" '
 
 alias ARCH='distrobox-enter -n ARCH'
 __cd_ls() {
@@ -301,3 +302,5 @@ readme() {
         fi
     )
 }
+
+# chars() { perl -e "foreach(@ARGV){open(my \$f,'<','\$_') or die \"\$!\";my \$c;while(read(\$f,\$c,1)){print \"\$c\n\";}close \$f;}"; }
