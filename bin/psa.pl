@@ -1,19 +1,47 @@
 #!/usr/bin/perl
+# psa.pl, by vlk
+# https://github.com/REALERvolker1/homescripts
 use strict;
 use warnings;
 use v5.36;
 
-my @failed_deps = grep { system("command -v $_ >/dev/null 2>&1") != 0 }
-  ( "pidstat", "fzf", "dircolors", "pstree", "lscolors", "bash" );
-die "Error, missing dependencies: " . join( " ", @failed_deps ) . "\n"
-  unless ( scalar(@failed_deps) == 0 );
+sub checkcmd {
+    my @nullcmds = ();
+    foreach (@_) {
+        push( @nullcmds, $_ )
+          unless system("command -v $_ >/dev/null 2>&1") == 0;
+    }
+    return @nullcmds;
+}
+
+# sudo dnf install sysstat fzf coreutils lscolors
+# system("command -v $_ >/dev/null 2>&1")
+# my @failed_deps =
+#   grep { checkcmd($_) != 0 } ( "ps", "pidstat", "fzf", "dircolors", "pstree" );
+my @failed_deps = checkcmd( "ps", "pidstat", "fzf", "dircolors", "pstree" );
+
+die
+"Install the following binaries using your distribution's package manager: \n\e[1m"
+  . join( " ", @failed_deps )
+  . "\e[0m\n"
+  . "(eg: sudo dnf install sysstat fzf coreutils lscolors)\n"
+  unless scalar(@failed_deps) == 0;
+
+my $lscolors = "lscolors";
+unless ( checkcmd($lscolors) == 0 ) {
+    warn "binary 'lscolors' not found. Falling back to 'echo'\n";
+    $lscolors = "echo";
+    warn
+"You can install it with '\e[0;1;92mcargo\e[0;1m install \e[0;1;93mlscolors\e[0m'\n"
+      if ( checkcmd("cargo") == 0 );
+}
 
 unless ( defined $ENV{"LS_COLORS"} ) {
     print "LS_COLORS is not set. Setting them now.\n";
 
     # C-shell output is easier to parse through
     my $dir_colors = `dircolors -c`;
-    die "Error finding dir colors! Exit code: $?\n" unless ( $? == 0 );
+    die "Error finding dir colors! Exit code: $?\n" unless $? == 0;
     $dir_colors =~ s/^setenv LS_COLORS '([^']+)'/$1/;
 
     # $dir_colors =~ s/'$//;
@@ -27,10 +55,8 @@ my @procs      = ();
 my %colorpaths = ();
 my $output_str = "";
 
-my $path_disp_color     = "\e[0;1;91m";
-my $flatpak_disp_color  = "\e[0;1;95m";
-my $surround_disp_color = "\e[91m";
-print "Colorizing processes...\n";
+my $path_disp_color = "\e[0;1;91m";
+print "Formatting processes...\n";
 foreach ( split( "\n", `ps -eo '%p\t%c\t' -o exe -o '\t%a'` ) ) {
     my ( $pid, $name, $comm, $args ) = split( /\s*\t\s*/, $_ );
 
@@ -61,7 +87,8 @@ foreach ( split( "\n", `ps -eo '%p\t%c\t' -o exe -o '\t%a'` ) ) {
     my $procstr      = "$pid\t$name\t$args";
     my @colored_args = ();
     if ( $args =~ /<defunct>$/ ) {
-        push( @colored_args, "\e[93m$args\e[0m" );
+        $name =~ s/\s*<defunct>\s*//;
+        push( @colored_args, "\e[93m<defunct> $args\e[0m" );
     }
     else {
 # I want to see LS_COLORS. I spent a damn long time on my config and so I need to feel like it meant something
@@ -80,29 +107,33 @@ foreach ( split( "\n", `ps -eo '%p\t%c\t' -o exe -o '\t%a'` ) ) {
                 $colorparsed = "${path_disp_color}$parsed\e[0m";
             }
             elsif ( $parsed =~ /^\/app/ ) {
-                $colorparsed = "${flatpak_disp_color}$parsed\e[0m";
+                $colorparsed = "\e[0;1;95m$parsed\e[0m";
             }
             else {
                 my ($shencoded) = $parsed =~ s/"//g;
-                $colorparsed = `lscolors "$parsed"`;
+                $colorparsed = `$lscolors "$parsed"`;
                 $colorpaths{$parsed} = $colorparsed;
             }
             $colorparsed =~ s/\e\[0m/$path_disp_color/g;
             $colorparsed =~ s/\n/\e\[0m/g;
             $_           =~ s/\Q$parsed\E/$colorparsed/g;
-            push( @colored_args, "${surround_disp_color}$_\e[0m" );
+            push( @colored_args, "\e[1;32m$_\e[0m" );
         }
     }
     $output_str .=
-      "\e[1;93m$pid\e[01;94m\t$name\e[0m\t" . join( " ", @colored_args ) . "\n";
+      "\e[1;93m$pid\e[0;96m\t$name\e[0m\t" . join( " ", @colored_args ) . "\n";
     push( @procs, $procstr );
 }
 $ENV{"S_COLORS"} = "always";
 
-$output_str =~ s/^\s*\n$//;
+# $output_str =~ s/^\s*\n$//;
+chomp($output_str);
 my $pidstat = "pidstat --human -lRtU -p";
+
+# my $chosen =
+# `fzf --ansi --preview-window='down,25%' --header-lines=1 --preview=\"$pidstat \\\$(echo {} | sed 's|\\\t.*||')\" <<< "$output_str"`;
 my $chosen =
-`fzf --ansi --preview-window='down,25%' --header-lines=1 --preview=\"$pidstat \\\$(echo {} | sed 's|\\\t.*||')\" <<< "$output_str"`;
+`echo "$output_str" | fzf --ansi --preview-window='down,25%' --header-lines=1 --preview=\"$pidstat \\\$(echo {} | sed 's|\\\t.*||')\"`;
 die "Error, no process selected!\n"
   unless ( defined $chosen && $chosen =~ /[^\s]+/ );
 
@@ -114,13 +145,15 @@ my ( $pid, $name, $args ) = split( /\s*\t\s*/, $chosen );
 
 my $owner = `ps -o user -p $pid`;
 $owner =~ s/^USER|\n+//g;
+
+# https://github.com/REALERvolker1/homescripts
 my %actions = (
     stat => "1: \e[94mGet statistics (pidstat)\e[0m",
     echo => "2: \e[95mPrint process details\e[0m",
     tree => "3: \e[92mGet process tree (pstree)\e[0m",
     kill => "4: \e[91mKill process (kill)\e[0m",
 );
-delete $actions{"kill"} if ( $owner eq "root" && $ENV{"USER"} ne "root" );
+delete $actions{"kill"} if ( $owner ne $ENV{"USER"} );
 
 my $action_str = join(
     "\n",
@@ -132,10 +165,13 @@ my $action_str = join(
 );
 
 my $action = `echo '$action_str' | fzf`;
-$action =~ s/^([0-9]).*\n/$1/;
+$action =~ s/^([0-9]+).*\n/$1/;
 
 my $cmd_output = "PID: $pid\nNAME: $name\nARGS: $args";
-if ( $actions{"stat"} =~ /^$action/ ) {
+if ( $action =~ /^\s*$/ ) {
+    $cmd_output = "No action specified. Exiting";
+}
+elsif ( $actions{"stat"} =~ /^$action/ ) {
     $cmd_output = `$pidstat '$pid'`;
 }
 elsif ( $actions{"echo"} =~ /^$action/ ) { }
