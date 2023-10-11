@@ -1,21 +1,22 @@
 #!/usr/bin/zsh
 # shellcheck disable=SC2296
 
-[[ "$-" == *i* && -z $BASH_VERSION ]] || {
-    return 1
-    exit 1
-}
+# [[ -z ${VLKPROMPT_SKIP:-} ]] || return 1
+# [[ "$-" == *i* && -z $BASH_VERSION ]] || {
+#     return 1
+#     exit 1
+# }
+declare -A icn icons colors colorsbg colorsfg colorstx content set ends index
 
-declare -A icons colors colorsbg colorsfg colorstx content set ends index
-
-icons[cwd_ro]=
-icons[cwd_rw]=
-icons[git]=󰊢
-icons[vim]=
-icons[err]=󰅗
-icons[job]=󱜯
-icons[hos]=󰟀
-icons[log]=󰌆
+icn[cwd_ro]=
+icn[cwd_rw]=
+icn[git]=󰊢
+icn[vim]=
+icn[err]=󰅗
+icn[job]=󱜯
+icn[hos]=󰟀
+icn[log]=󰌆
+icn[tim]=󱑃
 content[sud_end]=' '
 content[end]=
 content[end_r]=
@@ -26,14 +27,15 @@ powerline)
     content[end_r]=
     ;;
 fallback)
-    icons[cwd_ro]='-'
-    icons[cwd_rw]='&'
-    icons[git]='G'
-    icons[vim]='V'
-    icons[err]='X'
-    icons[job]='J'
-    icons[hos]='H'
-    icons[log]='l'
+    icn[cwd_ro]='-'
+    icn[cwd_rw]='&'
+    icn[git]='G'
+    icn[vim]='V'
+    icn[err]='X'
+    icn[job]='J'
+    icn[hos]='H'
+    icn[log]='l'
+    icn[tim]='T'
     content[sud_end]=']#'
     content[end]=']'
     content[end_r]='['
@@ -53,6 +55,7 @@ if (($(tput colors) < 255)); then
     colors[err]=1
     colors[job]=3
     colors[hos]=4
+    colors[tim]=6
     colors[sud]=6
     colors[ps2]=5
     colors[ps3]=5
@@ -69,61 +72,50 @@ else
     colors[err]=52
     colors[job]=172
     colors[hos]=18
+    colors[tim]=226
     colors[sud]=196
     colors[ps2]=93
     colors[ps3]=89
 
 fi
 
-COMMAND_NOT_FOUND_STR="\e[0m\e[4${set[ansi]}${colors[sud]}m\e[1;3${set[ansi]}${colorstx[d]}m \
-${icons[err]} ERROR \e[0m\e[3${set[ansi]}${colors[sud]}m\e[4${set[ansi]}${colors[err]}m${content[end]} \
-\e[3${set[ansi]}${colorstx[l]}mCommand '\e[1m+\e[0m\e[4${set[ansi]}${colors[err]}m\e[3${set[ansi]}${colorstx[l]}m' \
-not found \e[0m\e[3${set[ansi]}${colors[err]}m${content[end]}\e[0m"
+set[sgr]='%k%f%b%u%s'
+
+index[transient]=130
+index[timer]=134
+index[sudo]=135
+index[writable]=136
+index[git]=137
+index[vim]=138
+
+set[has_job]='1j'
+set[has_no_err]='0?'
+
+COMMAND_NOT_FOUND_STR="\e[0;1;4${set[ansi]}${colors[sud]};3${set[ansi]}${colorstx[d]}m \
+${icn[err]} ERROR \e[0;3${set[ansi]}${colors[sud]};4${set[ansi]}${colors[err]}m${content[end]} \
+\e[3${set[ansi]}${colorstx[l]}mCommand '\e[1m\${1:-}\e[0;4${set[ansi]}${colors[err]};3${set[ansi]}${colorstx[l]}m' \
+not found \e[0;3${set[ansi]}${colors[err]}m${content[end]}\e[0m"
 
 command_not_found_handler () {
     echo -e "${COMMAND_NOT_FOUND_STR//+/$1}"
     return 127
 }
 
-set[sgr]='%k%f%b%u%s'
-
-index[transient]=130
-index[sudo]=135
-index[writable]=136
-index[git]=137
-index[vim]=138
-
-icons[cwd]="%(${index[writable]}V.${icons[cwd_rw]}.${icons[cwd_ro]})"
+icn[cwd]="%(${index[writable]}V.${icn[cwd_rw]}.${icn[cwd_ro]})"
 
 eval "$(
-    printf "declare 'icons[%s]=%%(${index[transient]}V.. %s)'\n" "${(@kv)icons}"
+    printf "declare 'icons[%s]=%%(${index[transient]}V.. %s)'\n" "${(@kv)icn}"
     printf "declare 'colorsbg[%s]=%%K{%s}'\n" "${(@kv)colors}"
     printf "declare 'colorsfg[%s]=%%F{%s}'\n" "${(@kv)colors}"
     printf "declare 'colorstx[%s]=%%B%%F{%s}'\n" "${(@kv)colorstx}"
 )"
 
-set[has_job]='1j'
-set[has_no_err]='0?'
 
 content[newline]="${set[sgr]}%(${index[transient]}V..
 )"
 
-set[color_next]=''
 
-if [[ "$HOSTNAME" != "$CURRENT_HOSTNAME" ]]; then
-    content[hostname]="${colorsbg[hos]}${colorstx[l]} $HOSTNAME ${set[sgr]}"
-    set[color_next]="${colorsbg[hos]}"
-else
-    content[hostname]=''
-    set[color_next]=''
-fi
-
-if [[ "$-" =~ l ]]; then
-    content[login]="${colorsbg[ps2]}${colorstx[l]}${icons[log]} ${set[sgr]}"
-else
-    content[login]=''
-fi
-
+content[timer]="%(${index[timer]}V.${set[sgr]}${colorsbg[tim]}${colorstx[d]}${icons[tim]} \$VLKPROMPT_CMD_TIMER_STR ${set[sgr]}.)"
 content[job]="%(${set[has_job]}.${set[sgr]}${colorsbg[job]}${colorstx[d]}${icons[job]} %j ${set[sgr]}.)"
 content[err]="%(${set[has_no_err]}..${set[sgr]}${colorsbg[err]}${colorstx[l]}${icons[err]} %? ${set[sgr]})"
 
@@ -132,12 +124,42 @@ content[cwd]="${set[sgr]}${content[cwd_icon]} %\$((COLUMNS / 2))<..<%~ ${set[sgr
 content[sudo]="%(${index[sudo]}V.${set[sgr]}${colorsbg[sud]} ${set[sgr]}${colorsfg[sud]}${content[sud_end]}${set[sgr]}.)"
 
 ends[dir_bg]="%(${index[vim]}V.${colorsbg[vim]}.%(${index[git]}V.${colorsbg[git]}.${colorsbg[cwd]}))"
+ends[login_bg]="%(${index[timer]}V.${colorsbg[tim]}.%(${set[has_job]}.${colorsbg[job]}.%(${set[has_no_err]}.${ends[dir_bg]}.${colorsbg[err]})))"
 
+ends[timer]="%(${index[transient]}V..%(${index[timer]}V.${colorsfg[tim]}%(${set[has_job]}.${colorsbg[job]}.%(${set[has_no_err]}.${ends[dir_bg]}.${colorsbg[err]}))${content[end]}.))"
 ends[job]="%(${index[transient]}V..%(${set[has_job]}.${colorsfg[job]}%(${set[has_no_err]}.${ends[dir_bg]}.${colorsbg[err]})${content[end]}.))"
 ends[err]="%(${index[transient]}V..%(${set[has_no_err]}..${colorsfg[err]}${ends[dir_bg]}${content[end]}))"
 ends[cwd]="%(${index[sudo]}V.${colorsbg[sud]}.)%(${index[vim]}V.${colorsfg[vim]}.%(${index[git]}V.${colorsfg[git]}.${colorsfg[cwd]}))${content[end]}${set[sgr]}"
 
-PS1="${content[newline]}${content[login]}${content[hostname]}\
+# if [[ "$-" =~ l ]] || [[ "$HOSTNAME" != "$CURRENT_HOSTNAME" ]]; then
+#     content[login]="${set[sgr]}${colorsbg[ps2]}${colorstx[l]}${icons[log]} ${set[sgr]}"
+#     ends[login]="%(${index[transient]}V..${colorsfg[ps2]}${ends[login_bg]}${content[end]})"
+#     ends[login_bg]="${colorsbg[ps2]}"
+#     content[hostname]="${set[sgr]}${colorsbg[hos]}${colorstx[l]} %(${index[transient]}V.%m.%M) ${set[sgr]}"
+#     ends[hostname]="%(${index[transient]}V..${colorsfg[hos]}${ends[login_bg]}${content[end]})"
+# fi
+
+if [[ "$-" =~ l ]]; then
+    content[login]="${set[sgr]}${colorsbg[ps2]}${colorstx[l]}${icons[log]} ${set[sgr]}"
+    ends[login]="%(${index[transient]}V..${colorsfg[ps2]}${ends[login_bg]}${content[end]})"
+    ends[login_bg]="${colorsbg[ps2]}"
+else
+    content[login]=''
+    ends[login]=''
+fi
+
+if [[ "$HOSTNAME" != "$CURRENT_HOSTNAME" ]]; then
+    content[hostname]="${set[sgr]}${colorsbg[hos]}${colorstx[l]} %(${index[transient]}V.%m.%M) ${set[sgr]}"
+    ends[hostname]="%(${index[transient]}V..${colorsfg[hos]}${ends[login_bg]}${content[end]})"
+else
+    content[hostname]=''
+    ends[hostname]=''
+fi
+
+PS1="${content[newline]}\
+${content[hostname]}${ends[hostname]}\
+${content[login]}${ends[login]}\
+${content[timer]}${ends[timer]}\
 ${content[job]}${ends[job]}\
 ${content[err]}${ends[err]}\
 ${content[cwd]}${ends[cwd]}${content[sudo]} "
@@ -148,17 +170,76 @@ done
 
 SUDO_PROMPT="$(print -P "${colorsbg[sud]}${colorstx[l]} entering sudo mode ${set[sgr]}${colorsfg[sud]}${content[sud_end]}${set[sgr]}") "
 
-unset icons colorsbg colorsfg colorstx colors content set ends __vlkprompt_i
+# PROMPT FUNCTIONS
 
-__vlk_precmd() {
-    git status &>/dev/null && psvar[${index[git]}]=1
-    [[ -w "$PWD" ]] && psvar[${index[writable]}]=1
-    [[ -z "${DISTROBOX_ENTER_PATH:-}" ]] && sudo -vn &>/dev/null && psvar[${index[sudo]}]=1
+GIT_PRECMD_PREV_PWD=''
+GIT_PRECMD_PWD=''
+GIT_PRECMD_PWD_WRITABLE=''
+GIT_PRECMD_PWD_GIT=''
+OLDSECS=0
+
+__vlkprompt_timer_precmd() {
+    local -i timer=$((SECONDS - OLDSECS))
+    VLKPROMPT_CMD_TIMER_STR=''
+    ((timer < 14)) && return
+    local sec min hour timedisp timedisp_sm leading_zero
+    if ((timer > 60)); then
+        hour=$((timer / 3600))
+        min=$(($((timer % 3600)) / 60))
+        sec=$((timer % 60))
+
+        if ((hour > 0)); then
+            timedisp="${timedisp}${hour}h "
+            timedisp_sm="${timedisp_sm}${hour}:"
+            ((min < 10)) && leading_zero=0
+        fi
+        if ((min > 0)); then
+            timedisp="${timedisp}${min}m "
+            timedisp_sm="${timedisp_sm}${leading_zero:-}${min}:"
+            ((sec < 10)) && leading_zero=0
+        fi
+        if ((sec > 0)); then
+            timedisp="${timedisp}${sec}s "
+            timedisp_sm="${timedisp_sm}${leading_zero:-}${sec}:"
+        fi
+        timedisp="${timedisp%* }"
+        timedisp_sm="${timedisp_sm%*:}"
+    else
+        timedisp="${timer}s"
+        timedisp_sm="${timer}"
+    fi
+    psvar[${index[timer]}]=1
+    VLKPROMPT_CMD_TIMER_STR="%(${index[transient]}V.${timedisp_sm}.${timedisp})"
 }
-export -U precmd_functions=('__vlk_precmd')
+if [[ -z ${DISTROBOX_ENTER_PATH:-} ]]; then
+    __vlkprompt_sudo_cmd() {
+        sudo -vn &>/dev/null && psvar[${index[sudo]}]=1
+    }
+else
+    __vlkprompt_sudo_cmd(){:;}
+fi
+__vlkprompt_dir_precmd() {
+    if [[ $PWD == $GIT_PRECMD_PWD ]]; then
+        psvar[${index[writable]}]="$GIT_PRECMD_PWD_WRITABLE"
+        psvar[${index[git]}]="$GIT_PRECMD_PWD_GIT"
+        return
+    elif [[ $PWD == $GIT_PRECMD_PREV_PWD ]]; then
+        psvar[${index[git]}]=1
+    elif git status &>/dev/null; then
+        GIT_PRECMD_PREV_PWD="$PWD"
+        psvar[${index[git]}]=1
+    elif [[ -w $PWD ]]; then
+        psvar[${index[writable]}]=1
+    fi
+    GIT_PRECMD_PWD="$PWD"
+    GIT_PRECMD_PWD_GIT="${psvar[${index[git]}]}"
+    GIT_PRECMD_PWD_WRITABLE="${psvar[${index[writable]}]}"
+}
+export -U precmd_functions=('__vlkprompt_timer_precmd' '__vlkprompt_dir_precmd' '__vlkprompt_sudo_cmd')
+
 
 function zle-line-init zle-keymap-select {
-    if [[ "$KEYMAP" == vicmd ]]; then
+    if [[ $KEYMAP == vicmd ]]; then
         psvar[${index[vim]}]=1
     else
         psvar[${index[vim]}]=''
@@ -168,12 +249,12 @@ function zle-line-init zle-keymap-select {
 zle -N zle-keymap-select
 
 __vlk-zle-line-init () {
-    [[ "$CONTEXT" == 'start' ]] || return 0
+    [[ $CONTEXT == 'start' ]] || return 0
     (( $+zle_bracketed_paste )) && print -r -n - "${zle_bracketed_paste[1]}"
     zle recursive-edit
-    local -i ret="$?"
+    local -i ret=$?
     (( $+zle_bracketed_paste )) && print -r -n - "${zle_bracketed_paste[2]}"
-    if [[ "$ret" == 0 && "$KEYS" == $'\4' ]]; then
+    if [[ $ret == 0 && $KEYS == $'\4' ]]; then
         psvar[${index[transient]}]=1
         zle reset-prompt
         exit
@@ -181,6 +262,8 @@ __vlk-zle-line-init () {
     psvar[${index[transient]}]=1
     zle reset-prompt
     psvar=()
+    OLDSECS=$SECONDS
+    VLKPROMPT_CMD_TIMER_STR=''
     if (( ret )); then
         zle send-break
     else
@@ -190,4 +273,6 @@ __vlk-zle-line-init () {
 }
 
 zle -N zle-line-init __vlk-zle-line-init
+
+unset icn icons colorsbg colorsfg colorstx colors content set ends __vlkprompt_i
 

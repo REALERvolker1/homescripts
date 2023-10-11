@@ -9,7 +9,8 @@ else
 fi
 
 for i in "$ZDOTDIR/rc.d"/*.zsh; do
-    #[[ "$i" == *vlkprompt* ]] && continue
+    # [[ "$i" == *vlkprompt* ]] && continue
+    #VLKPROMPT_SKIP=1
     if [[ "$i" == *.defer.zsh ]]; then
         zsh-defer . "$i"
     else
@@ -17,19 +18,19 @@ for i in "$ZDOTDIR/rc.d"/*.zsh; do
     fi
 done
 
-((COLUMNS > 55)) && {
-    dumbfetch
-    command -v fortune &>/dev/null && fortune -a -s | (
-        if command -v lolcrab &>/dev/null; then
-            lolcrab
-        elif command -v lolcat &>/dev/null; then
-            lolcat
-        else
-            tee
-        fi
-    )
-    lsdiff
-}
+#((COLUMNS > 55)) && {
+#    dumbfetch
+#    command -v fortune &>/dev/null && fortune -a -s | (
+#        if command -v lolcrab &>/dev/null; then
+#            lolcrab
+#        elif command -v lolcat &>/dev/null; then
+#            lolcat
+#        else
+#            tee
+#        fi
+#    )
+#    lsdiff
+#}
 
 ZSHRC_LOADED=true
 # run /bin/true at the end to clear out any error codes

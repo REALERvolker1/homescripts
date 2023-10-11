@@ -15,6 +15,7 @@ bind "set completion-ignore-case on"
 for i in \
     '/etc/bashrc' '/etc/bash.bashrc' \
     "$HOME/bin/vlkenv" \
+    /etc/profile.d/bash_completion.sh \
     "$HOME/bin/vlkrc"; do
     [[ -f "$i" ]] && . "$i"
 done
@@ -33,6 +34,9 @@ if [[ ! -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && command -v git &>/dev/null; the
     unset __ble_cwd
 fi
 [[ -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && . "$BPLUGIN_DIR/blesh/out/ble.sh" --noattach
+if command -v atuin &>/dev/null; then
+    . <(atuin init bash)
+fi
 
 [[ "${HOSTNAME:=$(hostname)}" != "${CURRENT_HOSTNAME:-ud}" ]] && hcol="@\[\e[94m\]\H\[\e[0m\]"
 PS1="\[\e[0m\]\n\$(r=\"\$?\";((r>0))&&echo \"\[\e[1;91m\]\$r\[\e[0m\] \")\[\e[1m\][\[\e[0;92m\]\u\[\e[0m\]${hcol:-}\[\e[1m\]]\[\e[0m\]\[\e[${DIRECTORY_COLOR:=1;34}m\] \w \[\e[0m\]$ "

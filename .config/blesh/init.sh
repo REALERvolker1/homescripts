@@ -182,8 +182,11 @@ bleopt prompt_ps1_transient=trim
 ## line is not shown.  "prompt_status_align" controls the position of the
 ## content in the status line.
 
-bleopt prompt_status_line="Bash: $BASH_VERSION | Linux: $(uname -r)${BLE_VERSION+ | Ble.sh: $BLE_VERSION}"
-bleopt prompt_status_align=center
+#bleopt prompt_status_line="Bash: $BASH_VERSION | Linux: $(uname -r)${BLE_VERSION+ | Ble.sh: $BLE_VERSION}"
+#bleopt prompt_status_align=center
+# contrib themes don't work
+ble-import lib/vim-airline
+
 #  | Ble.sh: ${BLE_VERSION:-Null}
 
 ## "prompt_eol_mark" specifies the contents of the mark used to indicate the
@@ -1303,3 +1306,8 @@ blehook/eval-after-load keymap_vi blerc/vim-load-hook
 ## from Bash.
 
 #bleopt internal_suppress_bash_output=1
+
+# enabled contrib plugins
+#ble-import -d integration/fzf-completion
+#ble-import -d integration/fzf-key-bindings
+
