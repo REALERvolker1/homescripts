@@ -34,7 +34,7 @@ if [[ ! -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && command -v git &>/dev/null; the
     unset __ble_cwd
 fi
 [[ -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && . "$BPLUGIN_DIR/blesh/out/ble.sh" --noattach
-if command -v atuin &>/dev/null; then
+if command -v atuin &>/dev/null && [[ $TERM != linux ]]; then
     . <(atuin init bash)
 fi
 

@@ -1,10 +1,9 @@
-
-[[ "$-" == *i* && -z $BASH_VERSION ]] || {
+[[ "$-" == *i* && -z $BASH_VERSION && $TERM != linux ]] || {
     return 1
     exit 1
 }
 
-command_not_found_handler () {
+command_not_found_handler() {
     echo -e "\e[0;1;48;5;196;38;5;232m 󰅗 ERROR \e[0;38;5;196;48;5;52m \e[38;5;255mCommand '\e[1m${1:-}\e[0;48;5;52;38;5;255m' not found \e[0;38;5;52m\e[0m"
     return 127
 }
@@ -22,54 +21,44 @@ PROMPT="%k%f%b%u%s%(130V..
 PS2="%k%f%b%u%s%K{93}%B%F{255} %_ %k%f%b%u%s%F{93}%(135V.%K{196} %k%f%b%u%s%F{196} .)%k%f%b%u%s"
 PS3="%k%f%b%u%s%K{89}%B%F{255} %_ %k%f%b%u%s%F{89}%(135V.%K{196} %k%f%b%u%s%F{196} .)%k%f%b%u%s"
 
-SUDO_PROMPT="\e[0m\e[48;5;196;38;5;255m entering sudo mode \e[0;38;5;196m \e[0m"
+SUDO_PROMPT=$'\e[1;48;5;196;38;5;255m entering sudo mode \e[0;38;5;196m  \e[0m'
 # PROMPT FUNCTIONS
+declare GIT_PRECMD_PREV_PWD GIT_PRECMD_PWD GIT_PRECMD_PWD_WRITABLE GIT_PRECMD_PWD_GIT
+declare -i OLDSECS=0
 
-GIT_PRECMD_PREV_PWD=''
-GIT_PRECMD_PWD=''
-GIT_PRECMD_PWD_WRITABLE=''
-GIT_PRECMD_PWD_GIT=''
-OLDSECS=0
-
-__vlkprompt_timer_precmd() {
+__vlkprompt_precmd() {
     local -i timer=$((SECONDS - OLDSECS))
-    VLKPROMPT_CMD_TIMER_STR=''
-    ((timer < 14)) && return
-    local sec min hour timedisp timedisp_sm leading_zero
-    if ((timer > 60)); then
-        hour=$((timer / 3600))
-        min=$(($((timer % 3600)) / 60))
-        sec=$((timer % 60))
+    VLKPROMPT_CMD_TIMER_STR=
+    if ((timer > 14)); then
+        local leading_zero timedisp timedisp_sm
+        if ((timer > 60)); then
+            local -i hour=$((timer / 3600))
+            local -i min=$(($((timer % 3600)) / 60))
+            local -i sec=$((timer % 60))
 
-        if ((hour > 0)); then
-            timedisp="${timedisp}${hour}h "
-            timedisp_sm="${timedisp_sm}${hour}:"
-            ((min < 10)) && leading_zero=0
+            if ((hour > 0)); then
+                timedisp="${timedisp}${hour}h "
+                timedisp_sm="${timedisp_sm}${hour}:"
+                ((min < 10)) && leading_zero=0
+            fi
+            if ((min > 0)); then
+                timedisp="${timedisp}${min}m "
+                timedisp_sm="${timedisp_sm}${leading_zero:-}${min}:"
+                ((sec < 10)) && leading_zero=0
+            fi
+            if ((sec > 0)); then
+                timedisp="${timedisp}${sec}s "
+                timedisp_sm="${timedisp_sm}${leading_zero:-}${sec}:"
+            fi
+            timedisp="${timedisp%* }"
+            timedisp_sm="${timedisp_sm%*:}"
+        else
+            timedisp="${timer}s"
+            timedisp_sm="${timer}"
         fi
-        if ((min > 0)); then
-            timedisp="${timedisp}${min}m "
-            timedisp_sm="${timedisp_sm}${leading_zero:-}${min}:"
-            ((sec < 10)) && leading_zero=0
-        fi
-        if ((sec > 0)); then
-            timedisp="${timedisp}${sec}s "
-            timedisp_sm="${timedisp_sm}${leading_zero:-}${sec}:"
-        fi
-        timedisp="${timedisp%* }"
-        timedisp_sm="${timedisp_sm%*:}"
-    else
-        timedisp="${timer}s"
-        timedisp_sm="${timer}"
+        psvar[134]=1
+        VLKPROMPT_CMD_TIMER_STR="%(130V.${timedisp_sm}.${timedisp})"
     fi
-    psvar[134]=1
-    VLKPROMPT_CMD_TIMER_STR="%(130V.${timedisp_sm}.${timedisp})"
-}
-if [[ -z ${DISTROBOX_ENTER_PATH:-} ]]; then
-    __vlkprompt_sudo_cmd() {
-        sudo -vn &>/dev/null && psvar[135]=1
-    }
-fi
-__vlkprompt_dir_precmd() {
     if [[ $PWD == $GIT_PRECMD_PWD ]]; then
         psvar[136]="$GIT_PRECMD_PWD_WRITABLE"
         psvar[137]="$GIT_PRECMD_PWD_GIT"
@@ -86,25 +75,28 @@ __vlkprompt_dir_precmd() {
     GIT_PRECMD_PWD_GIT="${psvar[137]}"
     GIT_PRECMD_PWD_WRITABLE="${psvar[136]}"
 }
-export -U precmd_functions=('__vlkprompt_timer_precmd' '__vlkprompt_dir_precmd' '__vlkprompt_sudo_cmd')
+[[ -z ${DISTROBOX_ENTER_PATH:-} ]] && __vlkprompt_sudo_cmd() { sudo -vn &>/dev/null && psvar[135]=1; }
+
+export -U precmd_functions=('__vlkprompt_precmd' '__vlkprompt_sudo_cmd')
 
 
 function zle-line-init zle-keymap-select {
     if [[ $KEYMAP == vicmd ]]; then
+        notify-send vi
         psvar[138]=1
     else
-        psvar[138]=''
+        psvar[138]=
     fi
     zle reset-prompt
 }
 zle -N zle-keymap-select
 
-__vlk-zle-line-init () {
+__vlk-zle-line-init() {
     [[ $CONTEXT == start ]] || return 0
-    (( $+zle_bracketed_paste )) && print -r -n - "${zle_bracketed_paste[1]}"
+    (($+zle_bracketed_paste)) && print -r -n - "${zle_bracketed_paste[1]}"
     zle recursive-edit
     local -i ret=$?
-    (( $+zle_bracketed_paste )) && print -r -n - "${zle_bracketed_paste[2]}"
+    (($+zle_bracketed_paste)) && print -r -n - "${zle_bracketed_paste[2]}"
     if [[ $ret == 0 && $KEYS == $'\4' ]]; then
         psvar[130]=1
         zle reset-prompt
@@ -114,8 +106,8 @@ __vlk-zle-line-init () {
     zle reset-prompt
     psvar=()
     OLDSECS=$SECONDS
-    VLKPROMPT_CMD_TIMER_STR=''
-    if (( ret )); then
+    VLKPROMPT_CMD_TIMER_STR=
+    if ((ret)); then
         zle send-break
     else
         zle accept-line

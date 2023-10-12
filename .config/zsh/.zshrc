@@ -18,19 +18,20 @@ for i in "$ZDOTDIR/rc.d"/*.zsh; do
     fi
 done
 
-#((COLUMNS > 55)) && {
-#    dumbfetch
-#    command -v fortune &>/dev/null && fortune -a -s | (
-#        if command -v lolcrab &>/dev/null; then
-#            lolcrab
-#        elif command -v lolcat &>/dev/null; then
-#            lolcat
-#        else
-#            tee
-#        fi
-#    )
-#    lsdiff
-#}
+((COLUMNS > 55)) && {
+    dumbfetch
+    # command -v fortune &>/dev/null && fortune -a -s | (
+    #     if command -v lolcrab &>/dev/null; then
+    #         lolcrab
+    #     elif command -v lolcat &>/dev/null; then
+    #         lolcat
+    #     else
+    #         tee
+    #     fi
+    # )
+    fortune -a -s | lolcrab
+    lsdiff
+}
 
 ZSHRC_LOADED=true
 # run /bin/true at the end to clear out any error codes

@@ -9,11 +9,12 @@ my $diff_file = "$ENV{'XDG_CACHE_HOME'}/lsdiff.cache";
 
 my $diff_folder = "$ENV{'HOME'}";
 
-# my @content = split( "\n",
-# `lsd --ignore-config -A --group-dirs first --color always --icon always '$diff_folder'`
-# );
 my @content = split( "\n",
-    `ls --color=always --group-directories-first -A1 '$diff_folder'` );
+`lsd --ignore-config -A --group-dirs first --color always --icon always '$diff_folder'`
+);
+
+# my @content = split( "\n",
+#     `ls --color=always --group-directories-first -A1 '$diff_folder'` );
 
 if ( !defined $ARGV[0] && -f $diff_file ) {
     open( my $in, '<', $diff_file ) or die $!;

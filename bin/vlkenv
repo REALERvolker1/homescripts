@@ -183,11 +183,8 @@ unset ICON_TYPE
 __vlkenv_term="${TERM:-}"
 [ -n "${VTE_VERSION:-}" ] && __vlkenv_term='vte_alacritty'
 case "$__vlkenv_term" in
-*'kitty'*)
+*kitty* | *alacritty*)
     ICON_TYPE='dashline'
-    ;;
-*'alacritty'*)
-    ICON_TYPE='powerline'
     ;;
 *)
     ICON_TYPE='fallback'

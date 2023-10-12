@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Calf Plugin Pack for JACK
+Comment=Process and produce sounds using a set of plugins with JACK interface
+TryExec=calfjackhost
+Exec=calfjackhost
+Terminal=false
+Type=Application
+Categories=AudioVideo;Audio;GNOME;X-Synthesis;
+Icon=calf
+GenericName=Audio Effects
+X-Desktop-File-Install-Version=0.26
+NoDisplay=true
