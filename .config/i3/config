@@ -1,5 +1,4 @@
 # vim:foldmethod=marker:ft=i3config
-# Important variables {{{
 
 set $exec exec --no-startup-id
 set $execa exec_always --no-startup-id
@@ -14,9 +13,6 @@ set $modc Mod4+ctrl
 set $moda Mod4+Mod1
 set $modcs Mod4+ctrl+shift
 set $modas Mod4+Mod1+shift
-
-# }}}
-# Workspace vars and outputs {{{
 
 set $ws1 "1"
 set $ws2 "2"
@@ -38,12 +34,8 @@ workspace $ws6 output DP-1 DP-1-0 eDP-1
 workspace $ws7 output eDP-1
 workspace $ws8 output DP-1 DP-1-0 eDP-1
 
-# }}}
-
 font pango:monospace bold 12
 mouse_warping output
-
-# included range {{{
 
 $exec "$XDG_CONFIG_HOME/i3/autostart.sh"
 $execa "$XDG_CONFIG_HOME/i3/exec-always.sh"
@@ -51,8 +43,6 @@ $execa "$XDG_CONFIG_HOME/i3/exec-always.sh"
 include classes.i3
 include keybinds.i3
 
-# }}}
-# Window Decorations {{{
 
 gaps inner $gapsize
 default_border pixel 1
@@ -63,29 +53,10 @@ smart_borders on
 for_window [all] title_window_icon on
 for_window [all] title_format "%title :: %class"
 
-# }}}
-# Colors {{{
-
-# #7a5dfc
-# #C578DD
-# #d682f0
-
-# #272B33
-# #DF6B75
-# #BE5046
-# #FF5050
-
-#65b6f8
-# #6360FF
-#61aeee
-#61AFEF
-#56B5C2
-#66d7e6
-
 set $activeBorder #af99ff
 set $activeMain #7b57ffA0
 set $lessactBorder #61aeeeC0
-set $lessactMain #abb2bfA0
+set $lessactMain #aba2DfA0
 set $inactBorder #272B3350
 set $inactMain #272B3350
 set $urgentBorder #FF5050FF
@@ -101,12 +72,8 @@ client.urgent           $urgentBorder   $urgentMain     $text0 $urgentBorder    
 client.placeholder      $lessactBorder  $lessactMain    $text0 $lessactMain     $lessactBorder
 client.background       #FFFFFF
 
-# }}}
-# Bar config {{{
-
 bar {
     # Colors {{{
-
     colors {
         background #00000000
         statusline $text0
@@ -115,7 +82,6 @@ bar {
         inactive_workspace #00000000 $inactMain $text1
         urgent_workspace $urgentBorder $urgentMain $text0
     }
-
     # }}}
     workspace_buttons yes
     workspace_min_width 30
@@ -130,6 +96,3 @@ bar {
     status_command i3status-rs
 }
 
-
-
-# }}}

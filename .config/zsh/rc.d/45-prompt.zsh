@@ -82,7 +82,6 @@ export -U precmd_functions=('__vlkprompt_precmd' '__vlkprompt_sudo_cmd')
 
 function zle-line-init zle-keymap-select {
     if [[ $KEYMAP == vicmd ]]; then
-        notify-send vi
         psvar[138]=1
     else
         psvar[138]=

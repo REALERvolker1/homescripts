@@ -18,12 +18,12 @@ zstyle ':fzf-tab:complete:*:*' fzf-preview 'txtpreview.sh ${(Q)realpath}'
 #zstyle ':fzf-tab:complete:*:*' fzf-preview 'env LESSOPEN="|$ZDOTDIR/settings/lessfilter.sh %s" less ${(Q)realpath}'
 
 zstyle ':fzf-tab:complete:(kill|ps):argument-rest' 'fzf-preview [[ ${group:-} == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
-zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=right:'30%':wrap
 
 zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word'
 
 zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview 'echo ${(P)word}'
-zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-flags --preview-window=down:3:wrap
+zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-flags --preview-window=right:'30%':wrap
 
 zstyle ':completion:*:git-checkout:*' sort false
 zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview 'git diff $word | delta'

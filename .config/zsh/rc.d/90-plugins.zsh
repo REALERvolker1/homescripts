@@ -16,7 +16,7 @@ for i in "${__vlk_zsh_plugins[@]}"; do
     echo -en "Downloading \e[1m${i#*/}\e[0m..."
     git clone "https://github.com/${i}" "$ZPLUGIN_DIR/${i#*/}" &>/dev/null
     # autosuggestions just sources the file in the plugin
-    if [[ "$i" == "zsh-users/zsh-autosuggestions" ]]; then
+    if [[ "$i" == "zsh-users/zsh-autosuggestions" || $i == "Aloxaf/fzf-tab" ]]; then
         command -p rm "$file"
         ln -sf "$ZPLUGIN_DIR/${i#*/}/${i#*/}.zsh" "$file"
     fi

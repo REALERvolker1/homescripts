@@ -4,9 +4,7 @@ floating_modifier $mod
 
 # Commands {{{
 
-# vlkenv {{{
-
-bindsym $mod + d $exec "rofi -modi 'drun,run' -show drun -sidebar-mode"
+bindsym $mod + d $exec "rofi -modes 'drun,run' -show drun -sidebar-mode"
 bindsym $mods + d $exec rofi -show run
 bindsym $modc + d $exec wofi -S drun
 
@@ -40,12 +38,19 @@ bindsym $mod + period $exec rofi-charamap-menu.sh
 bindsym XF86Calculator $exec gnome-calculator
 bindsym --release $mod + KP_Enter $exec gnome-calculator
 
-bindsym --release Print $exec vlk-sensible-screenshot --region
-bindsym --release shift + Print $exec vlk-sensible-screenshot --active-output
-bindsym --release ctrl + shift + Print $exec vlk-sensible-screenshot --full
-bindsym --release $mod + Print $exec vlk-sensible-screenshot --region
-bindsym --release $mods + Print $exec vlk-sensible-screenshot --active-output
-bindsym --release $modc + Print $exec vlk-sensible-screenshot --full
+# bindsym --release Print $exec vlk-sensible-screenshot --region
+# bindsym --release shift + Print $exec vlk-sensible-screenshot --active-output
+# bindsym --release ctrl + shift + Print $exec vlk-sensible-screenshot --full
+# bindsym --release $mod + Print $exec vlk-sensible-screenshot --region
+# bindsym --release $mods + Print $exec vlk-sensible-screenshot --active-output
+# bindsym --release $modc + Print $exec vlk-sensible-screenshot --full
+
+bindsym --release Print $exec flameshot gui
+bindsym --release shift + Print $exec flameshot screen
+bindsym --release ctrl + shift + Print $exec flameshot full
+bindsym --release $mod + Print $exec flameshot gui
+bindsym --release $mods + Print $exec flameshot screen
+bindsym --release $modc + Print $exec flameshot full
 
 bindsym $mod + Escape $exec rofi -show powermenu
 
@@ -55,9 +60,6 @@ bindsym $mod + XF86Launch3 $exec gfxmenu.sh
 bindsym $mods + XF86Launch3 $exec $XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --toggle
 bindsym $mod + Scroll_Lock $exec gfxmenu.sh
 bindsym $mods + Scroll_Lock $exec $XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --toggle
-
-# }}}
-# Media ctrl {{{
 
 bindsym XF86AudioMute $exec pactl set-sink-mute @DEFAULT_SINK@ toggle
 bindsym XF86AudioMicMute $exec playerctl play-pause
@@ -71,8 +73,6 @@ bindsym $mods + XF86AudioLowerVolume $exec playerctl position 5-
 bindsym $mod + XF86AudioRaiseVolume $exec playerctl next
 bindsym $mod + XF86AudioLowerVolume $exec playerctl previous
 
-# }}}
-# Special keys {{{
 
 bindsym XF86Launch3 nop kitti3
 bindsym Scroll_Lock nop kitti3
@@ -88,8 +88,6 @@ bindsym XF86MonBrightnessDown $exec light -U 10
 bindsym XF86TouchpadToggle $exec pointer.sh -t
 bindsym $mod + F10 $exec pointer.sh -t
 
-# }}}
-# Other commands {{{
 
 bindsym $mod + p $exec "ps -A | grep 'picom' && killall picom || picom"
 bindsym $mods + p $exec "killall picom && picom"
@@ -99,7 +97,6 @@ bindsym $alt + l $exec ydotool key '107:1' '107:0' # end
 bindsym $alt + Left $exec ydotool key '102:1' '102:0'
 bindsym $alt + Right $exec ydotool key '107:1' '107:0'
 
-# }}}
 
 # }}}
 # Wm ctrl {{{

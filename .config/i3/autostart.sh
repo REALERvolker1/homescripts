@@ -43,3 +43,4 @@ flameshot &
 
 picom &
 flashfocus &
+vlkbg.sh &

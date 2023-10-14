@@ -4,93 +4,85 @@
 
 unset MAILCHECK
 
-[ -n "${CONDA_PREFIX:-}" ] && conda deactivate && echo "\$CONDA_PREFIX '$CONDA_PREFIX' deactivated"
-[ -n "${VIRTUAL_ENV:-}" ] && deactivate && echo "\$VIRTUAL_ENV '$VIRTUAL_ENV' deactivated"
+__vlkenv_venv=
+if [ -n "${CONDA_PREFIX:-}" ]; then
+    __vlkenv_venv="$CONDA_PREFIX"
+    conda deactivate
+    echo "\$CONDA_PREFIX '$__vlkenv_venv' deactivated"
+fi
+if [ -n "${VIRTUAL_ENV:-}" ]; then
+    __vlkenv_venv="$VIRTUAL_ENV"
+    deactivate
+    echo "\$VIRTUAL_ENV '$__vlkenv_venv' deactivated"
+fi
+unset __vlkenv_venv
 
-export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
 export CURRENT_HOSTNAME="JOE" # The hostname of my main pc
 
-export HOME="${HOME:-/home/$(whoami)}"
-export HOSTNAME="${HOSTNAME:-$(hostname)}"
-export TTY="${TTY:-$(tty)}"
-export XDG_CONFIG_HOME="$HOME/.config"
-export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_CACHE_HOME="$HOME/.cache"
-export XDG_STATE_HOME="$HOME/.local/state"
+# [ -z "${CURRENT_DISTRO:-}" ] && export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
+
+# export HOME="${HOME:=/home/$(whoami)}"
+# export HOSTNAME="${HOSTNAME:-$(hostname)}"
+# export TTY="${TTY:-$(tty)}"
+# export XDG_CONFIG_HOME="$HOME/.config"
+# export XDG_DATA_HOME="$HOME/.local/share"
+# export XDG_CACHE_HOME="$HOME/.cache"
+# export XDG_STATE_HOME="$HOME/.local/state"
 # export $(grep -Ev '^[[:space:]]*(#.*|)$' "$XDG_CONFIG_HOME/user-dirs.dirs")
 
-unset EDITOR
-if command -v nvim >/dev/null; then
-    export EDITOR="nvim"
-    export MANPAGER='nvim +Man\!'
-else
-    for i in nvim vim vi nano; do
-        command -v "$i" >/dev/null && export EDITOR="$i" && break
-    done
+export XDG_CONFIG_HOME="$HOME/.config" XDG_DATA_HOME="$HOME/.local/share" XDG_CACHE_HOME="$HOME/.cache" XDG_STATE_HOME="$HOME/.local/state"
+
+if [ "${EDITOR:-}" != 'nvim' ]; then
+    unset EDITOR
+    if command -v nvim >/dev/null; then
+        export EDITOR="nvim"
+        export MANPAGER='nvim +Man\!'
+    else
+        for i in nvim vim hx micro vi nano; do
+            command -v "$i" >/dev/null && export EDITOR="$i" && break
+        done
+    fi
 fi
-export VISUAL="$EDITOR"
-export PAGER='less'
-export TERMINAL='vlk-sensible-terminal 1'
-export BROWSER='vlk-sensible-browser 1'
+
+[ -n "${EDITOR:-}" ] && export VISUAL="$EDITOR"
+export PAGER='less' TERMINAL='vlk-sensible-terminal 1' BROWSER='vlk-sensible-browser 1'
 
 # custom LS commands for vlkrc
 export LA_COMMAND='\ls --color=auto --group-directories-first -A'
 if command -v lsd >/dev/null; then
-    export LS_COMMAND='lsd'
-    export LL_COMMAND='lsd -l'
+    export LS_COMMAND='lsd' LL_COMMAND='lsd -l'
 else
-    export LS_COMMAND="$LA_COMMAND"
-    export LL_COMMAND="$LA_COMMAND -l"
+    export LS_COMMAND="$LA_COMMAND" LL_COMMAND="$LA_COMMAND -l"
 fi
 
-export ENV="$XDG_CONFIG_HOME/dashrc" # posix sh rcfile
+# export QT_QPA_PLATFORMTHEME='qt5ct'
+# export QT_STYLE_OVERRIDE='kvantum'
+# export QT_QPA_PLATFORM_PLUGIN_PATH="$XDG_CONFIG_HOME"
 
-export QT_QPA_PLATFORMTHEME='qt5ct'
-export QT_STYLE_OVERRIDE='kvantum'
+# export MOZ_ENABLE_WAYLAND=1
+# export UWUFETCH_CACHE_ENABLED=true
+# export GTK_USE_PORTAL=1
 
-export MOZ_ENABLE_WAYLAND=1
-export UWUFETCH_CACHE_ENABLED=true
-export GTK_USE_PORTAL=1
-
-eval "$(dircolors -b "$XDG_CONFIG_HOME/dircolors/dir_colors" || echo 'echo error loading dircolors')"
+case "${LS_COLORS:-}" in
+*':*rc='*) : ;;
+*)
+    echo start colors >~/.colorsrc
+    if [ -f "$XDG_CONFIG_HOME/dir_colors" ]; then
+        eval "$(dircolors --sh "$XDG_CONFIG_HOME/dir_colors" || echo 'echo error loading dircolors')"
+        export USER_LS_COLORS="$LS_COLORS"
+    fi
+    ;;
+esac
 DIRECTORY_COLOR="${LS_COLORS##*:di=}"
 export DIRECTORY_COLOR="${DIRECTORY_COLOR%%:*}"
 
-export GREP_COLORS="mt=01;91:fn=03;32:ln=33:bn=36:se=35"
-export JQ_COLORS="0;31:0;36:1;36:0;33:1;32:0;37:1;37"
-export SUDO_PROMPT="$(printf "\e[0m\e[1m[\e[31mSUDO\e[0m\e[1m]\e[0m") "
+export HISTFILE="$XDG_RUNTIME_DIR/shellhist"
+export LESSHISTFILE='/dev/null'
 
-export ROFI_ICON_NORMAL="#e2e4e9"
-export ROFI_ICON_URGENT="#16181d"
-export ROFI_ICON_ACTIVE="#16181d"
+export GPG_TTY="${TTY:=$(tty)}"
 
-export HOMESCRIPTS="$HOME/random/homescripts"
-
-export XINITRC="$XDG_CONFIG_HOME/X11/xinitrc"
-export XSERVERRC="$XDG_CONFIG_HOME/X11/xserverrc"
-export XRESOURCES="$XDG_CONFIG_HOME/X11/Xresources"
-
-export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
-export BDOTDIR="$XDG_CONFIG_HOME/bash"
-
-export LESSHISTFILE="/dev/null"
-export MYSQL_HISTFILE="$XDG_DATA_HOME/mysql_history"
-export SHELLHIST="$XDG_RUNTIME_DIR/shellhist"
-export HISTFILE="$SHELLHIST"
-
-export GNUPGHOME="$XDG_DATA_HOME/gnupg"
-export GPG_TTY="${TTY:-$(tty)}"
-
-export GNOME_KEYRING_CONTROL="${GNOME_KEYRING_CONTROL:-$XDG_RUNTIME_DIR/keyring}"
-export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$XDG_RUNTIME_DIR/keyring/ssh}"
-
-export FZF_DEFAULT_OPTS="--prompt=' ' --pointer=' ' --marker=' ' --tabstop=4 --no-mouse --ansi \
---color=fg:#ccccdc,hl:#df6b75,fg+:#fcfcff,bg+:#2c323d,hl+:#d682f0,info:#f2ce97,prompt:#d7005f,pointer:#65b6f8,marker:#56b5c2,spinner:#d682f0,header:#e6e6e6 "
-
-export WINEPREFIX="$XDG_DATA_HOME/wine"
-export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
-export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
-export RXVT_SOCKET="$XDG_RUNTIME_DIR/urxvtd"
+[ -z "${GNOME_KEYRING_CONTROL:-}" ] && export GNOME_KEYRING_CONTROL="${GNOME_KEYRING_CONTROL:-$XDG_RUNTIME_DIR/keyring}"
+[ -z "${SSH_AUTH_SOCK:-}" ] && export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$XDG_RUNTIME_DIR/keyring/ssh}"
 
 if [ -S "$XDG_RUNTIME_DIR/.ydotool_socket" ]; then
     export YDOTOOL_SOCKET="$XDG_RUNTIME_DIR/.ydotool_socket"
@@ -98,57 +90,29 @@ elif [ -S /tmp/.ydotool_socket ]; then
     export YDOTOOL_SOCKET='/tmp/.ydotool_socket'
 fi
 
-export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
-export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
-
-export INPUTRC="$XDG_CONFIG_HOME/readline/inputrc"
-
-export W3M_DIR="$XDG_STATE_HOME/w3m"
-
-#export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
-export MACHINE_STORAGE_PATH="$XDG_DATA_HOME/docker-machine"
-
-export QT_QPA_PLATFORM_PLUGIN_PATH="$XDG_CONFIG_HOME"
-
-export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc"
-export PYTHONPYCACHEPREFIX="$XDG_CACHE_HOME/python"
-export PYTHONUSERBASE="$XDG_DATA_HOME/python"
-export PYENV_ROOT="$XDG_DATA_HOME/pyenv"
-export PYTHON_EGG_CACHE="$XDG_CACHE_HOME/python-eggs"
-export WORKON_HOME="$XDG_DATA_HOME/virtualenvs"
-
-export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=\"$XDG_CONFIG_HOME/java\""
-export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
-export JAVA_HOME='/usr/lib/jvm/java-17-openjdk-17.0.8.0.7-1.fc38.x86_64'
-export INSTALL4J_JAVA_HOME="${JAVA_HOME:-}"
-
-export PERL_CPANM_HOME="$XDG_CACHE_HOME/cpanm"
-
-export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
-export CARGO_HOME="$XDG_DATA_HOME/cargo"
-
-export GOPATH="$XDG_DATA_HOME/go"
-export GOCACHE="$XDG_CACHE_HOME/go-build"
-export GOMODCACHE="${GOPATH:-$XDG_DATA_HOME/go}/pkg/mod"
-
-export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
-export NPM_CONFIG_CACHE="$XDG_CACHE_HOME/npm"
-export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
-export NODENV_ROOT="$XDG_DATA_HOME/nodenv"
-export PNPM_HOME="$XDG_DATA_HOME/pnpm"
-export YARN_ENABLE_TELEMETRY=0
-export NVM_DIR="$XDG_DATA_HOME/nvm"
-export BUN_INSTALL="$XDG_DATA_HOME/bun"
-export DENO_INSTALL="$XDG_DATA_HOME/deno"
-
 __vlkenv_pathmunge_bin="$XDG_CONFIG_HOME/shell/rustcfg/pathmunge/target/release/pathmunge"
 
 if [ ! -x "$__vlkenv_pathmunge_bin" ]; then
+    # __pathmunge() {
+    #     for i in "$@"; do
+    #         PATHMUNGE_PATH="$i:$PATHMUNGE_PATH"
+    #     done
+    #     echo "$PATHMUNGE_PATH"
+    # }
+
     __pathmunge() {
-        for i in "$@"; do
-            PATHMUNGE_PATH="$i:$PATHMUNGE_PATH"
+        oldifs="$IFS"
+        tmppth=
+        IFS="
+"
+        for i in "$@" $(IFS=':' printf '%s\n' $PATHMUNGE_PATH); do
+            case ":${PATHMUNGE_PATH:-}:" in
+            *":${i}:"*) continue ;;
+            *) [ -d "$i" ] && tmppth="$i:$tmppth" ;;
+            esac
         done
-        echo "$PATHMUNGE_PATH"
+        IFS="$oldifs"
+        echo "${tmppth}:${PATHMUNGE_PATH}" | sed -E 's/:+/:/g ; s/^:|:$//g'
     }
     __vlkenv_pathmunge_bin='__pathmunge'
 fi
@@ -178,18 +142,18 @@ export PATH="$(
         '/usr/local/bin'
 )"
 [ "${__vlkenv_pathmunge_bin:-}" = '__pathmunge' ] && unset -f __pathmunge
+unset oldifs tmppth i ICON_TYPE __vlkenv_pathmunge_bin
 
-unset ICON_TYPE
-__vlkenv_term="${TERM:-}"
-[ -n "${VTE_VERSION:-}" ] && __vlkenv_term='vte_alacritty'
-case "$__vlkenv_term" in
-*kitty* | *alacritty*)
-    ICON_TYPE='dashline'
-    ;;
-*)
-    ICON_TYPE='fallback'
-    ;;
-esac
+if [ -n "${VTE_VERSION:-}" ]; then
+    export ICON_TYPE='dashline'
+else
+    case "$TERM" in
+    *kitty* | *alacritty*)
+        export ICON_TYPE='dashline'
+        ;;
+    *)
+        export ICON_TYPE='fallback'
+        ;;
+    esac
+fi
 export ICON_TYPE
-
-unset i __vlkenv_pathmunge_bin __vlkenv_term
