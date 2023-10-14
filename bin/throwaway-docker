@@ -1,21 +1,16 @@
 #!/usr/bin/bash
+if [[ "$(id "$USER")" != *'(docker)'* ]]; then
+    echo "Error, $USER must be in group 'docker' (sudo usermod -aG '$USER' 'docker')"
+    exit 1
+fi
 
 set -eu
-
+stty="$(stty --save)"
 CONTAINER="fedora:latest"
 DOCKER_DIR="$XDG_CACHE_HOME/throwaway-docker"
 
-stty="$(stty --save)"
-
-if [[ "$(id "$USER")" != *'(docker)'* ]]; then
-    echo "Error, $USER must be in group 'docker' (sudo usermod -aG '$USER' 'docker')"
-    return 1
-fi
-
 mkdir -p "$DOCKER_DIR"
-
 docker pull "$CONTAINER"
-
 cat <<EOF
 
 ===[Entering container]===
