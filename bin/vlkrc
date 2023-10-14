@@ -91,6 +91,14 @@ alias egrep="egrep --color=auto"
 alias fgrep="fgrep --color=auto"
 alias igrep="grep -i --color=auto"
 
+alias xzgrep='xzgrep --color=auto'
+alias xzegrep='xzegrep --color=auto'
+alias xzfgrep='xzfgrep --color=auto'
+
+alias zgrep='zgrep --color=auto'
+alias zfgrep='zfgrep --color=auto'
+alias zegrep='zegrep --color=auto'
+
 alias mime='file -bL --mime-type'
 
 alias bap='bat --paging always'

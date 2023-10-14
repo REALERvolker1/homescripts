@@ -4,10 +4,10 @@
 if [[ -n $BASH_VERSION && -z $BASHRC_LOADED && $- == *i* ]]; then
     true
 else
-    echo "Could not source bashrc"
     return
     exit
 fi
+BASHRC_LOADED=true
 # [[ 1 ]] || return
 shopt -s autocd cdspell cmdhist checkwinsize histappend
 bind "set completion-ignore-case on"
@@ -21,6 +21,11 @@ for i in \
 done
 unset i
 # "$HOME/bin/vlkpromptrc" \
+
+if [[ -n ${PS1:-} && -z ${BASH_COMPLETION_VERSINFO:-} && ${BASH_VERSINFO[0]} -gt 4 ]]; then
+    [[ -r ${BDOTDIR:-$HOME}/bash_completion ]] && . "${BDOTDIR:-$HOME}/bash_completion"
+    shopt -q progcomp && [[ -r /usr/share/bash-completion/bash_completion ]] && . /usr/share/bash-completion/bash_completion
+fi
 
 export BPLUGIN_DIR="$XDG_DATA_HOME/bash-plugins"
 if [[ ! -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && command -v git &>/dev/null; then
@@ -60,5 +65,4 @@ printf '%s -%s' "${0##*/}" "$-" | (
 )
 
 [[ ${BLE_VERSION:-} ]] && ble-attach
-BASHRC_LOADED=true
 true
