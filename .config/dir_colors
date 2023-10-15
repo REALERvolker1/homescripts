@@ -906,6 +906,7 @@ EXEC 01;38;5;46 # files with execute permission
 *Makefile 38;5;202 # GNU Makefile
 *makefile 38;5;202
 *MAKEFILE 38;5;202
+*PKGBUILD 1;38;5;148 # Arch Linux Build System config
 
 # DOCUMENT {{{
 # LaTeX
