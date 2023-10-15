@@ -379,6 +379,7 @@ EXEC 01;38;5;46 # files with execute permission
 .rlib 38;5;238 # Rust static library
 .qm 38;5;238 # QT compiled translation file
 .cljc 38;5;238 # Clojure compiled I think?
+.gguf 38;5;130 # AI LLM dataset
 
 .db 38;5;242 # Database
 .sqlite 38;5;242 # sqlite database

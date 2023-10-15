@@ -107,7 +107,8 @@ alias batop=battop
 alias battio=battop
 
 # OpenAI whisper -- run `pip install --user --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git`
-alias whisp='whisper --model medium.en --device cuda --output_format txt --language en'
+#alias whisp='whisper --model medium.en --device cuda --output_format txt --language en'
+alias whisp='conda run -n whisp whisper --model medium.en --device cuda --output_format txt --language en'
 
 alias ytmp3="yt-dlp --extract-audio --audio-format mp3 "
 alias ytmp4="yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --progress --remux-video mp4 "
