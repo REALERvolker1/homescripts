@@ -30,25 +30,22 @@ ac_command_center() {
 }
 
 kill_gpu_block() {
-    local gpublock
-    gpublock="$(ps -eo pid,comm,args | grep -oP "^\s*\K[0-9]*(?=\s*${me}.*${gpublock_arg})" | grep -vE "($$|$(($$ + 1)))")"
-    # [ -z "${gpublock:-}" ] && return
-    # if kill $gpublock; then
-    #     echo "killed gpublock"
-    #     return 0
-    # else
-    #     echo "Error killing gpublock"
-    #     return 1
-    # fi
-    [[ -n ${gpublock:-} ]] && kill $gpublock && echo "killed gpublock"
+    killall nvidia-smi
 }
 
-if [[ "${1:-}" = "$gpublock_arg" ]]; then
+#kill_gpu_block() {
+#    local gpublock
+#    gpublock="$(ps -eo pid,comm,args | grep -oP "^\s*\K[0-9]*(?=\s*${me}.*${gpublock_arg})" | grep -vE "($$|$(($$ + 1)))")"
+#    [[ -n ${gpublock:-} ]] && kill $gpublock && echo "killed gpublock"
+#}
+
+if [[ "${1:-}" == "$gpublock_arg" ]]; then
     kill_gpu_block
-    while true; do
-        nvidia-smi >/dev/null
-        sleep 5
-    done
+    exec nvidia-smi dmon -d 5
+    #while true; do
+    #    nvidia-smi >/dev/null
+    #    sleep 5
+    #done
     exit 0
 fi
 
