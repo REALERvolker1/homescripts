@@ -108,7 +108,16 @@ alias battio=battop
 
 # OpenAI whisper -- run `pip install --user --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git`
 #alias whisp='whisper --model medium.en --device cuda --output_format txt --language en'
-alias whisp='conda run -n whisp whisper --model medium.en --device cuda --output_format txt --language en'
+alias whisp='conda run -vvv -n whisp whisper --model medium.en --device cuda --output_format txt --language en'
+llama() {
+    local oldpwd="$PWD"
+    cd "$HOME/src/text-generation-webui" || return 1
+    conda activate textgen
+    python3 ./server.py --chat-buttons --model 'llama-2-13b-chat.Q5_K_M.gguf' --character 'Bob, the real boy'
+    conda deactivate
+    cd "$oldpwd"
+}
+#alias llama="cd $HOME/src/text-generation-webui && conda run -vvv -n textgen python ./server.py"
 
 alias ytmp3="yt-dlp --extract-audio --audio-format mp3 "
 alias ytmp4="yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --progress --remux-video mp4 "
