@@ -256,7 +256,7 @@ declare -A __vlkprompt_internal=(
     [conda_str]=''
 )
 
-if [[ -n \$CONTAINER_ID ]] || [[ \$HOSTNAME != \$CURRENT_HOSTNAME ]] || [[ \$- =~ l ]]; then
+if [[ -n \$CONTAINER_ID || \$HOSTNAME != \$CURRENT_HOSTNAME || \$- =~ l ]]; then
     if [[ \$- =~ l ]]; then
         __vlkprompt_internal[log_content]="${content[log]}%(${index[transient]}V..${en[log]})"
         __vlkprompt_internal[log_end_color]="${endbg[log]}"
@@ -265,7 +265,7 @@ if [[ -n \$CONTAINER_ID ]] || [[ \$HOSTNAME != \$CURRENT_HOSTNAME ]] || [[ \$- =
         __vlkprompt_internal[log_end_color]="${endbg[con]}"
     fi
     if [[ \$HOSTNAME != \$CURRENT_HOSTNAME ]]; then
-        if [[ -n \$CONTAINER_IDd ]]; then
+        if [[ -n \$CONTAINER_ID ]]; then
             __vlkprompt_internal[host_content]="${content[dbx]}${en[dbx]}"
             __vlkprompt_internal[host_end]="%(${index[transient]}V..${set[sgr]}\${__vlkprompt_internal[log_end_color]}${cfg[dbx]}${set[end]}${set[sgr]})"
         else
