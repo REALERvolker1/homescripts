@@ -38,6 +38,7 @@ PROMPT='%k%f
 %B %F{14}%~%f %(0?.%F{10}%#.%F{9}%? %#) %b%f'
 ZLE_RPROMPT_INDENT=0
 PROMPT_EOL_MARK=''
+TMPPREFIX="${XDG_RUNTIME_DIR:-/tmp}/zsh"
 
 export ZPLUGIN_DIR="$XDG_DATA_HOME/zsh-plugins"
 __vlk_zsh_plugins=(

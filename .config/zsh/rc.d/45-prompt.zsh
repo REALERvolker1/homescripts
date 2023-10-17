@@ -3,39 +3,86 @@
     exit 1
 }
 
+# vlkprompt, generated on 10/17/23 @ 12:08:00 AM by vlk using /home/vlk/random/homescripts/bin/promptgen.sh
+
+unsetopt single_line_zle
+
+# important variables
+export VIRTUAL_ENV_DISABLE_PROMPT=1 # needed for proper python venv string
+declare -A __vlkprompt_internal=(
+    [right_prompt]=''
+    [log_content]=''
+    [log_end_color]=''
+    [host_content]=''
+    [host_end]=''
+    [prev_pwd]=''
+    [pwd]=''
+    [pwd_writable]=''
+    [pwd_git]=''
+    [old_time]=0
+    [timer_str]=''
+    [venv_str]=''
+    [conda_str]=''
+)
+
+if [[ -n $CONTAINER_ID ]] || [[ $HOSTNAME != $CURRENT_HOSTNAME ]] || [[ $- =~ l ]]; then
+    if [[ $- =~ l ]]; then
+        __vlkprompt_internal[log_content]="%K{55}%B%F{255}%(130V.. 󰌆 )%(130V..%k%f%b%(132V.%K{40}.%(133V.%K{220}.%(134V.%K{226}.%(1j.%K{172}.%(0?.%(138V.%K{120}.%(137V.%K{141}.%K{33})).%K{52})))))%F{55}%k%f%b)"
+        __vlkprompt_internal[log_end_color]="%K{55}"
+    else
+        __vlkprompt_internal[log_content]=''
+        __vlkprompt_internal[log_end_color]="%(132V.%K{40}.%(133V.%K{220}.%(134V.%K{226}.%(1j.%K{172}.%(0?.%(138V.%K{120}.%(137V.%K{141}.%K{33})).%K{52})))))"
+    fi
+    if [[ $HOSTNAME != $CURRENT_HOSTNAME ]]; then
+        if [[ -n $CONTAINER_IDd ]]; then
+            __vlkprompt_internal[host_content]="%K{95}%B%F{255}%(130V.. 󰆍) ${CONTAINER_ID} "
+            __vlkprompt_internal[host_end]="%(130V..%k%f%b${__vlkprompt_internal[log_end_color]}%F{95}%k%f%b)"
+        else
+            __vlkprompt_internal[host_content]="%K{18}%B%F{255}%(130V.. 󰟀) %(130V.%m.%M) "
+            __vlkprompt_internal[host_end]="%(130V..%k%f%b${__vlkprompt_internal[log_end_color]}%F{18}%k%f%b)"
+        fi
+    fi
+fi
+
+PROMPT="%(130V..%k%f%b%u%s
+)${__vlkprompt_internal[host_content]}${__vlkprompt_internal[host_end]}${__vlkprompt_internal[log_content]}%(132V.%K{40}%B%F{232}%(130V.. 󱔎) \${__vlkprompt_internal[conda_str]} .)%(130V..%(132V.%k%f%b%(133V.%K{220}.%(134V.%K{226}.%(1j.%K{172}.%(0?.%(138V.%K{120}.%(137V.%K{141}.%K{33})).%K{52}))))%F{40}%k%f%b.))%(133V.%K{220}%B%F{232}%(130V.. 󰌠) \${__vlkprompt_internal[venv_str]} .)%(130V..%(133V.%k%f%b%(134V.%K{226}.%(1j.%K{172}.%(0?.%(138V.%K{120}.%(137V.%K{141}.%K{33})).%K{52})))%F{220}%k%f%b.))%(134V.%K{226}%B%F{232}%(130V.. 󱑃) \${__vlkprompt_internal[timer_str]} .)%(130V..%(134V.%k%f%b%(1j.%K{172}.%(0?.%(138V.%K{120}.%(137V.%K{141}.%K{33})).%K{52}))%F{226}%k%f%b.))%(1j.%K{172}%B%F{232}%(130V.. 󰅗) %j .)%(130V..%(1j.%k%f%b%(0?.%(138V.%K{120}.%(137V.%K{141}.%K{33})).%K{52})%F{172}%k%f%b.))%(0?..%K{52}%B%F{255}%(130V.. 󰅗) %? )%(130V..%(0?..%k%f%b%(138V.%K{120}.%(137V.%K{141}.%K{33}))%F{52}%k%f%b))%(138V.%K{120}%B%F{232}%(130V.. ).%(137V.%K{141}%B%F{232}%(130V.. 󰊢).%K{33}%B%F{255}%(130V.. %(136V..)))) %$((COLUMNS / 2))<..<%~ %k%f%b%(138V.%F{120}.%(137V.%F{141}.%F{33}))%(135V.%K{196}%(130V.%k%f%b%F{196}. %k%f%b%F{196} ).)%k%f%b "
+
+PROMPT2="%k%f%b%u%s%K{93}%B%F{255} %_ %k%f%b%F{93}%(135V.%K{196}%k%f%b%F{196}.)%k%f%b "
+PROMPT3="%k%f%b%u%s%K{89}%B%F{255} %# %k%f%b%F{89}%(135V.%K{196}%k%f%b%F{196}.)%k%f%b "
+
+autoload -Uz vcs_info
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:git:*' use-simple 'true'
+zstyle ':vcs_info:git:*' formats ' %r 󰊢 '
+# zstyle ':vcs_info:git:*' actionformats ' %r '
+
+__vlkprompt_internal[right_prompt]="%(137V.%k%f%b%F{141}%k%f%b%K{141}%B%F{232}.)\${vcs_info_msg_0_}"
+RPROMPT="${__vlkprompt_internal[right_prompt]}"
+
+# TIMEFMT -- the prompt you see in 'time command --args'
+# TIMEFMT="%J  %U user %S system %P cpu %*E total"
+TIMEFMT="[48;5;226m[38;5;232m 󱜯 Command: [1m[38;5;232m[48;5;226m%J [49m[39m[0m[38;5;226m[49m[39m[0m
+[48;5;33m[38;5;255m 󱑃 Elapsed time: [1m[38;5;255m[48;5;33m%*E [49m[39m[0m[38;5;33m[49m[39m[0m
+[48;5;18m[38;5;255m 󰟀 user CPU time: [1m[38;5;255m[48;5;18m%U[0m[38;5;255m[48;5;18m, kernel CPU time: [1m[38;5;255m[48;5;18m%S[0m[38;5;255m[48;5;18m (total: [1m[38;5;255m[48;5;18m%P[0m[38;5;255m[48;5;18m) [49m[39m[0m[38;5;18m[49m[39m[0m"
+
+SUDO_PROMPT='[48;5;52m[1m[48;5;52m[38;5;255m SUDO [49m[39m[0m[38;5;52m[48;5;196m[48;5;196m[1m[38;5;52m[48;5;196m[38;5;255m Please enter your password [49m[39m[0m[38;5;196m [49m[39m[0m '
+
+PROMPT_EOL_MARK='[48;5;52m[1m[48;5;52m[38;5;255m 󰌑 [49m[39m[0m[38;5;52m[49m[39m[0m'
+
 command_not_found_handler() {
-    echo -e "\e[0;1;48;5;196;38;5;232m 󰅗 ERROR \e[0;38;5;196;48;5;52m \e[38;5;255mCommand '\e[1m${1:-}\e[0;48;5;52;38;5;255m' not found \e[0;38;5;52m\e[0m"
+    echo "$(tput sgr0)[48;5;196m[1m[48;5;196m[38;5;232m 󰅗 ERROR [49m[39m[0m[38;5;196m[48;5;52m[38;5;255m Command '[1m[38;5;255m[48;5;52m${1:-}[0m[38;5;255m[48;5;52m' not found! [49m[39m[0m[38;5;52m[49m[39m[0m"
     return 127
 }
 
-if [[ "$HOSTNAME" != "$CURRENT_HOSTNAME" ]] && [[ "$-" =~ l ]]; then
-    HOSTSTR="%k%f%b%u%s%K{18}%B%F{255} %(130V.%m.%M) %k%f%b%u%s%(130V..%F{18}%K{93})%k%f%b%u%s%K{93}%B%F{255}%(130V.. 󰌆) %k%f%b%u%s%(130V..%F{93}%(134V.%K{226}.%(1j.%K{172}.%(0?.%(138V.%K{120}.%(137V.%K{141}.%K{33})).%K{52}))))"
-elif [[ "$-" =~ l ]]; then
-    HOSTSTR="%k%f%b%u%s%K{93}%B%F{255}%(130V.. 󰌆) %k%f%b%u%s%(130V..%F{93}%(134V.%K{226}.%(1j.%K{172}.%(0?.%(138V.%K{120}.%(137V.%K{141}.%K{33})).%K{52}))))"
-elif [[ "$HOSTNAME" != "$CURRENT_HOSTNAME" ]]; then
-    HOSTSTR="%k%f%b%u%s%K{18}%B%F{255} %(130V.%m.%M) %k%f%b%u%s%(130V..%F{18}%(134V.%K{226}.%(1j.%K{172}.%(0?.%(138V.%K{120}.%(137V.%K{141}.%K{33})).%K{52}))))"
-fi
-PROMPT="%k%f%b%u%s%(130V..
-)${HOSTSTR}%(134V.%k%f%b%u%s%K{226}%B%F{232}%(130V.. 󱑃) \$VLKPROMPT_CMD_TIMER_STR %k%f%b%u%s.)%(130V..%(134V.%F{226}%(1j.%K{172}.%(0?.%(138V.%K{120}.%(137V.%K{141}.%K{33})).%K{52})).))%(1j.%k%f%b%u%s%K{172}%B%F{232}%(130V.. 󱜯) %j %k%f%b%u%s.)%(130V..%(1j.%F{172}%(0?.%(138V.%K{120}.%(137V.%K{141}.%K{33})).%K{52}).))%(0?..%k%f%b%u%s%K{52}%B%F{255}%(130V.. 󰅗) %? %k%f%b%u%s)%(130V..%(0?..%F{52}%(138V.%K{120}.%(137V.%K{141}.%K{33}))))%k%f%b%u%s%(138V.%K{120}%B%F{232}%(130V.. ).%(137V.%K{141}%B%F{232}%(130V.. 󰊢).%K{33}%B%F{255}%(130V.. %(136V..)))) %\$((COLUMNS / 2))<..<%~ %k%f%b%u%s%(135V.%K{196}.)%(138V.%F{120}.%(137V.%F{141}.%F{33}))%k%f%b%u%s%(135V.%k%f%b%u%s%K{196} %k%f%b%u%s%F{196} %k%f%b%u%s.) "
-
-PS2="%k%f%b%u%s%K{93}%B%F{255} %_ %k%f%b%u%s%F{93}%(135V.%K{196} %k%f%b%u%s%F{196} .)%k%f%b%u%s"
-PS3="%k%f%b%u%s%K{89}%B%F{255} %_ %k%f%b%u%s%F{89}%(135V.%K{196} %k%f%b%u%s%F{196} .)%k%f%b%u%s"
-
-SUDO_PROMPT=$'\e[1;48;5;196;38;5;255m entering sudo mode \e[0;38;5;196m  \e[0m'
-# PROMPT FUNCTIONS
-declare GIT_PRECMD_PREV_PWD GIT_PRECMD_PWD GIT_PRECMD_PWD_WRITABLE GIT_PRECMD_PWD_GIT
-declare -i OLDSECS=0
-
 __vlkprompt_precmd() {
-    local -i timer=$((SECONDS - OLDSECS))
-    VLKPROMPT_CMD_TIMER_STR=
+    local -i timer=$((SECONDS - ${__vlkprompt_internal[old_time]}))
+    __vlkprompt_internal[timer_str]=''
     if ((timer > 14)); then
         local leading_zero timedisp timedisp_sm
         if ((timer > 60)); then
             local -i hour=$((timer / 3600))
-            local -i min=$(($((timer % 3600)) / 60))
+            local -i min=$(((timer % 3600) / 60))
             local -i sec=$((timer % 60))
-
             if ((hour > 0)); then
                 timedisp="${timedisp}${hour}h "
                 timedisp_sm="${timedisp_sm}${hour}:"
@@ -57,30 +104,54 @@ __vlkprompt_precmd() {
             timedisp_sm="${timer}"
         fi
         psvar[134]=1
-        VLKPROMPT_CMD_TIMER_STR="%(130V.${timedisp_sm}.${timedisp})"
+        __vlkprompt_internal[timer_str]="%(130V.${timedisp_sm}.${timedisp})"
     fi
-    if [[ $PWD == $GIT_PRECMD_PWD ]]; then
-        psvar[136]="$GIT_PRECMD_PWD_WRITABLE"
-        psvar[137]="$GIT_PRECMD_PWD_GIT"
-        return
-    elif [[ $PWD == $GIT_PRECMD_PREV_PWD ]]; then
-        psvar[137]=1
-    elif git status &>/dev/null; then
-        GIT_PRECMD_PREV_PWD="$PWD"
-        psvar[137]=1
-    elif [[ -w $PWD ]]; then
-        psvar[136]=1
+
+    if [[ $PWD == ${__vlkprompt_internal[pwd]} ]]; then
+        psvar[136]="${__vlkprompt_internal[pwd_writable]}"
+        psvar[137]="${__vlkprompt_internal[pwd_git]}"
+    else
+        vcs_info
+        if [[ $PWD == ${__vlkprompt_internal[prev_pwd]} ]]; then
+            psvar[137]=1
+        # elif git status &>/dev/null; then
+        elif [[ -n $vcs_info_msg_0_ ]]; then
+            __vlkprompt_internal[prev_pwd]="$PWD"
+            psvar[137]=1
+        elif [[ -w $PWD ]]; then
+            psvar[136]=1
+        fi
+        __vlkprompt_internal[pwd]="$PWD"
+        __vlkprompt_internal[pwd_git]="${psvar[137]}"
+        __vlkprompt_internal[pwd_writable]="${psvar[136]}"
     fi
-    GIT_PRECMD_PWD="$PWD"
-    GIT_PRECMD_PWD_GIT="${psvar[137]}"
-    GIT_PRECMD_PWD_WRITABLE="${psvar[136]}"
+    if [[ -n ${CONDA_DEFAULT_ENV:-} ]]; then
+        psvar[132]=1
+        __vlkprompt_internal[conda_str]="${CONDA_DEFAULT_ENV}"
+    fi
+    if [[ -n ${VIRTUAL_ENV:-} ]]; then
+        psvar[133]=1
+        __vlkprompt_internal[venv_str]="${VIRTUAL_ENV##*/}"
+    fi
+    [[ -n $VIRTUAL_ENV ]] && psvar[133]=1
 }
-[[ -z ${DISTROBOX_ENTER_PATH:-} ]] && __vlkprompt_sudo_cmd() { sudo -vn &>/dev/null && psvar[135]=1; }
 
-export -U precmd_functions=('__vlkprompt_precmd' '__vlkprompt_sudo_cmd')
+export -U precmd_functions
+precmd_functions+=('__vlkprompt_precmd' )
 
+if [[ -z ${DISTROBOX_ENTER_PATH:-} ]]; then
+    __vlkprompt_sudo_cmd() {
+        if sudo -vn &>/dev/null; then
+            psvar[135]=1
+        else
+            psvar[135]=''
+        fi
+    }
+    precmd_functions+=('__vlkprompt_sudo_cmd')
+fi
 
-function zle-line-init zle-keymap-select {
+# function zle-line-init zle-keymap-select
+__vlkprompt-zle-keymap-select() {
     if [[ $KEYMAP == vicmd ]]; then
         psvar[138]=1
     else
@@ -88,9 +159,10 @@ function zle-line-init zle-keymap-select {
     fi
     zle reset-prompt
 }
-zle -N zle-keymap-select
+zle -N zle-keymap-select __vlkprompt-zle-keymap-select
 
-__vlk-zle-line-init() {
+
+__vlkprompt-zle-line-init() {
     [[ $CONTEXT == start ]] || return 0
     (($+zle_bracketed_paste)) && print -r -n - "${zle_bracketed_paste[1]}"
     zle recursive-edit
@@ -101,11 +173,15 @@ __vlk-zle-line-init() {
         zle reset-prompt
         exit
     fi
+    local has_sudo="${psvar[135]}"
     psvar[130]=1
+    RPROMPT=
     zle reset-prompt
     psvar=()
-    OLDSECS=$SECONDS
-    VLKPROMPT_CMD_TIMER_STR=
+    psvar[135]="$has_sudo"
+    __vlkprompt_internal[old_time]=$SECONDS
+    __vlkprompt_internal[timer_str]=
+    RPROMPT="${__vlkprompt_internal[right_prompt]}"
     if ((ret)); then
         zle send-break
     else
@@ -114,4 +190,6 @@ __vlk-zle-line-init() {
     return ret
 }
 
-zle -N zle-line-init __vlk-zle-line-init
+zle -N zle-line-init __vlkprompt-zle-line-init
+
+return

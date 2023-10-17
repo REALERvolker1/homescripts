@@ -182,10 +182,10 @@ bleopt prompt_ps1_transient=trim
 ## line is not shown.  "prompt_status_align" controls the position of the
 ## content in the status line.
 
-#bleopt prompt_status_line="Bash: $BASH_VERSION | Linux: $(uname -r)${BLE_VERSION+ | Ble.sh: $BLE_VERSION}"
-#bleopt prompt_status_align=center
+bleopt prompt_status_line="Bash: $BASH_VERSION | Linux: $(uname -r)${BLE_VERSION+ | Ble.sh: $BLE_VERSION}"
+bleopt prompt_status_align=center
 # contrib themes don't work
-ble-import lib/vim-airline
+#ble-import lib/vim-airline
 
 #  | Ble.sh: ${BLE_VERSION:-Null}
 

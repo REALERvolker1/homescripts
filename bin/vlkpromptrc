@@ -42,61 +42,9 @@ fallback)
     ;;
 esac
 
-# if (($(tput colors) < 255)); then
+if (($(tput colors) < 255)); then
 
-#     set[ansi]=''
-
-#     colorstx[l]=7
-#     colorstx[d]=0
-
-#     colors[cwd]=4
-#     colors[git]=5
-#     colors[vim]=2
-#     colors[err]=1
-#     colors[job]=3
-#     colors[hos]=4
-#     colors[tim]=6
-#     colors[sud]=6
-#     colors[ps2]=5
-#     colors[ps3]=5
-
-# else
-
-#     set[ansi]='8;5;'
-#     colorstx[l]=255
-#     colorstx[d]=232
-
-#     colors[cwd]=33
-#     colors[git]=141
-#     colors[vim]=120
-#     colors[err]=52
-#     colors[job]=172
-#     colors[hos]=18
-#     colors[tim]=226
-#     colors[sud]=196
-#     colors[ps2]=93
-#     colors[ps3]=89
-
-# fi
-
-set[sgr]='%k%f%b%u%s'
-
-index[transient]=130
-index[timer]=134
-index[sudo]=135
-index[writable]=136
-index[git]=137
-index[vim]=138
-
-set[has_job]='1j'
-set[has_no_err]='0?'
-
-currcol=1
-
-colorswitch() {
-    case "$currcol" in
-        1)
-            set[ansi]=''
+    set[ansi]=''
 
     colorstx[l]=7
     colorstx[d]=0
@@ -111,9 +59,10 @@ colorswitch() {
     colors[sud]=6
     colors[ps2]=5
     colors[ps3]=5
-    ;;
-        0)
-            set[ansi]='8;5;'
+
+else
+
+    set[ansi]='8;5;'
     colorstx[l]=255
     colorstx[d]=232
 
@@ -127,20 +76,30 @@ colorswitch() {
     colors[sud]=196
     colors[ps2]=93
     colors[ps3]=89
-    ;;
-    esac
-}
+
+fi
+
+set[sgr]='%k%f%b%u%s'
+
+index[transient]=130
+index[timer]=134
+index[sudo]=135
+index[writable]=136
+index[git]=137
+index[vim]=138
+
+set[has_job]='1j'
+set[has_no_err]='0?'
+
 COMMAND_NOT_FOUND_STR="\e[0;1;4${set[ansi]}${colors[sud]};3${set[ansi]}${colorstx[d]}m \
 ${icn[err]} ERROR \e[0;3${set[ansi]}${colors[sud]};4${set[ansi]}${colors[err]}m${content[end]} \
 \e[3${set[ansi]}${colorstx[l]}mCommand '\e[1m\${1:-}\e[0;4${set[ansi]}${colors[err]};3${set[ansi]}${colorstx[l]}m' \
 not found \e[0;3${set[ansi]}${colors[err]}m${content[end]}\e[0m"
-echo "command_not_found_handler(){echo -e \"$COMMAND_NOT_FOUND_STR\";return 127;}"
 
-exit 0
-# command_not_found_handler () {
-#     echo -e "${COMMAND_NOT_FOUND_STR//+/$1}"
-#     return 127
-# }
+command_not_found_handler () {
+    echo -e "${COMMAND_NOT_FOUND_STR//+/$1}"
+    return 127
+}
 
 icn[cwd]="%(${index[writable]}V.${icn[cwd_rw]}.${icn[cwd_ro]})"
 
@@ -171,6 +130,14 @@ ends[timer]="%(${index[transient]}V..%(${index[timer]}V.${colorsfg[tim]}%(${set[
 ends[job]="%(${index[transient]}V..%(${set[has_job]}.${colorsfg[job]}%(${set[has_no_err]}.${ends[dir_bg]}.${colorsbg[err]})${content[end]}.))"
 ends[err]="%(${index[transient]}V..%(${set[has_no_err]}..${colorsfg[err]}${ends[dir_bg]}${content[end]}))"
 ends[cwd]="%(${index[sudo]}V.${colorsbg[sud]}.)%(${index[vim]}V.${colorsfg[vim]}.%(${index[git]}V.${colorsfg[git]}.${colorsfg[cwd]}))${content[end]}${set[sgr]}"
+
+# if [[ "$-" =~ l ]] || [[ "$HOSTNAME" != "$CURRENT_HOSTNAME" ]]; then
+#     content[login]="${set[sgr]}${colorsbg[ps2]}${colorstx[l]}${icons[log]} ${set[sgr]}"
+#     ends[login]="%(${index[transient]}V..${colorsfg[ps2]}${ends[login_bg]}${content[end]})"
+#     ends[login_bg]="${colorsbg[ps2]}"
+#     content[hostname]="${set[sgr]}${colorsbg[hos]}${colorstx[l]} %(${index[transient]}V.%m.%M) ${set[sgr]}"
+#     ends[hostname]="%(${index[transient]}V..${colorsfg[hos]}${ends[login_bg]}${content[end]})"
+# fi
 
 if [[ "$-" =~ l ]]; then
     content[login]="${set[sgr]}${colorsbg[ps2]}${colorstx[l]}${icons[log]} ${set[sgr]}"

@@ -6,6 +6,7 @@ local i
 if command -v atuin &>/dev/null; then
     (
         echo 'command -v atuin &>/dev/null || return'
+        echo '[[ "$TERM" == "linux" ]] && return'
         atuin init zsh | grep -vE '(echoti|^[[:space:]]*#|^[[:space:]]*$)'
     ) >"$ZDOTDIR/rc.d/60-atuin.defer.zsh"
 fi

@@ -1,7 +1,21 @@
 #!/usr/bin/bash
 # shellcheck shell=bash
 # vim:foldmethod=marker:ft=sh
-# shellcheck nodisable=2139,2317,2012,1090
+## shellcheck disable=2139,2317,2012,1090
+
+# _panic() {
+#     local fatal=false
+#     if [[ ${1:-} == '--fatal' ]]; then
+#         fatal=true
+#         shift 1
+#     fi
+#     printf '%s\n' "${@:-Unknown error}" >&2
+#     if $fatal; then
+#         return 1
+#     else
+#         exit 1
+#     fi
+# }
 
 [[ "$-" == *i* ]] || {
     echo "Error, you must source this file with interactive zsh or bash" >&2
@@ -11,14 +25,13 @@
 
 : "${DIRECTORY_COLOR:=1;34}"
 
-__which="$(which --skip-alias which)"
-alias which="( alias; declare -f ) | $__which --tty-only --read-alias --read-functions --show-tilde --show-dot"
+#__which="$(which --skip-alias which)"
+alias which="( alias; declare -f ) | ${WHICH_PATH:=/bin/which} --tty-only --read-alias --read-functions --show-tilde --show-dot"
 alias whihc=which
 
 __homebin="$HOME/bin"
 
-__ls="$($__which --skip-alias ls)"
-__lscmd="$__ls --color=auto --group-directories-first -A"
+__lscmd="${LS_PATH:=/bin/ls} --color=auto --group-directories-first -A"
 
 alias ls="${LS_COMMAND:=$__lscmd}"
 alias ll="${LL_COMMAND:=$__lscmd -l}"
@@ -58,10 +71,11 @@ alias shutdown='systemctl poweroff'
 alias reboot='systemctl reboot'
 alias logout="loginctl kill-session '$XDG_SESSION_ID'"
 
-alias rmf="$($__which --skip-alias rm) -rf"
+alias rmf="${RM_PATH:=/bin/rm} -rf"
 if command -v trash &>/dev/null; then
     alias rm='trash -i -r'
 else
+    echo "trash command not installed! falling back to '$RM_PATH'"
     alias rm=rmf
 fi
 # remove junk files
@@ -106,17 +120,21 @@ alias glop='glow --pager'
 alias batop=battop
 alias battio=battop
 
-# OpenAI whisper -- run `pip install --user --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git`
-#alias whisp='whisper --model medium.en --device cuda --output_format txt --language en'
-alias whisp='conda run -vvv -n whisp whisper --model medium.en --device cuda --output_format txt --language en'
-llama() {
-    local oldpwd="$PWD"
-    cd "$HOME/src/text-generation-webui" || return 1
-    conda activate textgen
-    python3 ./server.py --chat-buttons --model 'llama-2-13b-chat.Q5_K_M.gguf' --character 'Bob, the real boy'
-    conda deactivate
-    cd "$oldpwd"
-}
+# OpenAI whisper -- run `pip install --user --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git` and `pip install --user blobfile`
+command -v whisper &>/dev/null && alias whisp='whisper --language en --device cuda --model medium.en --output_format txt'
+# --word_timestamps True
+
+if [[ -d "$HOME/src/text-generation-webui" ]]; then
+    llama() {
+        local oldpwd="$PWD"
+        cd "$HOME/src/text-generation-webui" || return 1
+        conda activate textgen
+        python3 ./server.py --chat-buttons --model 'llama-2-13b-chat.Q5_K_M.gguf' --character 'Bob, the real boy'
+        conda deactivate
+        cd "$oldpwd" || return 1
+    }
+    alias textgen=llama
+fi
 #alias llama="cd $HOME/src/text-generation-webui && conda run -vvv -n textgen python ./server.py"
 
 alias ytmp3="yt-dlp --extract-audio --audio-format mp3 "
@@ -124,14 +142,12 @@ alias ytmp4="yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --progr
 
 if [[ "${TERM:-}" == *'kitty'* ]]; then
     alias icat='kitten icat'
-elif command -v timg &>/dev/null; then
-    alias icat=timg
-elif command -v chafa &>/dev/null; then
+else
     alias icat=chafa
 fi
 
 command -v difft &>/dev/null && alias diff=difft
-command -v duf &>/dev/null && alias df=duf
+# command -v duf &>/dev/null && alias df=duf
 command -v dutree &>/dev/null && alias du=dutree
 command -v ouch &>/dev/null && alias extract='ouch decompress'
 
@@ -267,9 +283,10 @@ alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 alias chars='perl -e "foreach(@ARGV){open(my \$f,\"<\",\"\$_\") or die \"\$!\";my \$c;while(read(\$f,\$c,1)){print \"\$c\n\";}close \$f;}" '
 
 alias ARCH='distrobox-enter -n ARCH'
+
 __cd_ls() {
     local -i fcount
-    fcount="$(\ls -A1 | wc -l)"
+    fcount="$($LS_PATH -A1 | wc -l)"
     ((fcount < 30)) && ls || echo -e "\e[${DIRECTORY_COLOR}m${fcount}\e[0m items in this folder"
 }
 alias fenv='declare | fzf'
@@ -294,15 +311,15 @@ elif command -v grub-mkconfig &>/dev/null; then
     alias grubcfg='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 fi
 
-unset __homebin __ls __which
+unset __homebin
 
 gitc() {
-    local git_link="${1?:Error. Specify link to clone}"
-    local git_dir="$PWD/${git_link##*/}"
     if [[ "$PWD" == "$HOME" ]]; then
-        echo "Error: don't clone a git file to '$PWD'!"
+        echo "Error: don't clone a git repo to '$PWD'!"
         return 1
     fi
+    local git_link="${1?:Error. Specify link to clone}"
+    local git_dir="$PWD/${git_link##*/}"
     echo -e "Cloning \033[4m$git_link\033[0m "
     git clone "$git_link"
     cd "${git_dir%.git}" || return 1
@@ -310,15 +327,13 @@ gitc() {
 
 readme() {
     : "${1:=$(printf '%s\n' ./* | grep -i 'readme' | fzf --select-1)}"
-    (
-        if command -v 'glow' &>/dev/null; then
-            glow "$1"
-        elif command -v 'bat' &>/dev/null; then
-            bat "$1"
-        else
-            cat "$1"
-        fi
-    )
+    if command -v 'glow' &>/dev/null; then
+        glow "$1"
+    elif command -v 'bat' &>/dev/null; then
+        bat "$1"
+    else
+        cat "$1"
+    fi
 }
 
 # chars() { perl -e "foreach(@ARGV){open(my \$f,'<','\$_') or die \"\$!\";my \$c;while(read(\$f,\$c,1)){print \"\$c\n\";}close \$f;}"; }

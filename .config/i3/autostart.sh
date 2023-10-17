@@ -42,5 +42,6 @@ nm-applet &
 flameshot &
 
 picom &
-flashfocus &
+conda run -n i3 flashfocus &
+#flashfocus &
 vlkbg.sh &

@@ -20,8 +20,8 @@ unset __vlkenv_venv
 
 [ -z "${CURRENT_DISTRO:-}" ] && export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
 export CURRENT_HOSTNAME='JOE' # The hostname of my main pc
-
-export HOME="${HOME:-/home/$(whoami)}" HOSTNAME="${HOSTNAME:-$(hostname)}"
+: "${HOST:=$(cat /etc/hostname)}"
+export HOME="${HOME:-/home/$(whoami)}" HOSTNAME="${HOSTNAME:-$HOST}"
 export XDG_CONFIG_HOME="$HOME/.config" XDG_DATA_HOME="$HOME/.local/share" XDG_CACHE_HOME="$HOME/.cache" XDG_STATE_HOME="$HOME/.local/state"
 
 if [ "${EDITOR:-}" != 'nvim' ]; then
@@ -46,7 +46,8 @@ export ENV="$XDG_CONFIG_HOME/dashrc" ZDOTDIR="$XDG_CONFIG_HOME/zsh" BDOTDIR="$XD
 
 export LESSOPEN="||/usr/bin/lesspipe.sh %s"
 # LS customization
-export LA_COMMAND='\ls --color=auto --group-directories-first -A'
+export LS_PATH="${LS_PATH:-/usr/bin/ls}" WHICH_PATH="${WHICH_PATH:-/usr/bin/which}" RM_PATH="${RM_PATH:=/usr/bin/rm}"
+export LA_COMMAND="$LS_PATH --color=auto --group-directories-first -A"
 if command -v lsd >/dev/null 2>&1; then
     export LS_COMMAND='lsd' LL_COMMAND='lsd -l'
 else
@@ -90,7 +91,8 @@ export RUSTUP_HOME="$XDG_DATA_HOME/rustup" CARGO_HOME="$XDG_DATA_HOME/cargo"
 export GOPATH="$XDG_DATA_HOME/go" GOCACHE="$XDG_CACHE_HOME/go-build" GOMODCACHE="${GOPATH:-$XDG_DATA_HOME/go}/pkg/mod"
 # python
 # PYTHONUSERBASE="$XDG_DATA_HOME/python"
-export PYTHONUSERBASE="$XDG_DATA_HOME/pythonuserbase" PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc" PYTHONPYCACHEPREFIX="$XDG_CACHE_HOME/python" PYENV_ROOT="$XDG_DATA_HOME/pyenv" PYTHON_EGG_CACHE="$XDG_CACHE_HOME/python-eggs" WORKON_HOME="$XDG_DATA_HOME/virtualenvs"
+export PYTHONUSERBASE="$XDG_DATA_HOME/pythonuserbase"
+export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc" PYTHONPYCACHEPREFIX="$XDG_CACHE_HOME/python" PYENV_ROOT="$XDG_DATA_HOME/pyenv" PYTHON_EGG_CACHE="$XDG_CACHE_HOME/python-eggs" WORKON_HOME="$XDG_DATA_HOME/virtualenvs"
 # nodejs
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc" NPM_CONFIG_CACHE="$XDG_CACHE_HOME/npm" NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history" NODENV_ROOT="$XDG_DATA_HOME/nodenv" PNPM_HOME="$XDG_DATA_HOME/pnpm" YARN_ENABLE_TELEMETRY=0 NVM_DIR="$XDG_DATA_HOME/nvm" BUN_INSTALL="$XDG_DATA_HOME/bun" DENO_INSTALL="$XDG_DATA_HOME/deno"
 # keyring
