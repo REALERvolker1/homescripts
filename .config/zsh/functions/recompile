@@ -17,6 +17,7 @@ done
 
 plugins+=(
     "$ZDOTDIR/.zshrc"
+    "$ZDOTDIR/.zshenv"
     "$ZDOTDIR/.zprofile"
 )
 

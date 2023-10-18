@@ -1,28 +1,37 @@
 # .bashrc
 # shellcheck shell=bash disable=1090,1091
 
-if [[ -n $BASH_VERSION && -z $BASHRC_LOADED && $- == *i* ]]; then
-    true
-else
+[[ -n $BASH_VERSION && -z $BASHRC_LOADED && $- == *i* && ${BASH_VERSINFO[0]} -gt 4 ]] || {
     return
     exit
-fi
+}
 BASHRC_LOADED=true
-# [[ 1 ]] || return
+# NO_BLE=true
+
 shopt -s autocd cdspell cmdhist checkwinsize histappend
 bind "set completion-ignore-case on"
 
 for i in \
     '/etc/bashrc' '/etc/bash.bashrc' \
     "$HOME/bin/vlkenv" \
-    /etc/profile.d/bash_completion.sh \
     "$HOME/bin/vlkrc"; do
-    [[ -f "$i" ]] && . "$i"
+    [[ -r $i ]] && . "$i"
 done
 unset i
-# "$HOME/bin/vlkpromptrc" \
+# /etc/profile.d/bash_completion.sh \
 
-if [[ -n ${PS1:-} && -z ${BASH_COMPLETION_VERSINFO:-} && ${BASH_VERSINFO[0]} -gt 4 ]]; then
+cd() {
+    builtin cd "$@" || return
+    local -i fcount
+    fcount="$(printf '%s\n' ./.* ./* | grep -cEv '\./(\.|)\*$')"
+    if ((fcount < 30)); then
+        "$LS_COMMAND"
+    else
+        echo -e "\e[0;${DIRECTORY_COLOR:=1;34}m${fcount}\e[0m items in this folder"
+    fi
+}
+
+if [[ -z ${BASH_COMPLETION_VERSINFO:-} ]]; then
     [[ -r ${BDOTDIR:-$HOME}/bash_completion ]] && . "${BDOTDIR:-$HOME}/bash_completion"
     shopt -q progcomp && [[ -r /usr/share/bash-completion/bash_completion ]] && . /usr/share/bash-completion/bash_completion
 fi
@@ -38,47 +47,18 @@ if [[ ! -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && command -v git &>/dev/null; the
     builtin cd "$__ble_cwd" || return
     unset __ble_cwd
 fi
-[[ -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && . "$BPLUGIN_DIR/blesh/out/ble.sh" --noattach
-if command -v atuin &>/dev/null && [[ $TERM != linux ]]; then
-    . <(atuin init bash)
+[[ -z $NO_BLE ]] && [[ -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && . "$BPLUGIN_DIR/blesh/out/ble.sh" --noattach
+if [[ $TERM != linux ]] && command -v atuin &>/dev/null; then
+    [[ ! -f "$BDOTDIR/atuin-init.bash" ]] && atuin init bash >"$BDOTDIR/atuin-init.bash"
+    . "$BDOTDIR/atuin-init.bash"
 fi
 
-[[ "${HOSTNAME:=$(hostname)}" != "${CURRENT_HOSTNAME:-ud}" ]] && hcol="@\[\e[94m\]\H\[\e[0m\]"
-PS1="\[\e[0m\]\n\$(r=\"\$?\";((r>0))&&echo \"\[\e[1;91m\]\$r\[\e[0m\] \")\[\e[1m\][\[\e[0;92m\]\u\[\e[0m\]${hcol:-}\[\e[1m\]]\[\e[0m\]\[\e[${DIRECTORY_COLOR:=1;34}m\] \w \[\e[0m\]$ "
-unset PROMPT_COMMAND hcol
+unset PROMPT_COMMAND
+PS1="\[\e[0m\]\n\$(r=\"\$?\";((r>0))&&echo \"\[\e[1;91m\]\$r\[\e[0m\] \")\[\e[1m\][\[\e[0;92m\]\u\[\e[0m\]$([[ "${HOSTNAME:=$(cat /etc/hostname)}" != "${CURRENT_HOSTNAME:-ud}" ]] && echo '@\[\e[94m\]\H\[\e[0m\]')\[\e[1m\]]\[\e[0m\]\[\e[${DIRECTORY_COLOR:=1;34}m\] \w \[\e[0m\]$ "
 
 HISTFILE="$XDG_STATE_HOME/bash_history"
 HISTCONTROL='erasedups:ignoreboth'
 
-printf '%s -%s' "${0##*/}" "$-" | (
-    if command -v figlet &>/dev/null; then
-        figlet -f smslant -w "$COLUMNS"
-    else
-        tee
-    fi
-) | (
-    if command -v lolcat &>/dev/null; then
-        lolcat
-    else
-        tee
-    fi
-)
+printf '%s -%s' "${0##*/}" "$-" | figlet -f smslant -w "$COLUMNS" | lolcat
 
-[[ ${BLE_VERSION:-} ]] && ble-attach
-true
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/usr/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/usr/etc/profile.d/conda.sh" ]; then
-        . "/usr/etc/profile.d/conda.sh"
-    else
-        export PATH="/usr/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-
+[[ $BLE_VERSION ]] && ble-attach || :

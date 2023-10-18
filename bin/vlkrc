@@ -3,20 +3,6 @@
 # vim:foldmethod=marker:ft=sh
 ## shellcheck disable=2139,2317,2012,1090
 
-# _panic() {
-#     local fatal=false
-#     if [[ ${1:-} == '--fatal' ]]; then
-#         fatal=true
-#         shift 1
-#     fi
-#     printf '%s\n' "${@:-Unknown error}" >&2
-#     if $fatal; then
-#         return 1
-#     else
-#         exit 1
-#     fi
-# }
-
 [[ "$-" == *i* ]] || {
     echo "Error, you must source this file with interactive zsh or bash" >&2
     return 1
@@ -146,7 +132,7 @@ else
     alias icat=chafa
 fi
 
-command -v difft &>/dev/null && alias diff=difft
+alias diff=difft
 # command -v duf &>/dev/null && alias df=duf
 command -v dutree &>/dev/null && alias du=dutree
 command -v ouch &>/dev/null && alias extract='ouch decompress'
@@ -168,7 +154,7 @@ alias ttymouse='sudo gpm -m /dev/input/mice -t imps2'
 alias code=codium
 
 alias vi="$EDITOR"
-#alias vim='$EDITOR'
+# alias vim="$EDITOR"
 alias ivm="$EDITOR"
 alias iv="$EDITOR"
 alias v="$EDITOR"
@@ -284,25 +270,15 @@ alias chars='perl -e "foreach(@ARGV){open(my \$f,\"<\",\"\$_\") or die \"\$!\";m
 
 alias ARCH='distrobox-enter -n ARCH'
 
-__cd_ls() {
-    local -i fcount
-    fcount="$($LS_PATH -A1 | wc -l)"
-    ((fcount < 30)) && ls || echo -e "\e[${DIRECTORY_COLOR}m${fcount}\e[0m items in this folder"
-}
 alias fenv='declare | fzf'
 
 if [[ -n "${ZSH_VERSION:-}" ]]; then
     alias refresh='exec zsh'
     alias lsh="hash -dL | sed 's/hash -d //g ; s/=/  \t  /g' | fzf"
     alias aliases='printf "\e[1;93m%s\e[0m = \e[92m%s\e[0m\n" "${(@kv)aliases}"'
-    chpwd_functions+=('__cd_ls')
 
 elif [[ -n "${BASH_VERSION:-}" ]]; then
     alias refresh='exec bash'
-    cd() {
-        builtin cd "$@" || return
-        __cd_ls
-    }
 fi
 
 if command -v grub2-mkconfig &>/dev/null; then

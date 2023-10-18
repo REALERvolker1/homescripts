@@ -287,9 +287,6 @@ ${content[job]}%(${index[transient]}V..${en[job]})\
 ${content[err]}%(${index[transient]}V..${en[err]})\
 ${content[cwd]}${content[end]} "
 
-PROMPT2="${set[sgr_full]}${cbg[ps2]}${txc[l]} %_ ${set[sgr]}${cfg[ps2]}${set[sud_end_notransient]} "
-PROMPT3="${set[sgr_full]}${cbg[ps3]}${txc[l]} %# ${set[sgr]}${cfg[ps3]}${set[sud_end_notransient]} "
-
 autoload -Uz vcs_info
 zstyle ':vcs_info:*' enable git
 zstyle ':vcs_info:git:*' use-simple 'true'
@@ -407,10 +404,10 @@ zle -N zle-keymap-select __vlkprompt-zle-keymap-select
 
 __vlkprompt-zle-line-init() {
     [[ \$CONTEXT == start ]] || return 0
-    ((\$+zle_bracketed_paste)) && print -r -n - "\${zle_bracketed_paste[1]}"
+    ((\${+zle_bracketed_paste})) && print -r -n - "\${zle_bracketed_paste[1]}"
     zle recursive-edit
     local -i ret=\$?
-    ((\$+zle_bracketed_paste)) && print -r -n - "\${zle_bracketed_paste[2]}"
+    ((\${+zle_bracketed_paste})) && print -r -n - "\${zle_bracketed_paste[2]}"
     if [[ \$ret == 0 && \$KEYS == \$'\4' ]]; then
         psvar[${index[transient]}]=1
         zle reset-prompt
@@ -444,6 +441,8 @@ zshenv_content=''
 [[ -f $zshenv ]] && zshenv_content="$(grep -v -e '# vlkprompt-zshenv,' -e 'PROMPT4=' -e '^\s*$' "$zshenv")"
 echo "${zshenv_content:+$zshenv_content
 }# vlkprompt-zshenv, $promptgendate
+PROMPT2='${set[sgr_full]}${cbg[ps2]}${txc[l]} %_ ${set[sgr]}${cfg[ps2]}${set[sud_end_notransient]} '
+PROMPT3='${set[sgr_full]}${cbg[ps3]}${txc[l]} %# ${set[sgr]}${cfg[ps3]}${set[sud_end_notransient]} '
 PROMPT4='${set[sgr]}${cbg[ps4_i]}${txc[l]} %i ${set[sgr]}${cfg[ps4_i]}${cbg[ps4_n]}${set[end]}${cfg[ps4_n]}${txc[l]} %N ${set[sgr]}${cfg[ps4_n]}${set[end]}${set[sgr]} '" >"$zshenv"
 
 if command -v conda &>/dev/null; then

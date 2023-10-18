@@ -46,7 +46,7 @@ export ENV="$XDG_CONFIG_HOME/dashrc" ZDOTDIR="$XDG_CONFIG_HOME/zsh" BDOTDIR="$XD
 
 export LESSOPEN="||/usr/bin/lesspipe.sh %s"
 # LS customization
-export LS_PATH="${LS_PATH:-/usr/bin/ls}" WHICH_PATH="${WHICH_PATH:-/usr/bin/which}" RM_PATH="${RM_PATH:=/usr/bin/rm}"
+export LS_PATH="${LS_PATH:-/usr/bin/ls}" WHICH_PATH="${WHICH_PATH:-/usr/bin/which}" RM_PATH="${RM_PATH:=/usr/bin/rm}" VIM_PATH="${VIM_PATH:=/usr/bin/vim}"
 export LA_COMMAND="$LS_PATH --color=auto --group-directories-first -A"
 if command -v lsd >/dev/null 2>&1; then
     export LS_COMMAND='lsd' LL_COMMAND='lsd -l'

@@ -19,6 +19,7 @@ keymap[As]='^[s'
 keymap[AshiftS]='^[S'
 keymap[Cz]="^Z"
 keymap[Cy]="^Y"
+keymap[Ce]="^E"
 
 bindkey "${keymap[home]}" beginning-of-line
 bindkey "${keymap[end]}" end-of-line
@@ -40,16 +41,20 @@ bindkey -M vicmd "${keymap[backspace_two]}" backward-delete-char
 bindkey -M vicmd "${keymap[Cz]}" undo
 bindkey -M vicmd "${keymap[Cy]}" redo
 
-__zle_vlk_sudo_prefix() {
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey $keymap[Ce] edit-command-line
+
+__zle-vlk-sudo-prefix() {
     [[ $BUFFER == [[:space:]]# ]] && zle .up-history
     LBUFFER="sudo $LBUFFER"
 }
 
-zle -N __zle_vlk_sudo_prefix
-bindkey -M main "${keymap[AshiftS]}" __zle_vlk_sudo_prefix
+zle -N __zle-vlk-sudo-prefix
+bindkey -M main "${keymap[AshiftS]}" __zle-vlk-sudo-prefix
 bindkey -M main "${keymap[As]}" expand-cmd-path
 
-__zle_vlk_replace_multiple_dots() {
+__zle-vlk-replace-multiple-dots() {
     local dots=$LBUFFER[-3,-1]
     if [[ $dots =~ "^[ //\"']?\.\.$" ]]; then
         LBUFFER=$LBUFFER[1,-3]'../.'
@@ -57,13 +62,17 @@ __zle_vlk_replace_multiple_dots() {
     zle self-insert
 }
 
-zle -N __zle_vlk_replace_multiple_dots
-bindkey "." __zle_vlk_replace_multiple_dots
+# __vlk-zle-replace-exclamation-points() {
+#     local points=$LBUFFER[-2,-1]
+#     if [[ $points =~ "^[ //\"']?\.\.$" ]]; then
+# }
+zle -N __zle-vlk-replace-multiple-dots
+bindkey "." __zle-vlk-replace-multiple-dots
 
-__zle_vlk_expand_alias() {
+__zle-vlk-expand-alias() {
     zle _expand_alias
     zle self-insert
     zle backward-delete-char
 }
-zle -N __zle_vlk_expand_alias
-bindkey -M main "${keymap[Ca]}" __zle_vlk_expand_alias
+zle -N __zle-vlk-expand-alias
+bindkey -M main "${keymap[Ca]}" __zle-vlk-expand-alias

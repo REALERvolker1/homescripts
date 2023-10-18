@@ -21,7 +21,7 @@ for i in \
     rnd="$HOME/random" \
     i3="$XDG_CONFIG_HOME/i3" \
     hypr="$XDG_CONFIG_HOME/hypr"; do
-    hash -d "$i"
+    hash -d $i
 done
 fpath=("$ZDOTDIR/site-functions" $fpath)
 export -U PATH path FPATH fpath
@@ -38,14 +38,20 @@ PROMPT='%k%f
 %B %F{14}%~%f %(0?.%F{10}%#.%F{9}%? %#) %b%f'
 ZLE_RPROMPT_INDENT=0
 PROMPT_EOL_MARK=''
-TMPPREFIX="${XDG_RUNTIME_DIR:-/tmp}/zsh"
+TMPPREFIX="$XDG_RUNTIME_DIR/zsh"
 
 export ZPLUGIN_DIR="$XDG_DATA_HOME/zsh-plugins"
-__vlk_zsh_plugins=(
-    "Aloxaf/fzf-tab"
-    "zdharma-continuum/fast-syntax-highlighting"
-    "zsh-users/zsh-autosuggestions"
-)
+# __vlk_zsh_plugins=(
+#     "Aloxaf/fzf-tab"
+#     "zdharma-continuum/fast-syntax-highlighting"
+#     "zsh-users/zsh-autosuggestions"
+# )
 for i in "$ZDOTDIR/functions"/^*.zwc(.N); do
     [[ -f "$i" ]] && autoload -Uz "$i"
 done
+
+chpwd_functions+=('__cd_ls')
+
+# __cd_ls() {
+
+# }
