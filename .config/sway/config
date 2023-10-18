@@ -1,35 +1,87 @@
-# Default config for sway
-#
-# Copy this to ~/.config/sway/config and edit it to your liking.
-#
-# Read `man 5 sway` for a complete reference.
+# vim:foldmethod=marker:ft=i3config
 
-### Variables
-#
-# Logo key. Use Mod1 for Alt.
+set $exec exec --no-startup-id
+set $execa exec_always --no-startup-id
+
+set $gapsize 0
+set $gapsize-alt 10
+
 set $mod Mod4
-# Home row direction keys, like vim
-set $left h
-set $down j
-set $up k
-set $right l
-# Your preferred terminal emulator
-set $term vlk-sensible-terminal 1
-# Your preferred application launcher
-# Note: pass the final command to swaymsg so that the resulting window can be opened
-# on the original workspace that the command was run on.
-#set $menu dmenu_path | dmenu | xargs swaymsg exec --
-set $menu rofi -modes 'run,drun' -show drun -sidebar-mode
-### Output configuration
-#
-# Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+set $alt Mod1
+set $mods Mod4+shift
+set $modc Mod4+ctrl
+set $moda Mod4+Mod1
+set $modcs Mod4+ctrl+shift
+set $modas Mod4+Mod1+shift
+
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10"
+
+workspace $ws1 output eDP-1
+workspace $ws2 output DP-1 DP-1-0 eDP-1
+workspace $ws3 output eDP-1
+workspace $ws4 output DP-1 DP-1-0 eDP-1
+workspace $ws5 output eDP-1
+workspace $ws6 output DP-1 DP-1-0 eDP-1
+workspace $ws7 output eDP-1
+workspace $ws8 output DP-1 DP-1-0 eDP-1
+
+font pango:monospace bold 12
+mouse_warping output
+
+$exec "$XDG_CONFIG_HOME/sway/autostart.sh"
+$execa "$XDG_CONFIG_HOME/sway/exec-always.sh"
+
+include app-ids.i3
+include keybinds.i3
+
+gaps inner $gapsize
+default_border pixel 1
+default_floating_border normal
+smart_gaps on
+smart_borders on
+
+#for_window [all] title_window_icon on
+#for_window [all] title_format "%title :: %class"
+
+set $activeBorder #af99ff
+set $activeMain #7b57ffA0
+set $lessactBorder #61aeeeC0
+set $lessactMain #aba2DfA0
+set $inactBorder #272B3350
+set $inactMain #272B3350
+set $urgentBorder #FF5050FF
+set $urgentMain #FF5050DD
+set $text0 #FFFFFF
+set $text1 #FFFFFF
+
+# class                  border           background       text   indicator         child_border
+client.focused          $activeBorder   $activeMain     $text0 $activeMain      $activeBorder
+client.focused_inactive $lessactBorder  $lessactMain    $text0 $lessactMain     $lessactBorder
+client.unfocused        $inactBorder    $inactMain      $text1 $inactMain       $inactBorder
+client.urgent           $urgentBorder   $urgentMain     $text0 $urgentBorder    $urgentMain
+client.placeholder      $lessactBorder  $lessactMain    $text0 $lessactMain     $lessactBorder
+client.background       #FFFFFF
+
+output * bg $XDG_DATA_HOME/backgrounds/fedora/one-dark-fedora.png fill
+
+# output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
 #
 # Example configuration:
 #
 #   output HDMI-A-1 resolution 1920x1080 position 1920,0
 #
 # You can get the names of your outputs by running: swaymsg -t get_outputs
+output eDP-1 position 1920,0
+output DP-1 position 0,0
 
 ### Idle configuration
 #
@@ -44,177 +96,47 @@ output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
 # your displays after another 300 seconds, and turn your screens back on when
 # resumed. It will also lock your screen before your computer goes to sleep.
 
-### Input configuration
-#
-# Example configuration:
-#
-#   input "2:14:SynPS/2_Synaptics_TouchPad" {
-#       dwt enabled
-#       tap enabled
-#       natural_scroll enabled
-#       middle_emulation enabled
-#   }
-#
-# You can get the names of your inputs by running: swaymsg -t get_inputs
-# Read `man 5 sway-input` for more information about this section.
-
-### Key bindings
-#
-# Basics:
-#
-    # Start a terminal
-    bindsym $mod+Return exec $term
-
-    # Kill focused window
-    bindsym $mod+q kill
-
-    # Start your launcher
-    bindsym $mod+d exec $menu
-
-    # Drag floating windows by holding down $mod and left mouse button.
-    # Resize them with right mouse button + $mod.
-    # Despite the name, also works for non-floating windows.
-    # Change normal to inverse to use left mouse button for resizing and right
-    # mouse button for dragging.
-    floating_modifier $mod normal
-
-    # Reload the configuration file
-    bindsym $mod+Shift+r reload
-
-    bindsym $mod+Escape exec rofi -show powermenu
-    bindsym $mod+equal exec vlklock.sh
-
-    bindsym --release Print exec vlk-sensible-screenshot --region
-#
-# Moving around:
-#
-    # Move your focus around
-    bindsym $mod+$left focus left
-    bindsym $mod+$down focus down
-    bindsym $mod+$up focus up
-    bindsym $mod+$right focus right
-    # Or use $mod+[up|down|left|right]
-    bindsym $mod+Left focus left
-    bindsym $mod+Down focus down
-    bindsym $mod+Up focus up
-    bindsym $mod+Right focus right
-
-    # Move the focused window with the same, but add Shift
-    bindsym $mod+Shift+$left move left
-    bindsym $mod+Shift+$down move down
-    bindsym $mod+Shift+$up move up
-    bindsym $mod+Shift+$right move right
-    # Ditto, with arrow keys
-    bindsym $mod+Shift+Left move left
-    bindsym $mod+Shift+Down move down
-    bindsym $mod+Shift+Up move up
-    bindsym $mod+Shift+Right move right
-#
-# Workspaces:
-#
-    # Switch to workspace
-    bindsym $mod+1 workspace number 1
-    bindsym $mod+2 workspace number 2
-    bindsym $mod+3 workspace number 3
-    bindsym $mod+4 workspace number 4
-    bindsym $mod+5 workspace number 5
-    bindsym $mod+6 workspace number 6
-    bindsym $mod+7 workspace number 7
-    bindsym $mod+8 workspace number 8
-    bindsym $mod+9 workspace number 9
-    bindsym $mod+0 workspace number 10
-    # Move focused container to workspace
-    bindsym $mod+Shift+1 move container to workspace number 1
-    bindsym $mod+Shift+2 move container to workspace number 2
-    bindsym $mod+Shift+3 move container to workspace number 3
-    bindsym $mod+Shift+4 move container to workspace number 4
-    bindsym $mod+Shift+5 move container to workspace number 5
-    bindsym $mod+Shift+6 move container to workspace number 6
-    bindsym $mod+Shift+7 move container to workspace number 7
-    bindsym $mod+Shift+8 move container to workspace number 8
-    bindsym $mod+Shift+9 move container to workspace number 9
-    bindsym $mod+Shift+0 move container to workspace number 10
-    # Note: workspaces can have any name you want, not just numbers.
-    # We just use 1-10 as the default.
-#
-# Layout stuff:
-#
-    # You can "split" the current object of your focus with
-    # $mod+b or $mod+v, for horizontal and vertical splits
-    # respectively.
-    bindsym $mod+b splith
-    bindsym $mod+v splitv
-
-    # Switch the current container between different layout styles
-    bindsym $mod+s layout stacking
-    bindsym $mod+w layout tabbed
-    bindsym $mod+e layout toggle split
-
-    # Make the current focus fullscreen
-    bindsym $mod+f fullscreen
-
-    # Toggle the current focus between tiling and floating mode
-    bindsym $mod+Shift+space floating toggle
-
-    # Swap focus between the tiling area and the floating area
-    bindsym $mod+space focus mode_toggle
-
-    # Move focus to the parent container
-    bindsym $mod+a focus parent
-#
-# Scratchpad:
-#
-    # Sway has a "scratchpad", which is a bag of holding for windows.
-    # You can send windows there and get them back later.
-
-    # Move the currently focused window to the scratchpad
-    bindsym $mod+Shift+minus move scratchpad
-
-    # Show the next scratchpad window or hide the focused scratchpad window.
-    # If there are multiple scratchpad windows, this command cycles through them.
-    bindsym $mod+minus scratchpad show
-#
-# Resizing containers:
-#
-mode "resize" {
-    # left will shrink the containers width
-    # right will grow the containers width
-    # up will shrink the containers height
-    # down will grow the containers height
-    bindsym $left resize shrink width 10px
-    bindsym $down resize grow height 10px
-    bindsym $up resize shrink height 10px
-    bindsym $right resize grow width 10px
-
-    # Ditto, with arrow keys
-    bindsym Left resize shrink width 10px
-    bindsym Down resize grow height 10px
-    bindsym Up resize shrink height 10px
-    bindsym Right resize grow width 10px
-
-    # Return to default mode
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
+input type:keyboard {
+    xkb_numlock enabled
+    xkb_capslock disabled
+    xkb_options caps:escape
 }
-bindsym $mod+r mode "resize"
 
-#
-# Status Bar:
-#
-# Read `man 5 sway-bar` for more information about this section.
+input type:pointer {
+    accel_profile flat
+    pointer_accel 0
+}
+
+#input "2362:8195:ASUP1205:00_093A:2003_Touchpad" {
+input type:touchpad {
+    accel_profile adaptive
+    dwt enabled
+    events disabled_on_external_mouse
+    natural_scroll enabled
+    scroll_method two_finger
+    tap enabled
+}
+
 bar {
-    position top
-
-    # When the status_command prints a new line to stdout, swaybar updates.
-    # The default just shows the current date and time.
-    #status_command while date +'%Y-%m-%d %I:%M:%S %p'; do sleep 1; done
-    status_command i3status-rs
-
     colors {
-        statusline #ffffff
-        background #323232
-        inactive_workspace #32323200 #32323200 #5c5c5c
+        background #00000000
+        statusline $text0
+        focused_workspace $activeBorder $activeMain $text0
+        active_workspace $lessactBorder $lessactMain $text0
+        inactive_workspace #00000000 $inactMain $text1
+        urgent_workspace $urgentBorder $urgentMain $text0
     }
+    workspace_buttons yes
+    workspace_min_width 30
+    strip_workspace_numbers no
+    binding_mode_indicator yes
+    position top
+    #padding 1px
+    tray_output eDP-1
+    #tray_output none
+    tray_padding 0
+    #i3bar_command i3bar --transparency
+    status_command i3status-rs
 }
 
 include /etc/sway/config.d/*

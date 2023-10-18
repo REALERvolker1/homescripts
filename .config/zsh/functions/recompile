@@ -3,27 +3,26 @@
 local -a plugins
 local i
 
+# echo 'command -v atuin &>/dev/null || return'
+# echo '[[ "$TERM" == "linux" ]] && return'
 if command -v atuin &>/dev/null; then
     (
-        echo 'command -v atuin &>/dev/null || return'
-        echo '[[ "$TERM" == "linux" ]] && return'
+        echo '[[ "$TERM" != "linux" ]] && command -v atuin &>/dev/null || return'
         atuin init zsh | grep -vE '(echoti|^[[:space:]]*#|^[[:space:]]*$)'
     ) >"$ZDOTDIR/rc.d/60-atuin.defer.zsh"
 fi
 
-for i in "$ZDOTDIR/rc.d/"*.zsh; do
-    plugins+=("$i")
-done
-
+# for i in "$ZDOTDIR/rc.d/"*.zsh; do
+#     plugins+=("$i")
+# done
 plugins+=(
+    "$ZDOTDIR/rc.d/"*.zsh
     "$ZDOTDIR/.zshrc"
     "$ZDOTDIR/.zshenv"
     "$ZDOTDIR/.zprofile"
 )
 
-command -p rm -f "$ZDOTDIR/rc.d"/*.zwc
-
-for i in "${plugins[@]}"; do
-    [ -f "$i.zwc" ] && command -p rm -f "$i.zwc"
-    [ -f "$i" ] && zcompile "$i"
-done
+foreach i ($plugins) {
+    [ -f "$i.zwc" ] && command -p rm -f "$i.zwc" && print -P "%F{9}Removed %B${i}.zwc%b%f"
+    [ -f "$i" ] && zcompile "$i" && print -P "%F{10}Compiled %B${i}%b%f"
+}

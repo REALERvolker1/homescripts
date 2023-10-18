@@ -1,0 +1,51 @@
+#!/dev/null
+# dumbfetch.sh
+# dumfech
+local boxcolor="[0;38;5;$((RANDOM % 255))m"
+local cachefile="$XDG_RUNTIME_DIR/dumfech-$XDG_SESSION_ID.cache"
+[[ ! -f $cachefile ]] && (
+        echo "Saving to cache" >&2
+        df -h -l -t btrfs -t xfs -t ext4 -t exfat --output=pcent | uniq | xargs | sed 's/Use%[[:space:]]*//'
+        nvidia-settings -v | grep -oP 'version\s\K[^\s]+'
+        echo "${$(uname -r)%%-*}"
+    ) >"$cachefile"
+
+# ik I'm cheating here a bit with a cachefile, but idk, it's a performance thing
+local -a cached=("${(f)$(<$cachefile)}")
+local -a props=(
+    "${SHLVL:-999}"
+    "${${${${$(uptime -p)}#up }//hour/hr}//minute/min}"
+    "${TERM:-Undefined}"
+    "${cached[1]}"
+    "${cached[2]}"
+    "${cached[3]}"
+)
+
+# run figlet -- "$USER"
+
+local -i len=${${(On)${(N)${props}%%*}}[1]}
+local lenstr="${boxcolor}╭────────────────┬─────────────${$(printf "%-${len}s\n" '')// /─}╮[0m"
+
+echo "$lenstr"
+printf "${boxcolor}│[0;92m%s${boxcolor}│[0;%s   [1m%-${len}s ${boxcolor}│[0m\n" \
+    '        _ _     ' '94m  SHLVL ' "${props[1]}" \
+    ' __   _| | | __ ' '95m 󰅐 Uptime' "${props[2]}" \
+    ' \ \ / / | |/ / ' '96m  Term  ' "${props[3]}" \
+    '  \ V /| |   <  ' '93m 󰋊 Disk  ' "${props[4]}" \
+    '   \_/ |_|_|\_\ ' '92m 󰾲 Nvidia' "${props[5]}" \
+    '                ' '91m  Kernel' "${props[6]}"
+echo "${${${lenstr/╭/╰}/┬/┴}/╮/╯}"
+
+fortune -a -s | lolcat
+[[ ! -f "$XDG_CACHE_HOME/lsdiff.zsh.cache" || -n ${VLKZSH_LSDIFF_UPDATE:-} ]] && print -l "$HOME"/(.|)* >"$XDG_CACHE_HOME/lsdiff.zsh.cache" && return
+local -a cache=(${(f@Q)$(<"$XDG_CACHE_HOME/lsdiff.zsh.cache")})
+local -a current=("$HOME"/(.|)*)
+if [[ ${cache[*]} != ${current[*]} ]] {
+    local current_stuff=(${current:|cache})
+    local oldifs="$IFS"
+    local IFS=$'\n'
+    local -a current_fmt=($([[ -z ${current_stuff:-} ]] || lsd --ignore-config -AL1 --icon=always --color=always $current_stuff ))
+    print -C 2 ${${current_fmt//$HOME\//}/#/[92m+[0m } ${${${${cache:|current}##*/}/#/[91m-[1m }/%/[0m}
+    IFS="$oldifs"
+}
+return 0

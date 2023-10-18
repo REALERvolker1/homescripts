@@ -1,5 +1,4 @@
-command -v atuin &>/dev/null || return
-[[ "$TERM" == "linux" ]] && return
+[[ "$TERM" != "linux" ]] && command -v atuin &>/dev/null || return
 autoload -U add-zsh-hook
 export ATUIN_SESSION=$(atuin uuid)
 export ATUIN_HISTORY="atuin history list"

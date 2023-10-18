@@ -10,17 +10,18 @@ if [ -n "${CONTAINER_ID:-}" ]; then
     prop4="${CONTAINER_ID:-}"
     prop4_label='󰏖 Distbx'
 else
-    prop4="$(
-        if command -v 'rpm' >/dev/null 2>&1; then
-            rpm -q xorg-x11-drv-nvidia | cut -d '-' -f 5
-        elif command -v 'pacman' >/dev/null 2>&1; then
-            pacman -Q nvidia-dkms 2>/dev/null | grep -oP '^.* \K[^-]*'
-        elif command -v 'apt' >/dev/null 2>&1; then
-            apt list 2>/dev/null | grep -m 1 nvidia-driver | cut -d ' ' -f 2
-        else
-            echo 'unsupported distro'
-        fi
-    )"
+    prop4="$(nvidia-settings -v | grep -oP 'version\s\K[^\s]+')"
+    # prop4="$(
+    #     if command -v 'rpm' >/dev/null 2>&1; then
+    #         rpm -q xorg-x11-drv-nvidia | cut -d '-' -f 5
+    #     elif command -v 'pacman' >/dev/null 2>&1; then
+    #         pacman -Q nvidia-dkms 2>/dev/null | grep -oP '^.* \K[^-]*'
+    #     elif command -v 'apt' >/dev/null 2>&1; then
+    #         apt list 2>/dev/null | grep -m 1 nvidia-driver | cut -d ' ' -f 2
+    #     else
+    #         echo 'unsupported distro'
+    #     fi
+    # )"
     prop4_label='󰾲 Nvidia'
 fi
 prop5="$(uname -r | grep -o '^[^-]*-[^.]*')"
@@ -29,6 +30,7 @@ len=0
 for i in "$prop1" "$prop2" "$prop3" "$prop4" "$prop5"; do
     [ "${#i}" -gt "$len" ] && len="${#i}"
 done
+# could literally be done in zsh with a single simple expansion ${${(On)${(N)props%%*}}[1]}
 
 # length_string="$(printf "%-${len}s\n" '' | sed 's/ /─/g')"
 length_string="$(printf "%0.s─" $(seq 1 "$len"))"

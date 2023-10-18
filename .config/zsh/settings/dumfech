@@ -1,0 +1,34 @@
+local boxcolor="[0;38;5;$((RANDOM % 255))m"
+local cachefile="$XDG_RUNTIME_DIR/dumfech-$XDG_SESSION_ID.cache"
+if [[ ! -f $cachefile ]] {
+    (
+        df -h -l -t btrfs -t xfs -t ext4 -t exfat --output=pcent | uniq | xargs | sed 's/Use%[[:space:]]*//'
+        nvidia-settings -v | grep -oP 'version\s\K[^\s]+'
+        echo "${$(uname -r)%%-*}"
+    ) >"$cachefile"
+}
+# ik I'm cheating here a bit with a cachefile, but idk, it's a performance thing
+local cached=("${(f)$(<$cachefile)}")
+local -a props=(
+    "${SHLVL:-999}"
+    "${${${${$(uptime -p)}#up }//hour/hr}//minute/min}"
+    "${TERM:-Undefined}"
+    "${cached[1]}"
+    "${cached[2]}"
+    "${cached[3]}"
+)
+
+# run figlet -- "$USER"
+
+local -i len=${${(On)${(N)${props}%%*}}[1]}
+local lenstr="${boxcolor}╭────────────────┬─────────────${$(printf "%-${len}s\n" '')// /─}╮[0m"
+
+echo "$lenstr"
+printf "${boxcolor}│[0;92m%s${boxcolor}│[0;%s   [1m%-${len}s ${boxcolor}│[0m\n" \
+    '        _ _     ' '94m  SHLVL ' "${props[1]}" \
+    ' __   _| | | __ ' '95m 󰅐 Uptime' "${props[2]}" \
+    ' \ \ / / | |/ / ' '96m  Term  ' "${props[3]}" \
+    '  \ V /| |   <  ' '93m 󰋊 Disk  ' "${props[4]}" \
+    '   \_/ |_|_|\_\ ' '92m 󰾲 Nvidia' "${props[5]}" \
+    '                ' '91m  Kernel' "${props[6]}"
+echo "${${${lenstr/╭/╰}/┬/┴}/╮/╯}"
