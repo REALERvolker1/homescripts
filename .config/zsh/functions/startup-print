@@ -4,7 +4,7 @@
 local boxcolor="[0;38;5;$((RANDOM % 255))m"
 local cachefile="$XDG_RUNTIME_DIR/dumfech-$XDG_SESSION_ID.cache"
 [[ ! -f $cachefile ]] && (
-        echo "Saving to cache" >&2
+        #echo "Saving to cache" >&2
         df -h -l -t btrfs -t xfs -t ext4 -t exfat --output=pcent | uniq | xargs | sed 's/Use%[[:space:]]*//'
         nvidia-settings -v | grep -oP 'version\s\K[^\s]+'
         echo "${$(uname -r)%%-*}"

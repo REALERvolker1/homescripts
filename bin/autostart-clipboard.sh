@@ -13,7 +13,9 @@ __cexec() {
 }
 
 if [ -n "${WAYLAND_DISPLAY:-}" ]; then
-    __cexec 'wl-clip-persist' --clipboard both
+    #__cexec 'wl-clip-persist' --clipboard both
+    [ -f "$XDG_RUNTIME_DIR/clipman.hsts" ] && rm -f "$XDG_RUNTIME_DIR/clipman.hsts"
+    __cexec wl-paste -t text --watch clipman store --histpath="$XDG_RUNTIME_DIR/clipman.hsts"
 elif [ -n "${DISPLAY:-}" ]; then
     monitor_path="$XDG_CONFIG_HOME/shell/rustcfg/clipboard-monitor"
     monitor_bin="$monitor_path/target/release/clipboard-monitor"

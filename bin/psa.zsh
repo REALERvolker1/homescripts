@@ -108,6 +108,7 @@ select action in ${(%)actions}; do
             until [[ -n ${ans:-} ]] { read ans; }
             if [[ $ans == 'y' ]]; then
                 kill $pid
+                exit 0
             else
                 echo "Process was not killed."
             fi

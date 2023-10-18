@@ -1,3 +1,7 @@
+### completions:
+# https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/cpanm/_cpanm
+#
+
 for i in \
     "Aloxaf/fzf-tab" \
     "zdharma-continuum/fast-syntax-highlighting" \

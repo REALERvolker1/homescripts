@@ -12,7 +12,22 @@
 : "${DIRECTORY_COLOR:=1;34}"
 
 #__which="$(which --skip-alias which)"
-alias which="( alias; declare -f ) | ${WHICH_PATH:=/bin/which} --tty-only --read-alias --read-functions --show-tilde --show-dot"
+__which() {
+    local which_output
+    which_output="$(
+        (
+            alias
+            declare -f
+        ) |
+            "${WHICH_PATH:-/bin/which}" --tty-only --read-alias --read-functions --show-tilde --show-dot "$@"
+    )"
+    echo "$which_output" | sed "s|^$HOME|~|"
+    if [[ -L "${which_output:-}" ]]; then
+        echo -e "symlink to \e[1;96m$(realpath "$which_output")\e[0m"
+    fi
+}
+# alias which="( alias; declare -f ) | ${WHICH_PATH:=/bin/which} --tty-only --read-alias --read-functions --show-tilde --show-dot"
+alias which=__which
 alias whihc=which
 
 __homebin="$HOME/bin"
@@ -123,6 +138,7 @@ if [[ -d "$HOME/src/text-generation-webui" ]]; then
 fi
 #alias llama="cd $HOME/src/text-generation-webui && conda run -vvv -n textgen python ./server.py"
 
+alias download='curl -sfLO '
 alias ytmp3="yt-dlp --extract-audio --audio-format mp3 "
 alias ytmp4="yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --progress --remux-video mp4 "
 
@@ -135,7 +151,7 @@ fi
 alias diff=difft
 # command -v duf &>/dev/null && alias df=duf
 command -v dutree &>/dev/null && alias du=dutree
-command -v ouch &>/dev/null && alias extract='ouch decompress'
+# command -v ouch &>/dev/null && alias extract='ouch decompress'
 
 alias unfuck-old-backup='tar --hole-detection=seek --keep-directory-symlink -xzf '
 

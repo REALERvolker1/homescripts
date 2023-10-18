@@ -1,5 +1,7 @@
 # vim:foldmethod=marker:ft=i3config
 
+xwayland disable
+
 set $exec exec --no-startup-id
 set $execa exec_always --no-startup-id
 
