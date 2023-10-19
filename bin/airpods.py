@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # script originally from https://github.com/A-delta/zsh-airpods-battery
 # modified to death by vlk
 

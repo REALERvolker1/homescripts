@@ -20,6 +20,7 @@ for i in \
     run="$XDG_RUNTIME_DIR" \
     rnd="$HOME/random" \
     i3="$XDG_CONFIG_HOME/i3" \
+    sway="$XDG_CONFIG_HOME/sway" \
     hypr="$XDG_CONFIG_HOME/hypr"; do
     hash -d $i
 done

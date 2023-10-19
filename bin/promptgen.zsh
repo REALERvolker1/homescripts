@@ -172,7 +172,7 @@ content[err]="%(0?..${cbg[err]}${txc[l]}${icn[err]} %? )"
 endbg[err]="%(0?.${endbg[cwd]}.${cbg[err]})"
 en[err]="%(0?..${set[sgr]}${endbg[cwd]}${cfg[err]}${set[end]}${set[sgr]})"
 
-content[job]="%(1j.${cbg[job]}${txc[d]}${icn[err]} %j .)"
+content[job]="%(1j.${cbg[job]}${txc[d]}${icn[job]} %j .)"
 # endfg[job]="%(1j.${cfg[job]}.${endfg[err]})"
 endbg[job]="%(1j.${cbg[job]}.${endbg[err]})"
 en[job]="%(1j.${set[sgr]}${endbg[err]}${cfg[job]}${set[end]}${set[sgr]}.)"

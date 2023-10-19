@@ -11,12 +11,15 @@ zstyle ':completion:*'              verbose             true
 zstyle ':completion::complete:*'    use-cache           true
 zstyle ':completion:*:manuals'      separate-sections   true
 zstyle ':completion:*:*:*:*:processes' command "ps -e -u $USER -o pid,user,comm -w -w"
+zstyle ':completion:*'              use-cache on
+#zstyle ':completion:*:*:cp:*' file-sort size
 
 # fzf completion config
 # $ZDOTDIR/settings/fzf-preview.sh
 zstyle ':fzf-tab:complete:*:*' fzf-preview 'txtpreview.sh ${(Q)realpath}'
 #zstyle ':fzf-tab:complete:*:*' fzf-preview 'env LESSOPEN="|$ZDOTDIR/settings/lessfilter.sh %s" less ${(Q)realpath}'
 
+#zstyle ':fzf-tab:complete:*:*:cp:*' file-sort size
 zstyle ':fzf-tab:complete:(kill|ps):argument-rest' 'fzf-preview [[ ${group:-} == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
 zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=right:'30%':wrap
 

@@ -101,6 +101,8 @@ alias %="$__homebin/\$"
 alias copy="$__homebin/copy"
 alias copycat="$__homebin/copy --cat"
 
+alias ple='perl -wlne '
+
 alias grep="grep --color=auto"
 alias egrep="egrep --color=auto"
 alias fgrep="fgrep --color=auto"
@@ -122,8 +124,14 @@ alias batop=battop
 alias battio=battop
 
 # OpenAI whisper -- run `pip install --user --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git` and `pip install --user blobfile`
-command -v whisper &>/dev/null && alias whisp='whisper --language en --device cuda --model medium.en --output_format txt'
-# --word_timestamps True
+#command -v whisper &>/dev/null && alias whisp='whisper --language en --device cuda --model medium.en --output_format txt'
+
+whisp() {
+    conda activate whisp
+    echo "starting whisper with args '--language en --device cuda --model medium.en --output_format txt $*'"
+    whisper --language en --device cuda --model medium.en --output_format txt "$@"
+    conda deactivate
+}
 
 if [[ -d "$HOME/src/text-generation-webui" ]]; then
     llama() {
