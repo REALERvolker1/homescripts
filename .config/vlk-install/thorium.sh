@@ -1,8 +1,3 @@
-#!/bin/bash
-
-# required
-unset name githubrepo payload decompresscmd cmds links
-
 # name of the pkg
 name='thorium'
 # author/project name of the github repo
@@ -18,9 +13,11 @@ i_int=\"\${i%.*}\"; i_int=\"\${i_int##*_}\"
 i_folder=\"$XDG_DATA_HOME/icons/hicolor/\${i_int}x\${i_int}/apps\"
 mkdir -p \"\$i_folder\"
 ln -sf \"\$i\" \"\${i_folder}/thorium.png\"
-done"
+done
+ln -sf \"\$(pwd)/thorium\" \"$HOME/.local/bin/thorium-browser\"
+ln -sf \"\$(pwd)/thorium-portable.desktop\" \"${XDG_DATA_HOME:=$HOME/.local/share}/applications/\""
 # files to install (symlink target*destination/)
-declare -a links=(
-    "thorium*$HOME/.local/bin/thorium-browser"
-    "thorium-portable.desktop*${XDG_DATA_HOME:=$HOME/.local/share}/applications/"
-)
+# declare -a links=(
+#     "thorium*$HOME/.local/bin/thorium-browser"
+#     "thorium-portable.desktop*${XDG_DATA_HOME:=$HOME/.local/share}/applications/"
+# )

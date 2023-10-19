@@ -12,11 +12,41 @@ _panic() {
     exit "${retval:-1}"
 }
 
+_icon_install() {
+    # resizes icons to a specific size and then installs them
+    local icon="${1:-}"
+    local icon_name="${2:-}"
+    [[ ! -f "$icon" ]] && _panic "Error, specified icon '$icon' does not exist!"
+    [[ -z "${icon_name:-}" ]] && icon_name="${icon##*/}"
+
+    local i i_target
+    for i in 16 24 32 48 64 128 256; do
+        i_target="$XDG_DATA_HOME/icons/hicolor/${i}x${i}/apps/$icon_name"
+        mkdir -p "${i_target%/*}"
+        [[ -f "$i_target" ]] && continue
+        convert "$icon" -resize "${i}x${i}" "$i_target"
+    done
+}
+
 _install_package() {
+    local installfile="${1:-}"
+    [[ ! -f $installfile ]] && _panic "Error, failed to install '$installfile'"
+    echo "${installfile##*/}"
+    unset name githubrepo payload decompresscmd cmds
+    source "$installfile" || _panic "Failed to source $installfile"
+
+    local i
+    # double check user installfile
+    # eval "$(
+    #     for i in name githubrepo payload decompresscmd cmds; do
+    #         echo "[[ -z \"\${$i:-}\" ]] && _panic 'Error, variable $i not properly defined!'"
+    #     done
+    # )"
+
     # internal variables per-package
-    installdir="$HOME/.local/opt/$name"
-    versionfile="${XDG_CACHE_HOME:-$HOME/.cache}/vlk-install/${name}.version"
-    mycache="${XDG_CACHE_HOME:-$HOME/.cache}/vlk-install/$name"
+    local installdir="$HOME/.local/opt/$name"
+    local versionfile="${XDG_CACHE_HOME:-$HOME/.cache}/vlk-install/${name}.version"
+    local mycache="${XDG_CACHE_HOME:-$HOME/.cache}/vlk-install/$name"
     # lockfile="${XDG_RUNTIME_DIR:-/tmp}/${0}-$name.lock"
 
     # remove cached installations
@@ -27,6 +57,7 @@ _install_package() {
     # make sure it is not running -- it would be bad if runtime was affected
     [[ -n "$(lsof +D "$installdir")" ]] && _panic "Error, $name appears to be open!"
 
+    local release_url
     release_url="$(
         curl -sL -H 'Accept: application/vnd.github+json' "https://api.github.com/repos/$githubrepo/releases/latest" |
             jq -r ".assets | .[] | \
@@ -35,8 +66,9 @@ _install_package() {
                 .browser_download_url" | head -n 1
     )"
     [[ ! -f "${versionfile:-}" ]] && true >"$versionfile"
+    local installed_version
     installed_version="$(cat "$versionfile" || :)"
-    release_version="${release_url##*/}"
+    local release_version="${release_url##*/}"
 
     # exit if up to date
     [[ "${installed_version:=Undefined}" == "${release_version:-}" ]] &&
@@ -52,7 +84,7 @@ _install_package() {
     [[ ${answer:-} == 'y' ]] || _panic --nice "User skipped update" # consent
     [[ -e "${installdir}.bak" ]] && rm -rf "${installdir}.bak"
     mkdir -p "$installdir" "${installdir}.bak"
-    payloadfile="$mycache/${payload//\*/+}"
+    local payloadfile="$mycache/${payload//\*/+}"
 
     cd "$mycache" || _panic "Failed to change working directory to $mycache"
     curl -Lo "$payloadfile" "$release_url"
@@ -70,31 +102,31 @@ _install_package() {
     # run user build/install commands
     cd "$installdir" || _panic "Failed to change working directory to $installdir"
     rm -rf "$mycache"
-    echo "Building..."
+    echo "Running user commands"
     # eval "$(printf '%s\n' "${cmds[@]}")"
     # parsedcmds="${cmds//\*PWD\*/$PWD}"
     echo "${cmds:=echo}"
     eval "$cmds"
-    echo "Installing..."
-    for i in "${links[@]}"; do
-        i_file="$installdir/${i%%\**}"
-        i_dest="${i#*\*}"
-        mkdir -p "${i_dest%/*}"
+    # for i in "${links[@]}"; do
+    #     i_file="$installdir/${i%%\**}"
+    #     i_dest="${i#*\*}"
+    #     mkdir -p "${i_dest%/*}"
 
-        ln -sf "$i_file" "$i_dest" && echo "installed $i_file to $i_dest"
-    done
+    #     ln -sf "$i_file" "$i_dest" && echo "installed $i_file to $i_dest"
+    # done
     echo -e "\tDone installing \e[1m$name\e[0m\n"
 }
 
 curl -sf 'https://api.github.com/' >/dev/null || _panic "Error, could not connect to github"
 declare -a faildeps=()
-for i in jq curl lsof mkdir head rm cp mv; do
+for i in jq curl lsof mkdir head rm cp mv convert; do
     command -v "$i" &>/dev/null || faildeps+=("$i")
 done
-((${#faildeps[@]})) && _panic "Missing dependencies:" "${faildeps[*]}"
+((${#faildeps[@]})) && _panic "Missing dependencies:" "${faildeps[*]}" "confused? Try out 'https://command-not-found.com'"
 
 [[ -z ${VLKINSTALL_HOME:-} ]] && VLKINSTALL_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/vlk-install"
 # argparse
+declare -a installpkgs
 for i in "${@:-null}"; do
     case "${i:-}" in
     '--force' | '-f') force=0 ;;
@@ -102,20 +134,21 @@ for i in "${@:-null}"; do
     '--update' | '-u') update=1 ;;
     *)
         if [[ -f "$VLKINSTALL_HOME/$i.sh" ]]; then
-            source "$VLKINSTALL_HOME/$i.sh"
-            _install_package
+            installpkgs+=("$VLKINSTALL_HOME/$i.sh")
         else
-            _panic --nice "${0##*/} [--force (-f) OR --check (-c)]"
+            _panic "${0##*/} [--force (-f) OR --check (-c)]"
         fi
         ;;
     esac
 done
 
-if ((${update:-0})); then
-    for i in "$VLKINSTALL_HOME/"*'.sh'; do
-        [[ ! -r "$i" ]] && continue
-        echo "updating ${i##*/}"
-        source "$i"
-        _install_package
-    done
-fi
+((${update:-0})) && installpkgs=("$VLKINSTALL_HOME"/*)
+
+for i in "${installpkgs[@]}"; do
+    [[ -r "$i" ]] && _install_package "$i"
+done
+# if ((${update:-0})); then
+#     for i in "$VLKINSTALL_HOME/"*'.sh'; do
+#         [[ -r "$i" ]] && _install_package "$i"
+#     done
+# fi
