@@ -18,6 +18,13 @@ if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
     touchpad_name='asup1205:00-093a:2003-touchpad'
     wireless_name='glorious-model-o-wireless'
     wired_name='glorious-model-o'
+elif [ -n "${SWAYSOCK:-}" ]; then
+    echo '' >"$TOUCHPAD_STATUS"
+    # on sway, this script is not needed. Set the following option in $XDG_CONFIG_HOME/sway/config:
+    # input type:touchpad {
+    #     events disabled_on_external_mouse
+    # }
+    exit 0
 elif [ -n "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
     platform='x11'
     touchpad_name='ASUP1205:00 093A:2003 Touchpad'
