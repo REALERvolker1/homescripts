@@ -39,8 +39,8 @@ workspace $ws8 output DP-1 DP-1-0 eDP-1
 font pango:monospace bold 12
 mouse_warping output
 
-#$exec ~/.config/sway/autostart.sh
-$execa $XDG_CONFIG_HOME/sway/exec-always.sh
+exec "$XDG_CONFIG_HOME/sway/autostart.sh"
+exec_always "$XDG_CONFIG_HOME/sway/exec-always.sh"
 
 include autostart.i3
 include app-ids.i3

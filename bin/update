@@ -48,10 +48,12 @@ if command -v distrobox >/dev/null; then
     done
 fi
 
-if [ -d "$HOME/.local/opt/codium" ] && command -v codium-install.sh >/dev/null; then
-    _head 94 'codium'
-    codium-install.sh
-fi
+#if [ -d "$HOME/.local/opt/codium" ] && command -v codium-install.sh >/dev/null; then
+#    _head 94 'codium'
+#    codium-install.sh
+#fi
+
+# vlk-install.sh --update
 
 if command -v flatpak >/dev/null; then
     _head 34 'flatpak'

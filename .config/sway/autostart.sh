@@ -20,8 +20,9 @@ nm-applet &
 set-cursor-theme.sh --session &
 steam-symlink-unfucker.sh &
 
-#pointer.sh -um &
+pointer.sh -n &
 pmgmt.sh &
 # scratchpad_terminal.sh &
 
 autostart-clipboard.sh &
+autotiling-rs &

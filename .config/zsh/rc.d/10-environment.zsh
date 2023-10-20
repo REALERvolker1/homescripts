@@ -24,7 +24,7 @@ for i in \
     hypr="$XDG_CONFIG_HOME/hypr"; do
     hash -d $i
 done
-fpath=("$ZDOTDIR/site-functions" $fpath)
+fpath=("$ZDOTDIR/functions" "$ZDOTDIR/site-functions" $fpath)
 export -U PATH path FPATH fpath
 export -U XDG_DATA_DIRS
 export -U chpwd_functions

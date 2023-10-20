@@ -3,7 +3,7 @@
 # vim:foldmethod=marker:ft=sh
 
 unset MAILCHECK
-[ -z "${LANG:-}" ] && export LANG="en_US.UTF-8"s
+[ -z "${LANG:-}" ] && export LANG="en_US.UTF-8"
 
 __vlkenv_venv=
 if [ -n "${CONDA_PREFIX:-}" ]; then
@@ -60,7 +60,8 @@ case "${LS_COLORS:-}" in
     eval "$(dircolors --sh "$XDG_CONFIG_HOME/dir_colors" || echo 'echo error loading dircolors')"
 fi ;;
 esac
-# [ -z "${USER_LS_COLORS:-}" ] && export USER_LS_COLORS="$LS_COLORS"
+export LESSOPEN="||/usr/bin/lesspipe.sh %s"
+[ -z "${USER_LS_COLORS:-}" ] && export USER_LS_COLORS="$LS_COLORS"
 DIRECTORY_COLOR="${LS_COLORS##*:di=}"
 export DIRECTORY_COLOR="${DIRECTORY_COLOR%%:*}" GREP_COLORS="mt=01;91:fn=03;32:ln=33:bn=36:se=35" JQ_COLORS="0;31:0;36:1;36:0;33:1;32:0;37:1;37"
 export VLK_COLOR_REFERENCE="accent=#7a5dfc:accent_l=#af99ff:err=#FF5050:bg=#272B33:"
