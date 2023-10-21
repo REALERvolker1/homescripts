@@ -306,7 +306,8 @@ SUDO_PROMPT='$(print -P "\
 ${cbg[err]}${txc[l]} SUDO ${set[sgr]}${cfg[err]}${cbg[sud]}${set[end]}\
 ${cbg[sud]}${txc[l]} Please enter your password ${set[sgr]}${cfg[sud]}${set[sud_end]}${set[sgr]}") '
 
-PROMPT_EOL_MARK='$(print -P "${cbg[err]}${txc[l]} 󰌑 ${set[sgr]}${cfg[err]}${set[end]}${set[sgr]}")'
+#PROMPT_EOL_MARK='$(print -P "${cbg[err]}${txc[l]} 󰌑 ${set[sgr]}${cfg[err]}${set[end]}${set[sgr]}")
+#'
 
 command_not_found_handler() {
     echo "\$(tput sgr0)$(print -P "${cbg[sud]}${txc[d]} ${icon[err]} ERROR ${set[sgr]}${cfg[sud]}${cbg[err]}${set[end]}\

@@ -9,8 +9,8 @@ _panic() {
         shift 1
     fi
     printf '%s\n' "$@"
-    # exit "${retval:-1}"
-    return "${retval:-1}"
+    exit "${retval:-1}"
+    # return "${retval:-1}"
 }
 
 _icon_install() {

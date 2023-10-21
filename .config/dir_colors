@@ -81,6 +81,7 @@ EXEC 01;38;5;46 # files with execute permission
 
 .tzst 1;38;5;124 # tar compressed with zstd
 .zst 1;38;5;124 # Z-standard compression alg, or ZSNES save
+.zstd 1;38;5;124 # Z-standard compression alg, or ZSNES save
 
 .tlz 1;38;5;124 # tar lzma archive
 .lzma 1;38;5;124 # thing that's better than bzip2
@@ -104,6 +105,9 @@ EXEC 01;38;5;46 # files with execute permission
 
 .lrz 1;38;5;124 # good for large files, long-distance redundancy
 .lz 1;38;5;124 # based on lzma, includes CRC checksum
+
+.zlib 1;38;5;124 # zlib compression
+.deflate 1;38;5;124 # deflate compression
 
 .jar 1;38;5;124 # Java jar archive
 .war 1;38;5;124 # Java web archive
@@ -154,6 +158,8 @@ EXEC 01;38;5;46 # files with execute permission
 .apk 1;38;5;128 # Android/Alpine Linux package
 .ipa 1;38;5;128 # iOS app
 .vsix 1;38;5;128 # VSCode extension
+.snap 38;5;128 # Ubuntu Snap
+*PKGBUILD 1;38;5;128 # Arch Linux Build System config
 .ebuild 38;5;128 # Gentoo Ebuild
 .eclass 38;5;128 # Gentoo Eclass
 .crx 38;5;128 # Chromium extension
@@ -164,7 +170,11 @@ EXEC 01;38;5;46 # files with execute permission
 .efi 38;5;52
 .EFI 38;5;52
 .x86_64 38;5;52
+.x86 38;5;52
+.x64 38;5;52
 .aarch64 38;5;52
+.amd64 38;5;52
+.i686 38;5;52
 .service 38;5;52
 
 # image formats
@@ -202,20 +212,20 @@ EXEC 01;38;5;46 # files with execute permission
 .exr 38;5;135 # EXR Image data
 
 # Vector graphics
-.svg 1;38;5;134 # vector graphics
+.svg 38;5;134 # vector graphics
 .svgz 38;5;134 # compressed SVG
 .cgm 38;5;134 # CAD Vector drawing
 .emf 38;5;134 # Enhanced Windows Metafile vector graphics
 
 # Video
-.mov 1;38;5;132 # QuickTime "movie"
+.mov 38;5;132 # QuickTime "movie"
 .mpg 38;5;132 # MPEG video
 .mpeg 38;5;132
 .m2v 38;5;132 # MPEG-2 video
-.mkv 1;38;5;132 # Matroska video
-.webm 1;38;5;132 # Web video
+.mkv 38;5;132 # Matroska video
+.webm 38;5;132 # Web video
 .ogm 38;5;132 # Origin matrix graph (some scientific software)
-.mp4 1;38;5;132 # MPEG-4
+.mp4 38;5;132 # MPEG-4
 .mp4v 38;5;132 # MPEG-4 video
 .m4v 38;5;132 # iTunes video
 .vob 38;5;132 # DVD Video Object
@@ -251,6 +261,8 @@ EXEC 01;38;5;46 # files with execute permission
 .gltf 38;5;133 # GL Transmission Format
 .glb 38;5;53 # Binary GLTF
 
+.asl 38;5;133
+
 # Audio
 .xspf 38;5;141 # XML shareable playlist
 .aac 38;5;141 # Advanced Audio Coding -- not as widely supported
@@ -274,6 +286,7 @@ EXEC 01;38;5;46 # files with execute permission
 .aif 38;5;141 # Audio Interchange Format
 .aiff 38;5;141 # Audio Interchange File Format
 .aifc 38;5;141 # Compressed Audio interchange
+.av1 38;5;141 # AV1 encoded
 
 # OGG
 .ogg 1;38;5;141 # OGG audio
@@ -287,8 +300,10 @@ EXEC 01;38;5;46 # files with execute permission
 *~ 38;5;240 # editor backup 'file~'
 *# 38;5;240 # backup 'file#'
 .bak 38;5;240 # backup
+.backup 38;5;240 # backup
 .old 38;5;240 # old version of a file
 .orig 38;5;240 # original version of a file
+.kate-swp 38;5;240 # Kate swap
 
 # debian package
 .dpkg-dist 38;5;242
@@ -310,7 +325,7 @@ EXEC 01;38;5;46 # files with execute permission
 .editorconfig 38;5;91 # Editorconfig for syncing editor settings
 .git 38;5;91
 .github 38;5;91
-.replit 38;5;91 # config for replit code platform
+.nojekyll 38;5;91 # prevent github pages from doing jekyll bs
 
 # Ignore
 .gitignore 38;5;238
@@ -324,6 +339,7 @@ EXEC 01;38;5;46 # files with execute permission
 .state 38;5;239 # the state of something
 .status 38;5;239 # the status of something
 .mount 38;5;239 # a mount
+.DS_Store 38;5;239 # useless bs
 
 .Xauthority 38;5;238 # Xorg X authority
 .xsession-errors 38;5;238 # Xorg Xsession errorfile
@@ -340,7 +356,7 @@ EXEC 01;38;5;46 # files with execute permission
 .sock 38;5;238 # "socket" file
 .history 38;5;238
 .mask 38;5;238
-.trashinfo 38;5;238 # trash information file
+#.trashinfo 38;5;238 # trash information file
 .zcompdump 38;5;238 # zsh completion
 .bash_history 38;5;238
 .zsh_history 38;5;238
@@ -362,9 +378,11 @@ EXEC 01;38;5;46 # files with execute permission
 .crt 38;5;238 # security certificate
 .asc 38;5;238 # Armored ASCII file
 .ocx 38;5;238 # ActiveX control
+.rsa 38;5;238 # rsa ncryption
 
 # binary stuff
 .bin 38;5;238 # random ass binary
+.pdb 38;5;238 # random ass binary
 .dat 38;5;238 # random Data file. Most likely compiled
 .compiled 38;5;238 # something that's probably compiled
 .zwc 38;5;238 # compiled ZSH script
@@ -372,6 +390,7 @@ EXEC 01;38;5;46 # files with execute permission
 .o 1;38;5;238 # compiled C-lang object file
 .out 1;38;5;238 # Compiled executable
 .wasm 38;5;238 # Webassembly
+.wasi 38;5;238 # Webassembly system interface
 .vlx 38;5;238 # Compiled AutoLISP
 .exe 38;5;238 # Windows executable
 .chm 38;5;238 # Windows compiled HTML help
@@ -379,11 +398,18 @@ EXEC 01;38;5;46 # files with execute permission
 .rlib 38;5;238 # Rust static library
 .qm 38;5;238 # QT compiled translation file
 .cljc 38;5;238 # Clojure compiled I think?
+.pak 38;5;238 # Chromium stuff
+.vpkg 38;5;238 # visual studio pkg
+
 .gguf 38;5;130 # AI LLM dataset
+.tiktoken 38;5;130 # AI LLM tokens
 
 .db 38;5;242 # Database
 .sqlite 38;5;242 # sqlite database
 .sqlite3 38;5;242
+.vscdb 38;5;242
+.empty 38;5;242
+.pack 38;5;242
 
 # ROM
 .z64 38;5;241 # Nintendo 64 ROM
@@ -396,11 +422,14 @@ EXEC 01;38;5;46 # files with execute permission
 .sav 38;5;237 # Nintendo gb save
 .srm 38;5;237 # Nintendo SNES save
 .dem 38;5;241 # Game demo file
+.save 38;5;237 # generic save file
 
 .8xp 38;5;130 # TI-84+ file
 .8xv 38;5;130 # TI-84+ Variable file
 .8xg 38;5;130 # TI-84+ Group file
 .8ck 38;5;130 # TI-84 Silver application
+
+.wad 38;5;130 # Doom map
 
 # hashes
 .md5 38;5;237
@@ -418,6 +447,7 @@ EXEC 01;38;5;46 # files with execute permission
 .json 38;5;116 # json
 .jsonc 38;5;116 # json but with comments
 .jsonld 38;5;116 # json
+.jsonl 38;5;116 # json
 .json5 38;5;116 # ECMAScript 5.1 json
 .geojson 38;5;116 # json for people who touch grass
 .topojson 38;5;116 # Topographical json
@@ -425,6 +455,7 @@ EXEC 01;38;5;46 # files with execute permission
 *xml 38;5;116 # eXtensible Markup Language
 .xbel 38;5;116 # Bookmarks file
 .rss 38;5;116 # Bookmarks file
+.proto 38;5;116 # proto
 
 .torrent 38;5;130 # 🤨
 .magnet 38;5;130 # 🤨
@@ -465,6 +496,7 @@ EXEC 01;38;5;46 # files with execute permission
 .bconf 38;5;116 # no idea what this was from
 .lst 38;5;116 # list
 .list 38;5;116 # list
+.resources 38;5;116 # res
 
 .zone 38;5;116 # DNS zone
 .arpa 38;5;116 # DNS arpa
@@ -472,6 +504,7 @@ EXEC 01;38;5;46 # files with execute permission
 .example 38;5;153
 .template 38;5;153
 .login 38;5;153
+.file 38;5;153
 .deny 38;5;153
 .updated 38;5;153
 .blacklist 38;5;153
@@ -483,10 +516,13 @@ EXEC 01;38;5;46 # files with execute permission
 .site 38;5;153
 .id 38;5;153 # the ID of something
 .tag 38;5;153
+.url 38;5;153
+.uwu 38;5;153
+.fmt 38;5;153
 .TAG 38;5;153
 *hst 38;5;153 # history for something
 .log 38;5;153 # a log of something
-.info 38;5;153 # info
+*info 38;5;153 # info
 .menu 38;5;153
 
 .ans 38;5;147 # ANSI text file
@@ -499,6 +535,8 @@ EXEC 01;38;5;46 # files with execute permission
 .trans 38;5;147
 .defs 38;5;147
 .colors 38;5;147
+.expect 38;5;147
+.fbs 38;5;147
 .gnu 38;5;147 # GNU plot
 .gnuplot 38;5;147
 .plot 38;5;147
@@ -514,6 +552,7 @@ EXEC 01;38;5;46 # files with execute permission
 .ics 38;5;116 # Calendar file
 .eml 38;5;116 # Email
 .ctl 38;5;116
+.manifest 38;5;116
 .lnk 38;5;116 # Windows shortcut
 .tbl 38;5;116 # Table file
 .table 38;5;116 # Table file
@@ -530,6 +569,7 @@ EXEC 01;38;5;46 # files with execute permission
 *config 38;5;113 # same for this
 # .dir_colors 38;5;113 # dir colors
 *dir_colors 38;5;113 # dir colors
+*dircolors 38;5;113 # dir colors
 .Xresources 38;5;113 # Xorg X resources
 .tmux 38;5;113
 #.conf 38;5;113
@@ -565,13 +605,14 @@ EXEC 01;38;5;46 # files with execute permission
 .perl 38;5;67 # perl scripts
 .pm 38;5;67 # perl modules
 .ph 38;5;67 # perl Headers
-.plx 1;38;5;67 # perl Headers
-.pod 1;38;5;67 # perl "Plain Old Documentation"
+.plx 38;5;67 # perl Headers
+.pod 38;5;67 # perl "Plain Old Documentation"
 .sed 38;5;67 # sed script
 .awk 38;5;67 # awk script
 .auk 38;5;67 # awk script
 .gawk 38;5;67 # GNU awk script
 .m4 38;5;67 # UNIX macro processing
+.hla 38;5;67 # idk
 
 # CSS
 .css 1;38;5;57 # CSS stylesheet
@@ -582,6 +623,7 @@ EXEC 01;38;5;46 # files with execute permission
 .qss 1;38;5;57 # QT CSS
 .xsl 1;38;5;57 # XML stylesheet similar to a CSS file
 .styl 1;38;5;57 # Stylus
+.rasi 38;5;57 # Rofi rasi
 
 # Python
 .py 38;5;226 # Python script
@@ -589,6 +631,7 @@ EXEC 01;38;5;46 # files with execute permission
 .pyo 38;5;226 # Python optimized code
 .pyw 38;5;226 # Windows python
 .rpy 38;5;226 # Python script
+.pyi 38;5;226 # Python script
 .whl 1;38;5;226 # Python wheel package
 .typed 1;38;5;226 # typed python hints
 .npy 38;5;226 # Numpy Array file
@@ -628,6 +671,7 @@ EXEC 01;38;5;46 # files with execute permission
 .m 38;5;196 # Apple Objective-C
 .mm 38;5;196 # Apple Objective-C++
 .matlab 38;5;196 # MATLAB code
+.analytics 38;5;196 # 🤨
 .metal 38;5;248 # I think htis is Apple Metal shader lang
 
 # java
@@ -693,6 +737,7 @@ EXEC 01;38;5;46 # files with execute permission
 .cs 38;5;84 # Csharp source code
 .csx 38;5;84 # Visual Csharp script
 .cake 38;5;84 # Csharp stuff
+.rsp 38;5;85 # Csharp compiler response
 
 # D
 .d 38;5;142 # D-lang source code
@@ -715,6 +760,8 @@ EXEC 01;38;5;46 # files with execute permission
 .a 38;5;220 # static library
 .so 38;5;220 # shared library
 .po 38;5;220 # portable object
+.sym 38;5;220 # symbols
+.swo 38;5;220
 
 # random
 
@@ -748,6 +795,9 @@ EXEC 01;38;5;46 # files with execute permission
 .cps 38;5;108 # Component Pascal
 .em 38;5;202 # emberscript
 .emberscript 38;5;202 # emberscript
+.io 38;5;105
+.ios 38;5;105
+
 # https://github.com/REALERvolker1/homescripts
 # Javascript
 .js 38;5;149 # JavaScript
@@ -759,11 +809,14 @@ EXEC 01;38;5;46 # files with execute permission
 .coffee 38;5;94 # Coffee Script
 .litcoffee 38;5;94 # Literate Coffee Script
 .map 38;5;117 # Typescript Source map
+.node 38;5;149 # nodejs
+.gjs 38;5;149 # GNOME Javascript
 .tsx 38;5;43 # Typescript JSX React
 .jsx 38;5;43 # Javascript JSX React
 .cjsx 38;5;94 # Coffee JSX
 .vue 38;5;40 # Vue Javascript framework
 .lit 38;5;33 # Lit Javascript framework
+.ejs 38;5;149 # ejs templating engine
 .djs 38;5;149 # DogeScript
 .ls 38;5;149 # Microsoft LiveScript
 
@@ -774,6 +827,7 @@ EXEC 01;38;5;46 # files with execute permission
 .handlebars 38;5;167 # OSHA-approved HTML
 .hbs 38;5;167 # Handle bars
 .qml 38;5;166 # QT Markup Language
+.qmlc 38;5;167 # QT Markup Language -- compiled
 .php 38;5;168 # Pretty Hawful Programminglanguage
 .fcgi 38;5;166 # FastCGI Perl web server stuff
 # .phtml 38;5;166 # PHP + HTML
@@ -795,13 +849,15 @@ EXEC 01;38;5;46 # files with execute permission
 # Lua
 .lua 38;5;27 # oh god not this bullshit
 .luacov 38;5;32 # Lua code coverage I think?
+.lua-format 38;5;32 # Lua code formatting I think
 .rockspec 38;5;32 # Luarocks package stuff
 .wlua 38;5;27 # Windows Lua -- the combination from hell
 .rbxs 38;5;27 # Roblox
 # VIM
+.vi 38;5;34 # VIMScript
 .vim 38;5;34 # VIMScript
 .nvim 38;5;34 # NEOVIMScript
-.viminfo 38;5;34 # VIM info file
+#.viminfo 38;5;34 # VIM info file
 
 # GPU stuff
 .glsl 38;5;105 # OpenGL shader language
@@ -821,6 +877,8 @@ EXEC 01;38;5;46 # files with execute permission
 .gshader 38;5;105 # Geometry shader I think?
 .glslv 38;5;105 # opengl something
 .shader 38;5;105 # Shader
+.vmat 38;5;97 # Soarse material
+.vmap 38;5;97 # Soarse material
 # CUDA
 .cu 38;5;34 # CUDA source code
 .cuh 38;5;34 # CUDA headers or something?
@@ -862,6 +920,7 @@ EXEC 01;38;5;46 # files with execute permission
 .cmd 38;5;148 # Windows NT Command script
 .com 38;5;148 # MS-DOS Command script
 .bat 38;5;148 # MS-DOS Batch script
+.bats 38;5;148 # MS-DOS Batch script
 .ps1 38;5;148 # Windows Powershell script
 .psd1 38;5;148 # Windows Powershell data files
 .psm1 38;5;148 # Windows Powershell modules
@@ -873,11 +932,13 @@ EXEC 01;38;5;46 # files with execute permission
 .dts 38;5;187 # Linux kernel device tree
 .dtsi 38;5;187 # Linux kernel device tree include
 .ko 38;5;187 # Linux Kernel module
-.modinfo 38;5;187 # Linux kernel module info
+#.modinfo 38;5;187 # Linux kernel module info
+.modules 38;5;187 # Linux kernel modules
 
 # Build tools
 .debug 38;5;184 # generic debug file
 .target 38;5;184 # generic target
+.bootstrap 38;5;184 # generic bootstrap
 .in 38;5;202 # Autoconf input file
 .patch 38;5;202 # source code diff file, used to update source code
 .ld 38;5;184 # Linker script
@@ -904,10 +965,10 @@ EXEC 01;38;5;46 # files with execute permission
 .ecl 38;5;184 # Eclipse
 .mk 38;5;202 # Makefile
 .mak 38;5;184 # Makefile
+.replit 38;5;91 # config for replit code platform
 *Makefile 38;5;202 # GNU Makefile
 *makefile 38;5;202
 *MAKEFILE 38;5;202
-*PKGBUILD 1;38;5;148 # Arch Linux Build System config
 
 # DOCUMENT {{{
 # LaTeX
@@ -955,6 +1016,7 @@ EXEC 01;38;5;46 # files with execute permission
 .eot 38;5;159 # embedded opentype font
 .woff 38;5;159 # web font
 .woff2 38;5;159 # web font 2 electric boogaloo
+.afm 38;5;159 # Adobe font metrics
 
 *LICENSE 38;5;192 # license
 

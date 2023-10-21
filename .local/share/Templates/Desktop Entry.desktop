@@ -1,0 +1,47 @@
+[Desktop Entry]
+# https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
+# Version: version of the spec that you made this desktop file with. Current in late 2023: 1.5
+Version=1.5
+# Type: what this thing actually is
+Type=Application
+# Name: Specific application name
+Name=Application
+# GenericName: what to call the application for noob users
+GenericName=NewApplication
+# Comment: some content explaining what the app is/does
+Comment=Commented
+# Icon: either a direct path, or a XDG icon name
+Icon=show-desktop
+# TryExec: command. If command exists, then show this Application.
+#TryExec=command
+# Exec: command to run. %f is a single file, %F is multiple files, %u = single URL, %U is list of URLs
+Exec=command %F
+# Path: working directory to run program in
+#Path=/tmp
+# OnlyShowIn, NotShowIn: rules to either show or not show this application depending on $XDG_CURRENT_DESKTOP
+#OnlyShowIn=Hyprland
+# Terminal: run this application inside of a terminal window
+Terminal=false
+# DBusActivatable: bool if DBus activation is supported. If set to true, Exec key is ignored
+DBusActivatable=false
+# Keywords: strings you can type in the app launcher to find this app
+Keywords=Text;editor;
+# Categories: Categories in the app launcher
+Categories=Utility;TextEditor;
+# StartupNotify: if true, is known that the application will send a "remove" message, if false, is known that the app doesn't work with that
+#StartupNotify=false
+# NoDisplay: bool to toggle this app's visibility in the app launcher
+NoDisplay=true
+# MimeType: semicolon-separated list of MIME types that this app supports viewing or something
+MimeType=text/english;text/plain;
+# PrefersNonDefaultGPU: bool to make sure this app is run on the more powerful dedicated GPU
+#PrefersNonDefaultGPU=false
+# SingleMainWindow: bool to make sure you don't open too many windows of this app if it doesn't support that
+#SingleMainWindow=false
+# idk what this last one is lmao
+#X-Desktop-File-Install-Version=0.26
+
+[Desktop Action Create]
+Exec=command --new %F
+Name=Create New File
+

@@ -188,13 +188,27 @@ alias tmuxk='tmux kill-session -t'
 alias tmuxa='tmux attach -t'
 alias tmuxl='tmux list-sessions'
 
-alias bash="$__homebin/run-subshell.sh bash"
-alias dash="$__homebin/run-subshell.sh dash"
-alias ksh="$__homebin/run-subshell.sh ksh"
+run-subshell() {
+    local stty cmd
+    [[ -t 0 ]] && stty="$(stty --save)"
+    # local myhist="$HISTFILE"
+    cmd="${1:-}"
+    command -v "$cmd" >/dev/null || return
+    shift 1
+    HISTFILE="${SHELLHIST:-/dev/null}" $cmd "$@"
+    local -i retval="$?"
+    [[ -n ${stty:-} ]] && stty "$stty"
+    return $retval
+}
+
+# alias bash="$__homebin/run-subshell.sh bash"
+alias bash='run-subshell bash'
+alias dash="run-subshell dash"
+alias ksh="run-subshell ksh"
 alias rksh=ksh
-alias sh="$__homebin/run-subshell.sh sh"
-alias csh="echo 💀 && $__homebin/run-subshell.sh csh"
-alias tcsh="echo 💀 && $__homebin/run-subshell.sh tcsh"
+alias sh="run-subshell sh"
+alias csh="echo 💀 && run-subshell csh"
+alias tcsh="echo 💀 && run-subshell tcsh"
 
 alias pypip="pypy3 -m pip "
 

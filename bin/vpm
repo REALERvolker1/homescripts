@@ -1,0 +1,39 @@
+#!/usr/bin/zsh
+# set -euo pipefail
+IFS=$'\n\t'
+
+_panic() {
+    local -i retval=1
+    local -i isfn=0
+    local arg
+    for arg in "$@"; do
+        case "${arg:-}" in
+        '--nice')
+            retval=0
+            shift 1
+            ;;
+        '--function')
+            isfn=1
+            shift 1
+            ;;
+        *)
+            continue
+            ;;
+        esac
+    done
+    printf '%s\n' "$@" >&2
+    if (($isfn)); then
+        echo "return $retval"
+        return "$retval"
+    else
+        exit $retval
+    fi
+}
+
+load_pkg() {
+    local package="${1:-}"
+    [[ -f $package && -r $package ]] || eval "$(_panic --function "package $package could not be sourced!")"
+}
+
+load_pkg ~/cum
+_panic cum
