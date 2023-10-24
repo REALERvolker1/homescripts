@@ -74,7 +74,7 @@ _install_package() {
     # exit if up to date
     [[ "${installed_version:=Undefined}" == "${release_version:-}" ]] &&
         ((${force:-1})) &&
-        _panic --nice "You are already up to date! ($release_version)"
+        echo "You are already up to date! ($release_version)" && return
 
     echo -e "\e[0m\nDo you want to \e[92mupdate\e[0m \e[1m${name}\e[0m?\n"
     echo -e "\e[0;1;31m$installed_version\e[0m => \e[0;1;32m$release_version\e[0m"

@@ -16,7 +16,7 @@
         "on-click": "activate",
         "on-click-middle": "close",
         "icon-size": 20,
-        "ignore-list": ["__scratchpad__", "xwaylandvideobridge"]
+        "ignore-list": ["__scratchpad__", "hdropkitty", "xwaylandvideobridge"]
     },
     "hyprland/window": {
         "format": "{title:.60}",

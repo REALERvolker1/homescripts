@@ -28,6 +28,6 @@ steam-symlink-unfucker.sh &
 # pointer.sh -n &
 pointer.sh -um &
 pmgmt.sh &
-scratchpad_terminal.sh &
+#scratchpad_terminal.sh &
 
 autostart-clipboard.sh &

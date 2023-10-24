@@ -75,7 +75,8 @@ touchpad_operation() {
             xinput set-prop "$touchpad_name" 'Device Enabled' "$status" >/dev/null || echo false
             ;;
         hyprland)
-            [ "$(hyprctl keyword device:"$touchpad_name":enabled "$status")" = 'ok' ] || echo false
+            #[ "$(hyprctl keyword device:"$touchpad_name":enabled "$status")" = 'ok' ] || echo false
+            printf '%s\n' "device:$touchpad_name {" "enabled=$status" "}" >"$XDG_CONFIG_HOME/hypr/pointer.sh.conf" || echo false
             ;;
         esac
     )"

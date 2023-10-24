@@ -5,6 +5,7 @@
 }
 emulate -LR zsh
 
+# cmdarr=("${(@)commands##*/}")
 ### shell session settings
 # VLKPROMPT_SKIP=1
 # VLKZSH_RECOMPILE=1

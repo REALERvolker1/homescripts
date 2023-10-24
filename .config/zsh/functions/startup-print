@@ -38,15 +38,26 @@ printf "${boxcolor}│[0;92m%s${boxcolor}│[0;%s   [1m%-${len}s ${boxcolor}�
 echo "${${${lenstr/╭/╰}/┬/┴}/╮/╯}"
 
 fortune -a -s | lolcat
-[[ ! -f "$XDG_CACHE_HOME/lsdiff.zsh.cache" || -n ${VLKZSH_LSDIFF_UPDATE:-} ]] && print -l "$HOME"/(.|)* >"$XDG_CACHE_HOME/lsdiff.zsh.cache" && return
-local -a cache=(${(f@Q)$(<"$XDG_CACHE_HOME/lsdiff.zsh.cache")})
-local -a current=("$HOME"/(.|)*)
-if [[ ${cache[*]} != ${current[*]} ]] {
-    local current_stuff=(${current:|cache})
-    local oldifs="$IFS"
-    local IFS=$'\n'
-    local -a current_fmt=($([[ -z ${current_stuff:-} ]] || lsd --ignore-config -AL1 --icon=always --color=always $current_stuff ))
-    print -C 2 ${${current_fmt//$HOME\//}/#/[92m+[0m } ${${${${cache:|current}##*/}/#/[91m-[1m }/%/[0m}
-    IFS="$oldifs"
-}
+#[[ ! -f "$XDG_CACHE_HOME/lsdiff.zsh.cache" || -n ${VLKZSH_LSDIFF_UPDATE:-} ]] && print -l "$HOME"/(.|)* >"$XDG_CACHE_HOME/lsdiff.zsh.cache" && return
+#local -a cache=(${(f@Q)$(<"$XDG_CACHE_HOME/lsdiff.zsh.cache")})
+#local -a current=("$HOME"/(.|)*)
+#if [[ ${cache[*]} != ${current[*]} ]] {
+#    local current_stuff=(${current:|cache})
+#    local oldifs="$IFS"
+#    local IFS=$'\n'
+#    local -a current_fmt=($([[ -z ${current_stuff:-} ]] || lsd --ignore-config -AL1 --icon=always --color=always $current_stuff ))
+#    print -C 2 ${${current_fmt//$HOME\//}/#/[92m+[0m } ${${${${cache:|current}##*/}/#/[91m-[1m }/%/[0m}
+#    IFS="$oldifs"
+#}
+# lsdiff
+# shell/rustcfg/lsdiff-rs/target/release/lsdiff-rs
+local lsdiff_path="$XDG_CONFIG_HOME/shell/rustcfg/lsdiff-rs"
+local lsdiff_bin="$lsdiff_path/target/release/${lsdiff_path##*/}"
+if [[ ! -x $lsdiff_bin ]] && [[ -d "$lsdiff_path" ]] && [[ -x =cargo ]] &>/dev/null; then
+    local oldpwd="$PWD"
+    cd "$lsdiff_path" || return
+    cargo build --release
+    cd "$oldpwd" || return
+fi
+$lsdiff_bin
 return 0

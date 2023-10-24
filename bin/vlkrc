@@ -349,5 +349,3 @@ readme() {
         cat "$1"
     fi
 }
-
-# chars() { perl -e "foreach(@ARGV){open(my \$f,'<','\$_') or die \"\$!\";my \$c;while(read(\$f,\$c,1)){print \"\$c\n\";}close \$f;}"; }
