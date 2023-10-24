@@ -10,6 +10,10 @@
 }
 
 : "${DIRECTORY_COLOR:=1;34}"
+if ! command -v cargo &>/dev/null; then
+    alias getcargo='bash <(curl -sSf https://sh.rustup.rs) --default-toolchain stable --profile complete --no-modify-path'
+    echo "No cargo found. Please run 'getcargo'"
+fi
 
 #__which="$(which --skip-alias which)"
 __which() {
