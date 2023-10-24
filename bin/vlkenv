@@ -56,7 +56,7 @@ fi
 case "${LS_COLORS:-}" in
 *':*rc='*) : ;;
 *) if [ -f "$XDG_CONFIG_HOME/dir_colors" ]; then
-    echo 'updating ls colors'
+    #echo 'updating ls colors'
     eval "$(dircolors --sh "$XDG_CONFIG_HOME/dir_colors" || echo 'echo error loading dircolors')"
 fi ;;
 esac
@@ -75,7 +75,7 @@ export XINITRC="$XDG_CONFIG_HOME/X11/xinitrc" XSERVERRC="$XDG_CONFIG_HOME/X11/xs
 # hists
 export HISTFILE="$XDG_RUNTIME_DIR/shellhist" LESSHISTFILE='/dev/null'
 # qt customzation
-export QT_QPA_PLATFORMTHEME='qt5ct' QT_QPA_PLATFORM_PLUGIN_PATH="$XDG_CONFIG_HOME" #QT_STYLE_OVERRIDE='kvantum'
+#export QT_QPA_PLATFORMTHEME='qt5ct' QT_QPA_PLATFORM_PLUGIN_PATH="$XDG_CONFIG_HOME" #QT_STYLE_OVERRIDE='kvantum'
 # wayland
 export MOZ_ENABLE_WAYLAND=1 GTK_USE_PORTAL=1
 # random xdg shit

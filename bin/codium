@@ -1,14 +1,11 @@
 #!/usr/bin/dash
 
-PREFERRED='code-oss' # or codium
-PREFERRED='codium'
-
 flatpak_path='/var/lib/flatpak/exports/bin/com.vscodium.codium'
 
 codium_paths="$(
     IFS=':'
     for i in $PATH; do
-        i_path="$i/$PREFERRED"
+        i_path="$i/codium"
         [ "$i_path" = "$0" ] && continue
         if [ -x "$i_path" ]; then
             echo "$i_path"

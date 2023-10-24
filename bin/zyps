@@ -1,0 +1,65 @@
+#!/usr/bin/bash
+# vlk's dnfs, a program to search dnf for packages in a TUI
+set -euo pipefail
+IFS=$'\n\t'
+
+filterstr='(^$|\.i686|\.src|..-debuginfo|..-debugsource|^Last metadata expiration check|^Available Packages)'
+cosmetic_sedstr='s/-devel\./\x1b[1m-devel\x1b[0m\./g
+s/\.x86_64$/\.\x1b[92mx86_64\x1b[0m/g
+s/\.noarch$/\.\x1b[93mnoarch\x1b[0m/g'
+if ! command -v zypper &>/dev/null; then
+    echo "Error, you must have the DNF package manager installed to use this script!"
+    exit 1
+fi
+if command -v fzf &>/dev/null; then
+    true
+else
+    echo "Error, please install fzf!"
+    echo -e "\x1b[1msudo dnf install fzf\x1b[0m"
+fi
+
+fzfcmd="$(echo -e "fzf --ansi --header='Use \x1b[1mTAB\x1b[0m to select multiple packages' --multi")"
+if [ -n "${1:-}" ]; then
+    fzfcmd="$fzfcmd -q '$*'"
+fi
+
+echo 'Searching...'
+# grep '\.' |
+packages="$(dnf list --available -C | grep -Ev "$filterstr" | cut -d ' ' -f 1)"
+
+selected_packages="$(echo "$packages" | sed "$cosmetic_sedstr" | sh -c "$fzfcmd")"
+
+(
+    echo "You are about to install the following packages"
+    for i in $selected_packages; do
+        dnf info -C "$i"
+        printf '%s\n' '' ''
+    done
+) | ${PAGER:-less}
+
+if sudo -vn &>/dev/null; then
+    true
+else
+    echo -e '\x1b[1m[\x1b[91mSUDO Required\x1b[0m\x1b[1m]\x1b[0m'
+    echo 'Installing the following packages'
+    printf '%s\n' $selected_packages | sed "$cosmetic_sedstr"
+    echo -n 'Are you sure you want to install these packages? '
+    while true; do
+        printf '\x1b[1m[y/n]\x1b[0m (n) > '
+        read install_answer
+        case "$install_answer" in
+        '')
+            continue
+            ;;
+        'y')
+            break
+            ;;
+        *)
+            echo -e "\x1b[0mOperation aborted"
+            exit 1
+            ;;
+        esac
+    done
+fi
+
+sudo dnf install $selected_packages

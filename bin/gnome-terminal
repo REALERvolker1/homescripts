@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-exec vlk-sensible-terminal 1 "$@"
