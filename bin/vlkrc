@@ -67,6 +67,8 @@ rp() {
     fi
 }
 
+alias cp='cp -r'
+
 alias suod=sudo
 
 alias q=exit
