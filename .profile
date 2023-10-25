@@ -1,4 +1,6 @@
 # shellcheck shell=dash
+#[ "${TERM:-}" = linux ] || export LC_ALL='en_US.UTF-8'
+[ "${LANG:-C}" = 'C' ] && export LANG='en_US.UTF-8'
 . "$HOME/bin/vlkenv"
 
 # tab_character='	'

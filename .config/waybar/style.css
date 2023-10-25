@@ -114,6 +114,7 @@ window#waybar.empty .modules-center {
 
 #workspaces button,
 #taskbar button {
+    color: @accent_fg_color;
     transition-duration: 0ms;
     border-radius: 0px;
     margin: 0px;
