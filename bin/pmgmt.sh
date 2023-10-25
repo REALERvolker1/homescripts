@@ -18,7 +18,7 @@ ac_command_center() {
         light -S 80
         powerprofilesctl set performance
         asusctl bios -O true
-        "$0" "$gpublock_arg" &
+        nvidia-smi dmon -d 5 >/dev/null &
         disown
 
     elif [ "$1" = false ]; then
@@ -33,21 +33,25 @@ kill_gpu_block() {
     killall nvidia-smi
 }
 
-#kill_gpu_block() {
-#    local gpublock
-#    gpublock="$(ps -eo pid,comm,args | grep -oP "^\s*\K[0-9]*(?=\s*${me}.*${gpublock_arg})" | grep -vE "($$|$(($$ + 1)))")"
-#    [[ -n ${gpublock:-} ]] && kill $gpublock && echo "killed gpublock"
-#}
-
-if [[ "${1:-}" == "$gpublock_arg" ]]; then
+case "${1:-}" in
+"$gpublock_arg")
     kill_gpu_block
-    exec nvidia-smi dmon -d 5
-    #while true; do
-    #    nvidia-smi >/dev/null
-    #    sleep 5
-    #done
+    nvidia-smi dmon -d 5 >/dev/null
+    exit ${?:-1}
+    ;;
+--ac | -a)
+    ac_command_center true
     exit 0
-fi
+    ;;
+--bat | -b)
+    ac_command_center false
+    exit 0
+    ;;
+-*)
+    echo "$me [--ac (-a) | --bat (-b)] OR $me $gpublock_arg"
+    exit 1
+    ;;
+esac
 
 nondeps="$(
     for i in light powerprofilesctl asusctl nvidia-smi acpi; do
