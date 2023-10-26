@@ -3,7 +3,7 @@
 # vim:foldmethod=marker:ft=sh
 
 unset MAILCHECK
-[ -z "${LANG:-}" ] && export LANG="en_US.UTF-8"
+[ "${LANG:-C}" = 'C' ] && export LANG="en_US.UTF-8"
 
 __vlkenv_venv=
 if [ -n "${CONDA_PREFIX:-}" ]; then
@@ -19,7 +19,7 @@ fi
 unset __vlkenv_venv
 
 [ -z "${CURRENT_DISTRO:-}" ] && export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
-export CURRENT_HOSTNAME='JOE' # The hostname of my main pc
+export CURRENT_HOSTNAME='iphone'
 : "${HOST:=$(cat /etc/hostname)}"
 export HOME="${HOME:-/home/$(whoami)}" HOSTNAME="${HOSTNAME:-$HOST}"
 export XDG_CONFIG_HOME="$HOME/.config" XDG_DATA_HOME="$HOME/.local/share" XDG_CACHE_HOME="$HOME/.cache" XDG_STATE_HOME="$HOME/.local/state"

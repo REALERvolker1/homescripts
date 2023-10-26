@@ -8,7 +8,8 @@ local cachefile="$XDG_RUNTIME_DIR/dumfech-$XDG_SESSION_ID.cache"
         #df -h -l -t btrfs -t xfs -t ext4 -t exfat --output=pcent | uniq | xargs | sed 's/Use%[[:space:]]*//'
         echo ${(f)${(u)$(df -h -l -t btrfs -t xfs -t ext4 -t exfat --output=pcent)#Use%}}
         nvidia-settings -v | grep -oP 'version\s\K[^\s]+'
-        echo "${$(uname -r)%%-*}"
+        #echo "${$(uname -r)%%-*}"
+        uname -r | grep -o '^[^-]*-[^-\.]*'
     ) >"$cachefile"
 
 # ik I'm cheating here a bit with a cachefile, but idk, it's a performance thing

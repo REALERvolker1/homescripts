@@ -42,8 +42,8 @@ nm-applet &
 flameshot &
 
 picom &
-conda run -n i3 flashfocus &
-#flashfocus &
+#conda run -n i3 flashfocus &
+flashfocus &
 vlkbg.sh &
 autotiling-rs &
 scratchpad_terminal.sh &

@@ -42,7 +42,7 @@ mouse_warping output
 exec "$XDG_CONFIG_HOME/sway/autostart.sh"
 exec_always "$XDG_CONFIG_HOME/sway/exec-always.sh"
 
-include autostart.i3
+#include autostart.i3
 include app-ids.i3
 include keybinds.i3
 
