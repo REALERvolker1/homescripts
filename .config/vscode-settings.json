@@ -133,5 +133,5 @@
     "evenBetterToml.formatter.arrayAutoExpand": true,
     "[toml]": {
         "editor.defaultFormatter": "tamasfe.even-better-toml"
-    }
+    },
 }

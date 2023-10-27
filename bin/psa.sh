@@ -3,13 +3,23 @@ set -euo pipefail
 # IFS=$'\n\t'
 IFS=$' \n\t'
 
-for i in pidstat fzf lscolors realpath dircolors pstree; do
+for i in pidstat fzf realpath dircolors pstree; do
     if ! command -v "$i" &>/dev/null; then
         echo "Missing dependency command '$i'" >&2
         exit 1
     fi
 done
 [ -z "${LS_COLORS:-}" ] && eval "$(dircolors -b <(dircolors -p))"
+
+if ! command -v lscolors &>/dev/null; then
+    lscolors() {
+        if [[ -e ${1:-} ]]; then
+            ls -A1d --color=always "${1:-}"
+        else
+            echo "${1:-}"
+        fi
+    }
+fi
 
 exe_color="[$(echo "$LS_COLORS" | tr -s ':' '\n' | grep -m 1 -oP 'ex=\K[^:]*')m"
 

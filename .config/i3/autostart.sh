@@ -28,10 +28,15 @@ pmgmt.sh &
 #     xplugd
 # ) &
 
-pointer.sh -um &
+#pointer.sh -um &
 
 numlockx &
-# pointer.sh -n &
+pointer.sh -n &
+(
+    mo="$(xinput | grep -oP '↳ Glorious Model O\s+id=\K[0-9]+')"
+    ret="$?"
+    ((ret)) || xinput set-prop "$mo" 'libinput Accel Profile Enabled' 0 1 0
+) &
 (
     xmodmap -e "clear lock"
     xmodmap -e "keycode 66 = Escape NoSymbol Escape"

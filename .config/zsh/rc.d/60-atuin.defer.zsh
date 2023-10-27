@@ -1,7 +1,6 @@
 [[ "$TERM" != "linux" ]] && command -v atuin &>/dev/null || return
 autoload -U add-zsh-hook
 export ATUIN_SESSION=$(atuin uuid)
-export ATUIN_HISTORY="atuin history list"
 _atuin_preexec() {
     local id
     id=$(atuin history start -- "$1")
@@ -10,17 +9,23 @@ _atuin_preexec() {
 _atuin_precmd() {
     local EXIT="$?"
     [[ -z "${ATUIN_HISTORY_ID:-}" ]] && return
-    (RUST_LOG=error atuin history end --exit $EXIT -- $ATUIN_HISTORY_ID &) >/dev/null 2>&1
+    (ATUIN_LOG=error atuin history end --exit $EXIT -- $ATUIN_HISTORY_ID &) >/dev/null 2>&1
+    export ATUIN_HISTORY_ID=""
 }
 _atuin_search() {
     emulate -L zsh
     zle -I
-    output=$(RUST_LOG=error atuin search $* -i -- $BUFFER 3>&1 1>&2 2>&3)
+    output=$(ATUIN_SHELL_ZSH=t ATUIN_LOG=error atuin search $* -i -- $BUFFER 3>&1 1>&2 2>&3)
+    zle reset-prompt
     if [[ -n $output ]]; then
         RBUFFER=""
         LBUFFER=$output
     fi
-    zle reset-prompt
+    if [[ $LBUFFER == __atuin_accept__:* ]]
+    then
+        LBUFFER=${LBUFFER#__atuin_accept__:}
+        zle accept-line
+    fi
 }
 _atuin_up_search() {
     _atuin_search --shell-up-key-binding

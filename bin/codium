@@ -15,12 +15,12 @@ codium_paths="$(
 )"
 
 # codium wayland finally shows my cursor :D
-[ -n "${WAYLAND_DISPLAY:-}" ] && ozonewayland='--ozone-platform=wayland'
+[ -n "${WAYLAND_DISPLAY:-}" ] && ozonewayland='--ozone-platform=wayland '
 #  --enable-features=UseOzonePlatform
 if [ -n "${codium_paths:-}" ]; then
-    exec $codium_paths ${ozonewayland} "$@"
+    exec $codium_paths ${ozonewayland}"$@"
 elif [ -f "$flatpak_path" ]; then
-    exec flatpak run com.vscodium.codium ${ozonewayland} "$@"
+    exec flatpak run com.vscodium.codium ${ozonewayland}"$@"
 else
     notify-send -a "${0##*/}" 'Error' "Could not find VSCodium installation"
 fi

@@ -3,7 +3,8 @@
 
 # tab_character='	'
 # expr "$-" : '.*i' >/dev/null
-[ "${-#*i}" != "$-" ] && {
+
+if [ "${-#*i}" != "$-" ]; then
     [ "${HOSTNAME:=$(hostname)}" = "${CURRENT_HOSTNAME:-n}" ] && loginctl list-sessions --no-pager
     case "$0" in
     *bash)
@@ -15,6 +16,8 @@
     esac
     [ -f "$rcfile" ] && . "$rcfile"
     unset rcfile
-    PROFILESOURCED=true
     #expr "$0" : '.*bash' >/dev/null 2>&1 && . "${BDOTDIR:-$HOME}/.bashrc"
-}
+#else
+#    eval $(set-cursor-theme.sh --shell-eval)
+fi
+PROFILESOURCED=true
