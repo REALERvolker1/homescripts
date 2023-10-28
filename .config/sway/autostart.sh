@@ -21,8 +21,9 @@ set-cursor-theme.sh --session &
 steam-symlink-unfucker.sh &
 
 pointer.sh -n &
-pmgmt.sh &
+pmgmt.sh --monitor &
 # scratchpad_terminal.sh &
 
 autostart-clipboard.sh &
 autotiling-rs &
+scratchpad_terminal.sh &

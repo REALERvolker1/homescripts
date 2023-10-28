@@ -6,7 +6,7 @@ autostart-dbus-activation-env.sh &
 xrdb -merge "$XRESOURCES" &
 # vlk-xrandr.sh --monitor &
 vlk-xrandr.sh &
-[ -f "$XDG_CONFIG_HOME/nvidia/settings" ] && nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" -
+[ -f "$XDG_CONFIG_HOME/nvidia/settings" ] && nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" &
 
 autostart-polkit.sh &
 autostart-keyring.sh &
@@ -22,7 +22,7 @@ autostart-gammastep.sh &
 
 xset -dpms &
 xss-lock -l "vlklock.sh" &
-pmgmt.sh &
+pmgmt.sh --monitor &
 # (
 #     killall xplugd
 #     xplugd

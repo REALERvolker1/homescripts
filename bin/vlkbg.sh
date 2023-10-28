@@ -181,6 +181,7 @@ case "$BACKEND" in
                     count=$((count + 1))
                 done
             ) &
+            disown
         )
     fi
     ;;
