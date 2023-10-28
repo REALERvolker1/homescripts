@@ -42,8 +42,6 @@ opt.hlsearch = true
 opt.incsearch = true
 opt.lazyredraw = true
 
--- Fixing terminals {{{
-
 -- Fixes alacritty
 vim.cmd
 [[
@@ -65,8 +63,6 @@ else
     mysep = { left = ']', right = '[' }
     mycum = { left = '/', right =  '\\'}
 end
-
--- }}}
 
 --vim.cmd [[packadd packer.nvim]]
 
