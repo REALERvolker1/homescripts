@@ -1,19 +1,22 @@
 .config/rofi/backup
-.config/xfce4/xfconf
+#.config/xfce4/xfconf
 .config/zsh/*.zwc
 .config/zsh/**/*.zwc
 .config/zsh/.zcompcache
+.config/zsh/.zcompdump
 .config/zsh/.zcalc_history
 .config/bar-scripts/**/target
 .config/shell/**/target
-.config/shell/**/*.zwc
-.config/shell/*.zwc
+.config/rustcfg/**/target
+.config/**/*.zwc
+#.config/shell/*.zwc
 .config/tmux/plugins
 .config/nushell/history.txt
 .config/btop/btop.log
+.config/**/.vscode
 # appearance.sh modifies these
 .config/fontconfig
 .config/gtk-2.0/gtkrc
 .config/gtk-3.0/settings.ini
 .config/gtk-4.0/settings.ini
-.config/**/.vscode
+.config/xsettingsd

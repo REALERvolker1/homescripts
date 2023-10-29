@@ -22,9 +22,11 @@ fi
 
 if command -v yay >/dev/null; then
     _head 35 'yay'
+    sudo pacman -Fy
     yay -Syu
 elif command -v pacman >/dev/null; then
     _head 92 'pacman'
+    sudo pacman -Fy
     sudo pacman -Syu
 fi
 

@@ -134,4 +134,7 @@
     "[toml]": {
         "editor.defaultFormatter": "tamasfe.even-better-toml"
     },
+    "[perl]": {
+        "editor.defaultFormatter": "richterger.perl"
+    }
 }

@@ -1,38 +1,35 @@
-#!/usr/bin/bash
+#!/usr/bin/zsh
 # vlk's pacs, an actually good search functionality for Arch Linux pacman based on dnfs
 set -euo pipefail
-IFS=$'\n\t'
+TAB=$'\t' LF=$'\n'
 
-if command -v yay &>/dev/null; then
-    _pk() {
-        yay "$@"
-    }
-elif command -v pacman &>/dev/null; then
-    _pk() {
-        pacman "$@"
-    }
-else
-    echo "Error, you must have Arch Linux \`yay\` or \`pacman\` installed to use this program!"
-    exit 1
-fi
-cosmetic_sedstr='s/-git /\x1b[1m-git\x1b[0m /g
-'
-repo_sedstr='s/aur/\x1b[96mAUR\x1b[0m/g
-s/core/\x1b[94mCORE\x1b[0m/g
-s/extra/\x1b[95mEXTRA\x1b[0m/g
-s/g14/\x1b[91mASUS\x1b[0m/g
-s/multilib/\x1b[93mMULTILIB\x1b[0m/g'
-# installed_list="$(_pk -Q)"
+PKGCACHE="$XDG_RUNTIME_DIR/${0##*/}.cache"
 
-# grep -v '\[installed\]$' | awk '{print "[",$1,"]",$2,"[",$3,"]"}'
-package_list="$(_pk -Sl | grep -v '\[installed\]$')"
-# echo "$package_list" | sed "$cosmetic_sedstr"
-
-repo_width="$(echo "$package_list" | cut -d ' ' -f 1 | uniq | wc -L)"
-
-for line in $package_list; do
-    repo="$(echo "${line## *}" | sed "$repo_sedstr")"
-    printf '%sh\n' "$repo"
+set -A vardeps
+for i in pacman fzf grep; do
+    command -v "$i" &>/dev/null || vardeps+=("$i")
 done
-echo "$repo_width"
-# echo "$package_list" | cut -d ' ' -f 1 | uniq
+((${#vardeps})) && echo "Missing dependencies: ${vardeps[*]}" && exit 1
+unset vardeps
+
+typeset -i REFRESH
+set -A query
+for i in "$@"; do
+    case "${i:-}" in
+    --refresh | -S)
+        REFRESH=1
+        ;;
+    *)
+        [[ -n ${i//[:IFSSPACE:]/} ]] && query+=("$i")
+        ;;
+    esac
+done
+IFS="$LF$TAB"
+
+# [[ -n $PKGCACHE*(#qN) ]]
+[[ ! -f $PKGCACHE ]] && REFRESH=1
+
+if ((REFRESH)); then
+    echo "Refreshing package cachefile..."
+    pacman -Si | grep -E '^(Repository|Name|Version|Description|Architecture)' >"$PKGCACHE"
+fi
