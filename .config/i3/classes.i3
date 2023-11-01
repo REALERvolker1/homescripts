@@ -58,6 +58,7 @@ for_window [class="Dconf-editor"] floating enable
 
 for_window [class="Junction"] floating enable sticky enable
 for_window [class="Xfce-polkit"] floating enable sticky enable
+for_window [class="missioncenter"] floating enable sticky enable
 
 for_window [class="XEyes"] floating enable border none
 for_window [class="^$" title="Event Tester"] floating enable

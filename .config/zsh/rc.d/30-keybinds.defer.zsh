@@ -6,20 +6,21 @@ stty stop undef
 bindkey -v
 export KEYTIMEOUT=1
 
-typeset -A keymap
-keymap[Ca]="^A"
-keymap[home]="^[[H"
-keymap[end]="^[[F"
-keymap[delete]="^[[3~"
-keymap[backspace]="^H"
-keymap[backspace_two]="^?"
-keymap[Cright]="^[[1;5C"
-keymap[Cleft]="^[[1;5D"
-keymap[As]='^[s'
-keymap[AshiftS]='^[S'
-keymap[Cz]="^Z"
-keymap[Cy]="^Y"
-keymap[Ce]="^E"
+typeset -A keymap=(
+    [Ca]="^A"
+    [home]="^[[H"
+    [end]="^[[F"
+    [delete]="^[[3~"
+    [backspace]="^H"
+    [backspace_two]="^?"
+    [Cright]="^[[1;5C"
+    [Cleft]="^[[1;5D"
+    [As]='^[s'
+    [AshiftS]='^[S'
+    [Cz]="^Z"
+    [Cy]="^Y"
+    [Ce]="^E"
+)
 
 bindkey "${keymap[home]}" beginning-of-line
 bindkey "${keymap[end]}" end-of-line

@@ -7,11 +7,12 @@ emulate -LR zsh
 
 # cmdarr=("${(@)commands##*/}")
 ### shell session settings
-# VLKPROMPT_SKIP=1
+VLKPROMPT_SKIP=ge
 # VLKZSH_RECOMPILE=1
 # VLKZSH_LSDIFF_UPDATE=1
 
 foreach i ("$ZDOTDIR/rc.d"/*.zsh) {
+    #[[ $i == *prompt* ]] && continue
     if [[ $i == *.defer.zsh ]] {
         zsh-defer . "$i"
     } else {

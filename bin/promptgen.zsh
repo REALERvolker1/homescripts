@@ -23,6 +23,8 @@ dependency_check() {
     return $retval
 }
 
+[[ -z ${ZPROMPTPATH:-} ]] && ZPROMPTPATH="${${ZDOTDIR:+$ZDOTDIR/rc.d/40-}:-$HOME/.}vlkprompt.zsh"
+
 case "${1:-}" in
     '--generate') : ;;
     '--depcheck')
@@ -35,7 +37,6 @@ case "${1:-}" in
     else
         me="$0"
     fi
-    potential_fp="${${ZDOTDIR:+$ZDOTDIR/rc.d/40-}:-$HOME/.}vlkprompt.zsh"
     declare -a invalid_args=(\'$^@\')
 cat << EOF
 Invalid args: ${(@)invalid_args}
@@ -50,18 +51,19 @@ Finding your missing dependencies
 $(tput dim)$me --depcheck$(tput sgr0)
 
 Generating your config
-$(tput dim)$me --generate > '$potential_fp'$(tput sgr0)
+(optional: set \$ZPROMPTPATH)
+$(tput dim)$me --generate$(tput sgr0)
 
 In your zshrc:
 
 $(tput dim)# .zshrc
 # ...
-. $potential_fp
+. "$ZPROMPTPATH"
 # ...
 # loading aliases, plugins, etc$(tput sgr0)
 
 You can zcompile the output file to make it run faster
-$(tput dim)zcompile '$potential_fp'$(tput sgr0)
+$(tput dim)zcompile '$ZPROMPTPATH'$(tput sgr0)
 EOF
     exit 1
     ;;
@@ -226,6 +228,7 @@ endbg[nohos]="${endbg[log]}"
 en[nohos]=''
 promptgendate="generated on $(date +'%D @ %r') by $USER using $0"
 # "$(git rev-parse --show-toplevel 2>/dev/null)"
+(
 cat << EOF
 [[ "\$-" == *i* && -z \$BASH_VERSION && \$TERM != linux ]] || {
     return 1
@@ -237,27 +240,28 @@ cat << EOF
 # https://github.com/REALERvolker1/homescripts/blob/main/bin/promptgen.sh
 
 unsetopt single_line_zle
+setopt prompt_subst
 
 # important variables
 export VIRTUAL_ENV_DISABLE_PROMPT=1 # needed for proper python venv string
-declare -A __vlkprompt_internal=(
-    [right_prompt]=''
-    [log_content]=''
-    [log_end_color]=''
-    [host_content]=''
-    [host_end]=''
-    [prev_pwd]=''
-    [pwd]=''
-    [pwd_writable]=''
-    [pwd_git]=''
-    [old_time]=0
-    [timer_str]=''
-    [venv_str]=''
-    [conda_str]=''
+declare -A __vlkprompt_internal=( \
+[right_prompt]='' \
+[log_content]='' \
+[log_end_color]='' \
+[host_content]='' \
+[host_end]='' \
+[prev_pwd]='' \
+[pwd]='' \
+[pwd_writable]='' \
+[pwd_git]='' \
+[old_time]=0 \
+[timer_str]='' \
+[venv_str]='' \
+[conda_str]='' \
 )
 
-if [[ -n \$CONTAINER_ID || \$HOSTNAME != \$CURRENT_HOSTNAME || \$- =~ l ]]; then
-    if [[ \$- =~ l ]]; then
+if [[ -n \$CONTAINER_ID || \$HOSTNAME != \$CURRENT_HOSTNAME || \$- == *l* ]]; then
+    if [[ \$- == *l* ]]; then
         __vlkprompt_internal[log_content]="${content[log]}%(${index[transient]}V..${en[log]})"
         __vlkprompt_internal[log_end_color]="${endbg[log]}"
     else
@@ -317,7 +321,6 @@ command_not_found_handler() {
 
 __vlkprompt_precmd() {
     local -i timer=\$((SECONDS - \${__vlkprompt_internal[old_time]}))
-    __vlkprompt_internal[timer_str]=''
     if ((timer > ${MIN_TIMER_TIME_MINUS_ONE})); then
         local leading_zero timedisp timedisp_sm
         if ((timer > 60)); then
@@ -344,7 +347,7 @@ __vlkprompt_precmd() {
             timedisp="\${timer}s"
             timedisp_sm="\${timer}"
         fi
-        psvar[134]=1
+        psvar[${index[timer]}]=1
         __vlkprompt_internal[timer_str]="%(${index[transient]}V.\${timedisp_sm}.\${timedisp})"
     fi
 
@@ -374,11 +377,10 @@ __vlkprompt_precmd() {
         psvar[${index[venv]}]=1
         __vlkprompt_internal[venv_str]="\${VIRTUAL_ENV##*/}"
     fi
-    [[ -n \$VIRTUAL_ENV ]] && psvar[${index[venv]}]=1
 }
 
 export -U precmd_functions
-precmd_functions+=('__vlkprompt_precmd' )
+precmd_functions+=('__vlkprompt_precmd')
 
 if [[ -z \${DISTROBOX_ENTER_PATH:-} ]]; then
     __vlkprompt_sudo_cmd() {
@@ -391,7 +393,6 @@ if [[ -z \${DISTROBOX_ENTER_PATH:-} ]]; then
     precmd_functions+=('__vlkprompt_sudo_cmd')
 fi
 
-# function zle-line-init zle-keymap-select
 __vlkprompt-zle-keymap-select() {
     if [[ \$KEYMAP == vicmd ]]; then
         psvar[${index[vim]}]=1
@@ -435,11 +436,12 @@ zle -N zle-line-init __vlkprompt-zle-line-init
 
 return
 EOF
+) >"$ZPROMPTPATH"
 
 zshenv="${ZDOTDIR:-$HOME}/.zshenv"
 
 zshenv_content=''
-[[ -f $zshenv ]] && zshenv_content="$(grep -v -e '# vlkprompt-zshenv,' -e 'PROMPT4=' -e '^\s*$' "$zshenv")"
+[[ -f $zshenv ]] && zshenv_content="$(grep -Ev '^(PROMPT(2|3|4)|# vlkprompt-zshenv|\s*$)' "$zshenv")"
 echo "${zshenv_content:+$zshenv_content
 }# vlkprompt-zshenv, $promptgendate
 PROMPT2='${set[sgr_full]}${cbg[ps2]}${txc[l]} %_ ${set[sgr]}${cfg[ps2]}${set[sud_end_notransient]} '

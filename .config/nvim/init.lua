@@ -4,7 +4,7 @@ vim.g.loaded_netrwPlugin = 1
 --vim.g.loaded_
 
 opt = vim.opt
-map = vim.api.nvim_set_keymap
+-- map = vim.api.nvim_set_keymap
 
 opt.tabstop = 4
 opt.expandtab = true
@@ -34,7 +34,21 @@ opt.list = true
 opt.foldmethod = 'marker'
 
 --: Be very cautious about enabling system clipboard!
---opt.clipboard = 'unnamedplus'
+opt.clipboard = 'unnamedplus'
+--opt.clipboard = 'unnamed,unnamedplus'
+--vim.api.nvim_set_option("clipboard","unnamed")
+--vim.api.nvim_set_keymap()
+
+vim.keymap.set('n', '<leader>y', '"*y')
+vim.keymap.set('n', '<leader>p', '"*p')
+vim.keymap.set('n', '<leader>c', '"+y')
+vim.keymap.set('n', '<leader>v', '"+p')
+--[[
+vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
+vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
+vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+--]]
 
 opt.ignorecase = true
 opt.smartcase = true
@@ -63,8 +77,6 @@ else
     mysep = { left = ']', right = '[' }
     mycum = { left = '/', right =  '\\'}
 end
-
---vim.cmd [[packadd packer.nvim]]
 
 vim.cmd [[packadd packer.nvim]]
 

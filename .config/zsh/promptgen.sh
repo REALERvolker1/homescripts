@@ -1,6 +1,7 @@
 #!/usr/bin/bash
-set -euo pipefail
-IFS=$'\n\t'
+# shellcheck disable=2016
+# set -euo pipefail
+# IFS=$'\n\t'
 
 # for command not found handler
 # pacman -Fl | grep -P "[^\s]+\s+(/|)(usr|)/(local/|)bin/${query}$"
@@ -17,13 +18,8 @@ declare -A colors=(
     [err]=52
     [job]=172
     [time]=226
-    [distrobox]=95
-    [host]=18
     [login]=57
-    [conda]=40
-    [venv]=220
     [ps2]=93
-    [ps3]=89
 )
 declare -A tcolor=(
     [sudo]="${colors[text_d]}"
@@ -34,13 +30,8 @@ declare -A tcolor=(
     [err]="${colors[text_l]}"
     [job]="${colors[text_d]}"
     [time]="${colors[text_d]}"
-    [distrobox]="${colors[text_l]}"
-    [host]="${colors[text_l]}"
     [login]="${colors[text_l]}"
-    [conda]="${colors[text_d]}"
-    [venv]="${colors[text_d]}"
     [ps2]="${colors[text_l]}"
-    [ps3]="${colors[text_l]}"
 )
 
 declare -A icons=(
@@ -50,11 +41,7 @@ declare -A icons=(
     [err]=󰅗
     [job]=󱜯
     [time]=󱑃
-    [distrobox]=󰆍
-    [host]=󰟀
     [login]=󱌒
-    [conda]=󱔎
-    [venv]=󰌠
     [end]=
     [end_r]=
     [end_sudo]=' '
@@ -63,85 +50,100 @@ declare -A icons=(
 declare -A set=(
     [sgr_full]='%k%f%b%u%s'
     [sgr]='%k%f%b'
+)
+
+declare -A index=(
     [short]=130
+    [timer]=134
+    [sudo]=135
+    [writable]=136
+    [symlink]=137
+    [git]=138
+    [vim]=139
 )
 
-endgen() {
-    local prev_color next_color text_color
-    # previous color, next color, text color of next block
-    if [[ ${1:-} == '--index' ]]; then
-        shift 1
-        prev_color="${colors[$1]}"
-        next_color="${colors[$2]}"
-        text_color="${tcolor[$2]}"
+endfggen() {
+    local outputstr
+    if [[ ${4:-} == '--no-fg_ends' ]]; then
+        outputstr="%F{${colors[$2]}}.$3"
     else
-        prev_color="$1"
-        next_color="$2"
-        [[ -n ${3:-} ]] && text_color="$3"
+        outputstr="%(${1}.%F{${colors[$2]}}.${fg_ends[$3]})"
     fi
-    echo "${set[sgr]}%F{$prev_color}%K{$next_color}${icons[end]}${text_color:+%B%F{$text_color\}}"
+    echo "$outputstr"
 }
-
 contentgen() {
-    echo "%(${set[short]}V.. ${icons[$1]}) ${2:+$2 }"
+    echo "%(${index[short]}V.. ${icons[$1]}) ${2:+$2 }"
 }
-
-declare -A ends=(
-    #
-    [login_host]="$(endgen --index login host)"
-    [login_conda]="$(endgen --index login conda)"
-    [login_venv]="$(endgen --index login venv)"
-    [login_time]="$(endgen --index login time)"
-    [login_job]="$(endgen --index login job)"
-    [login_err]="$(endgen --index login err)"
-    [login_cwd]="$(endgen "${colors[login]}" "\${__vlkprompt_internal[dir_color]}" "\${__vlkprompt_internal[dir_text]}")"
-    #
-    [host_conda]="$(endgen --index host conda)"
-    [host_venv]="$(endgen --index host venv)"
-    [host_time]="$(endgen --index host time)"
-    [host_job]="$(endgen --index host job)"
-    [host_err]="$(endgen --index host err)"
-    [host_cwd]="$(endgen "${colors[host]}" "\${__vlkprompt_internal[dir_color]}" "\${__vlkprompt_internal[dir_text]}")"
-    #
-    [distrobox_conda]="$(endgen --index distrobox conda)"
-    [distrobox_venv]="$(endgen --index distrobox venv)"
-    [distrobox_time]="$(endgen --index distrobox time)"
-    [distrobox_job]="$(endgen --index distrobox job)"
-    [distrobox_err]="$(endgen --index distrobox err)"
-    [distrobox_cwd]="$(endgen "${colors[distrobox]}" "\${__vlkprompt_internal[dir_color]}" "\${__vlkprompt_internal[dir_text]}")"
-    #
-    [conda_venv]="$(endgen --index conda venv)"
-    [conda_time]="$(endgen --index conda time)"
-    [conda_job]="$(endgen --index conda job)"
-    [conda_err]="$(endgen --index conda err)"
-    [conda_cwd]="$(endgen "${colors[conda]}" "\${__vlkprompt_internal[dir_color]}" "\${__vlkprompt_internal[dir_text]}")"
-    #
-    [venv_time]="$(endgen --index venv time)"
-    [venv_job]="$(endgen --index venv job)"
-    [venv_err]="$(endgen --index venv err)"
-    [venv_cwd]="$(endgen "${colors[venv]}" "\${__vlkprompt_internal[dir_color]}" "\${__vlkprompt_internal[dir_text]}")"
-    #
-    [time_job]="$(endgen --index time job)"
-    [time_err]="$(endgen --index time err)"
-    [time_cwd]="$(endgen "${colors[time]}" "\${__vlkprompt_internal[dir_color]}" "\${__vlkprompt_internal[dir_text]}")"
-    #
-    [job_err]="$(endgen --index job err)"
-    [job_cwd]="$(endgen "${colors[job]}" "\${__vlkprompt_internal[dir_color]}" "\${__vlkprompt_internal[dir_text]}")"
-    #
-    [err_cwd]="$(endgen "${colors[err]}" "\${__vlkprompt_internal[dir_color]}" "\${__vlkprompt_internal[dir_text]}")"
-    #
-    [err_cwd]="$(endgen "${colors[err]}" "\${__vlkprompt_internal[dir_color]}" "\${__vlkprompt_internal[dir_text]}")"
-    [cwd_sudo]="$(endgen "${colors[sudo]}" "\${__vlkprompt_internal[dir_color]}")"
-)
 
 declare -A contents=(
-    [login]="%(${set[short]}V. ${icons[login]} .)"
-    [host]="$(contentgen host "%(${set[short]}V.%m.%M)")"
+    [login]="$(contentgen login)"
+    [time]="$(contentgen time "\${__vlkprompt_internal[time_str]}")"
+    [job]="$(contentgen job "%j")"
+    [err]="$(contentgen err "%?")"
+    [cwd]=" %(${index[short]}V.%\$((COLUMNS / 4))<..<%~.\${__vlkprompt_internal[dir_icon]} %\$((COLUMNS / 2))<..<%~) "
 )
 
-for i in "${!ends[@]}"; do
-    printf '%s = %s\n' "$i" "${ends[$i]}"
-done
 for i in "${!contents[@]}"; do
-    printf '%s = "%s"\n' "$i" "${contents[$i]}"
+    contents[$i]="%K{${colors[$i]}}${icons[end]}%B%F{${tcolor[$i]}}${contents[$i]}${set[sgr]}%F{${colors[$i]}}"
+    # echo "${contents[$i]}"
 done
+contents[sudo]="%K{${colors[sudo]}}%(${index[short]}V..${icons[end]})%F{${colors[sudo]}}%(${index[short]}V.%k${icons[end]}. %k${icons[end_sudo]})"
+
+contents[job]="%(1j.${contents[job]}.)"
+contents[err]="%(0?..${contents[err]})"
+contents[sudo]="%(${index[sudo]}V.${contents[sudo]}.${icons[end]})"
+
+FULLPROMPT="${set[sgr_full]}
+${contents[login]}\
+${contents[time]}\
+${contents[job]}\
+${contents[err]}\
+${contents[cwd]}\
+${contents[sudo]}\
+${set[sgr_full]} "
+
+cat <<BRUH
+
+declare -A __vlkprompt_internal=(
+    [time_str]='00:00'
+    [dir_icon]="${icons[cwd_rw]}"
+)
+
+PROMPT='${contents[time]}${contents[job]}${contents[err]}${contents[cwd]}${contents[sudo]}${set[sgr_full]} '
+
+[[ \$- == *l* ]] && PROMPT='${contents[login]}'"\$PROMPT"
+PROMPT='${set[sgr_full]}%(${index[short]}V..
+)%F{0}'"\$PROMPT"
+
+PROMPT2='${set[sgr_full]}%K{${colors[ps2]}}%B%F{${tcolor[ps2]}} %_ ${set[sgr]}%F{${colors[ps2]}}${contents[sudo]}${set[sgr_full]} '
+
+__vlkprompt-zle-line-init() {
+    [[ \$CONTEXT == start ]] || return 0
+    ((\${+zle_bracketed_paste})) && print -r -n - "\${zle_bracketed_paste[1]}"
+    zle recursive-edit
+    local -i ret=\$?
+    ((\${+zle_bracketed_paste})) && print -r -n - "\${zle_bracketed_paste[2]}"
+    if [[ \$ret == 0 && \$KEYS == \$'\4' ]]; then
+        psvar[${index[short]}]=1
+        zle reset-prompt
+        exit
+    fi
+    local has_sudo="\${psvar[${index[sudo]}]}"
+    psvar[${index[short]}]=1
+    RPROMPT=
+    zle reset-prompt
+    psvar=()
+    psvar[${index[sudo]}]="\$has_sudo"
+    __vlkprompt_internal[old_time]=\$SECONDS
+    __vlkprompt_internal[timer_str]=
+    RPROMPT="\${__vlkprompt_internal[right_prompt]}"
+    if ((ret)); then
+        zle send-break
+    else
+        zle accept-line
+    fi
+    return ret
+}
+zle -N zle-line-init __vlkprompt-zle-line-init
+return
+BRUH

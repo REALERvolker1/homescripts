@@ -253,6 +253,16 @@ alias dotadd="$__homebin/dotfiles.sh --dotadd"
 
 alias cr='cargo run -- '
 alias cbr='cargo build --release'
+cn() {
+    local projname="${1:?Error, please enter a project name!}"
+    echo -n "Press ENTER to create a new Rust program '$projname' in this directory"
+    local ans
+    read -r ans
+    [[ $ans == '' ]] || return
+    cargo new "$projname" || return
+    builtin cd "$PWD/$projname" || return
+    codium ./
+}
 alias cupl='cargo install-update -l'
 
 alias dfn=dnf
