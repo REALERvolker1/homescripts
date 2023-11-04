@@ -136,5 +136,13 @@
     },
     "[perl]": {
         "editor.defaultFormatter": "richterger.perl"
-    }
+    },
+    "python.analysis.extraPaths": [
+        "/home/vlk/.vscode-oss/extensions/continue.continue-0.2.0-linux-x64"
+    ],
+    "python.autoComplete.extraPaths": [
+        "/home/vlk/.vscode-oss/extensions/continue.continue-0.2.0-linux-x64"
+    ],
+    "diffEditor.codeLens": true,
+    "continue.telemetryEnabled": false
 }

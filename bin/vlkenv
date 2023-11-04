@@ -101,6 +101,7 @@ export GNUPGHOME="$XDG_DATA_HOME/gnupg" GPG_TTY="${TTY:=$(tty)}"
 : "${GNOME_KEYRING_CONTROL:=$XDG_RUNTIME_DIR/keyring}" "${SSH_AUTH_SOCK:=$XDG_RUNTIME_DIR/keyring/ssh}"
 export GNOME_KEYRING_CONTROL SSH_AUTH_SOCK
 
+export OLLAMA_HOME="$XDG_DATA_HOME/ollama"
 if [ -S "$XDG_RUNTIME_DIR/.ydotool_socket" ]; then
     export YDOTOOL_SOCKET="$XDG_RUNTIME_DIR/.ydotool_socket"
 elif [ -S /tmp/.ydotool_socket ]; then
