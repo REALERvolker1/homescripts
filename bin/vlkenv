@@ -167,7 +167,7 @@ if [ -n "${VTE_VERSION:-}" ]; then
     export ICON_TYPE='dashline'
 else
     case "$TERM" in
-    *kitty* | *alacritty*) export ICON_TYPE='dashline' ;;
+    *kitty* | *alacritty* | *foot*) export ICON_TYPE='dashline' ;;
     *) export ICON_TYPE='fallback' ;;
     esac
 fi
