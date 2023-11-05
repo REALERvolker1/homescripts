@@ -1,3 +1,5 @@
-#!/usr/bin/bash
+#!/usr/bin/zsh
 
-pacman -Si | perl -wlne ''
+if [[ "${(j.:.)${(O)commands[@]##*/}}" == *lolcat*fortune* ]]; then
+    fortune -a -s | lolcat
+fi

@@ -7,16 +7,36 @@ local cachefile="$XDG_RUNTIME_DIR/dumfech-$XDG_SESSION_ID.cache"
         #echo "Saving to cache" >&2
         #df -h -l -t btrfs -t xfs -t ext4 -t exfat --output=pcent | uniq | xargs | sed 's/Use%[[:space:]]*//'
         echo ${(f)${(u)$(df -h -l -t btrfs -t xfs -t ext4 -t exfat --output=pcent)#Use%}}
-        nvidia-settings -v | grep -oP 'version\s\K[^\s]+'
+        # nvidia-settings -v | grep -oP 'version\s\K[^\s]+'
+        if [[ -r /sys/module/nvidia/version ]]; then
+            cat /sys/module/nvidia/version
+        else
+            echo 'none'
+        fi
         #echo "${$(uname -r)%%-*}"
         uname -r | grep -o '^[^-]*-[^-\.]*'
     ) >"$cachefile"
 
 # ik I'm cheating here a bit with a cachefile, but idk, it's a performance thing
 local -a cached=("${(f)$(<$cachefile)}")
+
+# this is less computationally expensive and more cross-platform than running procps uptime
+local -a uptime
+local -i upt="${$(</proc/uptime)%%.*}"
+local -i hrs=$((upt / 3600))
+local -i mins=$(((upt % 3600) / 60))
+if ((hrs)); then
+    uptime+=("${hrs} hr")
+    ((hrs > 1)) && uptime+=(s)
+    uptime+=(', ')
+fi
+uptime+=("${mins} min")
+((mins > 1)) && uptime+=(s)
+
+# "${${${${$(uptime -p)}#up }//hour/hr}//minute/min}"
 local -a props=(
     "${SHLVL:-999}"
-    "${${${${$(uptime -p)}#up }//hour/hr}//minute/min}"
+    "${(j..)uptime}"
     "${TERM:-Undefined}"
     "${cached[1]}"
     "${cached[2]}"
@@ -26,7 +46,7 @@ local -a props=(
 # run figlet -- "$USER"
 
 local -i len=${${(On)${(N)${props}%%*}}[1]}
-local lenstr="${boxcolor}╭────────────────┬─────────────${$(printf "%-${len}s\n" '')// /─}╮[0m"
+local lenstr="${boxcolor}╭────────────────┬─────────────${$(printf "%${len}s\n" '')// /─}╮[0m"
 
 echo "$lenstr"
 printf "${boxcolor}│[0;92m%s${boxcolor}│[0;%s   [1m%-${len}s ${boxcolor}│[0m\n" \
@@ -38,20 +58,8 @@ printf "${boxcolor}│[0;92m%s${boxcolor}│[0;%s   [1m%-${len}s ${boxcolor}�
     '                ' '91m  Kernel' "${props[6]}"
 echo "${${${lenstr/╭/╰}/┬/┴}/╮/╯}"
 
-fortune -a -s | lolcat
-#[[ ! -f "$XDG_CACHE_HOME/lsdiff.zsh.cache" || -n ${VLKZSH_LSDIFF_UPDATE:-} ]] && print -l "$HOME"/(.|)* >"$XDG_CACHE_HOME/lsdiff.zsh.cache" && return
-#local -a cache=(${(f@Q)$(<"$XDG_CACHE_HOME/lsdiff.zsh.cache")})
-#local -a current=("$HOME"/(.|)*)
-#if [[ ${cache[*]} != ${current[*]} ]] {
-#    local current_stuff=(${current:|cache})
-#    local oldifs="$IFS"
-#    local IFS=$'\n'
-#    local -a current_fmt=($([[ -z ${current_stuff:-} ]] || lsd --ignore-config -AL1 --icon=always --color=always $current_stuff ))
-#    print -C 2 ${${current_fmt//$HOME\//}/#/[92m+[0m } ${${${${cache:|current}##*/}/#/[91m-[1m }/%/[0m}
-#    IFS="$oldifs"
-#}
-# lsdiff
-# shell/rustcfg/lsdiff-rs/target/release/lsdiff-rs
+command -v fortune lolcat &>/dev/null && fortune -a -s | lolcat
+
 local lsdiff_path="$XDG_CONFIG_HOME/shell/rustcfg/lsdiff-rs"
 local lsdiff_bin="$lsdiff_path/target/release/${lsdiff_path##*/}"
 if [[ ! -x $lsdiff_bin ]] && [[ -d "$lsdiff_path" ]] && [[ -x =cargo ]] &>/dev/null; then
