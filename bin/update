@@ -1,5 +1,4 @@
 #!/usr/bin/dash
-# IFS=$'\n\t'
 IFS="$(printf '\n\t')"
 
 _head() {
@@ -23,11 +22,11 @@ fi
 if command -v yay >/dev/null; then
     _head 35 'yay'
     yay -Syu --devel
-    sudo pacman -Fy &>/dev/null &
+    sudo pacman -Fy >/dev/null &
 elif command -v pacman >/dev/null; then
     _head 92 'pacman'
     sudo pacman -Syu
-    sudo pacman -Fy &>/dev/null &
+    sudo pacman -Fy >/dev/null &
 fi
 
 if command -v apt >/dev/null; then
