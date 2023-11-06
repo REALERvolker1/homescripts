@@ -1,9 +1,8 @@
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
---vim.g.loaded_
+-- vim.g.loaded_
 
 opt = vim.opt
--- map = vim.api.nvim_set_keymap
 
 vlk_tab_width = 4
 
@@ -25,12 +24,13 @@ opt.relativenumber = true
 opt.numberwidth = 2
 opt.showbreak = "↪ "
 
---opt.mouse = null
+-- opt.mouse = null
 opt.listchars = "trail:·,nbsp:◇,tab:→ ,extends:▸,precedes:◂"
 opt.list = true
 --vim.opt.listchars:append "space:⋅"
 --vim.opt.listchars:append "eol:↴"
 opt.foldmethod = "marker"
+--opt.foldmethod = "syntax"
 
 --: Be very cautious about enabling system clipboard!
 opt.clipboard = ""
@@ -45,7 +45,6 @@ vim.keymap.set({ "n" }, "<C-x>", '"+d$')
 vim.keymap.set({ "v" }, "<C-x>", '"+d')
 vim.keymap.set({ "n" }, "<C-v>", '"+p$')
 vim.keymap.set({ "v" }, "<C-v>", '"+p')
-vim.keymap.set({ "i" }, "<C-v>", '"+p')
 
 opt.ignorecase = true
 opt.smartcase = true
@@ -76,12 +75,6 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- io.popen([[
--- PACKER_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/pack/packer/start/packer.nvim"
--- [ ! -e "$PACKER_HOME" ] &&
---     git clone --depth 1 https://github.com/wbthomason/packer.nvim "$PACKER_HOME" &&
---         printf "\r\nSuccessfully installed packer.nvim\r\n"
--- ]])
 require("lazy").setup({
     -- important
     "neovim/nvim-lspconfig",
@@ -108,6 +101,10 @@ require("lazy").setup({
         dependencies = {
             "kevinhwang91/promise-async",
         },
+    },
+    {
+        "numToStr/Comment.nvim",
+        lazy = false,
     },
     "goolord/alpha-nvim",
     "m00qek/baleia.nvim",
@@ -137,6 +134,8 @@ require("nvim-treesitter.configs").setup({
         end,
     },
 })
+-- so that was a fucking lie
+-- vim.api.nvim_set_hl(0, "Comment", { italic = true })
 
 local fold_handler = function(virtText, lnum, endLnum, width, truncate)
     local newVirtText = {}
@@ -396,7 +395,7 @@ require("lualine").setup({
     --     'toggleterm',
     -- },
 })
-opt.showmode = false
+opt.showmode = true
 
 require("hlslens").setup()
 
@@ -429,6 +428,14 @@ require("colorizer").setup({
         mode = "background",
     },
 })
+
+-- comment
+require("Comment").setup({
+    padding = true,
+    sticky = true,
+    toggler = { line = "," },
+})
+--vim.keymap.set({ "n" }, ",", "gcc")
 
 -- telescope
 local builtin = require("telescope.builtin")
