@@ -1,7 +1,7 @@
 .config/rofi/backup
 #.config/xfce4/xfconf
-.config/zsh/*.zwc
-.config/zsh/**/*.zwc
+#.config/zsh/*.zwc
+#.config/zsh/**/*.zwc
 .config/zsh/.zcompcache
 .config/zsh/.zcompdump
 .config/zsh/.zcalc_history

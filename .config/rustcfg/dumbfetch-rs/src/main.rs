@@ -9,13 +9,6 @@ use std::{
 };
 use sysinfo::{DiskExt, RefreshKind, System, SystemExt};
 
-// #[derive(Debug)]
-// struct Entry {
-//     length: usize,
-//     color: u8,
-//     content: String,
-// }
-
 fn main() -> Result<(), Box<dyn Error>> {
     let nvidia_version = process::Command::new("nvidia-settings")
         .arg("-v")
