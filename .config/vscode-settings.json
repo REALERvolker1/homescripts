@@ -107,14 +107,13 @@
     "color-highlight.markRuler": false,
     "vscord.status.idle.enabled": false,
     "editor.formatOnPaste": true,
-    "python.formatting.provider": "none",
+    // "python.formatting.provider": "none",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.smoothScrolling": true,
     "[shellscript]": {
         "editor.defaultFormatter": "foxundermoon.shell-format"
     },
     "shellformat.flag": "-i 4",
-    "glassit.alpha": 100,
     "rust-analyzer.diagnostics.enable": false,
     "[properties]": {
         "editor.defaultFormatter": null

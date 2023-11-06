@@ -1,4 +1,3 @@
-
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 --vim.g.loaded_
@@ -27,26 +26,26 @@ opt.numberwidth = 2
 opt.showbreak = "↪ "
 
 --opt.mouse = null
-opt.listchars = 'trail:·,nbsp:◇,tab:→ ,extends:▸,precedes:◂'
+opt.listchars = "trail:·,nbsp:◇,tab:→ ,extends:▸,precedes:◂"
 opt.list = true
 --vim.opt.listchars:append "space:⋅"
 --vim.opt.listchars:append "eol:↴"
-opt.foldmethod = 'marker'
+opt.foldmethod = "marker"
 
 --: Be very cautious about enabling system clipboard!
-opt.clipboard = ''
+opt.clipboard = ""
 --opt.clipboard = 'unnamed,unnamedplus'
 
 --vim.api.nvim_set_keymap("n", "<c-c>", '"*y :let @+=@*<CR>', {noremap=true, silent=true})
 --vim.api.nvim_set_keymap("n", "<c-v>", '"+p', {noremap=true, silent=true})
 --https://stackoverflow.com/a/76880300
-vim.keymap.set({'n'}, '<C-c>', '"+y$')
-vim.keymap.set({'v'}, '<C-c>', '"+y')
-vim.keymap.set({'n'}, '<C-x>', '"+d$')
-vim.keymap.set({'v'}, '<C-x>', '"+d')
-vim.keymap.set({'n'}, '<C-v>', '"+p$')
-vim.keymap.set({'v'}, '<C-v>', '"+p')
-vim.keymap.set({'i'}, '<C-v>', '"+p')
+vim.keymap.set({ "n" }, "<C-c>", '"+y$')
+vim.keymap.set({ "v" }, "<C-c>", '"+y')
+vim.keymap.set({ "n" }, "<C-x>", '"+d$')
+vim.keymap.set({ "v" }, "<C-x>", '"+d')
+vim.keymap.set({ "n" }, "<C-v>", '"+p$')
+vim.keymap.set({ "v" }, "<C-v>", '"+p')
+vim.keymap.set({ "i" }, "<C-v>", '"+p')
 
 opt.ignorecase = true
 opt.smartcase = true
@@ -55,13 +54,12 @@ opt.incsearch = true
 opt.lazyredraw = true
 
 -- Fixes alacritty
-vim.cmd
-[[
+vim.cmd([[
     augroup change_cursor
         au!
         au ExitPre * :set guicursor=a:ver90
     augroup END
-]]
+]])
 
 vim.loader.enable()
 
@@ -86,47 +84,47 @@ vim.opt.rtp:prepend(lazypath)
 -- ]])
 require("lazy").setup({
     -- important
-    'neovim/nvim-lspconfig',
-    'nvim-lua/plenary.nvim',
-    'nvim-tree/nvim-web-devicons',
+    "neovim/nvim-lspconfig",
+    "nvim-lua/plenary.nvim",
+    "nvim-tree/nvim-web-devicons",
     {
-        'nvim-treesitter/nvim-treesitter',
+        "nvim-treesitter/nvim-treesitter",
         build = function()
-            local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
+            local ts_update = require("nvim-treesitter.install").update({ with_sync = true })
             ts_update()
-        end
+        end,
     },
-    'akinsho/toggleterm.nvim',
-    'luckasRanarison/tree-sitter-hypr',
+    "akinsho/toggleterm.nvim",
+    "luckasRanarison/tree-sitter-hypr",
     -- UX
-    'karb94/neoscroll.nvim',
-    'petertriho/nvim-scrollbar',
-    'lukas-reineke/indent-blankline.nvim',
-    'stevearc/conform.nvim',
-    'itspriddle/vim-shellcheck',
-    'nvim-tree/nvim-tree.lua',
+    "karb94/neoscroll.nvim",
+    "petertriho/nvim-scrollbar",
+    "lukas-reineke/indent-blankline.nvim",
+    "stevearc/conform.nvim",
+    "itspriddle/vim-shellcheck",
+    "nvim-tree/nvim-tree.lua",
     {
-        'kevinhwang91/nvim-ufo',
+        "kevinhwang91/nvim-ufo",
         dependencies = {
-            'kevinhwang91/promise-async',
+            "kevinhwang91/promise-async",
         },
     },
-    'goolord/alpha-nvim',
-    'm00qek/baleia.nvim',
-    'olimorris/onedarkpro.nvim',
-    'NvChad/nvim-colorizer.lua',
-    'kevinhwang91/nvim-hlslens',
-    'nvim-lualine/lualine.nvim',
-    'arkav/lualine-lsp-progress',
-    'nvim-telescope/telescope.nvim',
+    "goolord/alpha-nvim",
+    "m00qek/baleia.nvim",
+    "olimorris/onedarkpro.nvim",
+    "NvChad/nvim-colorizer.lua",
+    "kevinhwang91/nvim-hlslens",
+    "nvim-lualine/lualine.nvim",
+    "arkav/lualine-lsp-progress",
+    "nvim-telescope/telescope.nvim",
 }, {
     checker = {
-        enabled = true
-    }
+        enabled = true,
+    },
 })
 
 -- nvim-treesitter
-require('nvim-treesitter.configs').setup {
+require("nvim-treesitter.configs").setup({
     auto_install = true,
     highlight = {
         enable = true,
@@ -137,12 +135,12 @@ require('nvim-treesitter.configs').setup {
                 return true
             end
         end,
-    }
-}
+    },
+})
 
 local fold_handler = function(virtText, lnum, endLnum, width, truncate)
     local newVirtText = {}
-    local suffix = (' 󰁂 %d '):format(endLnum - lnum)
+    local suffix = (" 󰁂 %d "):format(endLnum - lnum)
     local sufWidth = vim.fn.strdisplaywidth(suffix)
     local targetWidth = width - sufWidth
     local curWidth = 0
@@ -154,47 +152,48 @@ local fold_handler = function(virtText, lnum, endLnum, width, truncate)
         else
             chunkText = truncate(chunkText, targetWidth - curWidth)
             local hlGroup = chunk[2]
-            table.insert(newVirtText, {chunkText, hlGroup})
+            table.insert(newVirtText, { chunkText, hlGroup })
             chunkWidth = vim.fn.strdisplaywidth(chunkText)
             -- str width returned from truncate() may less than 2nd argument, need padding
             if curWidth + chunkWidth < targetWidth then
-                suffix = suffix .. (' '):rep(targetWidth - curWidth - chunkWidth)
+                suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
             end
             break
         end
         curWidth = curWidth + chunkWidth
     end
-    table.insert(newVirtText, {suffix, 'MoreMsg'})
+    table.insert(newVirtText, { suffix, "MoreMsg" })
     return newVirtText
 end
 
 -- nvim fold
-require('ufo').setup({
+require("ufo").setup({
     fold_virt_text_handler = fold_handler,
     provider_selector = function(bufnr, filetype, buftype)
-        return {'treesitter', 'indent'}
+        return { "treesitter", "indent" }
     end,
 })
-vim.o.foldcolumn = '1'
+vim.o.foldcolumn = "1"
 vim.o.foldenable = true
 
 local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 parser_config.hypr = {
-  install_info = {
-    url = "https://github.com/luckasRanarison/tree-sitter-hypr",
-    files = { "src/parser.c" },
-    branch = "master",
-  },
-  filetype = "hypr",
+    install_info = {
+        url = "https://github.com/luckasRanarison/tree-sitter-hypr",
+        files = { "src/parser.c" },
+        branch = "master",
+    },
+    filetype = "hypr",
 }
 
 -- nvim-lspconfig
-require('lspconfig')['pyright'].setup{}
-require('lspconfig')['tsserver'].setup{}
-require('lspconfig')['rust_analyzer'].setup{}
-require('lspconfig')['bashls'].setup{
+require("lspconfig").pyright.setup({})
+require("lspconfig").tsserver.setup({})
+require("lspconfig").rust_analyzer.setup({})
+require("lspconfig").bashls.setup({
     filetypes = { "sh", "bash" },
-}
+})
+require("lspconfig").perlls.setup({})
 
 -- conform.nvim
 local prettier_table = { { "prettierd", "prettier" } }
@@ -227,14 +226,18 @@ require("conform").setup({
         shfmt = {
             prepend_args = { "-i", vlk_tab_width },
         },
+        stylua = {
+            -- make me look like I like writing lua
+            prepend_args = { "--indent-type", "Spaces", "--indent-width", vlk_tab_width },
+        },
         prettier = {
-            prepend_args = { "--tab-width", vlk_tab_width, "--no-semi" }
+            prepend_args = { "--tab-width", vlk_tab_width, "--no-semi" },
         },
         rustfmt = {
-            prepend_args = { "--config", "tab_spaces=" .. vlk_tab_width }
+            prepend_args = { "--config", "tab_spaces=" .. vlk_tab_width },
         },
         perltidy = {
-            prepend_args = { "-i=" .. vlk_tab_width }
+            prepend_args = { "-i=" .. vlk_tab_width },
         },
         astyle = {
             prepend_args = { "--indent=spaces=" .. vlk_tab_width },
@@ -257,7 +260,7 @@ local highlight = {
     "RainbowViolet",
     "RainbowCyan",
 }
-local hooks = require "ibl.hooks"
+local hooks = require("ibl.hooks")
 -- create the highlight groups in the highlight setup hook, so they are reset
 -- every time the colorscheme changes
 hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
@@ -271,7 +274,7 @@ hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
 end)
 
 vim.g.rainbow_delimiters = { highlight = highlight }
-require("ibl").setup { scope = { highlight = highlight } }
+require("ibl").setup({ scope = { highlight = highlight } })
 
 hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
 
@@ -283,16 +286,16 @@ require("onedarkpro").setup({
         bold = true,
         italic = true,
         underline = false,
-        undercurl = true
-    }
+        undercurl = true,
+    },
 })
 vim.cmd("colorscheme onedark_vivid")
 
 -- alpha-nvim
-require('alpha').setup(require('alpha.themes.dashboard').config)
+require("alpha").setup(require("alpha.themes.dashboard").config)
 
 -- toggleterm
-require("toggleterm").setup{
+require("toggleterm").setup({
     size = 20,
     -- open_mapping = [[<c-\>]],
     open_mapping = [[t]],
@@ -301,12 +304,12 @@ require("toggleterm").setup{
     start_in_insert = true,
     insert_mappings = false,
     terminal_mappings = false,
-    direction = 'float', -- 'vertical' | 'horizontal' | 'tab' | 'float'
+    direction = "float", -- 'vertical' | 'horizontal' | 'tab' | 'float'
     close_on_exit = true,
     shell = vim.o.shell,
     auto_scroll = true,
     float_opts = {
-        border = 'curved',
+        border = "curved",
         -- width = <value>,
         -- height = <value>,
         winblend = 3,
@@ -316,17 +319,17 @@ require("toggleterm").setup{
         enabled = false,
         name_formatter = function(term) --  term: Terminal
             return term.name
-        end
+        end,
     },
-}
+})
 
 -- lualine
-require('lualine').setup {
+require("lualine").setup({
     options = {
         icons_enabled = true,
-        theme = 'onedark',
-        component_separators = { left = '', right = '' },
-        section_separators = { left = '', right = '' },
+        theme = "onedark",
+        component_separators = { left = "", right = "" },
+        section_separators = { left = "", right = "" },
         refresh = {
             statusline = 1000,
             tabline = 1000,
@@ -337,43 +340,43 @@ require('lualine').setup {
     always_divide_middle = true,
     sections = {
         lualine_a = {
-            'mode',
+            "mode",
         },
         lualine_b = {
-            'branch',
-            'diff',
-            'diagnostics',
+            "branch",
+            "diff",
+            "diagnostics",
         },
         lualine_c = {
             {
-                'filename',
+                "filename",
                 file_status = true,
                 path = 1,
                 shorting_target = 40,
                 symbols = {
-                    modified = '[+]', --󰐖
-                    readonly = '[-]', --󰛲
-                    unnamed = '󰛲',
-                    newfile = '󰐖',
+                    modified = "[+]", --󰐖
+                    readonly = "[-]", --󰛲
+                    unnamed = "󰛲",
+                    newfile = "󰐖",
                 },
             },
-            'lsp_progress',
+            "lsp_progress",
         },
         lualine_x = {
             -- 'encoding',
             -- 'fileformat',
             -- 'filesize',
             {
-                'fileformat',
+                "fileformat",
                 symbols = {
-                    unix = '',
-                    dos = 'CRLF',
-                    mac = 'CR',
-                }
+                    unix = "",
+                    dos = "CRLF",
+                    mac = "CR",
+                },
             },
             {
-                'filetype',
-                icon = { align = 'left' },
+                "filetype",
+                icon = { align = "left" },
             },
             {
                 require("lazy.status").updates,
@@ -383,19 +386,19 @@ require('lualine').setup {
         },
         lualine_y = {
             -- 'searchcount',
-            'progress',
+            "progress",
         },
         lualine_z = {
-            'location'
-        }
+            "location",
+        },
     },
     -- extensions = {
     --     'toggleterm',
     -- },
-}
+})
 opt.showmode = false
 
-require('hlslens').setup()
+require("hlslens").setup()
 
 -- nvim-tree
 require("nvim-tree").setup()
@@ -413,23 +416,23 @@ end
 vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
 
 -- neoscroll
-require('neoscroll').setup({ easing_function = "quadratic" })
+require("neoscroll").setup({ easing_function = "quadratic" })
 
 -- nvim scrollbar
 require("scrollbar").setup()
 
 -- colorizer
-require('colorizer').setup{
+require("colorizer").setup({
     filetypes = { "*" },
     user_default_options = {
         RRGGBBAA = true,
         mode = "background",
     },
-}
+})
 
 -- telescope
-local builtin = require('telescope.builtin')
-vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
-vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
-vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
-vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+local builtin = require("telescope.builtin")
+vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
+vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
+vim.keymap.set("n", "<leader>fb", builtin.buffers, {})
+vim.keymap.set("n", "<leader>fh", builtin.help_tags, {})

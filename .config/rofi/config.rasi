@@ -1,6 +1,6 @@
 /*
     vlk dotfile theme thing
-    vim: ft=sass
+    vim: ft=rasi
 */
 
 @theme "theme.rasi"
