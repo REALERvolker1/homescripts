@@ -6,7 +6,9 @@ vim.g.loaded_netrwPlugin = 1
 opt = vim.opt
 -- map = vim.api.nvim_set_keymap
 
-opt.tabstop = 4
+vlk_tab_width = 4
+
+opt.tabstop = vlk_tab_width
 opt.expandtab = true
 opt.shiftwidth = 0
 opt.shiftround = true
@@ -14,17 +16,15 @@ opt.autoindent = true
 opt.smartindent = true
 
 opt.wrap = true
---opt.scrolloff = 10
+opt.scrolloff = 3
 opt.termguicolors = true
-opt.cursorline = false
+opt.cursorline = true
 opt.undofile = true
 
---[[
 opt.number = true
 opt.relativenumber = true
 opt.numberwidth = 2
---]]
---opt.showbreak = "↪ "
+opt.showbreak = "↪ "
 
 --opt.mouse = null
 opt.listchars = 'trail:·,nbsp:◇,tab:→ ,extends:▸,precedes:◂'
@@ -35,23 +35,18 @@ opt.foldmethod = 'marker'
 
 --: Be very cautious about enabling system clipboard!
 opt.clipboard = ''
---opt.clipboard = 'unnamedplus'
 --opt.clipboard = 'unnamed,unnamedplus'
 
 --vim.api.nvim_set_keymap("n", "<c-c>", '"*y :let @+=@*<CR>', {noremap=true, silent=true})
 --vim.api.nvim_set_keymap("n", "<c-v>", '"+p', {noremap=true, silent=true})
+--https://stackoverflow.com/a/76880300
 vim.keymap.set({'n'}, '<C-c>', '"+y$')
 vim.keymap.set({'v'}, '<C-c>', '"+y')
 vim.keymap.set({'n'}, '<C-x>', '"+d$')
 vim.keymap.set({'v'}, '<C-x>', '"+d')
 vim.keymap.set({'n'}, '<C-v>', '"+p$')
 vim.keymap.set({'v'}, '<C-v>', '"+p')
---[[
-vim.keymap.set('n', '<leader>y', '"*y')
-vim.keymap.set('n', '<leader>p', '"*p')
-vim.keymap.set('n', '<leader>c', '"+y')
-vim.keymap.set('n', '<leader>v', '"+p')
---]]
+vim.keymap.set({'i'}, '<C-v>', '"+p')
 
 opt.ignorecase = true
 opt.smartcase = true
@@ -68,142 +63,67 @@ vim.cmd
     augroup END
 ]]
 
-separator_type=os.getenv("ICON_TYPE")
+vim.loader.enable()
 
-if (separator_type == "dashline") then
-    mysep = { left = '', right = '' }
-    mycum = { left = '', right = '' } --  
-elseif (separator_type == "powerline") then
-    mysep = { left = '', right = '' }
-    mycum = { left = '', right = '' }
-else
-    mysep = { left = ']', right = '[' }
-    mycum = { left = '/', right =  '\\'}
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+    vim.fn.system({
+        "git",
+        "clone",
+        "--filter=blob:none",
+        "https://github.com/folke/lazy.nvim.git",
+        "--branch=stable", -- latest stable release
+        lazypath,
+    })
 end
+vim.opt.rtp:prepend(lazypath)
 
-vim.cmd [[packadd packer.nvim]]
-
-require('packer').startup(function(use)
+-- io.popen([[
+-- PACKER_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/pack/packer/start/packer.nvim"
+-- [ ! -e "$PACKER_HOME" ] &&
+--     git clone --depth 1 https://github.com/wbthomason/packer.nvim "$PACKER_HOME" &&
+--         printf "\r\nSuccessfully installed packer.nvim\r\n"
+-- ]])
+require("lazy").setup({
     -- important
-    use 'wbthomason/packer.nvim'
-    use 'lewis6991/impatient.nvim'
-    use 'neovim/nvim-lspconfig'
-    use 'nvim-lua/plenary.nvim'
-    use {
+    'neovim/nvim-lspconfig',
+    'nvim-lua/plenary.nvim',
+    'nvim-tree/nvim-web-devicons',
+    {
         'nvim-treesitter/nvim-treesitter',
-        run = function()
-        local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
-        ts_update()
-        end,
-    }
-    use { "luckasRanarison/tree-sitter-hypr" }
+        build = function()
+            local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
+            ts_update()
+        end
+    },
+    'akinsho/toggleterm.nvim',
+    'luckasRanarison/tree-sitter-hypr',
     -- UX
-    use 'karb94/neoscroll.nvim'
-    use 'lukas-reineke/indent-blankline.nvim'
-    use 'mhartington/formatter.nvim'
-    use 'itspriddle/vim-shellcheck'
-    use {
-        'nvim-tree/nvim-tree.lua',
-        requires = { 'nvim-tree/nvim-web-devicons' },
-    }
-    use {
-        'goolord/alpha-nvim',
-        requires = { 'nvim-tree/nvim-web-devicons' },
-    }
-    use 'm00qek/baleia.nvim'
-
-    -- visuals
-    use 'olimorris/onedarkpro.nvim'
-    use 'kwshi/nvim-colorizer.lua'
-    use {
-        'nvim-lualine/lualine.nvim',
-        requires = { 'nvim-tree/nvim-web-devicons', opt = true }
-    }
-    use {
-        'nvim-telescope/telescope.nvim',
-        requires = { {'nvim-lua/plenary.nvim'} }
-    }
-end)
-
-local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-parser_config.hypr = {
-  install_info = {
-    url = "https://github.com/luckasRanarison/tree-sitter-hypr",
-    files = { "src/parser.c" },
-    branch = "master",
-  },
-  filetype = "hypr",
-}
--- disabled {{{
---[[
-    use 'ray-x/cmp-treesitter'
-    use 'hrsh7th/cmp-nvim-lsp'
-    use 'hrsh7th/cmp-buffer'
-    use 'hrsh7th/cmp-path'
-    use 'hrsh7th/cmp-cmdline'
-    use 'hrsh7th/nvim-cmp'
-    use 'christoomey/vim-tmux-navigator'
-
-    use "norcalli/nvim-colorizer.lua"
-
-    use {
-        'kdheepak/tabline.nvim',
-        config = function()
-            require'tabline'.setup {
-                enable = true,
-                options = {
-                    --modified_icon = "+ "
-                }
-            }
-            vim.cmd[[
-                set guioptions-=e
-                set sessionoptions+=tabpages,globals
-                ] ]
-        end,
-        requires = { { 'hoob3rt/lualine.nvim', opt=true }, {'nvim-tree/nvim-web-devicons', opt
- = true} }
-    }
-    use {
-        'samodostal/image.nvim',
-        requires = {
-            'nvim-lua/plenary.nvim'
+    'karb94/neoscroll.nvim',
+    'petertriho/nvim-scrollbar',
+    'lukas-reineke/indent-blankline.nvim',
+    'stevearc/conform.nvim',
+    'itspriddle/vim-shellcheck',
+    'nvim-tree/nvim-tree.lua',
+    {
+        'kevinhwang91/nvim-ufo',
+        dependencies = {
+            'kevinhwang91/promise-async',
         },
+    },
+    'goolord/alpha-nvim',
+    'm00qek/baleia.nvim',
+    'olimorris/onedarkpro.nvim',
+    'NvChad/nvim-colorizer.lua',
+    'kevinhwang91/nvim-hlslens',
+    'nvim-lualine/lualine.nvim',
+    'arkav/lualine-lsp-progress',
+    'nvim-telescope/telescope.nvim',
+}, {
+    checker = {
+        enabled = true
     }
-    --use {'edluffy/hologram.nvim'}
-    --use 'elkowar/yuck.vim'
-    --use 'ryanoasis/vim-devicons'
-    --use 'waycrate/swhkd-vim'
---]]
--- }}}
-
--- check out https://github.com/folke/lazy.nvim
-
---git clone --depth 1 https://github.com/wbthomason/packer.nvim\
--- ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-
--- impatient.nvim
-require('impatient')
-
--- nvim-lspconfig
-require('lspconfig')['pyright'].setup{
-    on_attach = on_attach,
-    capabilities = capabilities,
-    flags = lsp_flags,
-}
-require('lspconfig')['tsserver'].setup{
-    on_attach = on_attach,
-    capabilities = capabilities,
-    flags = lsp_flags,
-}
-require('lspconfig')['rust_analyzer'].setup{
-    on_attach = on_attach,
-    capabilities = capabilities,
-    flags = lsp_flags,
-    -- Server-specific settings...
-    settings = {
-      ["rust-analyzer"] = {}
-    }
-}
+})
 
 -- nvim-treesitter
 require('nvim-treesitter.configs').setup {
@@ -220,24 +140,114 @@ require('nvim-treesitter.configs').setup {
     }
 }
 
--- indent-blankline
---vim.cmd [[highlight IndentBlanklineIndent1 guibg=#282c34 gui=nocombine]]
---vim.cmd [[highlight IndentBlanklineIndent2 guibg=#3e4451 gui=nocombine]]
---[[
-require("indent_blankline").setup {
-    char = "",
-    char_highlight_list = {
-        "IndentBlanklineIndent1",
-        "IndentBlanklineIndent2",
-    },
-    space_char_highlight_list = {
-        "IndentBlanklineIndent1",
-        "IndentBlanklineIndent2",
-    },
-    space_char_blankline = " ",
-    show_trailing_blankline_indent = true,
+local fold_handler = function(virtText, lnum, endLnum, width, truncate)
+    local newVirtText = {}
+    local suffix = (' 󰁂 %d '):format(endLnum - lnum)
+    local sufWidth = vim.fn.strdisplaywidth(suffix)
+    local targetWidth = width - sufWidth
+    local curWidth = 0
+    for _, chunk in ipairs(virtText) do
+        local chunkText = chunk[1]
+        local chunkWidth = vim.fn.strdisplaywidth(chunkText)
+        if targetWidth > curWidth + chunkWidth then
+            table.insert(newVirtText, chunk)
+        else
+            chunkText = truncate(chunkText, targetWidth - curWidth)
+            local hlGroup = chunk[2]
+            table.insert(newVirtText, {chunkText, hlGroup})
+            chunkWidth = vim.fn.strdisplaywidth(chunkText)
+            -- str width returned from truncate() may less than 2nd argument, need padding
+            if curWidth + chunkWidth < targetWidth then
+                suffix = suffix .. (' '):rep(targetWidth - curWidth - chunkWidth)
+            end
+            break
+        end
+        curWidth = curWidth + chunkWidth
+    end
+    table.insert(newVirtText, {suffix, 'MoreMsg'})
+    return newVirtText
+end
+
+-- nvim fold
+require('ufo').setup({
+    fold_virt_text_handler = fold_handler,
+    provider_selector = function(bufnr, filetype, buftype)
+        return {'treesitter', 'indent'}
+    end,
+})
+vim.o.foldcolumn = '1'
+vim.o.foldenable = true
+
+local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+parser_config.hypr = {
+  install_info = {
+    url = "https://github.com/luckasRanarison/tree-sitter-hypr",
+    files = { "src/parser.c" },
+    branch = "master",
+  },
+  filetype = "hypr",
 }
-]]
+
+-- nvim-lspconfig
+require('lspconfig')['pyright'].setup{}
+require('lspconfig')['tsserver'].setup{}
+require('lspconfig')['rust_analyzer'].setup{}
+require('lspconfig')['bashls'].setup{
+    filetypes = { "sh", "bash" },
+}
+
+-- conform.nvim
+local prettier_table = { { "prettierd", "prettier" } }
+require("conform").setup({
+    formatters_by_ft = {
+        lua = { "stylua" },
+        perl = { "perltidy" },
+        sh = { "shfmt" },
+        bash = { "shfmt" },
+        rust = { "rustfmt" },
+        nix = { "nixfmt" },
+        c = { "astyle" },
+        cpp = { "astyle" },
+        java = { "astyle" },
+        -- Conform will run multiple formatters sequentially
+        -- python = { "isort", "black" },
+        -- Use a sub-list to run only the first available formatter
+        javascript = prettier_table,
+        typescript = prettier_table,
+        jsx = prettier_table,
+        css = prettier_table,
+        less = prettier_table,
+        scss = prettier_table,
+        json = prettier_table,
+        json5 = prettier_table,
+        html = prettier_table,
+        yaml = prettier_table,
+    },
+    formatters = {
+        shfmt = {
+            prepend_args = { "-i", vlk_tab_width },
+        },
+        prettier = {
+            prepend_args = { "--tab-width", vlk_tab_width, "--no-semi" }
+        },
+        rustfmt = {
+            prepend_args = { "--config", "tab_spaces=" .. vlk_tab_width }
+        },
+        perltidy = {
+            prepend_args = { "-i=" .. vlk_tab_width }
+        },
+        astyle = {
+            prepend_args = { "--indent=spaces=" .. vlk_tab_width },
+        },
+    },
+    notify_on_error = true,
+    format_on_save = {
+        timeout_ms = 500,
+        lsp_fallback = true,
+    },
+})
+
+-- indent-blankline
 local highlight = {
     "RainbowRed",
     "RainbowYellow",
@@ -265,25 +275,9 @@ require("ibl").setup { scope = { highlight = highlight } }
 
 hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
 
--- formatter.nvim
-local formatter_util = require "formatter.util"
-local formatter_defaults = require "formatter.defaults"
-require("formatter").setup {
-    logging = true,
-    log_level = vim.log.levels.WARN,
-    filetype = {
-        ["*"] = {
-            formatter_util.withl(formatter_defaults.sed, "[ 	]*$")
-        },
-    }
-}
-
 -- One Dark Pro
 require("onedarkpro").setup({
     theme = "onedark_vivid",
-    --[[colors = {
-        bg = "#FFFFFF",
-    },--]]
     options = {
         transparency = true,
         bold = true,
@@ -297,34 +291,123 @@ vim.cmd("colorscheme onedark_vivid")
 -- alpha-nvim
 require('alpha').setup(require('alpha.themes.dashboard').config)
 
+-- toggleterm
+require("toggleterm").setup{
+    size = 20,
+    -- open_mapping = [[<c-\>]],
+    open_mapping = [[t]],
+    hide_numbers = true, -- hide the number column in toggleterm buffers
+    autochdir = false,
+    start_in_insert = true,
+    insert_mappings = false,
+    terminal_mappings = false,
+    direction = 'float', -- 'vertical' | 'horizontal' | 'tab' | 'float'
+    close_on_exit = true,
+    shell = vim.o.shell,
+    auto_scroll = true,
+    float_opts = {
+        border = 'curved',
+        -- width = <value>,
+        -- height = <value>,
+        winblend = 3,
+        -- zindex = <value>,
+    },
+    winbar = {
+        enabled = false,
+        name_formatter = function(term) --  term: Terminal
+            return term.name
+        end
+    },
+}
+
 -- lualine
 require('lualine').setup {
     options = {
+        icons_enabled = true,
         theme = 'onedark',
-        --theme = 'material',
-        component_separators = mycum,
-        section_separators = mysep,
-    }
+        component_separators = { left = '', right = '' },
+        section_separators = { left = '', right = '' },
+        refresh = {
+            statusline = 1000,
+            tabline = 1000,
+            winbar = 1000,
+        },
+    },
+    globalstatus = true,
+    always_divide_middle = true,
+    sections = {
+        lualine_a = {
+            'mode',
+        },
+        lualine_b = {
+            'branch',
+            'diff',
+            'diagnostics',
+        },
+        lualine_c = {
+            {
+                'filename',
+                file_status = true,
+                path = 1,
+                shorting_target = 40,
+                symbols = {
+                    modified = '[+]', --󰐖
+                    readonly = '[-]', --󰛲
+                    unnamed = '󰛲',
+                    newfile = '󰐖',
+                },
+            },
+            'lsp_progress',
+        },
+        lualine_x = {
+            -- 'encoding',
+            -- 'fileformat',
+            -- 'filesize',
+            {
+                'fileformat',
+                symbols = {
+                    unix = '',
+                    dos = 'CRLF',
+                    mac = 'CR',
+                }
+            },
+            {
+                'filetype',
+                icon = { align = 'left' },
+            },
+            {
+                require("lazy.status").updates,
+                cond = require("lazy.status").has_updates,
+                color = { fg = "#ff9e64" },
+            },
+        },
+        lualine_y = {
+            -- 'searchcount',
+            'progress',
+        },
+        lualine_z = {
+            'location'
+        }
+    },
+    -- extensions = {
+    --     'toggleterm',
+    -- },
 }
+opt.showmode = false
+
+require('hlslens').setup()
 
 -- nvim-tree
 require("nvim-tree").setup()
 local function open_nvim_tree(data)
     local no_name = data.file == "" and vim.bo[data.buf].buftype == ""
-
-    -- buffer is a directory
     local directory = vim.fn.isdirectory(data.file) == 1
-
     if not no_name and not directory then
         return
     end
-
-    -- change to the directory
     if directory then
         vim.cmd.cd(data.file)
     end
-
-    -- open the tree
     require("nvim-tree.api").tree.open()
 end
 vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
@@ -332,10 +415,17 @@ vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
 -- neoscroll
 require('neoscroll').setup({ easing_function = "quadratic" })
 
+-- nvim scrollbar
+require("scrollbar").setup()
+
 -- colorizer
-require'colorizer'.setup(nil, {
-    RRGGBBAA = true;
-})
+require('colorizer').setup{
+    filetypes = { "*" },
+    user_default_options = {
+        RRGGBBAA = true,
+        mode = "background",
+    },
+}
 
 -- telescope
 local builtin = require('telescope.builtin')
@@ -343,51 +433,3 @@ vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
 vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
 vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
--- disabled {{{
---[[
-
-local cmp = require('cmp')
-cmp.setup({
-    window = {
-        completion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered(),
-    },
-    mapping = cmp.mapping.preset.insert({
-        ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-        ['<C-f>'] = cmp.mapping.scroll_docs(4),
-        ['<C-Space>'] = cmp.mapping.complete(),
-        ['<C-e>'] = cmp.mapping.abort(),
-        ['<CR>'] = cmp.mapping.confirm({ select = true }),·
-    }),
-    sources = cmp.config.sources({
-        { name = 'nvim_lsp' },
-    }, {
-        { name = 'buffer' },
-    }, {
-        { name = 'path' },
-    }, {
-        { name = 'cmdline' },
-    }, {
-        { name = 'treesitter' },
-    })
-})
-
-require('image').setup {
-    render = {
-        min_padding = 5,
-        show_label = true,
-        use_dither = true,
-        foreground_color = true,
-        background_color = true
-    },
-    events = {
-        update_on_nvim_resize = true,
-    },
-}
-
-require('hologram').setup{
-    auto_display = true
-}
-
-
---]]
