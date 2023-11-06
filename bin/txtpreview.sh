@@ -85,12 +85,10 @@ for i in "$@"; do
         *)
             content="$(
                 if [[ "$type" == *'text'* ]]; then
-                    bat_content="$(bat --color=always --line-range :200 "$i")"
-                    if depcheck ansifilter; then
-                        bat_filtered="$(echo "$bat_content" | ansifilter)"
-                        if [[ "${bat_filtered:-}" != '[bat warning]'* && "${bat_filtered:-}" != '[bat error]'* ]]; then
-                            echo "$bat_content"
-                        fi
+                    bat_content="$(bat --color=always --line-range=:200 "$i")"
+                    un_ansiid_bat_content="$(bat --color=always --line-range=:200 "$i" | sed "s/$(printf '\e\\[')[^m]*m//g")"
+                    if [[ "${un_ansiid_bat_content:-}" != '[bat warning]'* && "${un_ansiid_bat_content:-}" != '[bat error]'* ]]; then
+                        echo "$bat_content"
                     fi
                 fi
             )"
