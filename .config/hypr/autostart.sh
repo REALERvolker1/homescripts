@@ -31,3 +31,5 @@ pmgmt.sh --monitor &
 #scratchpad_terminal.sh &
 
 autostart-clipboard.sh &
+
+hyprland-plugins.sh --load &

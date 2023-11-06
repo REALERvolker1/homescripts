@@ -26,7 +26,7 @@ opt.numberwidth = 2
 --]]
 --opt.showbreak = "↪ "
 
-opt.mouse = null
+--opt.mouse = null
 opt.listchars = 'trail:·,nbsp:◇,tab:→ ,extends:▸,precedes:◂'
 opt.list = true
 --vim.opt.listchars:append "space:⋅"
@@ -34,20 +34,23 @@ opt.list = true
 opt.foldmethod = 'marker'
 
 --: Be very cautious about enabling system clipboard!
-opt.clipboard = 'unnamedplus'
+opt.clipboard = ''
+--opt.clipboard = 'unnamedplus'
 --opt.clipboard = 'unnamed,unnamedplus'
---vim.api.nvim_set_option("clipboard","unnamed")
---vim.api.nvim_set_keymap()
 
+--vim.api.nvim_set_keymap("n", "<c-c>", '"*y :let @+=@*<CR>', {noremap=true, silent=true})
+--vim.api.nvim_set_keymap("n", "<c-v>", '"+p', {noremap=true, silent=true})
+vim.keymap.set({'n'}, '<C-c>', '"+y$')
+vim.keymap.set({'v'}, '<C-c>', '"+y')
+vim.keymap.set({'n'}, '<C-x>', '"+d$')
+vim.keymap.set({'v'}, '<C-x>', '"+d')
+vim.keymap.set({'n'}, '<C-v>', '"+p$')
+vim.keymap.set({'v'}, '<C-v>', '"+p')
+--[[
 vim.keymap.set('n', '<leader>y', '"*y')
 vim.keymap.set('n', '<leader>p', '"*p')
 vim.keymap.set('n', '<leader>c', '"+y')
 vim.keymap.set('n', '<leader>v', '"+p')
---[[
-vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
-vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
-vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
-vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
 --]]
 
 opt.ignorecase = true
