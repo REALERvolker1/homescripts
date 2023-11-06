@@ -1,0 +1,13 @@
+[package]
+name = "dumbfetch-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = { version = "0.4.31", default-features = false, features = [
+    "clock",
+    "std",
+] }
+figlet-rs = "0.1.5"
+rand = { version = "0.8.5", features = ["small_rng"] }
+sysinfo = "0.29.10"

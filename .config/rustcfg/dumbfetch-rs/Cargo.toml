@@ -1,9 +1,0 @@
-[package]
-name = "dumbfetch-rs"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-chrono = { version = "0.4.31", default-features = false, features = ["clock", "std"] }
-rand = "0.8.5"
-sysinfo = "0.29.10"

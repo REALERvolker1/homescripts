@@ -100,6 +100,7 @@ name = "dumbfetch-rs"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "figlet-rs",
  "rand",
  "sysinfo",
 ]
@@ -109,6 +110,12 @@ name = "either"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
+
+[[package]]
+name = "figlet-rs"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4742a071cd9694fc86f9fa1a08fa3e53d40cc899d7ee532295da2d085639fbc5"
 
 [[package]]
 name = "getrandom"

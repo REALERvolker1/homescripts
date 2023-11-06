@@ -16,6 +16,7 @@ RUSTCFG_DIR="${XDG_CONFIG_HOME:=$HOME/.config}/rustcfg"
 
 declare -a errors=()
 for i in "$RUSTCFG_DIR"/*; do
+    [[ "$i" == *"old" ]] || continue
     buildcfg "$i" || errors+=("$i")
 done
 
