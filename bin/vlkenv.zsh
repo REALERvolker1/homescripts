@@ -1,38 +1,38 @@
-# shellcheck shell=dash
+# shellcheck shell=bash
 # shellcheck disable=2155,2153
 # vim:foldmethod=marker:ft=sh
 
 unset MAILCHECK
-[ "${LANG:-C}" = 'C' ] && export LANG="en_US.UTF-8"
+[[ "${LANG:-C}" == 'C' ]] && export LANG="en_US.UTF-8"
 
-if [ -n "${CONDA_PREFIX:-}" ]; then
+if [[ -n "${CONDA_PREFIX:-}" ]]; then
     conda deactivate
     echo "\$CONDA_PREFIX '$CONDA_PREFIX' deactivated"
 fi
-if [ -n "${VIRTUAL_ENV:-}" ]; then
+if [[ -n "${VIRTUAL_ENV:-}" ]]; then
     deactivate
     echo "\$VIRTUAL_ENV '$VIRTUAL_ENV' deactivated"
 fi
 
-[ -z "${CURRENT_DISTRO:-}" ] && export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
+export CURRENT_DISTRO="${CURRENT_DISTRO:-$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)}"
 export CURRENT_HOSTNAME='iphone'
 : "${HOST:=$(cat /etc/hostname)}"
 export HOME="${HOME:-/home/$(whoami)}" HOSTNAME="${HOSTNAME:-$HOST}"
 export XDG_CONFIG_HOME="$HOME/.config" XDG_DATA_HOME="$HOME/.local/share" XDG_CACHE_HOME="$HOME/.cache" XDG_STATE_HOME="$HOME/.local/state"
 
-if [ "${EDITOR:-}" != 'nvim' ]; then
+if [[ "${EDITOR:-}" != 'nvim' ]]; then
     # unset EDITOR
-    if command -v nvim >/dev/null; then
+    if command -v nvim &>/dev/null; then
         export EDITOR="nvim"
         export MANPAGER='nvim +Man\!'
     else
         for i in vim hx micro vi nano; do
-            command -v "$i" >/dev/null 2>&1 && export EDITOR="$i" && break
+            command -v "$i" &>/dev/null && export EDITOR="$i" && break
         done
     fi
 fi
 
-[ -n "${EDITOR:-}" ] && export VISUAL="$EDITOR"
+[[ -n "${EDITOR:-}" ]] && export VISUAL="$EDITOR"
 export TERMINAL='vlk-sensible-terminal 1' BROWSER='vlk-sensible-browser 1'
 # export PAGER='less'
 export HOMESCRIPTS="$HOME/random/homescripts"
@@ -40,21 +40,19 @@ export HOMESCRIPTS="$HOME/random/homescripts"
 # shell rcfiles
 export ENV="$XDG_CONFIG_HOME/dashrc" ZDOTDIR="$XDG_CONFIG_HOME/zsh" BDOTDIR="$XDG_CONFIG_HOME/bash"
 
-# export LESSOPEN="||/usr/bin/lesspipe.sh %s"
 # LS customization
 export LS_PATH="${LS_PATH:-/usr/bin/ls}" WHICH_PATH="${WHICH_PATH:-/usr/bin/which}" RM_PATH="${RM_PATH:=/usr/bin/rm}" VIM_PATH="${VIM_PATH:=/usr/bin/vim}"
 export LA_COMMAND="$LS_PATH --color=auto --group-directories-first -A"
-if command -v lsd >/dev/null 2>&1; then
+if command -v lsd &>/dev/null; then
     export LS_COMMAND='lsd' LL_COMMAND='lsd -l'
 else
     export LS_COMMAND="$LA_COMMAND" LL_COMMAND="$LA_COMMAND -l"
 fi
 case "${LS_COLORS:-}" in
 *':*rc='*) : ;;
-*) if [ -f "$XDG_CONFIG_HOME/dir_colors" ]; then
-    #echo 'updating ls colors'
-    eval "$(dircolors --sh "$XDG_CONFIG_HOME/dir_colors" || echo 'echo error loading dircolors')"
-fi ;;
+*)
+    . <(dircolors --sh "$XDG_CONFIG_HOME/dir_colors" || dircolors --sh || echo 'echo error loading dircolors')
+    ;;
 esac
 export LESSOPEN="||/usr/bin/lesspipe.sh %s"
 [ -z "${USER_LS_COLORS:-}" ] && export USER_LS_COLORS="$LS_COLORS"
@@ -85,7 +83,7 @@ export PERL_CPANM_HOME="$XDG_CACHE_HOME/cpanm"
 # rust
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup" CARGO_HOME="$XDG_DATA_HOME/cargo"
 # golang
-export GOPATH="$XDG_DATA_HOME/go" GOCACHE="$XDG_CACHE_HOME/go-build" GOMODCACHE="${GOPATH:=$XDG_DATA_HOME/go}/pkg/mod"
+export GOPATH="$XDG_DATA_HOME/go" GOCACHE="$XDG_CACHE_HOME/go-build" GOMODCACHE="${GOPATH:-$XDG_DATA_HOME/go}/pkg/mod"
 # python
 # PYTHONUSERBASE="$XDG_DATA_HOME/python"
 export PYTHONUSERBASE="$XDG_DATA_HOME/pythonuserbase"
@@ -94,21 +92,21 @@ export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc" PYTHONPYCACHEPREFIX="$XDG_CACHE
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc" NPM_CONFIG_CACHE="$XDG_CACHE_HOME/npm" NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history" NODENV_ROOT="$XDG_DATA_HOME/nodenv" PNPM_HOME="$XDG_DATA_HOME/pnpm" YARN_ENABLE_TELEMETRY=0 NVM_DIR="$XDG_DATA_HOME/nvm" BUN_INSTALL="$XDG_DATA_HOME/bun" DENO_INSTALL="$XDG_DATA_HOME/deno"
 # keyring
 export GNUPGHOME="$XDG_DATA_HOME/gnupg" GPG_TTY="${TTY:=$(tty)}"
-: "${GNOME_KEYRING_CONTROL:=$XDG_RUNTIME_DIR/keyring}" "${SSH_AUTH_SOCK:=$XDG_RUNTIME_DIR/keyring/ssh}"
-export GNOME_KEYRING_CONTROL SSH_AUTH_SOCK
+export GNOME_KEYRING_CONTROL="${GNOME_KEYRING_CONTROL:-$XDG_RUNTIME_DIR/keyring}" SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$XDG_RUNTIME_DIR/keyring/ssh}"
 
-export OLLAMA_HOME="$XDG_DATA_HOME/ollama"
-if [ -S "$XDG_RUNTIME_DIR/.ydotool_socket" ]; then
+# export OLLAMA_HOME="$XDG_DATA_HOME/ollama"
+
+if [[ -S "$XDG_RUNTIME_DIR/.ydotool_socket" ]]; then
     export YDOTOOL_SOCKET="$XDG_RUNTIME_DIR/.ydotool_socket"
-elif [ -S /tmp/.ydotool_socket ]; then
+elif [[ -S /tmp/.ydotool_socket ]]; then
     export YDOTOOL_SOCKET='/tmp/.ydotool_socket'
 fi
 
 # __vlkenv_pathmunge_bin="$XDG_CONFIG_HOME/shell/rustcfg/pathmunge/target/release/pathmunge"
 __vlkenv_pathmunge_bin="$XDG_CONFIG_HOME/rustcfg/pathmunge/target/release/pathmunge"
-if [ ! -x "$__vlkenv_pathmunge_bin" ]; then
-    if command -v cargo >/dev/null 2>&1; then
-        if expr "$-" : '.*i' >/dev/null; then
+if [[ ! -x "$__vlkenv_pathmunge_bin" ]]; then
+    if command -v cargo &>/dev/null; then
+        if [[ "$-" == *i* ]]; then
             tgtdir="${__vlkenv_pathmunge_bin%/target*}"
             lastpath="${PWD:-$(pwd)}"
             if [ -d "$tgtdir" ]; then
@@ -125,20 +123,6 @@ if [ ! -x "$__vlkenv_pathmunge_bin" ]; then
     else
         echo "Cargo not found. Skipping building pathmunge"
     fi
-    #     __pathmunge() {
-    #         oldifs="$IFS"
-    #         tmppth=
-    #         IFS="
-    # "
-    #         for i in "$@" $(IFS=':' printf '%s\n' $PATHMUNGE_PATH); do
-    #             case ":${PATHMUNGE_PATH:-}:" in
-    #             *":${i}:"*) continue ;;
-    #             *) [ -d "$i" ] && tmppth="$i:$tmppth" ;;
-    #             esac
-    #         done
-    #         IFS="$oldifs"
-    #         echo "${tmppth}:${PATHMUNGE_PATH}" | sed -E 's/:+/:/g ; s/^:|:$//g'
-    #     }
     __pathmunge_helper_function() {
         case ":${pathlike}:" in
         *":${1}:"*) true ;;
