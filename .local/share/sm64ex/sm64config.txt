@@ -37,4 +37,3 @@ bettercam_aggression 0
 bettercam_pan_level 0
 bettercam_degrade 60
 skip_intro true
-discordrpc_enable true

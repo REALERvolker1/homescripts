@@ -1,7 +1,7 @@
 #!/bin/bash
 # a script by vlk to automate building required rust dependencies
 
-if command -v cargo &>/dev/null; then
+if ! command -v cargo &>/dev/null; then
     echo "CRITICAL ERROR! Required dependency 'cargo' not found!" | tee /dev/stderr
     exit 1
 fi
@@ -16,7 +16,7 @@ RUSTCFG_DIR="${XDG_CONFIG_HOME:=$HOME/.config}/rustcfg"
 
 declare -a errors=()
 for i in "$RUSTCFG_DIR"/*; do
-    [[ "$i" == *"old" ]] || continue
+    [[ "$i" == *"old" ]] && continue
     buildcfg "$i" || errors+=("$i")
 done
 

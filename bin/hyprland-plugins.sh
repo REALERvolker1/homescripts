@@ -103,6 +103,7 @@ _load() {
         [[ -f "$i" && "$i" == *.so ]] && hyprctl plugin load "$i"
     done
     safe_mode
+    #hyprctl plugin list | grep -oP '^P\S+\s*\K\S+'
 }
 
 declare -i UNSAFE=0
