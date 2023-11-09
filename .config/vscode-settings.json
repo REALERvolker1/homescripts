@@ -146,5 +146,14 @@
     ],
     "diffEditor.codeLens": true,
     "continue.telemetryEnabled": false,
-    "python.languageServer": "Pylance"
+    "python.languageServer": "Pylance",
+    "telemetry.telemetryLevel": "off",
+    "code-runner.enableAppInsights": false,
+    "workbench.settings.enableNaturalLanguageSearch": false,
+    "update.mode": "start",
+    "extensions.autoUpdate": "onlyEnabledExtensions",
+    "python.experiments.optOutFrom": ["All"],
+    "workbench.commandPalette.experimental.suggestCommands": true,
+    "python.experiments.enabled": false,
+    "python.experiments.optInto": []
 }

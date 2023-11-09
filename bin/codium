@@ -2,23 +2,31 @@
 
 flatpak_path='/var/lib/flatpak/exports/bin/com.vscodium.codium'
 
-codium_paths="$(
-    IFS=':'
-    for i in $PATH; do
-        i_path="$i/codium"
-        [ "$i_path" = "$0" ] && continue
-        if [ -x "$i_path" ]; then
-            echo "$i_path"
-            break
-        fi
-    done
-)"
+# change order to change preference
+editors='code:codium'
 
-# codium wayland finally shows my cursor :D
-[ -n "${WAYLAND_DISPLAY:-}" ] && ozonewayland='--ozone-platform=wayland '
-#  --enable-features=UseOzonePlatform
-if [ -n "${codium_paths:-}" ]; then
-    exec $codium_paths ${ozonewayland}"$@"
+if [ -x "${VLK_VSC:-null}" ]; then
+    codium_path="${VLK_VSC:-null}"
+else
+    codium_path="$(
+        IFS=':'
+        for i in $PATH; do
+            for j in $editors; do
+                i_path="$i/$j"
+                [ "$i_path" = "$0" ] && continue
+                if [ -x "$i_path" ]; then
+                    echo "$i_path"
+                    break
+                fi
+            done
+        done
+    )"
+fi
+
+[ -n "${WAYLAND_DISPLAY:-}" ] && ozonewayland='--enable-features=UseOzonePlatform --ozone-platform=wayland '
+if [ -n "${codium_path:-}" ]; then
+    echo "Launching $codium_path"
+    exec $codium_path ${ozonewayland}"$@"
 elif [ -f "$flatpak_path" ]; then
     exec flatpak run com.vscodium.codium ${ozonewayland}"$@"
 else

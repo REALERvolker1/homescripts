@@ -16,6 +16,7 @@ fi
 
 [ -z "${CURRENT_DISTRO:-}" ] && export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
 export CURRENT_HOSTNAME='iphone'
+
 export HOST="${HOST:-$(cat /etc/hostname)}"
 export HOSTNAME="${HOSTNAME:-$HOST}"
 export USER="${USER:-$(whoami)}"
@@ -36,6 +37,8 @@ if [ "${EDITOR:-}" != 'nvim' ]; then
         done
     fi
 fi
+
+export VLK_VSC='/usr/bin/code'
 
 [ -n "${EDITOR:-}" ] && export VISUAL="$EDITOR"
 export TERMINAL='vlk-sensible-terminal 1'
