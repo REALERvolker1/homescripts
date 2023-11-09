@@ -17,6 +17,8 @@ declare -A config=(
     [official_plugin]='https://github.com/hyprwm/hyprland-plugins'
     [builddir]="$HYPRLAND_PLUGIN_DIR/build"
     [rootfile]="$HYPRLAND_PLUGIN_DIR/current-root"
+    [updatefile]="$HYPRLAND_PLUGIN_DIR/updatefile"
+    [instfile]="$HYPRLAND_PLUGIN_DIR/instfile"
     [Aroot]="$HYPRLAND_PLUGIN_DIR/A.root"
     [Broot]="$HYPRLAND_PLUGIN_DIR/B.root"
     [current_root]=''
@@ -36,16 +38,20 @@ declare -a official_plugins=(
 )
 
 _panic() {
-    _notify "${0##*/} Panic:" "$@"
+    printf '\e[1;31m%s\e[0m\n' "[${0##*/}] Panic!"
+    _notify "$@"
     exit 1
 }
 _notify() {
     local header="${1:?Error, please insert a header!}"
     shift 1
-    printf '%s\n' \
-        "$(tput bold)$header$(tput sgr0)" \
-        "$@"
-    notify-send "$header" "$(printf '%s\n' "$@")"
+    if [[ -t 1 ]]; then
+        printf '%s\n' \
+            "$(tput bold)$header$(tput sgr0)" \
+            "$@"
+    else
+        notify-send "$header" "$(printf '%s\n' "$@")"
+    fi
 }
 
 # dependency checking
@@ -76,6 +82,7 @@ _install() {
     for i in "${config[builddir]}"/* "${official_plugins[@]}"; do
         [[ -d "$i" && "$i" != "${config[official_plugin_builddir]}" ]] || continue
         cd "$i"
+        echo "${i##*/} $(git rev-parse HEAD)" >"${config[instfile]}"
         _notify 'building plugin' "$i"
         make all || _panic "Failed to build plugin:" "$i"
         cp -rf ./*.so "${config[new_root]}"
@@ -86,7 +93,7 @@ _install() {
 
 _load() {
     if ((UNSAFE)); then
-        if [[ -t 0 ]]; then
+        if [[ -t 0 && -t 1 ]]; then
             _notify "${0##*/}" "Currently in UNSAFE mode"
             read -r -p "Want to install plugins? [y/N] > " ans
             [[ "${ans:-n}" == y ]] || exit 1
@@ -99,11 +106,45 @@ _load() {
     echo loading plugins
     unsafe_mode
     local i
+    local -a errors
+    local -a success
     for i in "${config[current_root]}"/*; do
-        [[ -f "$i" && "$i" == *.so ]] && hyprctl plugin load "$i"
+        if [[ -f "$i" && "$i" == *.so ]]; then
+            pluginmsg="(${i##*/}) $(hyprctl plugin load "$i")"
+            if [[ "$pluginmsg" != *') error'* ]]; then
+                success+=("$pluginmsg")
+            else
+                errors+=("$pluginmsg")
+            fi
+        fi
     done
     safe_mode
-    #hyprctl plugin list | grep -oP '^P\S+\s*\K\S+'
+    ((${#errors[@]})) && _panic "Error loading plugins" "${errors[@]}"
+    ((${#success[@]})) || _panic "Error loading plugins" "No plugins could be loaded!"
+    [[ -e "${config[updatefile]}" ]] && rm "${config[updatefile]}"
+}
+
+_checkupdate() {
+    if [[ ! -f "${config[updatefile]}" ]]; then
+        local i
+        for i in "${config[builddir]}"/*; do
+            (
+                cd "$i"
+                git pull
+                details="${i##*/} $(git rev-parse HEAD)"
+                if ! grep -q "^${details}\$" "${config[instfile]}"; then
+                    echo "$details" >"${config[updatefile]}"
+                fi
+            ) &
+        done
+    fi
+
+    if [[ -f "${config[updatefile]}" ]]; then
+        _notify "Outdated plugins" "$(cat "${config[updatefile]}")"
+        return 1
+    else
+        return 0
+    fi
 }
 
 declare -i UNSAFE=0
@@ -137,11 +178,14 @@ case "${1:-null}" in
 --install | -i)
     _install
     ;;
-# --update | -u)
-#     _update
-#     ;;
+--update | -u)
+    _checkupdate || _install
+    ;;
+--check | -c)
+    _checkupdate
+    ;;
 # --update (-u)     update plugins
---clean | -c)
+--clean | -r)
     rm -rf "$HYPRLAND_PLUGIN_DIR"
     ;;
 *)
@@ -151,7 +195,11 @@ Supported args:
 
 --load (-l)       load plugins in current hyprland session
 --install (-i)    (re)install plugins
---clean (-c)      completely remove plugin cache and installed plugins
+--update (-u)     Update plugins
+--check (-c)      Check for updates, but don't download
+--clean (-r)      completely remove plugin cache and installed plugins
 BRUH
     ;;
 esac
+
+wait
