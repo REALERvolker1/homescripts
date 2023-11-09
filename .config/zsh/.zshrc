@@ -11,7 +11,7 @@ VLKPROMPT_SKIP=ge
 # VLKZSH_RECOMPILE=1
 # VLKZSH_LSDIFF_UPDATE=1
 
-foreach i ("$ZDOTDIR/rc.d"/*.zsh) {
+foreach i ("${ZDOTDIR:-~/.config/zsh}/rc.d"/*.zsh) {
     #[[ $i == *prompt* ]] && continue
     if [[ $i == *.defer.zsh ]] {
         zsh-defer . "$i"

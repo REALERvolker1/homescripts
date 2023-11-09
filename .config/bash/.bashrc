@@ -13,8 +13,8 @@ bind "set completion-ignore-case on"
 
 for i in \
     '/etc/bashrc' '/etc/bash.bashrc' \
-    "$HOME/bin/vlkenv" \
-    "$HOME/bin/vlkrc"; do
+    ~/bin/vlkenv \
+    ~/bin/vlkrc; do
     [[ -r $i ]] && . "$i"
 done
 unset i

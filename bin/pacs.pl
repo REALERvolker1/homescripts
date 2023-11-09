@@ -89,41 +89,71 @@ foreach ( "pacman", "fzf" ) {
 }
 panic( "Error, missing dependencies,", @faildeps ) unless ( !@faildeps );
 
-
 my $arg_update  = 0;
 my $arg_preview = 0;
+my $onlyshow    = "not-installed";
 foreach (@ARGV) {
-    if ( $_ eq '--update' ) {
+    if ( $_ eq '--update' or $_ eq '-u' ) {
         $arg_update = 1;
+    }
+    elsif ( $_ eq '--installed' or $_ eq '-i' ) {
+        $onlyshow = "installed";
+        print "Only showing installed packages\n";
+    }
+    elsif ( $_ eq '--all' or $_ eq '-a' ) {
+        $onlyshow = "all";
+        print "Showing all packages\n";
+    }
+    elsif ( $_ =~ /^-.*/ ) {
+        panic( "Error, argument '$_' is not supported!", "", "Options:" );
     }
 }
 refresh if ( !-e $PKGCACHEFILE ) or ( $arg_update == 1 );
 
 open( FH, '<', $PKGCACHEFILE ) or die $!;
 
+# use a hash so lookup is O(1)
 my %packages;
 while (<FH>) {
     chomp($_);
     my ($name)   = $_ =~ /^([^=]+)/;
     my ($fmtstr) = $_ =~ /^[^=]+=(.*)/;
-    $fmtstr =~ s/\'/’/g;    # workaround for single-quoted strings
     $packages{$name} = $fmtstr;
 }
 close(FH);
 
-# for some reason this isn't working
+my @installedpkgs;
 foreach ( split( "\n", `pacman -Q` ) ) {
-    $_ =~ /^([^\s]+)\s/;
-    delete( $packages{$_} ) if ( defined( $packages{$_} ) );
+    my ($tmpname) = $_ =~ /^([^\s]+)\s/;
+    if ( defined( $packages{$tmpname} ) ) {
+        if ( $onlyshow eq "not-installed" ) {
+            delete( $packages{$tmpname} );
+        }
+        else {
+            if ( $onlyshow eq "installed" ) {
+                push( @installedpkgs, $packages{$tmpname} );
+            }
+            else {
+                $packages{$tmpname} = "\e[1;32m[i]\e[0m $packages{$tmpname}";
+            }
+        }
+    }
 }
 
 # workaround for `Can't exec "/bin/sh": Argument list too long`
+my $packagesfilestr;
+if ( $onlyshow eq "installed" ) {
+    $packagesfilestr = join( "\n", @installedpkgs );
+}
+else {
+    $packagesfilestr = join( "\n", values(%packages) );
+}
 open( FH, '>', "$PKGRUN" ) or die $!;
-print FH join( "\n", values(%packages) ) . "\n";
+print FH "$packagesfilestr\n";
 close(FH);
 
 my $pkgsel =
-`fzf --ansi --preview="pacman -Si \\\$(echo {} | grep -oP '[^/]+/\\K[^[:space:]]+')" --header='Use \e[1mTAB\e[0m to select multiple packages' --multi <'$PKGRUN'`;
+`fzf --ansi --preview="pacman -Si \\\$(echo {} | grep -oP '^[^/]+/\\K[^[:space:]]+')" --header='Use \e[1mTAB\e[0m to select multiple packages' --multi <'$PKGRUN'`;
 chomp($pkgsel);
 
 panic("No packages selected") unless ( $pkgsel ne "" );
@@ -139,11 +169,17 @@ chomp($info);
 $info =~ s/(^|\n)([^:]+\s*)/\n\e[0;1m$2\e[0m/g;
 print "$info\n";
 
-unless ( system("sudo -vn 2>/dev/null") == 0 ) {
+my $action;
+if ( $onlyshow eq "installed" ) {
+    $action = "remove";
+}
+else {
+    $action = "install";
+}
 
-    # say "'$pkgname'";
+unless ( system("sudo -vn 2>/dev/null") == 0 ) {
     print "\e[1m[\e[31mSUDO REQUIRED\e[0;1m]\e[0m
-Do you want to install these packages?
+Do you want to \e[1m${action}\e[0m these packages?
 
 \e[1m$selstr\e[0m
 
@@ -154,6 +190,10 @@ Do you want to install these packages?
         exit(1) unless ( $_ eq "y\n" );
         last;
     }
-    say "installing packages";
 }
-system("sudo pacman -S --needed $selstr");
+if ( $action eq "install" ) {
+    system("sudo pacman -S --needed $selstr");
+}
+elsif ( $action eq "remove" ) {
+    system("sudo pacman -Rcs $selstr");
+}

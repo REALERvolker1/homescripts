@@ -3,31 +3,29 @@
 # shellcheck shell=dash disable=2139,2154,1091
 # vim:foldmethod=marker:ft=sh
 
-if [ -n "${BASH_VERSION:-$ZSH_VERSION}" ] || [ -n "${DASHRC_LOADED:-}" ] || [ "${-#*i}" = "$-" ]; then
+if [ "${0##*/}" != dash ] || [ -n "${DASHRC_LOADED:-}" ] || [ "${-#*i}" = "$-" ]; then # [ -n "${BASH_VERSION:-$ZSH_VERSION}" ]
     echo "skipping dashrc"
     return
     exit
 fi
 
-. "$HOME/bin/vlkenv"
+. ~/bin/vlkenv
 
-__lscmd="$(which ls) --color=auto --group-directories-first"
+__lscmd="ls --color=auto --group-directories-first"
 
-alias ls="${LS_COMMAND:=$__lscmd -A}"
-alias ll="${LL_COMMAND:=$__lscmd -Al}"
-alias la="${LA_COMMAND:=$__lscmd -a}"
+alias ls="$__lscmd -A"
+alias ll="$__lscmd -Al"
+alias la="$__lscmd -a"
 
 unset __lscmd
 
 alias -='cd -'
 
-alias echo="$(which echo)"
 alias q=exit
-alias rm='rm -i'
 
 PS1='$(
     r="$?"
-    i="$(/bin/echo "$PWD" | sed "s|^$HOME|~|") \$"
+    i="$(echo "$PWD" | sed "s|^$HOME|~|") \$"
     [ "$r" -ne 0 ] && i="[$r] $i"
     tput sgr0 ; tput bold
     echo -n "$i "

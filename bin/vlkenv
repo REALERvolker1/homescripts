@@ -16,9 +16,14 @@ fi
 
 [ -z "${CURRENT_DISTRO:-}" ] && export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
 export CURRENT_HOSTNAME='iphone'
-: "${HOST:=$(cat /etc/hostname)}"
-export HOME="${HOME:-/home/$(whoami)}" HOSTNAME="${HOSTNAME:-$HOST}"
-export XDG_CONFIG_HOME="$HOME/.config" XDG_DATA_HOME="$HOME/.local/share" XDG_CACHE_HOME="$HOME/.cache" XDG_STATE_HOME="$HOME/.local/state"
+export HOST="${HOST:-$(cat /etc/hostname)}"
+export HOSTNAME="${HOSTNAME:-$HOST}"
+export USER="${USER:-$(whoami)}"
+export HOME="${HOME:-/home/$(whoami)}"
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_STATE_HOME="$HOME/.local/state"
 
 if [ "${EDITOR:-}" != 'nvim' ]; then
     # unset EDITOR
@@ -33,69 +38,113 @@ if [ "${EDITOR:-}" != 'nvim' ]; then
 fi
 
 [ -n "${EDITOR:-}" ] && export VISUAL="$EDITOR"
-export TERMINAL='vlk-sensible-terminal 1' BROWSER='vlk-sensible-browser 1'
+export TERMINAL='vlk-sensible-terminal 1'
+export BROWSER='vlk-sensible-browser 1'
 # export PAGER='less'
 export HOMESCRIPTS="$HOME/random/homescripts"
 
 # shell rcfiles
-export ENV="$XDG_CONFIG_HOME/dashrc" ZDOTDIR="$XDG_CONFIG_HOME/zsh" BDOTDIR="$XDG_CONFIG_HOME/bash"
+export ENV="$XDG_CONFIG_HOME/dashrc"
+export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
+export BDOTDIR="$XDG_CONFIG_HOME/bash"
 
-# export LESSOPEN="||/usr/bin/lesspipe.sh %s"
-# LS customization
-export LS_PATH="${LS_PATH:-/usr/bin/ls}" WHICH_PATH="${WHICH_PATH:-/usr/bin/which}" RM_PATH="${RM_PATH:=/usr/bin/rm}" VIM_PATH="${VIM_PATH:=/usr/bin/vim}"
-export LA_COMMAND="$LS_PATH --color=auto --group-directories-first -A"
-if command -v lsd >/dev/null 2>&1; then
-    export LS_COMMAND='lsd' LL_COMMAND='lsd -l'
-else
-    export LS_COMMAND="$LA_COMMAND" LL_COMMAND="$LA_COMMAND -l"
-fi
-case "${LS_COLORS:-}" in
-*':*rc='*) : ;;
-*) if [ -f "$XDG_CONFIG_HOME/dir_colors" ]; then
+# export LS_PATH="${LS_PATH:-/usr/bin/ls}" WHICH_PATH="${WHICH_PATH:-/usr/bin/which}" RM_PATH="${RM_PATH:=/usr/bin/rm}" VIM_PATH="${VIM_PATH:=/usr/bin/vim}"
+
+case "${LS_COLORS:-null}" in
+*'xlsx'*) echo skipping ls colors ;;
+*) if [ -f "${XDG_CONFIG_HOME:=$HOME/.config}/dir_colors" ]; then
     #echo 'updating ls colors'
     eval "$(dircolors --sh "$XDG_CONFIG_HOME/dir_colors" || echo 'echo error loading dircolors')"
 fi ;;
 esac
 export LESSOPEN="||/usr/bin/lesspipe.sh %s"
-[ -z "${USER_LS_COLORS:-}" ] && export USER_LS_COLORS="$LS_COLORS"
+# [ -z "${USER_LS_COLORS:-}" ] && export USER_LS_COLORS="$LS_COLORS"
 DIRECTORY_COLOR="${LS_COLORS##*:di=}"
-export DIRECTORY_COLOR="${DIRECTORY_COLOR%%:*}" GREP_COLORS="mt=01;91:fn=03;32:ln=33:bn=36:se=35" JQ_COLORS="0;31:0;36:1;36:0;33:1;32:0;37:1;37"
+export DIRECTORY_COLOR="${DIRECTORY_COLOR%%:*}"
+export GREP_COLORS="mt=01;91:fn=03;32:ln=33:bn=36:se=35"
+export JQ_COLORS="0;31:0;36:1;36:0;33:1;32:0;37:1;37"
 export VLK_COLOR_REFERENCE="accent=#7a5dfc:accent_l=#af99ff:err=#FF5050:bg=#272B33:"
 export SUDO_PROMPT="[0;1m[[31mSUDO[0;1m][0m "
 export FZF_DEFAULT_OPTS="--prompt=' ' --pointer=' ' --marker=' ' --tabstop=4 --no-mouse --ansi \
 --color=fg:#ccccdc,hl:#df6b75,fg+:#fcfcff,bg+:#2c323d,hl+:#d682f0,info:#f2ce97,prompt:#d7005f,pointer:#65b6f8,marker:#56b5c2,spinner:#d682f0,header:#e6e6e6 "
+
 # rofi
-export ROFI_ICON_NORMAL='#e2e4e9' ROFI_ICON_URGENT='#16181d' ROFI_ICON_ACTIVE='#16181d'
+export ROFI_ICON_NORMAL='#e2e4e9'
+export ROFI_ICON_URGENT='#16181d'
+export ROFI_ICON_ACTIVE='#16181d'
+
 # x11
-export XINITRC="$XDG_CONFIG_HOME/X11/xinitrc" XSERVERRC="$XDG_CONFIG_HOME/X11/xserverrc" XRESOURCES="$XDG_CONFIG_HOME/X11/Xresources"
+export XINITRC="$XDG_CONFIG_HOME/X11/xinitrc"
+export XSERVERRC="$XDG_CONFIG_HOME/X11/xserverrc"
+export XRESOURCES="$XDG_CONFIG_HOME/X11/Xresources"
+
 # hists
-export HISTFILE="$XDG_RUNTIME_DIR/shellhist" LESSHISTFILE='/dev/null'
+export HISTFILE="$XDG_RUNTIME_DIR/shellhist"
+export LESSHISTFILE='/dev/null'
+
 # qt customzation
-export QT_QPA_PLATFORMTHEME='qt5ct' QT_QPA_PLATFORM_PLUGIN_PATH="$XDG_CONFIG_HOME" #QT_STYLE_OVERRIDE='kvantum'
+export QT_QPA_PLATFORMTHEME='qt5ct'
+export QT_QPA_PLATFORM_PLUGIN_PATH="$XDG_CONFIG_HOME" #QT_STYLE_OVERRIDE='kvantum'
+
 # wayland
-export MOZ_ENABLE_WAYLAND=1 GTK_USE_PORTAL=1
+export MOZ_ENABLE_WAYLAND=1
+export GTK_USE_PORTAL=1
+
 # random xdg shit
-export WINEPREFIX="$XDG_DATA_HOME/wine" DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss" CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv" RXVT_SOCKET="$XDG_RUNTIME_DIR/urxvtd" W3M_DIR="$XDG_STATE_HOME/w3m" MACHINE_STORAGE_PATH="$XDG_DATA_HOME/docker-machine" MYSQL_HISTFILE="$XDG_DATA_HOME/mysql_history" INPUTRC="$XDG_CONFIG_HOME/readline/inputrc" GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc" GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+export WINEPREFIX="$XDG_DATA_HOME/wine"
+export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
+export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
+export RXVT_SOCKET="$XDG_RUNTIME_DIR/urxvtd"
+export W3M_DIR="$XDG_STATE_HOME/w3m"
+export MACHINE_STORAGE_PATH="$XDG_DATA_HOME/docker-machine"
+export MYSQL_HISTFILE="$XDG_DATA_HOME/mysql_history"
+export INPUTRC="$XDG_CONFIG_HOME/readline/inputrc"
+export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+
 # java
-export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=\"$XDG_CONFIG_HOME/java\"" GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
+export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=\"$XDG_CONFIG_HOME/java\""
+export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export JAVA_HOME='/usr/lib/jvm/java-17-openjdk-17.0.8.0.7-1.fc38.x86_64'
 export INSTALL4J_JAVA_HOME="${JAVA_HOME:-}"
+
 # perl
 export PERL_CPANM_HOME="$XDG_CACHE_HOME/cpanm"
+
 # rust
-export RUSTUP_HOME="$XDG_DATA_HOME/rustup" CARGO_HOME="$XDG_DATA_HOME/cargo"
+export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+export CARGO_HOME="$XDG_DATA_HOME/cargo"
+
 # golang
-export GOPATH="$XDG_DATA_HOME/go" GOCACHE="$XDG_CACHE_HOME/go-build" GOMODCACHE="${GOPATH:=$XDG_DATA_HOME/go}/pkg/mod"
+export GOPATH="$XDG_DATA_HOME/go"
+export GOCACHE="$XDG_CACHE_HOME/go-build"
+export GOMODCACHE="${GOPATH:=$XDG_DATA_HOME/go}/pkg/mod"
+
 # python
 # PYTHONUSERBASE="$XDG_DATA_HOME/python"
 export PYTHONUSERBASE="$XDG_DATA_HOME/pythonuserbase"
-export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc" PYTHONPYCACHEPREFIX="$XDG_CACHE_HOME/python" PYENV_ROOT="$XDG_DATA_HOME/pyenv" PYTHON_EGG_CACHE="$XDG_CACHE_HOME/python-eggs" WORKON_HOME="$XDG_DATA_HOME/virtualenvs"
+export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc"
+export PYTHONPYCACHEPREFIX="$XDG_CACHE_HOME/python"
+export PYENV_ROOT="$XDG_DATA_HOME/pyenv"
+export PYTHON_EGG_CACHE="$XDG_CACHE_HOME/python-eggs"
+export WORKON_HOME="$XDG_DATA_HOME/virtualenvs"
+
 # nodejs
-export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc" NPM_CONFIG_CACHE="$XDG_CACHE_HOME/npm" NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history" NODENV_ROOT="$XDG_DATA_HOME/nodenv" PNPM_HOME="$XDG_DATA_HOME/pnpm" YARN_ENABLE_TELEMETRY=0 NVM_DIR="$XDG_DATA_HOME/nvm" BUN_INSTALL="$XDG_DATA_HOME/bun" DENO_INSTALL="$XDG_DATA_HOME/deno"
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
+export NPM_CONFIG_CACHE="$XDG_CACHE_HOME/npm"
+export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
+export NODENV_ROOT="$XDG_DATA_HOME/nodenv"
+export PNPM_HOME="$XDG_DATA_HOME/pnpm"
+export YARN_ENABLE_TELEMETRY=0
+export NVM_DIR="$XDG_DATA_HOME/nvm"
+export BUN_INSTALL="$XDG_DATA_HOME/bun"
+export DENO_INSTALL="$XDG_DATA_HOME/deno"
+
 # keyring
-export GNUPGHOME="$XDG_DATA_HOME/gnupg" GPG_TTY="${TTY:=$(tty)}"
-: "${GNOME_KEYRING_CONTROL:=$XDG_RUNTIME_DIR/keyring}" "${SSH_AUTH_SOCK:=$XDG_RUNTIME_DIR/keyring/ssh}"
-export GNOME_KEYRING_CONTROL SSH_AUTH_SOCK
+export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+export GPG_TTY="${TTY:=$(tty)}"
+export GNOME_KEYRING_CONTROL="${GNOME_KEYRING_CONTROL:-$XDG_RUNTIME_DIR/keyring}"
+export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$XDG_RUNTIME_DIR/keyring/ssh}"
 
 export OLLAMA_HOME="$XDG_DATA_HOME/ollama"
 if [ -S "$XDG_RUNTIME_DIR/.ydotool_socket" ]; then
@@ -125,20 +174,6 @@ if [ ! -x "$__vlkenv_pathmunge_bin" ]; then
     else
         echo "Cargo not found. Skipping building pathmunge"
     fi
-    #     __pathmunge() {
-    #         oldifs="$IFS"
-    #         tmppth=
-    #         IFS="
-    # "
-    #         for i in "$@" $(IFS=':' printf '%s\n' $PATHMUNGE_PATH); do
-    #             case ":${PATHMUNGE_PATH:-}:" in
-    #             *":${i}:"*) continue ;;
-    #             *) [ -d "$i" ] && tmppth="$i:$tmppth" ;;
-    #             esac
-    #         done
-    #         IFS="$oldifs"
-    #         echo "${tmppth}:${PATHMUNGE_PATH}" | sed -E 's/:+/:/g ; s/^:|:$//g'
-    #     }
     __pathmunge_helper_function() {
         case ":${pathlike}:" in
         *":${1}:"*) true ;;

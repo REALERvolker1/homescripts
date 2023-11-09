@@ -1,79 +1,235 @@
 #!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
 
-file="${1:---help}"
-
-if [[ "$file" == '--help' ]]; then
-    echo "lns.sh <filepath> [destination (default: '$HOME/.local/bin/<filepath>')]"
+_panic() {
+    printf '[0m%s[0m\n' "$@" >&2
     exit 1
-else
-    file="$(realpath $file)"
-fi
+}
 
-if [ ! -e "$file" ]; then
-    echo "Error! Please specify a file."
-    echo "given args: '$@'"
-    exit 1
-fi
-
-destination="${2:-$HOME/.local/bin}"
-destination="$(realpath "$destination" 2>/dev/null)"
-
-if [ -z "$destination" ]; then
-    echo "Error! Please specify <destination> or <destination>/<filename>"
-    exit 1
-fi
-
-if [ -z "$LS_COLORS" ]; then
-    eval "$(dircolors -b)"
-fi
-ls_colors="${LS_COLORS//:/ }"
-
-for color in $ls_colors; do
-    extension="${color%=*}"
-    #if [[ "${extension::1}" == "*" ]]; then
-    #    file_colors+=("${color#\*}")
-    if [[ "$extension" == "di" ]]; then
-        directory_color="${color#*=}"
-    elif [[ "$extension" == "ln" ]]; then
-        symlink_color="${color#*=}"
-    fi
+declare -a deperr=()
+for i in ln realpath ls sudo dircolors; do
+    command -v "$i" &>/dev/null || deperr+=("$i")
 done
+((${#deperr[@]})) && _panic "Missing dependencies:" "${deperr[@]}"
 
-#for color in "${file_colors[@]}"; do
-#    file_color="${color#*=}"
-#    extension="${color%=*}"
-#    echo "file $file_color color "
-#    if echo "$file" | grep "${extension}$"; then
-#        echo "$file_color"
-#    fi
-#done
-lscommand="$(/usr/bin/ls -d --color=always "$file")"
-file_color="${lscommand%%/*}"
+FILE=''
+LINK=''
+declare -i UNSET_FILE=1
+declare -i UNSET_LINK=1
+declare -a errors=()
+declare -i REALPATH=0
+declare -i CONFIRM=1
+declare -i ENDARG=0
+COLOR=auto
 
-if [ -d $destination ]; then
-    fancy_dest="\033[${directory_color}m${destination}/\033[${symlink_color}m${file##*/}\033[0m"
-    destination="$destination/${file##*/}"
-else
-    fancy_dest="\033[${directory_color}m${destination%/*}/\033[${symlink_color}m${destination##*/}\033[0m"
-fi
-
-fancy_file="\033[${directory_color}m${file%/*}/${file_color}${file##*/}\033[0m"
-
-if [ -e "$destination" ]; then
-    echo "Error! Destination already exists!"
-    exit 1
-fi
-
-printf "\033[${symlink_color}mLink $fancy_file \033[${symlink_color}m=>\033[0m $fancy_dest \033[${symlink_color}m?\033[0m \033[1m[y/n]\033[0m \033[2m>\033[0m \033[1m"
-read answer
-printf "\033[0m"
-if [[ "$answer" == 'y' ]]; then
-    ln -s "$file" "$destination"
-    if [ -L "$destination" ]; then
-        printf "\033[${symlink_color}mLink created\033[0m $fancy_dest\n"
-    else
-        printf "\033[1;31mERROR\033[0m: Could not create link\n"
+push_file() {
+    local f="${1:-}"
+    if ((UNSET_FILE)); then
+        if [[ -e "$f" ]]; then
+            if ((REALPATH)); then
+                f="$(realpath "$f")"
+            else
+                f="$(realpath -s "$f")"
+            fi
+            FILE="$f"
+            UNSET_FILE=0
+        else
+            errors+=("Invalid target for link: '$f'")
+        fi
+        return
     fi
+    if ((UNSET_LINK)); then
+        [[ -d "$f" ]] && f="$f/${FILE##*/}"
+        # ((REALPATH)) && f="$(realpath "${f%/*}")/${f##*/}"
+        if ((REALPATH)); then
+            f="$(realpath "$f")"
+        else
+            f="$(realpath -s "$f")"
+        fi
+        # f="$f_basedir/${f##*/}"
+        if [[ -e "$f" ]]; then
+            errors+=("Invalid path for link, file exists: '$f'")
+        elif [[ -L "$f" ]]; then
+            errors+=("Targetting zombie symlink: '$f'")
+        else
+            LINK="$f"
+            UNSET_LINK=0
+        fi
+        return
+    fi
+    errors+=("Too many file arguments passed! (at '$f')")
+}
+
+me="${0##*/}"
+
+for i in "$@"; do
+    if ((ENDARG)); then
+        push_file "$i"
+        continue
+    fi
+    case "${i:-}" in
+    --help | -help | -h)
+        _panic "[1m=== Help page for $me ===[0m" \
+            '' \
+            $'\t''[1mGeneral options[0m' \
+            '[1m--no-confirm (-y)[0m   Do not ask for confirmation of link'\''s creation' \
+            '[1m--color=COLOR[0m       Choose whether to have color. One of (always, auto, never), defaults to auto' \
+            '' \
+            $'\t''[1mArgument options[0m' \
+            '[1m--[0m   Stop parsing args after this. Useful for escaping args in file names' \
+            '[1m-[0m    Read filepath from STDIN' \
+            '' \
+            $'\t''[1mIntersperse options[0m' \
+            'These are options that modify how subsequent file paths are read.' \
+            '[1m--real (-r)[0m       resolve all symlinks in file args after this' \
+            '[1m--no-real (-nr)[0m   preserve all symlinks in file args after this (disable --real)' \
+            '' \
+            'Args can be interspersed with files like so:' \
+            '' \
+            $'\t'"[1m$me[0m --color=[1mnever[0m --real [1m/bin/sh[0m --no-real [1m/bin/shell[0m -y" \
+            '' \
+            'This example symlinks the target of the symlink "/bin/sh" (typically /usr/bin/bash) to "/bin/shell"' \
+            '' \
+            "Default: [1m$me[0m --color=[1mauto[0m --[1mno[0m-real [1m/path/to/file.ext[0m \$PWD/file.ext"
+        ;;
+    --real | -r)
+        REALPATH=1
+        ;;
+    --no-real | -nr)
+        REALPATH=0
+        ;;
+    --no-confirm | -y)
+        CONFIRM=0
+        ;;
+    --color=*)
+        i_tmp="${i#*=}"
+        case "${i_tmp:-}" in
+        auto | always | never) COLOR="${i_tmp:-}" ;;
+        *) _panic "Invalid color setting '$i_tmp'" ;;
+        esac
+        ;;
+    --)
+        ENDARG=1
+        ;;
+    -)
+        [[ -t 0 ]] && echo "Reading file from stdin" >&2
+        read -r j
+        push_file "$j"
+        ;;
+    *)
+        push_file "$i"
+        ;;
+    esac
+done
+((UNSET_FILE)) && _panic "No files selected!"
+((UNSET_LINK)) && push_file "$PWD"
+((${#errors[@]})) && _panic "${errors[@]}" "Try $me --help"
+
+LINKFMT=''
+FILEFMT=''
+if [[ $COLOR == never ]] || [[ $COLOR == auto && ! -t 1 ]]; then
+    LINKFMT="$LINK"
+    FILEFMT="$FILE"
+    ARROWFMT='=>'
 else
-    echo "Link canceled"
+    [[ -z "${LS_COLORS:-}" ]] && eval "$(dircolors -b)"
+
+    dir_color="${LS_COLORS#*:di=}"
+    dir_color="${dir_color%%:*}"
+
+    lnk_color="${LS_COLORS#*:ln=}"
+    lnk_color="${lnk_color%%:*}"
+
+    base_ls_colors="${LS_COLORS%%:*}"
+    [[ "${lnk_color:-}" == "${base_ls_colors:-}" || "${dir_color:-}" == "${base_ls_colors:-}" ]] && _panic "Error parsing dir colors"
+
+    lnk_color="[0;${lnk_color}m"
+    dir_color="[0;${dir_color}m"
+
+    if [[ -d "$FILE" ]]; then
+        file_color="$dir_color"
+    elif [[ -L "$FILE" ]]; then
+        file_color="$lnk_color"
+    else
+        file_color="$(ls -1d --color=always "$FILE")"
+        file_color="${file_color%%"$FILE"*}"
+    fi
+
+    file_basedir="${FILE%/*}"
+
+    if [[ -d "$file_basedir" ]]; then
+        file_base_color="$dir_color"
+    elif [[ -L "$file_basedir" ]]; then
+        file_base_color="$lnk_color"
+    else
+        _panic "Error, basedir of file '$FILE', '$file_basedir', is not a directory!"
+    fi
+
+    link_basedir="${LINK%/*}"
+
+    if [[ -d "$link_basedir" ]]; then
+        link_base_color="$dir_color"
+    elif [[ -L "$link_basedir" ]]; then
+        link_base_color="$lnk_color"
+    else
+        _panic "Error, basedir of link '$LINK', '$link_basedir', is not a directory!"
+    fi
+
+    FILEFMT="${file_base_color}${file_basedir%/}/${file_color}${FILE##*/}[0m"
+    LINKFMT="${link_base_color}${link_basedir%/}/${lnk_color}${LINK##*/}[0m"
+    ARROWFMT="$lnk_color=>[0m"
 fi
+
+echo -e "$FILEFMT $ARROWFMT $LINKFMT"
+
+_confirm() {
+    local answer
+    read -r -p "[y/N] > [1m" answer
+    [[ "${answer:-}" == y ]] || _panic "Canceling"
+    echo -n "[0m"
+}
+
+declare -i NEEDS_SUDO=0
+LN_CMD='ln'
+[[ -w "${LINK%/*}" ]] || NEEDS_SUDO=1
+
+if ((CONFIRM)); then
+    echo "Do you want to create this symlink?"
+    ((NEEDS_SUDO)) && echo "May require root priveleges"
+    _confirm
+fi
+
+_try_make_link() {
+    $LN_CMD -s "$FILE" "$LINK"
+    if [[ -L "$LINK" ]]; then
+        echo "Link created successfully"
+    elif ((NEEDS_SUDO)); then
+        NEEDS_SUDO=0
+        echo "Failed to create link. Retry with sudo?"
+        _confirm
+        LN_CMD='sudo ln'
+        _try_make_link
+    else
+        _panic "Error creating symlink!" "file: '$FILE'" "link: '$LINK'"
+    fi
+}
+
+_try_make_link
+
+# ln -s "$FILE" "$LINK"
+
+# if [[ -L "$LINK" ]]; then
+#     echo "Link created successfully"
+# elif ((NEEDS_SUDO)); then
+#     echo "Failed to create link. Retry with sudo?"
+#     _confirm
+#     sudo ln -s "$FILE" "$LINK"
+#     if [[ -L "$LINK" ]]; then
+#         echo "Link created successfully"
+#     else
+#         _panic "Error creating symlink!" "file: '$FILE'" "link: '$LINK'"
+#     fi
+# else
+#     _panic "Error creating symlink!" "file: '$FILE'" "link: '$LINK'"
+# fi

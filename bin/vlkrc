@@ -9,52 +9,52 @@
     exit 1
 }
 
-: "${DIRECTORY_COLOR:=1;34}"
 if ! command -v cargo &>/dev/null; then
     alias getcargo='bash <(curl -sSf https://sh.rustup.rs) --default-toolchain stable --profile complete --no-modify-path'
     echo "No cargo found. Please run 'getcargo'"
 fi
 
-#__which="$(which --skip-alias which)"
 __which() {
-    local which_output
-    which_output="$(
-        (
-            alias
-            declare -f
-        ) |
-            "${WHICH_PATH:-/bin/which}" --tty-only --read-alias --read-functions --show-tilde --show-dot "$@"
-    )"
-    echo "$which_output" | sed "s|^$HOME|~|"
-    if [[ -L "${which_output:-}" ]]; then
-        echo -e "symlink to \e[1;96m$(realpath "$which_output")\e[0m"
+    local shell_junk
+    shell_junk="$(alias && declare -f)"
+    local -a which_output
+    local output
+    local i
+    for i in "$@"; do
+        output="$(command which --tty-only --read-alias --read-functions --show-tilde --show-dot "$i" <<<"$shell_junk")"
+        if [[ -L "${output:-}" ]]; then
+            echo "$output => [1;96m$(realpath "$output")[0m" # 
+        else
+            which_output+=("$output")
+        fi
+    done
+    if command -v bat &>/dev/null; then
+        printf '%s\n' "${which_output[@]}" | bat -l sh
+    else
+        printf '%s\n' "${which_output[@]}"
     fi
 }
-# alias which="( alias; declare -f ) | ${WHICH_PATH:=/bin/which} --tty-only --read-alias --read-functions --show-tilde --show-dot"
-alias which=__which
-alias whihc=which
+
+alias whi{ch,hc}=__which
 
 __homebin="$HOME/bin"
 
-__lscmd="${LS_PATH:=/bin/ls} --color=auto --group-directories-first -A"
+__lscmd="command ls --color=auto --group-directories-first -A"
+# assign la before we mutate it
+alias la="$__lscmd"
+command -v lsd >/dev/null 2>&1 && __lscmd=lsd
 
-alias ls="${LS_COMMAND:=$__lscmd}"
-alias ll="${LL_COMMAND:=$__lscmd -l}"
-alias la="${LA_COMMAND:=$__lscmd}"
-
+alias {{sl,l,s},ls}="$__lscmd" ll="$__lscmd -l"
 unset __lscmd
 
-alias sl=ls
-alias l=ls
-alias s=ls
+# alias {sl,l,s}=ls
 
 unalias cd 2>/dev/null
 alias -- -='cd -'
 
-alias ...='cd ../..'
-alias ....='cd ../../..'
-
-alias pw=pwd
+for i in ..{,.,..}; do
+    alias ".${i}=${i//./../}"
+done
 
 rp() {
     if [[ -z "${1:-}" ]]; then
@@ -69,38 +69,50 @@ rp() {
 
 alias cp='cp -r'
 
-alias suod=sudo
-
-alias q=exit
-alias :q=exit
+alias {us,su}{do,od}=sudo
+alias {,:}q=exit
 
 alias shutdown='systemctl poweroff'
 alias reboot='systemctl reboot'
 alias logout="loginctl kill-session '$XDG_SESSION_ID'"
 
-alias rmf="${RM_PATH:=/bin/rm} -rf"
+alias rmf="$(command which rm) -rf"
 if command -v trash &>/dev/null; then
     alias rm='trash -i -r'
 else
-    echo "trash command not installed! falling back to '$RM_PATH'"
+    echo "trash command not installed! falling back to rm"
     alias rm=rmf
 fi
 # remove junk files
-for i in \
-    "$HOME/.xsel.log" \
-    "$HOME/.wget-hsts"; do
+for i in "$HOME/".{xsel.log,wget-hsts}; do
     [[ -e "$i" ]] && rmf "$i"
 done
-#[[ -f "$HOME/.xsel.log" ]] && rmf "$HOME/.xsel.log" &>/dev/null
 
-alias touchc="$__homebin/touchx.sh --codium"
-alias touchv="$__homebin/touchx.sh --nvim"
-alias touchx="$__homebin/touchx.sh --exec"
-alias touchxc="$__homebin/touchx.sh --exec --codium"
-alias touchxv="$__homebin/touchx.sh --exec --nvim"
+__touchx() {
+    local op="${1#touch}"
+    shift 1
 
-alias chmodx='chmod +x'
-alias chmod-x='chmod -x'
+    local editor
+    if [[ "$op" == *c ]]; then
+        editor=codium
+    elif [[ "$op" == *v ]]; then
+        editor="${EDITOR:-vim}"
+    else
+        editor=echo
+    fi
+
+    for file in "$@"; do
+        touch "$file"
+        [[ "$op" == x* ]] && chmod +x "$file"
+        $editor "$file"
+    done
+}
+
+for i in touch{x{,c,v},c,v}; do
+    alias "$i=__touchx $i"
+done
+
+alias chmodx='chmod +x' chmod-x='chmod -x'
 
 alias %="$__homebin/\$"
 
@@ -109,35 +121,24 @@ alias copycat="$__homebin/copy --cat"
 
 alias ple='perl -wlne '
 
-alias grep="grep --color=auto"
-alias egrep="egrep --color=auto"
-alias fgrep="fgrep --color=auto"
-alias igrep="grep -i --color=auto"
-
-alias xzgrep='xzgrep --color=auto'
-alias xzegrep='xzegrep --color=auto'
-alias xzfgrep='xzfgrep --color=auto'
-
-alias zgrep='zgrep --color=auto'
-alias zfgrep='zfgrep --color=auto'
-alias zegrep='zegrep --color=auto'
+for i in {,xz,z}{,e,f}grep; do
+    alias "$i=$i --color=auto"
+done
 
 alias mime='file -bL --mime-type'
 
 alias bap='bat --paging always'
 alias glop='glow --pager'
-alias batop=battop
-alias battio=battop
+alias bat{op,tio,io}=battop
 
 # OpenAI whisper -- run `pip install --user --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git` and `pip install --user blobfile`
 #command -v whisper &>/dev/null && alias whisp='whisper --language en --device cuda --model medium.en --output_format txt'
 alias record='pw-record --target "alsa_input.usb-ASUSTeK_COMPUTER_INC._C-Media_R__Audio-00.analog-stereo" '
 
 whisp() {
-    conda activate whisp
-    echo "starting whisper with args '--language en --device cuda --model medium.en --output_format txt $*'"
-    whisper --language en --device cuda --model medium.en --output_format txt "$@"
-    conda deactivate
+    local -a whispargs=(--language en --device cuda --model medium.en --output_format txt)
+    echo "starting whisper with args '${whispargs[*]} $*'"
+    whisper "${whispargs[@]}" "$@"
 }
 
 if [[ -d "$HOME/src/text-generation-webui" ]]; then
@@ -165,12 +166,14 @@ fi
 
 alias diff=difft
 # command -v duf &>/dev/null && alias df=duf
-command -v dutree &>/dev/null && alias du=dutree
-# command -v ouch &>/dev/null && alias extract='ouch decompress'
+# command -v dutree &>/dev/null && alias du=dutree
+command -v ouch &>/dev/null && alias extract='ouch decompress'
 
 alias unfuck-old-backup='tar --hole-detection=seek --keep-directory-symlink -xzf '
 
-alias free='free -h'
+for i in free df du; do
+    alias "$i=$i -h"
+done
 
 alias ra=ranger
 
@@ -184,11 +187,7 @@ alias ttymouse='sudo gpm -m /dev/input/mice -t imps2'
 
 alias code=codium
 
-alias vi="$EDITOR"
-# alias vim="$EDITOR"
-alias ivm="$EDITOR"
-alias iv="$EDITOR"
-alias v="$EDITOR"
+alias {{vi,iv}{m,},v}="$EDITOR"
 alias svim=sudoedit
 
 alias tmuxk='tmux kill-session -t'
@@ -198,8 +197,8 @@ alias tmuxl='tmux list-sessions'
 run-subshell() {
     local stty cmd
     [[ -t 0 ]] && stty="$(stty --save)"
-    # local myhist="$HISTFILE"
     cmd="${1:-}"
+    [[ ${cmd:-} =~ (|t)csh ]] && echo 💀
     command -v "$cmd" >/dev/null || return
     shift 1
     HISTFILE="${SHELLHIST:-/dev/null}" $cmd "$@"
@@ -208,16 +207,9 @@ run-subshell() {
     return $retval
 }
 
-# alias bash="$__homebin/run-subshell.sh bash"
-alias bash='run-subshell bash'
-alias dash="run-subshell dash"
-alias ksh="run-subshell ksh"
-alias rksh=ksh
-alias sh="run-subshell sh"
-alias csh="echo 💀 && run-subshell csh"
-alias tcsh="echo 💀 && run-subshell tcsh"
-
-alias pypip="pypy3 -m pip "
+for i in {{b,d,}a,{,r}k,{,t}c,z}sh; do
+    alias "$i=run-subshell $i"
+done
 
 venv() {
     local venv="$PWD/venv"
@@ -234,7 +226,6 @@ venv() {
         fi
     fi
 }
-# alias venv='python -m venv "$PWD"'
 
 alias pnpmi='pnpm install --global'
 alias pnpml='pnpm list --global | fzf'
@@ -247,10 +238,10 @@ alias tit='echo 😜 && git '
 alias gitd='git fetch && git diff "origin/$(git branch | grep -oP "\*[[:space:]]*\K.*\$")"'
 alias uncommit='git reset --soft HEAD~'
 
-alias dotm="$__homebin/dotfiles.sh --git commit"
-alias dotp="$__homebin/dotfiles.sh --git push"
-alias dotd="$__homebin/dotfiles.sh --git diff"
-alias dotadd="$__homebin/dotfiles.sh --dotadd"
+alias dotm="dotfiles.sh --git commit"
+alias dotp="dotfiles.sh --git push"
+alias dotd="dotfiles.sh --git diff"
+alias dotadd="dotfiles.sh --dotadd"
 
 alias cr='cargo run -- '
 alias cbr='cargo build --release'
@@ -266,28 +257,16 @@ cn() {
 }
 alias cupl='cargo install-update -l'
 
-alias dfn=dnf
-
-alias dnfi='sudo dnf install '
-alias dfni=dnfi
-
-alias dnfr='sudo dnf remove '
-alias dfnr=dnfr
-
-alias dnfu='sudo dnf update --refresh'
-alias dfnu=dnfu
-
-command -v dnfs &>/dev/null || alias dnfs="dnf search "
-alias dfns=dnfs
-
-alias dnfl='dnf list --installed | fzf'
-alias dfnl=dnfl
-
-alias dnfa='dnf list --available | fzf'
-alias dfna=dnfa
-
-alias dnfc='dnf check-update'
-alias dfnc=dnfc
+if command -v dnf &>/dev/null; then
+    alias dfn=dnf
+    alias d{nf,fn}i='sudo dnf install '
+    alias d{nf,fn}r='sudo dnf remove '
+    alias d{nf,fn}u='sudo dnf update --refresh'
+    # alias d{nf,fn}s="dnf search "
+    alias d{nf,fn}l='dnf list --installed | fzf'
+    alias d{nf,fn}a='dnf list --available | fzf'
+    alias d{nf,fn}c='dnf check-update'
+fi
 
 alias fli='flatpak install'
 alias flu='flatpak update'
@@ -296,9 +275,14 @@ alias fls='flatpak search'
 alias fll='flatpak list | fzf'
 alias flc='flatpak remote-ls --updates'
 
-alias unfuck-pacman-cache="sudo pacman -Qk | grep '[^0] missing files'"
-alias pmi='sudo pacman -S '
-alias pmr='sudo pacman -Rcns '
+if command -v pacman &>/dev/null; then
+    alias unfuck-pacman-cache="sudo pacman -Qk | grep '[^0] missing files'"
+    alias paci='sudo pacman -S '
+    alias pacr='sudo pacman -Rcs '
+    alias pacl='pacman -Q | fzf'
+    alias pacb='pacman -Fl | grep -E "\s+(${PATH//:\//|})" | fzf'
+    # alias pacs='pacman -Sl | fzf'
+fi
 
 alias xclassget='xprop | grep WM_CLASS'
 alias xkeyget="xev -event keyboard | grep -Eo 'keycode.*\)'"
@@ -306,9 +290,9 @@ alias numlock-query="xset q | grep -Po 'Num Lock: *\K[a-z]*'"
 
 alias gpu=switcherooctl
 
-alias winekill="killall winedevice.exe; killall wineserver"
+alias winekill="killall wine{device.exe,server}"
 alias winelist="ps -eo args | grep 'C:[/|\\]' | grep -o '^.*\.exe '"
-alias ubikill='killall upc.exe; killall UbisoftGameLauncher.exe'
+alias ubikill='killall {upc,UbisoftGameLauncher}.exe'
 
 alias steamfix='find "$HOME/.var/app/com.valvesoftware.Steam/.config" -maxdepth 1 -type l -delete'
 
@@ -326,11 +310,13 @@ alias chars='perl -e "foreach(@ARGV){open(my \$f,\"<\",\"\$_\") or die \"\$!\";m
 alias ARCH='distrobox-enter -n ARCH'
 
 alias fenv='declare | fzf'
+alias penv='printenv | fzf'
 
 if [[ -n "${ZSH_VERSION:-}" ]]; then
     alias refresh='exec zsh'
     alias lsh="hash -dL | sed 's/hash -d //g ; s/=/  \t  /g' | fzf"
     alias aliases='printf "\e[1;93m%s\e[0m = \e[92m%s\e[0m\n" "${(@kv)aliases}"'
+    alias printl='print -l'
 
 elif [[ -n "${BASH_VERSION:-}" ]]; then
     alias refresh='exec bash'
@@ -351,9 +337,10 @@ gitc() {
     fi
     local git_link="${1?:Error. Specify link to clone}"
     local git_dir="$PWD/${git_link##*/}"
+    git_dir="${git_dir%.git}"
     echo -e "Cloning \033[4m$git_link\033[0m "
-    git clone "$git_link"
-    cd "${git_dir%.git}" || return 1
+    git clone "$git_link" "$git_dir"
+    cd "$git_dir" || return 1
 }
 
 readme() {
@@ -366,3 +353,17 @@ readme() {
         cat "$1"
     fi
 }
+
+if ! command -v fzf &>/dev/null; then
+    fzf() {
+        echo $'\nError, fzf not installed. Falling back to select function\n' >&2
+        local -a stdin=()
+        while IFS= read -r line; do
+            stdin+=("$line")
+        done
+        select i in "${stdin[@]}"; do
+            echo "$i"
+            break
+        done
+    }
+fi
