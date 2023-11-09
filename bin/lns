@@ -216,20 +216,3 @@ _try_make_link() {
 }
 
 _try_make_link
-
-# ln -s "$FILE" "$LINK"
-
-# if [[ -L "$LINK" ]]; then
-#     echo "Link created successfully"
-# elif ((NEEDS_SUDO)); then
-#     echo "Failed to create link. Retry with sudo?"
-#     _confirm
-#     sudo ln -s "$FILE" "$LINK"
-#     if [[ -L "$LINK" ]]; then
-#         echo "Link created successfully"
-#     else
-#         _panic "Error creating symlink!" "file: '$FILE'" "link: '$LINK'"
-#     fi
-# else
-#     _panic "Error creating symlink!" "file: '$FILE'" "link: '$LINK'"
-# fi
