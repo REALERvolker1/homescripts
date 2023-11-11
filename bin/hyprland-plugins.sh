@@ -106,8 +106,8 @@ _load() {
     echo loading plugins
     unsafe_mode
     local i
-    local -a errors
-    local -a success
+    local -a errors=()
+    local -a success=()
     for i in "${config[current_root]}"/*; do
         if [[ -f "$i" && "$i" == *.so ]]; then
             pluginmsg="(${i##*/}) $(hyprctl plugin load "$i")"

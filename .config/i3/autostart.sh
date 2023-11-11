@@ -51,4 +51,4 @@ picom &
 flashfocus &
 vlkbg.sh &
 autotiling-rs &
-scratchpad_terminal.sh &
+#scratchpad_terminal.sh &

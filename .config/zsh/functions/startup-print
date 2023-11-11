@@ -13,8 +13,51 @@ local cachefile="$XDG_RUNTIME_DIR/dumfech-$XDG_SESSION_ID.cache"
         else
             echo 'none'
         fi
-        #echo "${$(uname -r)%%-*}"
-        uname -r | grep -o '^[^-]*-[^-\.]*'
+        #uname -r | grep -o '^[^-]*-[^-\.]*'
+        
+        kern="$(uname -r)"
+        typeset -a karr
+        vers="${kern%%-*}"
+        karr+=("$vers")
+        case "${kern:-Undefined}" in
+            *xanmod*)
+                karr+=(XANMOD)
+                ;;
+            *zen*)
+                karr+=(ZEN)
+                ;;
+            *tkg*)
+                karr+=(TKG)
+                ;;
+            *lqx*)
+                karr+=(LQX)
+                ;;
+            *cachy*)
+                karr+=(CACHYOS)
+                ;;
+            *clear*)
+                karr+=(CLEAR)
+                ;;
+            *nitro*)
+                karr+=(NITRO)
+                ;;
+            *hard*)
+                karr+=(HARD)
+                ;;
+            *next*)
+                karr+=(NEXT)
+                ;;
+            *rc*)
+                karr+=(MAIN)
+                ;;
+            *git*)
+                karr+=(GIT)
+                ;;
+        esac
+        [[ $kern == *g14* || $kern == *rog* ]] && karr+=(ROG) # Kernel with Asus-Linux patches
+        [[ $kern == *lts* ]] && karr+=('(lts)') # LTS kernel
+        [[ $kern == *rt* ]] && karr+=('(rt)') # Realtime kernel -- deterministic scheduling
+        echo "${(j. .)karr}"
     ) >"$cachefile"
 
 # ik I'm cheating here a bit with a cachefile, but idk, it's a performance thing

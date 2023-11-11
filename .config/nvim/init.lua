@@ -1,6 +1,5 @@
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
--- vim.g.loaded_
 
 opt = vim.opt
 
@@ -116,7 +115,7 @@ require("lazy").setup({
     "nvim-telescope/telescope.nvim",
 }, {
     checker = {
-        enabled = true,
+        --enabled = true,
     },
 })
 
