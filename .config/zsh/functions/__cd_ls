@@ -1,6 +1,6 @@
 local -i fcount=${#${(f)"$(print -l ./*(N))"}}
 if ((fcount < 30)); then
-    $LS_COMMAND
+    lsd
 else
     echo -e "\e[${DIRECTORY_COLOR}m${fcount}\e[0m items in this folder"
 fi

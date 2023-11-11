@@ -135,6 +135,8 @@ case "$arg" in
         echo "$line"
     done
     ;;
+--setup-xorg-system) ;;
+
 -p | --print-location)
     echo "$TOUCHPAD_STATUS"
     ;;
@@ -148,7 +150,8 @@ case "$arg" in
         '--toggle' '-t' 'toggle touchpad' \
         '--normalize' '-n' 'normalize settings' \
         '--udev-monitor' '-um' 'monitor device remove/add, then normalize' \
-        '--print-location' '-p' 'print statusfile location'
+        '--print-location' '-p' 'print statusfile location' \
+        '--setup-xorg-system' '' 'Set up system config files for xorg xinput'
     exit 1
     ;;
 esac
