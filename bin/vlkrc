@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 # shellcheck shell=bash
 # vim:foldmethod=marker:ft=sh
-## shellcheck disable=2139,2317,2012,1090
+## shellcheck disable=2139,2317,2012,1090,1036,1088
 
 [[ "$-" == *i* ]] || {
     echo "Error, you must source this file with interactive zsh or bash" >&2

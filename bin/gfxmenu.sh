@@ -1,113 +1,210 @@
 #!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+TAB=$'\t'
 
-_iconify () {
-    local icon="${1:?Error, must specify an icon!}"
-    local type="${2:-}"
-    local icon_color='#FFFFFF'
+case "${1:-}" in
+--fzf) declare -i IS_FZF_MODE=1 ;;
+'' | --rofi) declare -i IS_FZF_MODE=0 ;;
+*)
+    printf '%s\n' \
+        "Error, invalid arg: '${1:-}'" \
+        'Available options:' \
+        '--fzf   use fzf as a selector' \
+        '--rofi  use rofi as a selector (default)'
+    exit 1
+    ;;
+esac
 
-    case "$type" in
-        'urgent')
-            icon_color="${ROFI_URGENT:-#000000}"
+if ((IS_FZF_MODE)) || [[ -z "${WAYLAND_DISPLAY:-}" && -z "${DISPLAY:-}" ]]; then
+    roficmd=fzf
+    declare -a rofi_args=('-0' '--ansi' '--height=10%')
+    declare -a mesg_rofi_args=('--header')
+
+    printcmd() {
+        local oldifs="$IFS"
+        local IFS=$'\n'
+        printf '%s%s\e[0m\n' $(printf '%s\n' "$@" | tac)
+        IFS="$oldifs"
+    }
+
+    # disable multi select
+    [[ -n "${FZF_DEFAULT_OPTS:-}" ]] && export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS//--multi/}"
+
+    declare -A gfx_icons=(
+        [hybrid]='[32m'
+        [integrated]='[34m'
+        [compute]='[36m'
+        [vfio]='[33m'
+        [asusmuxdgpu]='[35m'
+        [nvidianomodeset]='[32m'
+        [undefined]='[31m'
+    )
+    declare -A power_icons=(
+        [performance]='[31m'
+        [balanced]='[33m'
+        [quiet]='[32m'
+        ['power-saver']='[32m'
+        [undefined]='[31m'
+    )
+    declare -A od_icons=(
+        [true]='[32m'
+        [false]='[31m'
+        [undefined]='[31m'
+    )
+else
+    roficmd=rofi
+    declare -a rofi_args=('-dmenu')
+    declare -a mesg_rofi_args=('-mesg')
+
+    printcmd() { printf '%s\0icon\x1f%s\n' "$@"; }
+
+    declare -A gfx_icons=(
+        [hybrid]='gpu-hybrid'
+        [integrated]='gpu-integrated'
+        [compute]='gpu-compute'
+        [vfio]='gpu-vfio'
+        [asusmuxdgpu]='gpu-nvidia'
+        [nvidianomodeset]='gpu-nvidia'
+        [undefined]='emblem-important'
+    )
+    declare -A power_icons=(
+        [performance]='asus_notif_red'
+        [balanced]='asus_notif_yellow'
+        [quiet]='asus_notif_green'
+        ['power-saver']='asus_notif_green'
+        [undefined]='emblem-important'
+    )
+    declare -A od_icons=(
+        [true]='emblem-checked'
+        [false]='emblem-error'
+        [undefined]='emblem-important'
+    )
+fi
+
+declare -A opttext=(
+    [power]='Power profile'
+    [gfx]='GFX Mode'
+    [od]='Panel Overdrive'
+)
+
+declare -a faildeps=()
+for i in "${roficmd:-}" powerprofilesctl asusctl supergfxctl; do
+    command -v "$i" &>/dev/null || faildeps+=("$i")
+done
+# panic if missing essentials
+if ((${#faildeps[@]})); then
+    set +euo pipefail
+    stuff="$(printf '%s\n' "${faildeps[@]}")"
+    echo "Missing dependencies:"$'\n'"$stuff"
+    notify-send -a "${0##*/}" "Missing dependencies" "$stuff"
+    exit 1
+fi
+
+declare -a power_profiles=()
+while read -r line; do
+    power_profiles+=("${line}")
+done < <(powerprofilesctl list | grep -oP '^(\*|\s)\s\K\S+(?=:.*)')
+
+declare -a gfx_modes=()
+while read -r line; do
+    gfx_modes+=("$line")
+done < <(supergfxctl -s | tr -s ' ' '\n' | grep -oP '[^\[\]\s,]+')
+
+declare -i reset_mesg=1
+while :; do
+    unset new_opts cmdargs is_selection new_selection i_str current sel selected options current_power current_gfx current_od
+
+    current_power="$(powerprofilesctl get || :)"
+    current_gfx="$(supergfxctl -g || :)"
+    current_od="$(asusctl bios -o | grep -oE '(true|false)$' || :)"
+
+    declare -a options=(
+        "${opttext[power]}${TAB}(${current_power:=undefined})"
+        "${power_icons[${current_power,,}]}"
+        "${opttext[gfx]}${TAB}(${current_gfx:=undefined})"
+        "${gfx_icons[${current_gfx,,}]}"
+        "${opttext[od]}${TAB}(${current_od:=undefined})"
+        "${od_icons[$current_od]}"
+    )
+
+    ((reset_mesg)) && declare -a mesg=("${0##*/} -- select an option to modify" 'Press ESC to cancel')
+
+    selected="$(printcmd "${options[@]}" | $roficmd "${rofi_args[@]}" "${mesg_rofi_args[@]}" "${mesg[*]}" | sed 's/(//g ; s/)//g')"
+    sel="${selected%"$TAB"*}"
+    current="${selected##*"$TAB"}"
+
+    declare -a new_opts=()
+    cmd='echo'
+    declare -a cmdargs=()
+    declare -i is_selection=1
+    reset_mesg=1
+
+    case "${sel:-}" in
+    "${opttext[power]}")
+        cmd=powerprofilesctl
+        cmdargs+=(set)
+        for i in "${power_profiles[@]}"; do
+            if [[ "$i" == "$current" ]]; then
+                i_str="${i}${TAB}(current)"
+            else
+                i_str="$i"
+            fi
+            new_opts+=("$i_str" "${power_icons[${i,,}]}")
+        done
         ;;
-        'active')
-            icon_color="${ROFI_ACTIVE:-#000000}"
-        ;; *)
-            icon_color="${ROFI_NORMAL:-$icon_color}"
+    "${opttext[gfx]}")
+        cmd=supergfxctl
+        cmdargs+=(-m)
+        for i in "${gfx_modes[@]}"; do
+            if [[ "$i" == "$current" ]]; then
+                i_str="${i}${TAB}(current)"
+            else
+                i_str="$i"
+            fi
+            new_opts+=("$i_str" "${gfx_icons[${i,,}]}")
+        done
+        ;;
+    "${opttext[od]}")
+        cmd=asusctl
+        cmdargs+=(bios -O)
+        case "$current" in
+        true)
+            cmdargs+=(false)
+            ;;
+        false)
+            cmdargs+=(true)
+            ;;
+        *)
+            exit 1
+            ;;
+        esac
+        is_selection=0
+        ;;
+    *)
+        exit 1
         ;;
     esac
 
-    printf "<span color='%s'>%s</span>" "$icon_color" "$icon"
-}
+    if ((is_selection)); then
+        new_selection="$(printcmd "${new_opts[@]}" | $roficmd "${rofi_args[@]}")"
 
-DMENU_COMMAND="rofi -dmenu -mesg"
-
-power_profiles=''
-power_profile_current=''
-while read line; do
-    line="${line/:}"
-    if [[ "${line:: 1}" == '*' ]]; then
-        power_profile_current="${line:2}"
+        case "${new_selection:=}" in
+        *'(current)')
+            mesg+=("Already selected this mode! (${sel:-} ${new_selection%"$TAB"*})")
+            reset_mesg=0
+            continue
+            ;;
+        '')
+            exit 1
+            ;;
+        *)
+            cmdargs+=("$new_selection")
+            ;;
+        esac
     fi
-    power_profiles="$power_profiles ${line/\* }"
-done < <(powerprofilesctl list | grep '^. [a-z]')
-power_profiles="${power_profiles/ }"
 
+    $cmd "${cmdargs[@]}"
+    echo 'ran command:' "$cmd" "${cmdargs[@]}"
 
-gfx_current="$(supergfxctl -g)"
-gfx_modes="$(supergfxctl -s)"
-gfx_modes="${gfx_modes:1:-1}"
-gfx_modes="${gfx_modes/,}"
-gfx_modes="${gfx_modes,,}"
-
-overdrive="$(asusctl bios -o)"
-overdrive="${overdrive/Panel overdrive on: }"
-
-case "${power_profile_current}" in
-    'performance')
-        power_profile_icon="$(_iconify )"
-    ;; 'balanced')
-        power_profile_icon="$(_iconify )"
-    ;; 'power-saver')
-        power_profile_icon="$(_iconify 󰌪)"
-    ;;
-esac
-
-case "$overdrive" in
-    'true')
-        overdrive_icon="$(_iconify 󱄄)"
-    ;; 'false')
-        overdrive_icon="$(_iconify 󰶐)"
-    ;;
-esac
-
-case "$gfx_current" in
-    'hybrid')
-        gfx_current_icon="$(_iconify 󰢮)"
-    ;; 'integrated')
-        gfx_current_icon="$(_iconify 󰘚)"
-    ;; *)
-        gfx_current_icon="$(_iconify )"
-    ;;
-esac
-
-power_profile_choice="Power profile (${power_profile_current^})"
-gfx_mode_current="GFX mode (${gfx_current^})"
-overdrive_current="Panel Overdrive toggle (${overdrive^})"
-
-configuration_choice="$(printf "${power_profile_choice}\0icon\x1f$power_profile_icon
-${gfx_mode_current}\0icon\x1f$gfx_current_icon
-${overdrive_current}\0icon\x1f${overdrive_icon}" | $DMENU_COMMAND 'gfxmenu.sh')"
-
-case "$configuration_choice" in
-    "$power_profile_choice")
-        power_profile_array="${power_profiles// /\\n}"
-        power_profile_decision="$(printf "${power_profile_array//$power_profile_current/$power_profile_current\\0icon\\x1f$power_profile_icon}" | $DMENU_COMMAND 'Choose your power profile')"
-        if [ -n "$power_profile_decision" ]; then
-            powerprofilesctl set "$power_profile_decision"
-            notify-send -a 'gfxmenu.sh' 'Power Profile' "set power profile to '$power_profile_decision'"
-        else
-            echo "Please choose a power profile!"
-            exit 1
-        fi
-    ;; "$gfx_mode_current")
-        gfx_mode_array="${gfx_modes// /\\n}"
-        gfx_mode_decision="$(printf "${gfx_mode_array//$gfx_current/$gfx_current\\0icon\\x1f$gfx_current_icon}" | $DMENU_COMMAND 'Choose your supergfxctl mode')"
-        if [ -n "$gfx_mode_decision" ]; then
-            supergfxctl -m "$gfx_mode_decision"
-            notify-send -a 'gfxmenu.sh' 'GFX mode' "set GFX mode to '$gfx_mode_decision'. Log out to apply."
-        else
-            echo "Please choose a gfx mode!"
-            exit 1
-        fi
-    ;; "$overdrive_current")
-        if [[ "$overdrive" == "true" ]]; then
-            overdrive_decision=false
-        elif [[ "$overdrive" == "false" ]]; then
-            overdrive_decision=true
-        fi
-        asusctl bios -O "$overdrive_decision"
-        notify-send -a 'gfxmenu.sh' 'Panel overdrive' "Panel overdrive set to '$overdrive_decision'"
-    ;; *)
-        exit 1
-    ;;
-esac
+done

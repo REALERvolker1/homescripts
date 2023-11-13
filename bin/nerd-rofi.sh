@@ -15,6 +15,16 @@ config[icon_file]="${XDG_CACHE_HOME:-$HOME/.cache}/nerd-rofi-glyphnames.json"
 
 config[copy_icon]='edit-copy-symbolic'
 config[insert_icon]='input-keyboard-symbolic'
+config[stderr]=0
+
+case "${1:-}" in
+--stderr)
+    config[stderr]=1
+    ;;
+*)
+    echo "${0##*/} [--stderr] to print to stderr, otherwise no args"
+    ;;
+esac
 
 if [ ! -f "${config[icon_file]}" ] || [[ "$*" == *'--update'* ]]; then
     echo "No icon file found. Downloading icons..."
@@ -24,9 +34,15 @@ fi
 function rofize_iconlist() {
     local iconlist="${1:?Error, please pass an iconlist!}"
     local IFS=$'\n\t '
+    if ((${config[stderr]})); then
+        echo "$iconlist" | while read -r line; do
+            printf "%s %s\n" $line >&2
+        done
+    fi
     echo "$iconlist" | while read -r line; do
         printf "%s\0icon\x1f<span color='${config[icon_color]}' font='${config[icon_font]}'>%s</span>\n" $line
     done
+
     local IFS=$'\n\t'
 }
 
