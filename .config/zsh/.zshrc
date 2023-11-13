@@ -13,6 +13,7 @@ VLKPROMPT_SKIP=ge
 
 foreach i ("${ZDOTDIR:-~/.config/zsh}/rc.d"/*.zsh) {
     #[[ $i == *prompt* ]] && continue
+    #[[ $i == *plugins* ]] && continue
     if [[ $i == *.defer.zsh ]] {
         zsh-defer . "$i"
     } else {

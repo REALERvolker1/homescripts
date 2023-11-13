@@ -48,7 +48,7 @@ if [[ ! -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && command -v git &>/dev/null; the
     unset __ble_cwd
 fi
 # --rcfile
-[[ -z $NO_BLE ]] && [[ -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && . "$BPLUGIN_DIR/blesh/out/ble.sh" --noattach
+[[ $TERM != linux && -z $NO_BLE && -f "$BPLUGIN_DIR/blesh/out/ble.sh" ]] && . "$BPLUGIN_DIR/blesh/out/ble.sh" --noattach
 if [[ $TERM != linux ]] && command -v atuin &>/dev/null; then
     [[ ! -f "$BDOTDIR/atuin-init.bash" ]] && atuin init bash >"$BDOTDIR/atuin-init.bash"
     . "$BDOTDIR/atuin-init.bash"

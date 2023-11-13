@@ -1,5 +1,5 @@
 # shellcheck shell=dash
-. "$HOME/bin/vlkenv"
+. ~/bin/vlkenv
 
 # tab_character='	'
 # expr "$-" : '.*i' >/dev/null
@@ -13,9 +13,9 @@ if [ "${-#*i}" != "$-" ]; then
     *dash)
         rcfile="$XDG_CONFIG_HOME/shell/dashrc"
         ;;
-    *zsh)
-        rcfile="${ZDOTDIR:=$XDG_CONFIG_HOME/zsh}/.zshrc"
-        ;;
+    #*zsh)
+    #    rcfile="${ZDOTDIR:=$XDG_CONFIG_HOME/zsh}/.zshrc"
+    #    ;;
     esac
     [ -f "$rcfile" ] && . "$rcfile"
     unset rcfile

@@ -17,14 +17,17 @@ fi
 [ -z "${CURRENT_DISTRO:-}" ] && export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
 export CURRENT_HOSTNAME='iphone'
 
-export HOST="${HOST:-$(cat /etc/hostname)}"
-export HOSTNAME="${HOSTNAME:-$HOST}"
-export USER="${USER:-$(whoami)}"
-export HOME="${HOME:-/home/$(whoami)}"
-export XDG_CONFIG_HOME="$HOME/.config"
-export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_CACHE_HOME="$HOME/.cache"
-export XDG_STATE_HOME="$HOME/.local/state"
+HOST="${HOST:-$(cat /etc/hostname)}"
+HOSTNAME="${HOSTNAME:-$HOST}"
+USER="${USER:-$(whoami)}"
+HOME="${HOME:-/home/$(whoami)}"
+export HOST HOSTNAME USER HOME
+
+XDG_CONFIG_HOME="$HOME/.config"
+XDG_DATA_HOME="$HOME/.local/share"
+XDG_CACHE_HOME="$HOME/.cache"
+XDG_STATE_HOME="$HOME/.local/state"
+export XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_STATE_HOME
 
 if [ "${EDITOR:-}" != 'nvim' ]; then
     # unset EDITOR
@@ -48,17 +51,16 @@ export HOMESCRIPTS="$HOME/random/homescripts"
 
 # shell rcfiles
 export ENV="$XDG_CONFIG_HOME/dashrc"
-export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
-export BDOTDIR="$XDG_CONFIG_HOME/bash"
-
+ZDOTDIR="$XDG_CONFIG_HOME/zsh"
+BDOTDIR="$XDG_CONFIG_HOME/bash"
+export ZDOTDIR BDOTDIR
 # export LS_PATH="${LS_PATH:-/usr/bin/ls}" WHICH_PATH="${WHICH_PATH:-/usr/bin/which}" RM_PATH="${RM_PATH:=/usr/bin/rm}" VIM_PATH="${VIM_PATH:=/usr/bin/vim}"
-case "${LS_COLORS:-null}" in
-*'xlsx'*) : ;;
-*) if [ -f "${XDG_CONFIG_HOME:=$HOME/.config}/dir_colors" ]; then
-    eval "$(dircolors --sh "$XDG_CONFIG_HOME/dir_colors" || echo 'echo error loading dircolors')"
-fi ;;
-esac
-export LS_COLORS
+#case "${LS_COLORS:-null}" in
+#*'xlsx'*) : ;;
+#*) if [ -f "${XDG_CONFIG_HOME:=$HOME/.config}/dir_colors" ]; then
+#    eval "$(dircolors --sh "$XDG_CONFIG_HOME/dir_colors" || echo 'echo error loading dircolors')"
+#fi ;;
+#esac
 # export LESSOPEN="||/usr/bin/lesspipe.sh %s"
 # [ -z "${USER_LS_COLORS:-}" ] && export USER_LS_COLORS="$LS_COLORS"
 DIRECTORY_COLOR="${LS_COLORS##*:di=}"
@@ -231,6 +233,9 @@ if [ "${__vlkenv_pathmunge_bin:-}" = '__pathmunge' ]; then
     unset -f __pathmunge_helper_function
 fi
 unset oldifs pathlike tmppth i j ICON_TYPE __vlkenv_pathmunge_bin
+
+eval "$(dircolors --sh "${XDG_CONFIG_HOME:-$HOME/.config}/dir_colors" || echo 'echo error loading dircolors')"
+export LS_COLORS
 
 if [ -n "${VTE_VERSION:-}" ]; then
     export ICON_TYPE='dashline'
