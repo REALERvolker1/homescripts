@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Document Viewer
+Name=Gnome Document Viewer (Evince)
 Comment=View multi-page documents
 Keywords=pdf;ps;postscript;dvi;xps;djvu;tiff;document;presentation;viewer;evince;
 TryExec=evince

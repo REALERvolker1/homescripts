@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Remote Viewer
+Comment=Access remote desktops
+TryExec=remote-viewer
+Exec=remote-viewer %u
+Type=Application
+Terminal=false
+MimeType=x-scheme-handler/spice;x-scheme-handler/spice+unix;x-scheme-handler/spice+tls;application/x-virt-viewer;
+StartupNotify=true
+Categories=GNOME;GTK;Network;RemoteAccess;
+Icon=virt-viewer

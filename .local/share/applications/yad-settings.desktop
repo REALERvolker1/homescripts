@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=YAD settings
+Comment=Simple GUI for editing YAD settings
+Categories=GTK;Settings;
+TryExec=yad-settings
+Exec=yad-settings
+Icon=yad
+Terminal=false
+Type=Application
+StartupNotify=true
+NoDisplay=true

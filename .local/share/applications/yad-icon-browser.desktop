@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Yad Icon Browser
+Comment=Inspect GTK Icon Theme
+Categories=GTK;Development;
+TryExec=yad-icon-browser
+Exec=yad-icon-browser
+Icon=yad
+Terminal=false
+Type=Application
+StartupNotify=true

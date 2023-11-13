@@ -21,7 +21,8 @@ for i in \
     rnd="$HOME/random" \
     i3="$XDG_CONFIG_HOME/i3" \
     sway="$XDG_CONFIG_HOME/sway" \
-    hypr="$XDG_CONFIG_HOME/hypr"; do
+    hypr="$XDG_CONFIG_HOME/hypr" \
+    usrapp="/usr/share/applications"; do
     hash -d $i
 done
 fpath=("$ZDOTDIR/functions" "$ZDOTDIR/site-functions" $fpath)
