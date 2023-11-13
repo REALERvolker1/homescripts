@@ -22,6 +22,10 @@ hyprpaper &
 # barcfg
 waybar &
 nm-applet &
+(
+    sleep 5
+    firewall-applet
+) &
 
 set-cursor-theme.sh --session &
 steam-symlink-unfucker.sh &

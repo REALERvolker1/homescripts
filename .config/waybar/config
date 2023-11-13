@@ -1,3 +1,4 @@
+// vim:ft=jsonc
 {
     "layer": "top",
     "name": "topbar",
@@ -11,6 +12,7 @@
     "modules-left": ["hyprland/workspaces", "wlr/taskbar"],
     "modules-center": ["hyprland/window"],
     "modules-right": [
+        // "privacy",
         "pulseaudio",
         "mpris",
         "bluetooth",
@@ -20,8 +22,8 @@
         "clock",
         "custom/weather",
         "custom/supergfx_status",
+        "keyboard-state",
         "custom/pointer",
-        //"keyboard-state",
         "tray"
     ]
 }

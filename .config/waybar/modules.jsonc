@@ -20,6 +20,7 @@
     },
     "hyprland/window": {
         "format": "{title:.60}",
+        // "rotate": 1,
         "separate-outputs": true
     },
 
@@ -117,12 +118,34 @@
         "capslock": false,
         "scrolllock": false,
         "format-icons": {
-            "locked": "󰎼",
+            "locked": "", //󰎼
             "unlocked": "󰎾"
         }
     },
+    "privacy": {
+        // not configured, not in waybar release
+        "transition-duration": 250,
+        "modules": [
+            {
+                "type": "screenshare",
+                "tooltip": true,
+                "tooltip-icon-size": 24
+            },
+            {
+                "type": "audio-out",
+                "tooltip": true,
+                "tooltip-icon-size": 24
+            },
+            {
+                "type": "audio-in",
+                "tooltip": true,
+                "tooltip-icon-size": 24
+            }
+        ]
+    },
     "tray": {
         "icon-size": 21,
-        "spacing": 4
+        "spacing": 4,
+        "show-passive-items": true
     }
 }

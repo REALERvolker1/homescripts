@@ -138,11 +138,13 @@
     },
     "python.analysis.extraPaths": [
         "/home/vlk/.vscode-oss/extensions/continue.continue-0.2.0-linux-x64",
-        "/home/vlk/.vscode-oss/extensions/continue.continue-0.5.0-linux-x64"
+        "/home/vlk/.vscode-oss/extensions/continue.continue-0.5.0-linux-x64",
+        "/home/vlk/.vscode-oss/extensions/continue.continue-0.6.0-linux-x64"
     ],
     "python.autoComplete.extraPaths": [
         "/home/vlk/.vscode-oss/extensions/continue.continue-0.2.0-linux-x64",
-        "/home/vlk/.vscode-oss/extensions/continue.continue-0.5.0-linux-x64"
+        "/home/vlk/.vscode-oss/extensions/continue.continue-0.5.0-linux-x64",
+        "/home/vlk/.vscode-oss/extensions/continue.continue-0.6.0-linux-x64"
     ],
     "diffEditor.codeLens": true,
     "continue.telemetryEnabled": false,
@@ -155,5 +157,6 @@
     "python.experiments.optOutFrom": ["All"],
     "workbench.commandPalette.experimental.suggestCommands": true,
     "python.experiments.enabled": false,
-    "python.experiments.optInto": []
+    "python.experiments.optInto": [],
+    "window.zoomLevel": -1
 }

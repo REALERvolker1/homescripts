@@ -9,31 +9,36 @@ arg="${1:-}"
 icon_on='󰟸'
 icon_off='󰤳'
 icon_unk='󰟸 ?'
-UDEV_FILE="$XDG_RUNTIME_DIR/touchpad-udev-statusfile"
-true "${TOUCHPAD_STATUS:=$XDG_RUNTIME_DIR/touchpad-statusfile}"
-touch -- "$UDEV_FILE" "$TOUCHPAD_STATUS"
 
-if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-    platform='hyprland'
-    touchpad_name='asup1205:00-093a:2003-touchpad'
-    wireless_name='glorious-model-o-wireless'
-    wired_name='glorious-model-o'
-elif [ -n "${SWAYSOCK:-}" ]; then
-    echo '' >"$TOUCHPAD_STATUS"
-    # on sway, this script is not needed. Set the following option in $XDG_CONFIG_HOME/sway/config:
-    # input type:touchpad {
-    #     events disabled_on_external_mouse
-    # }
-    exit 0
-elif [ -n "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
-    platform='x11'
-    touchpad_name='ASUP1205:00 093A:2003 Touchpad'
-    wireless_name='Glorious Model O Wireless'
-    wired_name='Glorious Model O'
+if [ "${USER:=$(whoami)}" = root ]; then
+    echo "Running as root, some functions may behave abnormally"
 else
-    _error "unsupported platform!"
+    UDEV_FILE="$XDG_RUNTIME_DIR/touchpad-udev-statusfile"
+    TOUCHPAD_STATUS="${TOUCHPAD_STATUS:-$XDG_RUNTIME_DIR/touchpad-statusfile}"
+    touch -- "$UDEV_FILE" "$TOUCHPAD_STATUS"
+
+    if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+        platform='hyprland'
+        touchpad_name='asup1205:00-093a:2003-touchpad'
+        wireless_name='glorious-model-o-wireless'
+        wired_name='glorious-model-o'
+    elif [ -n "${SWAYSOCK:-}" ]; then
+        echo '' >"$TOUCHPAD_STATUS"
+        # on sway, this script is not needed. Set the following option in $XDG_CONFIG_HOME/sway/config:
+        # input type:touchpad {
+        #     events disabled_on_external_mouse
+        # }
+        exit 0
+    elif [ -n "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
+        platform='x11'
+        touchpad_name='ASUP1205:00 093A:2003 Touchpad'
+        wireless_name='Glorious Model O Wireless'
+        wired_name='Glorious Model O'
+    else
+        _error "unsupported platform!"
+    fi
+    egrep_mouse_name="(${wireless_name}|${wired_name})"
 fi
-egrep_mouse_name="(${wireless_name}|${wired_name})"
 
 has_mouse() {
     case "$platform" in
@@ -135,14 +140,44 @@ case "$arg" in
         echo "$line"
     done
     ;;
---setup-xorg-system) ;;
+--setup-xorg-system)
+
+    (
+        cat <<BRUH
+# /etc/udev/rules.d/69-${0##*/}.rules
+# Glorous Model O Wireless
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="2011", TAG+="uaccess"
+# Glorous Model O Wireless (unplugged)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="2022", TAG+="uaccess"
+BRUH
+    ) | tee "/etc/udev/rules.d/69-${0##*/}.rules"
+
+    (
+        cat <<BRUH
+# /etc/X11/xorg.conf.d/69-${0##*/}.conf
+Section "InputClass"
+    Identifier "Mouse Fix"
+    MatchIsPointer "on"
+    Option "AccelProfile" "flat"
+    Option "AccelSpeed" "0"
+EndSection
+
+Section "InputClass"
+    Identifier "Touchpad options"
+    MatchIsTouchpad "on"
+    Option "Tapping" "on"
+    Option "NaturalScrolling" "on"
+EndSection
+BRUH
+    ) | tee "/etc/X11/xorg.conf.d/69-${0##*/}.conf"
+    ;;
 
 -p | --print-location)
     echo "$TOUCHPAD_STATUS"
     ;;
 *)
     echo "${0##*/} --arg"
-    printf '%s (%s) %s\n' \
+    printf '%s (%s)\t%s\n' \
         '--icon' '-i' 'get statusline icon' \
         '--monitor' '-m' 'monitor icon' \
         '--enable' '-te' 'enable touchpad' \

@@ -44,11 +44,10 @@ pointer.sh -n &
 
 #seapplet & # piece of shit that doesn't work
 nm-applet &
-flameshot &
+#flameshot &
 
 picom &
-#conda run -n i3 flashfocus &
-flashfocus &
+#flashfocus &
 vlkbg.sh &
 autotiling-rs &
 #scratchpad_terminal.sh &

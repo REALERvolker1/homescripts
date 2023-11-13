@@ -43,7 +43,7 @@ export VLK_VSC='/usr/bin/code'
 [ -n "${EDITOR:-}" ] && export VISUAL="$EDITOR"
 export TERMINAL='vlk-sensible-terminal 1'
 export BROWSER='vlk-sensible-browser 1'
-# export PAGER='less'
+export PAGER='less'
 export HOMESCRIPTS="$HOME/random/homescripts"
 
 # shell rcfiles
@@ -52,15 +52,14 @@ export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 export BDOTDIR="$XDG_CONFIG_HOME/bash"
 
 # export LS_PATH="${LS_PATH:-/usr/bin/ls}" WHICH_PATH="${WHICH_PATH:-/usr/bin/which}" RM_PATH="${RM_PATH:=/usr/bin/rm}" VIM_PATH="${VIM_PATH:=/usr/bin/vim}"
-
 case "${LS_COLORS:-null}" in
-*'xlsx'*) echo skipping ls colors ;;
+*'xlsx'*) : ;;
 *) if [ -f "${XDG_CONFIG_HOME:=$HOME/.config}/dir_colors" ]; then
-    #echo 'updating ls colors'
     eval "$(dircolors --sh "$XDG_CONFIG_HOME/dir_colors" || echo 'echo error loading dircolors')"
 fi ;;
 esac
-export LESSOPEN="||/usr/bin/lesspipe.sh %s"
+export LS_COLORS
+# export LESSOPEN="||/usr/bin/lesspipe.sh %s"
 # [ -z "${USER_LS_COLORS:-}" ] && export USER_LS_COLORS="$LS_COLORS"
 DIRECTORY_COLOR="${LS_COLORS##*:di=}"
 export DIRECTORY_COLOR="${DIRECTORY_COLOR%%:*}"
@@ -211,7 +210,8 @@ export XDG_DATA_DIRS="$(
         '/usr/local/share' \
         '/usr/share' \
         --pathlike="$XDG_DATA_DIRS"
-)" PATH="$(
+)"
+export PATH="$(
     $__vlkenv_pathmunge_bin \
         "$HOME/bin" \
         "$HOME/.local/bin" \
@@ -223,7 +223,8 @@ export XDG_DATA_DIRS="$(
         "$XDG_DATA_HOME/flatpak/exports/bin" \
         '/var/lib/flatpak/exports/bin' \
         '/usr/local/bin' \
-        --pathlike="$PATH"
+        --pathlike="$PATH" \
+        '/usr/bin'
 )"
 if [ "${__vlkenv_pathmunge_bin:-}" = '__pathmunge' ]; then
     unset -f __pathmunge

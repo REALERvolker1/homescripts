@@ -16,8 +16,11 @@ ac_command_center() {
         light -S 80
         powerprofilesctl set performance
         asusctl bios -O true
-        nvidia-smi dmon -d 5 &>/dev/null &
-        disown
+        #nvidia-smi dmon -d 5 &>/dev/null &
+        if [[ "$(supergfxctl -g)" == 'Hybrid' ]]; then
+            nvidia-smi -l &>/dev/null &
+            disown
+        fi
 
     elif [ "$1" = false ]; then
         light -Srs "$KEYBOARD_PATH" 1

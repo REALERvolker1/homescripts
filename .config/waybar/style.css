@@ -9,7 +9,8 @@ window#waybar.topbar {
     background-color: transparent;
     color: @accent_fg_color;
     transition-property: background-color;
-    transition-duration: 0.5s;
+    /* transition-duration: 0.5s; */
+    transition-duration: 0ms;
 }
 
 tooltip {
@@ -41,7 +42,25 @@ window#waybar.empty .modules-center {
     padding: 0px;
     background-color: transparent;
 }
+window#waybar.solo {
+    background-color: @shade_color;
+}
+window#waybar.solo .modules-center,
+window#waybar.solo .modules-left,
+window#waybar.solo .modules-right > * > * {
+    background-color: rgba(0, 0, 0, 0.1);
+}
 
+/*
+window#waybar.kitty {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+window#waybar.kitty .modules-center,
+window#waybar.kitty .modules-left,
+window#waybar.kitty .modules-right > * > * {
+    background-color: rgba(128, 128, 128, 0.1);
+}
+*/
 @keyframes rgb_background {
     0% {
         background-color: #ff0000;
@@ -146,7 +165,10 @@ window#waybar.empty .modules-center {
     animation-duration: 5s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
         1px 1px 0 #000;
     box-shadow: inset 0px -3px @accent_color;
 }
@@ -230,10 +252,28 @@ window#waybar.empty .modules-center {
 
 #custom-supergfx_status {
     margin-left: 5px;
+    padding: 0px 5px 0px 10px;
     border-radius: 0px 0px 0px 10px;
 }
 #custom-pointer {
+    padding: 0px 10px 0px 5px;
     border-radius: 0px 0px 10px 0px;
+}
+
+#keyboard-state {
+    padding: 0.1px;
+    /* background-color: transparent; */
+}
+#keyboard-state label.unlocked {
+    /* background-color: @shade_color; */
+    padding: 10px 10px;
+    /*font-size: 13px;*/
+}
+
+#keyboard-state label {
+    background-color: transparent;
+    /*font-size: 0;*/
+    padding: 0px;
 }
 
 #tray {
