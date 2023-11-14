@@ -1,33 +1,128 @@
 # shellcheck shell=dash
 # shellcheck disable=2155,2153
 # vim:foldmethod=marker:ft=sh
+# a script by vlk to load environment variables for sh-compatible shells.
+# Intended to be resilient even if the shell is launched with `env -i`
+
+# unset any safe mode, it is not intended for interactive shells
+set +eu
+# printenv >~/vlkenvcache
+# add /bin to path just in case
+PATH="${PATH:+$PATH:}/usr/bin"
 
 unset MAILCHECK
 [ "${LANG:-C}" = 'C' ] && export LANG="en_US.UTF-8"
 
+# set the terminal TERM variable to fix shell behavior
+if [ -z "${TERM:-}" ]; then
+    case "${TTY:=$(tty)}" in
+    /dev/pts*) TERM='xterm-256color' ;;
+    *) TERM=linux ;;
+    esac
+    echo "TERM not set! Falling back to $TERM"
+    export TERM TTY
+fi
+
+# deactivate virtual environments
 if [ -n "${CONDA_PREFIX:-}" ]; then
     conda deactivate
-    echo "\$CONDA_PREFIX '$CONDA_PREFIX' deactivated"
+    echo "CONDA_PREFIX '$CONDA_PREFIX' deactivated"
 fi
 if [ -n "${VIRTUAL_ENV:-}" ]; then
     deactivate
-    echo "\$VIRTUAL_ENV '$VIRTUAL_ENV' deactivated"
+    echo "VIRTUAL_ENV '$VIRTUAL_ENV' deactivated"
 fi
 
+# set paramters that are important for my shell setup
 [ -z "${CURRENT_DISTRO:-}" ] && export CURRENT_DISTRO="$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)"
 export CURRENT_HOSTNAME='iphone'
+# export CURRENT_DISTRO CURRENT_HOSTNAME
 
-HOST="${HOST:-$(cat /etc/hostname)}"
-HOSTNAME="${HOSTNAME:-$HOST}"
-USER="${USER:-$(whoami)}"
-HOME="${HOME:-/home/$(whoami)}"
-export HOST HOSTNAME USER HOME
+if [ -z "${HOST:-}" ]; then
+    export HOST="$(
+        if command -v hostnamectl >/dev/null 2>&1; then
+            hostnamectl hostname
+        elif [ -f /etc/hostname ]; then
+            cat /etc/hostname
+        fi
+    )"
+fi
+export HOSTNAME="${HOSTNAME:-$HOST}"
+export USER="${USER:-$(whoami)}"
+export HOME="${HOME:-/home/$USER}"
 
-XDG_CONFIG_HOME="$HOME/.config"
-XDG_DATA_HOME="$HOME/.local/share"
-XDG_CACHE_HOME="$HOME/.cache"
-XDG_STATE_HOME="$HOME/.local/state"
-export XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_STATE_HOME
+# set the XDG_RUNTIME_DIR
+if [ -d "${XDG_RUNTIME_DIR:-}" ] && [ -w "${XDG_RUNTIME_DIR:-}" ] && [ -r "${XDG_RUNTIME_DIR:-}" ]; then
+    export XDG_RUNTIME_DIR
+else
+    [ -z "${EUID:-}" ] && export EUID="$(id -u "$USER")"
+    [ -z "${UID:-}" ] && export UID="$EUID"
+    for i in "$UID" "$EUID"; do
+        i="/run/user/$i"
+        if [ -d "$i" ] && [ -w "$i" ] && [ -r "$i" ]; then
+            # must have 0700 access
+            export XDG_RUNTIME_DIR="$i"
+            break
+        fi
+    done
+    # if it failed for whatever reason, then throw an error
+    if [ ! -d "${XDG_RUNTIME_DIR:-}" ]; then
+        # create if it does not exist
+        dir="$XDG_RUNTIME_DIR"
+        dir="${dir%%"${dir##*[!/]}"}"
+        dir="${dir%/*}"
+        dir="${dir%%"${dir##*[!/]}"}"
+        if [ -d "$dir" ] && mkdir "$XDG_RUNTIME_DIR"; then
+            export XDG_RUNTIME_DIR
+        else
+            echo "Error, invalid XDG_RUNTIME_DIR '${XDG_RUNTIME_DIR:-}'!"
+            mkdir "$HOME/.run"
+            export XDG_RUNTIME_DIR="$HOME/.run"
+        fi
+        unset dir
+    fi
+    echo "Set XDG_RUNTIME_DIR to $XDG_RUNTIME_DIR"
+fi
+
+# determine session ID if not set
+if [ -z "${XDG_SESSION_ID:-}" ] || [ -z "${XDG_VTNR:-}" ]; then
+    # only works with systemd or elogind
+    if command -v loginctl >/dev/null 2>&1; then
+        # respect shell IFS rules
+        [ "${IFS+x}" = x ] && hasifs=1
+        [ "${hasifs:=0}" -eq 1 ] && oldifs="$IFS"
+        IFS="$(printf '\n')"
+        # just get the first match
+        match="$(
+            loginctl list-sessions --no-pager --no-legend | cut -d ' ' -f 1 | while read -r line; do
+                loginctl show-session -p Id -p Active -p TTY "$line" | tr -s '\n' ' '
+                echo
+            done | grep -m 1 -oP "^Id=\K[0-9]+\s*TTY=\S+(?=\s*Active=yes)"
+        )"
+        if [ -z "${XDG_VTNR:-}" ]; then
+            export XDG_VTNR="${match##*tty}"
+            echo "XDG_VTNR was unset! Deriving value to be '$XDG_VTNR'"
+        fi
+        if [ -z "${XDG_SESSION_ID:-}" ]; then
+            export XDG_SESSION_ID="${match%%[[:space:]]*}"
+            echo "XDG_SESSION_ID was unset! Deriving value to be '$XDG_SESSION_ID'"
+        fi
+
+        # restore IFS
+        if [ "${hasifs:=0}" -eq 1 ]; then
+            IFS="$oldifs"
+            unset oldifs
+        else
+            unset IFS
+        fi
+        unset hasifs match
+    fi
+fi
+
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_STATE_HOME="$HOME/.local/state"
 
 if [ "${EDITOR:-}" != 'nvim' ]; then
     # unset EDITOR
@@ -36,41 +131,49 @@ if [ "${EDITOR:-}" != 'nvim' ]; then
         export MANPAGER='nvim +Man\!'
     else
         for i in vim hx micro vi nano; do
-            command -v "$i" >/dev/null 2>&1 && export EDITOR="$i" && break
+            if command -v "$i" >/dev/null 2>&1; then
+                export EDITOR="$i"
+                break
+            fi
         done
     fi
 fi
+[ -n "${EDITOR:-}" ] && export VISUAL="$EDITOR"
+export PAGER='less'
 
 export VLK_VSC='/usr/bin/code'
-
-[ -n "${EDITOR:-}" ] && export VISUAL="$EDITOR"
 export TERMINAL='vlk-sensible-terminal 1'
 export BROWSER='vlk-sensible-browser 1'
-export PAGER='less'
 export HOMESCRIPTS="$HOME/random/homescripts"
 
 # shell rcfiles
 export ENV="$XDG_CONFIG_HOME/dashrc"
-ZDOTDIR="$XDG_CONFIG_HOME/zsh"
-BDOTDIR="$XDG_CONFIG_HOME/bash"
-export ZDOTDIR BDOTDIR
+export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
+export BDOTDIR="$XDG_CONFIG_HOME/bash"
+
 # export LS_PATH="${LS_PATH:-/usr/bin/ls}" WHICH_PATH="${WHICH_PATH:-/usr/bin/which}" RM_PATH="${RM_PATH:=/usr/bin/rm}" VIM_PATH="${VIM_PATH:=/usr/bin/vim}"
-#case "${LS_COLORS:-null}" in
-#*'xlsx'*) : ;;
-#*) if [ -f "${XDG_CONFIG_HOME:=$HOME/.config}/dir_colors" ]; then
-#    eval "$(dircolors --sh "$XDG_CONFIG_HOME/dir_colors" || echo 'echo error loading dircolors')"
-#fi ;;
-#esac
+case "${LS_COLORS:-n}" in
+*'xlsx'*) : ;;
+*)
+    if [ -f "${XDG_CONFIG_HOME:=$HOME/.config}/dir_colors" ]; then
+        eval "$(dircolors --sh "$XDG_CONFIG_HOME/dir_colors" || echo 'echo error loading dircolors')"
+    fi
+    ;;
+esac
 # export LESSOPEN="||/usr/bin/lesspipe.sh %s"
 # [ -z "${USER_LS_COLORS:-}" ] && export USER_LS_COLORS="$LS_COLORS"
-DIRECTORY_COLOR="${LS_COLORS##*:di=}"
+
+# eval "$(dircolors --sh "${XDG_CONFIG_HOME:-$HOME/.config}/dir_colors" || echo 'echo error loading dircolors')"
+
+export DIRECTORY_COLOR="${LS_COLORS##*:di=}"
 export DIRECTORY_COLOR="${DIRECTORY_COLOR%%:*}"
 export GREP_COLORS="mt=01;91:fn=03;32:ln=33:bn=36:se=35"
 export JQ_COLORS="0;31:0;36:1;36:0;33:1;32:0;37:1;37"
-export VLK_COLOR_REFERENCE="accent=#7a5dfc:accent_l=#af99ff:err=#FF5050:bg=#272B33:"
+VLK_COLOR_REFERENCE="accent=#7a5dfc:accent_l=#af99ff:err=#FF5050:bg=#272B33:"
 export SUDO_PROMPT="[0;1m[[31mSUDO[0;1m][0m "
 export FZF_DEFAULT_OPTS="--prompt=' ' --pointer=' ' --marker=' ' --tabstop=4 --no-mouse --ansi \
 --color=fg:#ccccdc,hl:#df6b75,fg+:#fcfcff,bg+:#2c323d,hl+:#d682f0,info:#f2ce97,prompt:#d7005f,pointer:#65b6f8,marker:#56b5c2,spinner:#d682f0,header:#e6e6e6 "
+# export LS_COLORS DIRECTORY_COLOR GREP_COLORS JQ_COLORS SUDO_PROMPT FZF_DEFAULT_OPTS
 
 # rofi
 export ROFI_ICON_NORMAL='#e2e4e9'
@@ -233,9 +336,6 @@ if [ "${__vlkenv_pathmunge_bin:-}" = '__pathmunge' ]; then
     unset -f __pathmunge_helper_function
 fi
 unset oldifs pathlike tmppth i j ICON_TYPE __vlkenv_pathmunge_bin
-
-eval "$(dircolors --sh "${XDG_CONFIG_HOME:-$HOME/.config}/dir_colors" || echo 'echo error loading dircolors')"
-export LS_COLORS
 
 if [ -n "${VTE_VERSION:-}" ]; then
     export ICON_TYPE='dashline'

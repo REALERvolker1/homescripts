@@ -1,46 +1,55 @@
-### completions:
-# https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/cpanm/_cpanm
-#
+[[ $TERM == linux || $TTY == /dev/tty* || -n "${VLKPLUG_SKIP:-}" ]] && return
 
-for i in \
-    "Aloxaf/fzf-tab" \
-    "zdharma-continuum/fast-syntax-highlighting" \
-    "zsh-users/zsh-autosuggestions"; do
-    [[ "$i" != [a-zA-Z]*/[a-zA-Z]* ]] && {
-        echo "Error, please input a valid github user/repo!"
-        continue
-    }
-    file="$ZPLUGIN_DIR/${i#*/}/${i#*/}.plugin.zsh"
-    [[ -f "$file" ]] && {
-        zsh-defer . "$file"
-        continue
-    }
+[[ ! -d "${ZPLUGIN_DIR:=${XDG_DATA_HOME:=$HOME/.local/share}/zsh-plugins}" ]] &&
+    mkdir -p "$ZPLUGIN_DIR"
 
-    command -v git &>/dev/null || {
-        echo "Error, please install git!"
-        continue
-    }
-    echo -en "Downloading \e[1m${i#*/}\e[0m..."
-    git clone "https://github.com/${i}" "$ZPLUGIN_DIR/${i#*/}" &>/dev/null
-    # autosuggestions just sources the file in the plugin
-    if [[ $i == "zsh-users/zsh-autosuggestions" || $i == "Aloxaf/fzf-tab" ]]; then
-        command -p rm "$file"
-        ln -sf "$ZPLUGIN_DIR/${i#*/}/${i#*/}.zsh" "$file"
-    fi
-    # overwrite loading text output
-    if [ -f "$file" ]; then
-        echo -e "\e[2K\r\e[1;92m[✅] ${i#*/}\e[0m"
-        zsh-defer . "$file"
+_load_plugin() {
+    if [[ -f $1 ]]; then
+        zsh-defer . "$1"
+        return 0
+    elif [[ -e $1 ]]; then
+        echo "Skipping plugin ${1##*/} -- not a file!"
+        return 0
     else
-        echo -e "\e[2K\r\e[1;91m[🟥] ${i#*/}\e[0m"
+        return 1
     fi
-done
+}
+
+() {
+    typeset plug='' fsh='fast-syntax-highlighting' sug='zsh-autosuggestions' fzf='fzf-tab'
+    typeset -A fshz=(
+        [url]='https://github.com/zdharma-continuum/fast-syntax-highlighting'
+        [plugin]="$ZPLUGIN_DIR/$fsh/$fsh.plugin.zsh"
+    )
+    typeset -A sugz=(
+        [url]='https://github.com/zsh-users/zsh-autosuggestions'
+        [plugin]="$ZPLUGIN_DIR/$sug/$sug.zsh"
+    )
+    typeset -A fzfz=(
+        [url]='https://github.com/Aloxaf/fzf-tab'
+        [plugin]="$ZPLUGIN_DIR/$fzf/$fzf.zsh"
+    )
+
+    typeset -a error_plugins=()
+    foreach plug (fshz sugz fzfz) {
+        typeset -A plugin=("${(Pkv@)plug}")
+        _load_plugin $plugin[plugin] && continue
+        git clone $plugin[url] ${plugin[plugin]%/*}
+        _load_plugin $plugin[plugin] && continue
+        error_plugins+=(${plugin[plugin]##*/})
+    }
+
+    ((${#error_plugins})) && printf '🟥 %s\n' ${(@)error_plugins}
+}
+
+unset -f _load_plugin
 
 __vlk_set_fast_theme() {
-    if [[ "${FAST_THEME_NAME:-}" != 'vlk-fsyh' ]]; then
-        if typeset -f 'fast-theme' &>/dev/null && [ -f "$ZDOTDIR/settings/vlk-fsyh.ini" ]; then
+    if [[ ${FAST_THEME_NAME:-} != 'vlk-fsyh' ]]; then
+        if typeset -f 'fast-theme' &>/dev/null && [[ -f "$ZDOTDIR/settings/vlk-fsyh.ini" ]]; then
             fast-theme "$ZDOTDIR/settings/vlk-fsyh.ini"
         fi
     fi
+    unset -f __vlk_set_fast_theme
 }
 zsh-defer __vlk_set_fast_theme

@@ -4,12 +4,22 @@
     exit 1
 }
 emulate -LR zsh
+set +euo pipefail
 
-# cmdarr=("${(@)commands##*/}")
+if [[ $IFS != $' \t\n\C-@' ]]; then
+    echo -n 'Non-default IFS: '
+    declare IFS
+    echo "Resetting IFS"
+    IFS=$' \t\n\C-@'
+fi
+
+# Idea: debug mode function. When run, it adds useful stuff like lines/cols
+# and persistent exec time and whatever to my prompt
+
 ### shell session settings
-VLKPROMPT_SKIP=ge
+# VLKPROMPT_SKIP=1
+# VLKPLUG_SKIP=1
 # VLKZSH_RECOMPILE=1
-# VLKZSH_LSDIFF_UPDATE=1
 
 foreach i ("${ZDOTDIR:-~/.config/zsh}/rc.d"/*.zsh) {
     #[[ $i == *prompt* ]] && continue
@@ -25,4 +35,4 @@ unset i
 ((COLUMNS > 55)) && startup-print
 
 ZSHRC_LOADED=true
-true
+:

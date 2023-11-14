@@ -89,7 +89,7 @@ if command -v cargo-install-update >/dev/null; then
 fi
 
 echo "Done with updates!"
-if [ "${pacjob:-x}" != x ]; then
+if [ "${pacjob:-x}" != x ] && ps -p "$pacjob" >/dev/null 2>/dev/null; then
     echo "Waiting for pacman -Fy to finish"
 fi
 wait

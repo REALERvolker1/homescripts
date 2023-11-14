@@ -230,7 +230,7 @@ promptgendate="generated on $(date +'%D @ %r') by $USER using $0"
 # "$(git rev-parse --show-toplevel 2>/dev/null)"
 (
 cat << EOF
-[[ "\$-" == *i* && -z \$BASH_VERSION && \$TERM != linux ]] || {
+[[ "\$-" == *i* && -z \$BASH_VERSION && \$TERM != linux && -z \${VLKPROMPT_SKIP:-} ]] || {
     return 1
     exit 1
 }

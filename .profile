@@ -1,5 +1,5 @@
 # shellcheck shell=dash
-. ~/bin/vlkenv
+. "${HOME:-~}/bin/vlkenv"
 
 # tab_character='	'
 # expr "$-" : '.*i' >/dev/null
