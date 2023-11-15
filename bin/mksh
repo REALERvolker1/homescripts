@@ -260,19 +260,19 @@ if [[ ${config[dry]} == true ]]; then
     exit 0
 fi
 
-argparse() {
-    local i
-    for i in "$@"; do
-        case "$i" in
-        --option | -o)
-            OPTION=1
-            ;;
-        --key=*)
-            KEY="${i#*=}"
-            ;;
-        *)
-            arr+=("$i")
-            ;;
-        esac
-    done
-}
+# argparse() {
+#     local i
+#     for i in "$@"; do
+#         case "$i" in
+#         --option | -o)
+#             OPTION=1
+#             ;;
+#         --key=*)
+#             KEY="${i#*=}"
+#             ;;
+#         *)
+#             arr+=("$i")
+#             ;;
+#         esac
+#     done
+# }

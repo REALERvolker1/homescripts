@@ -29,8 +29,8 @@ nm-applet &
 
 set-cursor-theme.sh --session &
 steam-symlink-unfucker.sh &
-# pointer.sh -n &
-pointer.sh -um &
+pointer.sh -n &
+#pointer.sh -um &
 pmgmt.sh --monitor &
 #scratchpad_terminal.sh &
 
