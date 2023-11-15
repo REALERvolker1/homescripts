@@ -34,7 +34,7 @@ declare -a plugins=(
 
 declare -a official_plugins=(
     "csgo-vulkan-fix"
-    "hyprtrails"
+    #"hyprtrails"
 )
 
 _panic() {

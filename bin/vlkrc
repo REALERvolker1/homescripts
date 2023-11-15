@@ -112,7 +112,7 @@ for i in touch{x{,c,v},c,v}; do
     alias "$i=__touchx $i"
 done
 
-mksh() {
+__mksh() {
     local binpath="$HOME/bin/${1:?Error, please enter a filepath!}"
     if [[ -e $binpath ]]; then
         echo "Error, file '$binpath' already exists!"

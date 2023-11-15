@@ -1,0 +1,278 @@
+#!/usr/bin/bash
+# shellcheck shell=bash disable=2016
+# a script by vlk to make a new shell script. Created using the old template
+
+declare -r ME="${0##*/}"
+declare -r PROGNAME="${ME%%.*}"
+declare -r PROGVERS='0.0.1'
+
+## Copyright (C) 2023 vlk
+## This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+## See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+# function to put bash in either safe or unsafe mode
+__mode() {
+    if [[ "${1:-}" == '--unsafe-mode' ]]; then
+        set +euo pipefail
+    else
+        set -euo pipefail
+        IFS=$'\n\t'
+    fi
+}
+
+_panic() {
+    printf '%s\n' "[$ME] panic!" "$@"
+    exit 1
+}
+__mode
+
+# add main system binary folder to path if it isn't there already
+[[ ":${PATH:-}:" != *':/usr/bin:'* ]] && PATH="${PATH:-}:/usr/bin"
+
+# check for dependencies
+declare -a faildeps=()
+for i in touch chmod cat date; do
+    command -v $i &>/dev/null || faildeps+=("$i")
+done
+((${#faildeps[@]})) && _panic 'Missing dependencies' "${faildeps[@]}"
+
+declare -A config=(
+    [binpath]=""
+    [name]=""
+    [type]="medium"
+    [editor]=""
+    [dry]=false
+)
+declare editorvar_name="${PROGNAME^^}_EDITOR"
+declare default_binpath_name="${PROGNAME^^}_BIN"
+declare -n editorvar="$editorvar_name"
+declare -n default_binpath="$default_binpath_name"
+
+if [[ -n "${default_binpath:-}" ]]; then
+    config[binpath]="${default_binpath:-}"
+else
+    for i in "$HOME/.bin" "$HOME/bin" "$HOME/.local/bin"; do
+        if [[ -d $i ]]; then
+            config[binpath]="$i"
+            break
+        fi
+    done
+fi
+if [[ -z "${config[binpath]}" ]]; then
+    config[binpath]="$HOME/.local/bin"
+    mkdir -p "${config[binpath]}" ||
+        _panic "Could not find a valid binary path, and failed to create one at '${config[binpath]}'!"
+fi
+
+my_editor=codium
+if [[ -n "${editorvar:-}" ]]; then
+    config[editor]="${editorvar:-}"
+else
+    for i in "${my_editor:-}" "${VISUAL:-}" "${EDITOR:-}"; do
+        if command -v "$i" &>/dev/null; then
+            config[editor]="$i"
+        elif command -v "${i%% *}" &>/dev/null; then
+            config[editor]="${i%% *}"
+        else
+            continue
+        fi
+        break
+    done
+fi
+[[ -z "${config[editor]}" ]] && config[editor]=none
+
+_help_print() {
+    local arg="${1:-}"
+    local IFS=$' \n\t'
+    cat <<BRUH
+Invalid arg '$arg'!
+
+These args choose the template
+--small (--short) (-s)
+--medium (--mid) (-m)
+
+By default, the script will be automatically opened in your editor of choice.
+This defaults to '${my_editor:-}' simply because I am the creator and I get to impose my will upon you.
+
+If the command is not found on the system, it will try \$VISUAL, then \$EDITOR. If neither
+exists, then it will exit after creating the script.
+This can be overridden by the environment variable \`\$$editorvar_name\`.
+It can also be changed with the arg
+--editor='editorcmd'
+
+By default the resulting script is placed in '${config[binpath]}'.
+This can be changed by the environment variable \`\$$default_binpath_name\`
+It can also be changed with the arg
+--binpath='/path/to/bin/dir'
+
+If it is a path that already exists, it will throw an error.
+If it is a path to a folder, the script will use the name provided.
+If it does not exist, it will be the absolute path to the script.
+
+To print a template without generating a file,
+--dry (-d)
+
+Default config
+
+$(
+        for i in "${!config[@]}"; do
+            printf '[%s] => \t%s\n' "${i:-''}" "${config[$i]:-<UNSET>}"
+        done
+    )
+BRUH
+    exit 1
+}
+
+argparse() {
+    [[ -z "${1:-}" ]] && _panic "Error, no filepath selected! Please run $ME --help"
+    local i
+    for i in "$@"; do
+        case "${i:-}" in
+        --short | --small | -s)
+            config[type]=short
+            ;;
+        --medium | --mid | -m)
+            config[type]=medium
+            ;;
+        --binpath=*)
+            config[binpath]="${i#*=}"
+            ;;
+        --editor=*)
+            config[editor]="${i#*=}"
+            ;;
+        --dry | -d)
+            config[dry]=true
+            ;;
+        -*)
+            _help_print "$i"
+            ;;
+        *)
+            if [[ -z "${config[name]}" ]]; then
+                config[name]="$i"
+            else
+                _help_print "$i"
+            fi
+            ;;
+        esac
+    done
+    if [[ ${config[dry]} == false ]]; then
+        [[ -z "${config[name]}" ]] && _panic "Error, must specify a new name for the script!"
+        [[ -d "${config[binpath]}" ]] || _panic "Error, binpath ${config[binpath]} must be a directory!"
+        [[ -e "${config[binpath]}/${config[name]}" ]] && _panic "Error, file '${config[binpath]}/${config[name]}' already exists!"
+    fi
+}
+
+argparse "$@"
+output="${config[binpath]}/${config[name]}"
+
+# parts of the script(s)
+declare -A bash_pieces=(
+    [shebang]="#!/usr/bin/bash"
+    [header]="# shellcheck shell=bash
+# a script by ${USER:-$(whoami)} to do a thing."
+    [params]='declare -r ME="${0##*/}"
+declare -r PROGNAME="${ME%%.*}"
+declare -r PROGVERS="0.0.1"'
+    [license_gpl3]="## Copyright (C) $(date +'%Y') ${USER:-$(whoami)}
+## This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+## See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>."
+    [modefunc]='# function to put bash in either safe or unsafe mode
+__mode() {
+    if [[ "${1:-}" == --unsafe-mode ]]; then
+        set +euo pipefail
+    else
+        set -euo pipefail
+        IFS=$'\''\n\t'\''
+    fi
+}
+__mode'
+    [safemode]="set -euo pipefail
+IFS=\$'\n\t'"
+    [panic]="# panic function, to gracefully tell the user what went wrong
+_panic() {
+    printf '%s\n' \"\$@\"
+    # uncomment if you want to send a desktop notification
+    # [[ -n \${DISPLAY:-} || -n \${WAYLAND_DISPLAY:-} ]] && notify-send -i 'dialog-error' -a \"\${0##*/}\" 'Panic!' \"\$content\"
+    exit 1
+}"
+    [ansiistrip]="# strip ansi function, idk it's useful ig lol
+strip_ansi() {
+    # Strip all occurences of ansi color strings from input strings
+    local ansi_regex='\[([0-9;]+)m'
+    local i
+    local -a matches=()
+    for i in \"\$@\"; do
+        while [[ \$i =~ \$ansi_regex ]]; do
+            matches+=(\"\${BASH_REMATCH[1]}\")
+            i=\${i//\${BASH_REMATCH[0]}/}
+        done
+        echo \"\$i\"
+    done
+}"
+    [usefulchars]="# some useful characters
+TAB=\$'\t'
+LF=\$'\n'
+
+# box-drawing characters, powerline characters, and some other nerd font icons, useful for output
+#╭─┬─╮│    󰀄  󰕈
+#├─┼─┤│   󰓎 󰘳  󰂽
+#╰─┴─╯│   󰅟 󰘲 󰣇 󰣛
+# 󰬛󰬏󰬌 󰬘󰬜󰬐󰬊󰬒 󰬉󰬙󰬖󰬞󰬕 󰬍󰬖󰬟 󰬑󰬜󰬔󰬗󰬌󰬋 󰬖󰬝󰬌󰬙 󰬛󰬏󰬌 󰬓󰬈󰬡󰬠 󰬋󰬖󰬎"
+    [pathcheck]="# add main system binary folder to path if it isn't there already
+[[ \":\${PATH:-}:\" != *':/usr/bin:'* ]] && PATH=\"\${PATH:-}:/usr/bin\""
+    [depcheck]='# check for dependencies
+_depcheck() {
+    local i
+    local -a faildeps=()
+    for i in "$@"; do
+        command -v "$i" &>/dev/null || faildeps+=("$i")
+    done
+    ((${#faildeps[@]})) && _panic "Missing dependencies" "${faildeps[@]}"
+}'
+)
+
+# instead, have a bunch of "snippets" in a folder.
+# The user picks which ones using fzf --multi with a preview through `bat`.
+# If the folder does not exist, redirect them to my dotfiles
+
+declare -A content=(
+    [short]="${bash_pieces[shebang]}
+${bash_pieces[header]}
+${bash_pieces[safemode]}
+${bash_pieces[panic]}
+${bash_pieces[pathcheck]}
+${bash_pieces[depcheck]}"
+    [medium]="${bash_pieces[shebang]}
+${bash_pieces[header]}
+${bash_pieces[params]}
+${bash_pieces[license_gpl3]}
+${bash_pieces[modefunc]}
+${bash_pieces[panic]}
+${bash_pieces[ansiistrip]}
+${bash_pieces[usefulchars]}
+${bash_pieces[pathcheck]}
+${bash_pieces[depcheck]}"
+)
+if [[ ${config[dry]} == true ]]; then
+    echo "${content[${config[type]}]}"
+    exit 0
+fi
+
+argparse() {
+    local i
+    for i in "$@"; do
+        case "$i" in
+        --option | -o)
+            OPTION=1
+            ;;
+        --key=*)
+            KEY="${i#*=}"
+            ;;
+        *)
+            arr+=("$i")
+            ;;
+        esac
+    done
+}
