@@ -86,6 +86,7 @@ fi
 
 # determine session ID if not set
 if [ -z "${XDG_SESSION_ID:-}" ] || [ -z "${XDG_VTNR:-}" ]; then
+    # who | tr -s ' ' '\t' | cut -f 2
     # only works with systemd or elogind
     if command -v loginctl >/dev/null 2>&1; then
         # respect shell IFS rules
