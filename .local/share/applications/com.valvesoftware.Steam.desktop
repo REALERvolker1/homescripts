@@ -1,0 +1,52 @@
+[Desktop Entry]
+Name=Steam (Flatpak)
+Comment=Application for managing and playing games on Steam
+TryExec=/var/lib/flatpak/exports/bin/com.valvesoftware.Steam
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=/app/bin/steam --file-forwarding com.valvesoftware.Steam @@u %U @@
+Icon=com.valvesoftware.Steam
+Terminal=false
+Type=Application
+Categories=Network;FileTransfer;Game;
+MimeType=x-scheme-handler/steam;x-scheme-handler/steamlink;
+Actions=Store;Community;Library;Servers;Screenshots;News;Settings;BigPicture;Friends;
+X-Desktop-File-Install-Version=0.27
+StartupWMClass=Steam
+X-Flatpak-RenamedFrom=steam.desktop;
+X-Flatpak-Tags=proprietary;
+X-Flatpak=com.valvesoftware.Steam
+
+[Desktop Action Store]
+Name=Store
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=steam com.valvesoftware.Steam steam://store
+
+[Desktop Action Community]
+Name=Community
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=steam com.valvesoftware.Steam steam://url/SteamIDControlPage
+
+[Desktop Action Library]
+Name=Library
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=steam com.valvesoftware.Steam steam://open/games
+
+[Desktop Action Servers]
+Name=Servers
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=steam com.valvesoftware.Steam steam://open/servers
+
+[Desktop Action Screenshots]
+Name=Screenshots
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=steam com.valvesoftware.Steam steam://open/screenshots
+
+[Desktop Action News]
+Name=News
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=steam com.valvesoftware.Steam steam://open/news
+
+[Desktop Action Settings]
+Name=Settings
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=steam com.valvesoftware.Steam steam://open/settings
+
+[Desktop Action BigPicture]
+Name=Big Picture
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=steam com.valvesoftware.Steam steam://open/bigpicture
+
+[Desktop Action Friends]
+Name=Friends
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=steam com.valvesoftware.Steam steam://open/friends

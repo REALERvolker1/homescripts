@@ -22,7 +22,7 @@ for i in \
     i3="$XDG_CONFIG_HOME/i3" \
     sway="$XDG_CONFIG_HOME/sway" \
     hypr="$XDG_CONFIG_HOME/hypr" \
-    usrapp="/usr/share/applications"; do
+    steam="$HOME/.var/app/com.valvesoftware.Steam/.local/share/Steam"; do
     hash -d $i
 done
 fpath=("$ZDOTDIR/functions" "$ZDOTDIR/site-functions" $fpath)

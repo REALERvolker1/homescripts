@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=KDE Connect SMS
+GenericName=SMS
+Comment=Text Messaging
+TryExec=kdeconnect-sms
+Exec=kdeconnect-sms
+Icon=kdeconnect
+Type=Application
+Terminal=false
+Categories=Qt;KDE;Network;InstantMessaging
+SingleMainWindow=true
+NoDisplay=true
+
+X-DBUS-StartupType=Unique
+X-DBUS-ServiceName=org.kde.kdeconnect.sms
