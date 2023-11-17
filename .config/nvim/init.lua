@@ -349,7 +349,7 @@ require("lualine").setup({
             {
                 "filename",
                 file_status = true,
-                path = 1,
+                --path = 1,
                 shorting_target = 40,
                 symbols = {
                     modified = "[+]", --󰐖
