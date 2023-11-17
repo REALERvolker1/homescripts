@@ -34,7 +34,7 @@ workspace $ws6 output DP-1 DP-1-0 eDP-1
 workspace $ws7 output eDP-1
 workspace $ws8 output DP-1 DP-1-0 eDP-1
 
-font pango:monospace bold 12
+font pango:monospace bold 10
 mouse_warping output
 
 $exec "$XDG_CONFIG_HOME/i3/autostart.sh"
@@ -45,7 +45,7 @@ include keybinds.i3
 
 
 gaps inner $gapsize
-default_border pixel 1
+default_border pixel 2
 default_floating_border normal
 smart_gaps on
 smart_borders on
@@ -55,7 +55,7 @@ for_window [all] title_format "%title :: %class"
 
 set $activeBorder #af99ff
 set $activeMain #7b57ffA0
-set $lessactBorder #61aeeeC0
+set $lessactBorder #666666C0
 set $lessactMain #aba2DfA0
 set $inactBorder #272B3350
 set $inactMain #272B3350
@@ -65,34 +65,36 @@ set $text0 #FFFFFF
 set $text1 #FFFFFF
 
 # class                  border           background       text   indicator         child_border
-client.focused          $activeBorder   $activeMain     $text0 $activeMain      $activeBorder
-client.focused_inactive $lessactBorder  $lessactMain    $text0 $lessactMain     $lessactBorder
-client.unfocused        $inactBorder    $inactMain      $text1 $inactMain       $inactBorder
-client.urgent           $urgentBorder   $urgentMain     $text0 $urgentBorder    $urgentMain
-client.placeholder      $lessactBorder  $lessactMain    $text0 $lessactMain     $lessactBorder
-client.background       #FFFFFF
+#client.focused          $activeBorder   $activeMain     $text0 $activeMain      $activeBorder
+#client.focused_inactive $lessactBorder  $lessactMain    $text0 $lessactMain     $lessactBorder
+#client.unfocused        $inactBorder    $inactMain      $text1 $inactMain       $inactBorder
+#client.urgent           $urgentBorder   $urgentMain     $text0 $urgentBorder    $urgentMain
+#client.placeholder      $lessactBorder  $lessactMain    $text0 $lessactMain     $lessactBorder
+#client.background       #FFFFFF
 
 bar {
     # Colors {{{
     colors {
-        background #00000000
-        statusline $text0
-        focused_workspace $activeBorder $activeMain $text0
-        active_workspace $lessactBorder $lessactMain $text0
-        inactive_workspace #00000000 $inactMain $text1
-        urgent_workspace $urgentBorder $urgentMain $text0
+        background #00000088
+        #statusline $text0
+        #focused_workspace $activeBorder $activeMain $text0
+        #active_workspace $lessactBorder $lessactMain $text0
+        #inactive_workspace #00000000 $inactMain $text1
+        #urgent_workspace $urgentBorder $urgentMain $text0
     }
     # }}}
     workspace_buttons yes
     workspace_min_width 30
     strip_workspace_numbers no
     binding_mode_indicator yes
-    position top
-    padding 1px
+    position bottom
+    padding 0px
     tray_output eDP-1
     #tray_output none
     tray_padding 0
     i3bar_command i3bar --transparency
-    status_command i3status-rs
+    #i3bar_command i3bar --transparency
+    #status_command i3status-rs
+    status_command i3status
 }
 
