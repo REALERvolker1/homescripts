@@ -35,7 +35,7 @@ Questions? Write an issue. I doubt those are all that useful for anything else o
 
 ## Rofi
 
--   my Rofi power menu, a script that uses Rofi's built-in scripting "ABI"
+-   my Rofi power menu, a script that uses Rofi's built-in mode scripting
 -   `rofi -show powermenu`
 
 ![powermenu](pics/powermenu.png)
