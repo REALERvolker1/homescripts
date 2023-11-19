@@ -96,7 +96,8 @@
         "format-alt": "{:%Y-%m-%d}"
     },
     "custom/weather": {
-        "exec": "$XDG_CONFIG_HOME/bar-scripts/weather.sh",
+        "exec": "$XDG_CONFIG_HOME/bar-scripts/weather.sh --waybar",
+        "return-type": "json",
         "interval": 300
     },
     "custom/pointer": {
@@ -105,11 +106,12 @@
         // "exec": "inotifywait -qme close_write $XDG_RUNTIME_DIR/touchpad-statusfile | while read -r line; do echo $(cat ${line%% *}); done"
         // "exec": "pointer.sh -m"
     },
-    "custom/supergfx_status": {
-        "exec": "$XDG_CONFIG_HOME/bar-scripts/supergfx-status.sh"
-    },
+    // "custom/supergfx_status": {
+    //     "exec": "$XDG_CONFIG_HOME/bar-scripts/supergfx-status.sh"
+    // },
     "custom/battery": {
-        "exec": "$XDG_CONFIG_HOME/bar-scripts/upower-cli/target/release/upower-cli --waybar",
+        // "exec": "$XDG_CONFIG_HOME/bar-scripts/upower-cli/target/release/upower-cli --waybar",
+        "exec": "$XDG_CONFIG_HOME/rustcfg/power-cli/target/release/power-cli --waybar",
         "return-type": "json"
     },
     "keyboard-state": {

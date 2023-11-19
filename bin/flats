@@ -1,0 +1,157 @@
+#!/usr/bin/bash
+# shellcheck shell=bash
+# a script that does a thing.
+set -euo pipefail
+IFS=$'\n\t'
+
+# useful functions
+_panic() {
+    printf '[0m%s[0m\n' "$@" >&2
+    exit 1
+}
+
+_strip_color() {
+    # Strip all occurences of ansi color strings from input strings
+    # uncomment matches to do stuff with the strings themselves
+    local ansi_regex='\[([0-9;]+)m'
+    local i
+    # local -a matches=()
+    for i in "$@"; do
+        while [[ $i =~ $ansi_regex ]]; do
+            # matches+=("${BASH_REMATCH[1]}")
+            i=${i//${BASH_REMATCH[0]}/}
+        done
+        echo "$i"
+    done
+}
+
+# box-drawing characters, powerline characters, and some other nerd font icons, useful for output
+#╭─┬─╮│    󰀄  󰕈
+#├─┼─┤│   󰓎 󰘳  󰂽
+#╰─┴─╯│   󰅟 󰘲 󰣇 󰣛
+# 󰬛󰬏󰬌 󰬘󰬜󰬐󰬊󰬒 󰬉󰬙󰬖󰬞󰬕 󰬍󰬖󰬟 󰬑󰬜󰬔󰬗󰬌󰬋 󰬖󰬝󰬌󰬙 󰬛󰬏󰬌 󰬓󰬈󰬡󰬠 󰬋󰬖󰬎
+
+declare -a fzf_args=()
+
+# dependency check
+declare -a faildeps=()
+for i in flatpak fzf sed grep tr sort uniq cut; do
+    command -v "$i" &>/dev/null || faildeps+=("$i")
+done
+((${#faildeps[@]})) && _panic "Error, missing dependencies:" "${faildeps[@]}"
+
+# argparse
+declare -i INCLUDE_REMOTES=1
+declare -i INCLUDE_INSTALLED=0
+declare -i INCLUDE_RUNTIMES=0
+
+declare -i PRINT_STDOUT=0
+declare -a keywords=()
+
+for i in "$@"; do
+    case "${i:=}" in
+    --all | -a)
+        INCLUDE_REMOTES=1
+        INCLUDE_INSTALLED=1
+        ;;
+    --installed | -i)
+        INCLUDE_REMOTES=0
+        INCLUDE_INSTALLED=1
+        ;;
+    --remote)
+        INCLUDE_REMOTES=1
+        INCLUDE_INSTALLED=0
+        ;;
+    --runtimes | -r)
+        INCLUDE_RUNTIMES=1
+        ;;
+    --stdout)
+        PRINT_STDOUT=1
+        ;;
+    -*)
+        echo "
+Error, invalid arg passed! '$i'
+
+By default, only packages not installed are shown.
+--all (-a)         Include installed packages AND remote packages AND runtimes
+--installed (-i)   Only show installed packages
+--remote           Only show remote packages (default)
+
+--runtimes (-r)    Print runtimes along with the selected option
+
+--stdout           Print selected/formatted package list to stdout and exit
+
+This program does not support combined args (such as -ar)
+All other args are passed as search keywords
+"
+        exit 2
+        ;;
+    *)
+        keywords+=("$i")
+        ;;
+    esac
+done
+
+declare -a fzf_args=(--ansi --multi)
+oldifs="$IFS"
+if ((${#keywords[@]})); then
+    IFS=' '
+    fzf_args+=(-q "${keywords[*]}")
+    IFS="$oldifs"
+fi
+
+flatfmt() {
+    # Side effect: sets output array
+    local -i is_install=$1
+    local operation prefix appcolorprefix grepstr
+    local -a apps=()
+    local -a runapps=()
+
+    if ((is_install)); then
+        operation=list
+        prefix='\[0\;1\;92m\[i\] '
+        appcolorprefix=9
+        grepstr='^$'
+    else
+        operation=remote-ls
+        appcolorprefix=3
+        grepstr="($(flatpak list --columns=application | tr '\n' '|' | sed 's/\./\\\./g ; s/|$//'))"
+    fi
+
+    local sedstr="s/\t([^\t]+)(\t|$)/[0;1;94m\t\1\t[0;2m/g"
+    local appsedstr="s/^/${prefix:-}[0;1;${appcolorprefix}2m/g"
+    local runsedstr="s/^/${prefix:-}[0;1;${appcolorprefix}3m/g"
+
+    mapfile -t apps < <(flatpak "$operation" --app --columns=name,application,description | sort | uniq | grep -Ev "${grepstr}" | sed -E "${appsedstr}; ${sedstr}")
+    ((INCLUDE_RUNTIMES)) && mapfile -t runapps < <(flatpak "$operation" --runtime --columns=name,application,description | sort | uniq | grep -Ev "${grepstr}" | sed -E "${runsedstr}; ${sedstr}")
+
+    output=("${apps[@]}" "${runapps[@]}")
+}
+
+declare -a full_output=()
+declare -a output=()
+
+if ((INCLUDE_INSTALLED)); then
+    flatfmt 1
+    full_output+=("${output[@]}")
+    output=()
+fi
+if ((INCLUDE_REMOTES)); then
+    flatfmt 0
+    full_output+=("${output[@]}")
+    output=()
+fi
+IFS=$'\n'
+full_output_str="${full_output[*]}"
+IFS="$oldifs"
+
+if ((PRINT_STDOUT)); then
+    echo "$full_output_str"
+    exit 0
+fi
+declare -a selected=()
+mapfile -t selected < <(fzf "${fzf_args[@]}" <<<"$full_output_str" | cut -f 2)
+
+((${#selected[@]})) || _panic "Error, no flatpaks selected!"
+
+flatpak install "${selected[@]}"

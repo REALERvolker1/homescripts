@@ -18,10 +18,10 @@
         "bluetooth",
         "memory",
         // "battery",
-        "custom/battery",
         "clock",
+        "custom/battery",
         "custom/weather",
-        "custom/supergfx_status",
+        // "custom/supergfx_status",
         "keyboard-state",
         "custom/pointer",
         "tray"
