@@ -14,7 +14,7 @@ unset MAILCHECK
 [ "${LANG:-C}" = 'C' ] && export LANG="en_US.UTF-8"
 
 # set the terminal TERM variable to fix shell behavior
-if [ -z "${TERM:-}" ]; then
+if [ -z "${TERM:-}" ] || tput 2>&1 | grep -q 'unknown terminal'; then
     case "${TTY:=$(tty)}" in
     /dev/pts*) TERM='xterm-256color' ;;
     *) TERM=linux ;;

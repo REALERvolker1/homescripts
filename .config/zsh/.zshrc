@@ -21,6 +21,8 @@ fi
 # VLKPLUG_SKIP=1
 # VLKZSH_RECOMPILE=1
 
+# Certain files like vlkrc and vlkenv from ~/bin are loaded along with other settings files
+
 foreach i ("${ZDOTDIR:-~/.config/zsh}/rc.d"/*.zsh) {
     #[[ $i == *prompt* ]] && continue
     #[[ $i == *plugins* ]] && continue

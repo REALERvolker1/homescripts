@@ -292,6 +292,7 @@ ${content[err]}%(${index[transient]}V..${en[err]})\
 ${content[cwd]}${content[end]} "
 
 autoload -Uz vcs_info
+vcs_info
 zstyle ':vcs_info:*' enable git
 zstyle ':vcs_info:git:*' use-simple 'true'
 zstyle ':vcs_info:git:*' formats ' %r ${icon[git]} '
@@ -355,7 +356,12 @@ __vlkprompt_precmd() {
         psvar[${index[writable]}]="\${__vlkprompt_internal[pwd_writable]}"
         psvar[${index[git]}]="\${__vlkprompt_internal[pwd_git]}"
     else
-        vcs_info
+        #vcs_info
+        if type vcs_info | grep -q ' /[^ ]*'; then
+            vcs_info
+        else
+            vcs_info_msg_0_=''
+        fi
         if [[ \$PWD == \${__vlkprompt_internal[prev_pwd]} ]]; then
             psvar[${index[git]}]=1
         # elif git status &>/dev/null; then

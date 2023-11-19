@@ -420,7 +420,8 @@ alias printfn="printf '%s\n' "
 alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 alias chars='perl -e "foreach(@ARGV){open(my \$f,\"<\",\"\$_\") or die \"\$!\";my \$c;while(read(\$f,\$c,1)){print \"\$c\n\";}close \$f;}" '
 
-alias ARCH='distrobox-enter -n ARCH'
+alias ARCH='distrobox-enter -n ARCH -- bash -l'
+alias FEDORA='distrobox-enter -n FEDORA -- bash -l'
 
 alias fenv='declare | fzf'
 alias penv='printenv | fzf'
