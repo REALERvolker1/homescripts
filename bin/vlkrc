@@ -40,12 +40,19 @@ alias whi{ch,hc}=__which
 __homebin="$HOME/bin"
 
 __lscmd="command ls --color=auto --group-directories-first -A"
+__llcmd="$__lscmd -l"
 # assign la before we mutate it
 alias la="$__lscmd"
-command -v lsd >/dev/null 2>&1 && __lscmd=lsd
+#command -v lsd >/dev/null 2>&1 && __lscmd=lsd
+if command -v eza >/dev/null 2>&1; then
+    __lscmd="eza -AX --group-directories-first --icons"
+    __llcmd="$__lscmd -hM --git"
+elif command -v lsd &>/dev/null; then
+    __lscmd=lsd
+fi
 
-alias {{sl,l,s},ls}="$__lscmd" ll="$__lscmd -l"
-unset __lscmd
+alias {{sl,l,s},ls}="$__lscmd" ll="$__llcmd"
+unset __lscmd __llcmd
 
 # alias {sl,l,s}=ls
 

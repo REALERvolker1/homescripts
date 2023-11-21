@@ -30,7 +30,7 @@ noinst() {
     exit 1
 }
 
-[[ -n ${WAYLAND_DISPLAY:-} ]] && codeargs+=(--enable-features=UseOzonePlatform --ozone-platform=wayland)
+#[[ -n ${WAYLAND_DISPLAY:-} ]] && codeargs+=(--enable-features=UseOzonePlatform --ozone-platform=wayland)
 
 if [[ ! -x $codecmd ]]; then
     command -v flatpak &>/dev/null || noinst

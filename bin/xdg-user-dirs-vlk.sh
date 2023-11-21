@@ -21,7 +21,7 @@ declare -A dirs=(
     [DOCUMENTS]="$HOME/Documents"
     [MUSIC]="$HOME/Music"
     [PICTURES]="$HOME/Pictures"
-    [VIDEOS]="$HOME/Pictures/Videos($HOME/Videos)"
+    [VIDEOS]="$HOME/Videos"
 )
 
 xdg-user-dirs-update # reset everything lol
