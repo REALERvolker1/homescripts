@@ -142,6 +142,13 @@ fi
 [ -n "${EDITOR:-}" ] && export VISUAL="$EDITOR"
 export PAGER='less'
 
+if command -v batpipe >/dev/null 2>&1; then
+    export LESSOPEN="|/usr/bin/batpipe %s"
+    unset LESSCLOSE
+    [ -z "${LESS:-}" ] && export LESS="$LESS -R"
+    export BATPIPE="color"
+fi
+
 export VLK_VSC='/usr/bin/code'
 export TERMINAL='vlk-sensible-terminal 1'
 export BROWSER='vlk-sensible-browser 1'
