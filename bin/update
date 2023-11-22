@@ -22,7 +22,7 @@ esac
 if command -v dnf >/dev/null; then
     dnfflags="upgrade --refresh$confirm"
     _head "$distro_color" dnf
-    sudo dnf $dnfflags
+    sudo dnf upgrade --refresh
 fi
 
 if command -v pacman >/dev/null; then

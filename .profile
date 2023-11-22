@@ -13,9 +13,9 @@ if [ "${-#*i}" != "$-" ]; then
     *dash)
         rcfile="$XDG_CONFIG_HOME/shell/dashrc"
         ;;
-    #*zsh)
-    #    rcfile="${ZDOTDIR:=$XDG_CONFIG_HOME/zsh}/.zshrc"
-    #    ;;
+        #*zsh)
+        #    rcfile="${ZDOTDIR:=$XDG_CONFIG_HOME/zsh}/.zshrc"
+        #    ;;
     esac
     [ -f "$rcfile" ] && . "$rcfile"
     unset rcfile
@@ -23,4 +23,5 @@ if [ "${-#*i}" != "$-" ]; then
 #else
 #    eval $(set-cursor-theme.sh --shell-eval)
 fi
+eval $(set-cursor-theme.sh --shell-eval)
 PROFILESOURCED=true

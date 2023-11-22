@@ -8,7 +8,7 @@ for i in $(pgrep 'steam-symlink-u'); do
     kill "$i"
 done
 
-steamdir="$HOME/.var/app/com.valvesoftware.Steam/.config"
+steamdir="$HOME/.var/app/com.valvesoftware.Steam"
 targetdir="${XDG_CONFIG_HOME:-$HOME/.config}"
 
 if [ ! -d "$steamdir" ]; then
@@ -30,7 +30,10 @@ copyfunc() {
 }
 
 rmfunc() {
-    rm "$steamdir"/*(@) &>/dev/null && echo "removed symlinks"
+    rm "$steamdir/.config"/*(@) &>/dev/null && echo "removed symlinks"
+    for i in "$steamdir/"{Music,Pictures}; do
+        [[ ! -e "$i" && -h "$i" ]] && rm "$i"
+    done
 }
 
 while true; do
