@@ -37,6 +37,29 @@ _panic() {
     exit 1
 }
 
+_prompt() {
+    local answer
+    printf '%s\\n' "\$@"
+    read -r -p "[y/N] > " answer
+    if [[ \${answer:-} == y ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+_array_join() {
+    local ifsstr=\$'\\n'
+    if [[ "\${1:-}" == '--ifs='* ]]; then
+        ifsstr="\${1#*=}"
+        shift 1
+    fi
+    local oldifs="\${IFS:-}"
+    local IFS="\$ifsstr"
+    echo "\$*"
+    IFS="\$oldifs"
+}
+
 _strip_color() {
     # Strip all occurences of ansi color strings from input strings
     # uncomment matches to do stuff with the strings themselves
