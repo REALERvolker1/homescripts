@@ -56,45 +56,71 @@ _strip_color() {
 
 # dependency check
 declare -a faildeps=()
-for i in placeholder_dep{1,2}; do
+for i in ls lsd eza; do
     command -v "$i" &>/dev/null || faildeps+=("$i")
 done
 ((${#faildeps[@]})) && _panic "Error, missing dependencies:" "${faildeps[@]}"
 
-# argparse
-declare -A config=(
-    [bool]=0
-    [str]=''
+# # argparse
+# declare -A config=(
+#     [bool]=0
+#     [str]=''
+# )
+# declare -a files=()
+
+# for i in "$@"; do
+#     case "${i:=}" in
+#     --bool)
+#         config[bool]=1
+#         ;;
+#     --no-bool)
+#         config[bool]=0
+#         ;;
+#     --str=)
+#         config[str]="${i#*=}"
+#         ;;
+#     -*)
+#         cat <<BRUH
+# Error, invalid arg passed! '$i'
+
+# Valid arguments include:
+# --bool        enable bool
+# --no-bool     disable bool
+# --str='text'  Set str value
+
+# [files]       All other args are passed as files
+
+# BRUH
+#         exit 2
+#         ;;
+#     *)
+#         files+=("$i")
+#         ;;
+#     esac
+# done
+
+declare -a files=("$@")
+
+declare -A testcodes=(
+    [dir]=d
+    [symlink]=h
+    [socket]=S
+    [pipe]=p
+    [exec]=x
+    [block_special]=b
+    [char_special]=c
 )
-declare -a files=()
 
-for i in "$@"; do
-    case "${i:=}" in
-    --bool)
-        config[bool]=1
-        ;;
-    --no-bool)
-        config[bool]=0
-        ;;
-    --str=)
-        config[str]="${i#*=}"
-        ;;
-    -*)
-        cat <<BRUH
-Error, invalid arg passed! '$i'
-
-Valid arguments include:
---bool        enable bool
---no-bool     disable bool
---str='text'  Set str value
-
-[files]       All other args are passed as files
-
-BRUH
-        exit 2
-        ;;
-    *)
-        files+=("$i")
-        ;;
-    esac
+for file in "${files[@]}"; do
+    # filepath="${i:-}"
+    filetype=''
+    for j in "${!testcodes[@]}"; do
+        if test "-${testcodes[$j]}" "$file"; then
+            filetype="$j"
+            break
+        fi
+    done
+    if [[ -z "${filetype:-}" ]]; then
+        filetype=none
+    fi
 done
