@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=GTK4 Print Editor
+Comment=A simple editor demonstrating GTK printing
+TryExec=gtk4-print-editor
+Exec=gtk4-print-editor %f
+Icon=org.gtk.PrintEditor4
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=Development;GTK;
+NoDisplay=true

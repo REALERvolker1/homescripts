@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=GNOME Snapshot
+Comment=Take pictures and videos
+Type=Application
+TryExec=snapshot
+Exec=snapshot
+Terminal=false
+Categories=GNOME;GTK;
+Keywords=picture;photos;camera;webcam;
+Icon=org.gnome.Snapshot
+StartupNotify=true
+X-Purism-FormFactor=Workstation;Mobile;

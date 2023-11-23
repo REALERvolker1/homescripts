@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Virtual Machine Manager
+Comment=Manage virtual machines
+Icon=preferences-virtualization-vm-install
+#Icon=virt-manager
+TryExec=virt-manager
+Exec=virt-manager
+Type=Application
+Terminal=false
+Keywords=vmm;
+Categories=System;

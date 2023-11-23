@@ -1,0 +1,27 @@
+[Desktop Entry]
+Name=LibreWolf
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=librewolf --file-forwarding io.gitlab.librewolf-community @@u %u @@
+Comment=A fork of Firefox, focused on privacy, security and freedom.
+Icon=io.gitlab.librewolf-community
+Type=Application
+MimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;application/x-xpinstall;application/pdf;application/json;
+StartupWMClass=librewolf
+Categories=Network;WebBrowser;
+StartupNotify=true
+Terminal=false
+X-MultipleArgs=false
+Keywords=Internet;WWW;Browser;Web;Explorer;
+Actions=new-window;new-private-window;profilemanager;
+X-Flatpak=io.gitlab.librewolf-community
+
+[Desktop Action new-window]
+Name=Open a New Window
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=librewolf --file-forwarding io.gitlab.librewolf-community @@u %u @@
+
+[Desktop Action new-private-window]
+Name=Open a New Private Window
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=librewolf --file-forwarding io.gitlab.librewolf-community --private-window @@u %u @@
+
+[Desktop Action profilemanager]
+Name=Open the Profile Manager
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=librewolf --file-forwarding io.gitlab.librewolf-community --ProfileManager @@u %u @@

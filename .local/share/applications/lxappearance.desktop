@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=LXAppearance
+GenericName=Customize Look and Feel
+Comment=Customizes look and feel of your desktop and applications
+Keywords=windows;preferences;settings;theme;style;appearance;gtk;
+Icon=preferences-desktop-theme
+TryExec=lxappearance
+Exec=lxappearance
+NotShowIn=GNOME;KDE;XFCE;MATE;
+StartupNotify=true
+Categories=GTK;Settings;DesktopSettings;X-LXDE-Settings;

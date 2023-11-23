@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=OpenJDK 1.8.0 for x86_64 Policy Tool (1.8.0.382.b05-2.fc39.x86_64)
+Comment=Manage OpenJDK policy files
+TryExec=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.382.b05-2.fc39.x86_64/jre/bin/policytool
+Exec=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.382.b05-2.fc39.x86_64/jre/bin/policytool
+Icon=java-1.8.0-openjdk
+Terminal=false
+Type=Application
+StartupWMClass=sun-security-tools-PolicyTool
+Categories=Settings;Java;
+Version=1.0
+X-Desktop-File-Install-Version=0.26
+NoDisplay=true

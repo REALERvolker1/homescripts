@@ -1,0 +1,24 @@
+[Desktop Entry]
+Version=1.0
+Name=Brave
+Comment=Access the Internet
+StartupNotify=true
+StartupWMClass=brave-browser
+TryExec=/var/lib/flatpak/exports/bin/com.brave.Browser
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=brave --file-forwarding com.brave.Browser @@u %U @@
+Terminal=false
+Icon=com.brave.Browser
+Type=Application
+Categories=Network;WebBrowser;
+MimeType=application/rdf+xml;application/rss+xml;application/xhtml+xml;application/xhtml_xml;application/xml;text/html;text/xml;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/ipfs;x-scheme-handler/ipns;
+Actions=new-window;new-private-window;
+X-Flatpak=com.brave.Browser
+
+[Desktop Action new-window]
+Name=New Window
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=brave com.brave.Browser
+
+[Desktop Action new-private-window]
+Name=New Incognito Window
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=brave com.brave.Browser --incognito
+MimeType=x-scheme-handler/unknown;x-scheme-handler/about;text/html;text/xml;application/xhtml_xml;x-scheme-handler/http;x-scheme-handler/https;

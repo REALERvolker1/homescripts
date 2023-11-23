@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=GNOME Characters
+Comment=Utility application to find and insert unusual characters
+Icon=org.gnome.Characters
+TryExec=gnome-characters
+Exec=gnome-characters
+DBusActivatable=true
+StartupNotify=true
+Categories=GNOME;GTK;Utility;X-GNOME-Utilities;
+Keywords=characters;unicode;punctuation;math;letters;emoji;emoticon;symbols;
+X-Purism-FormFactor=Workstation;Mobile;

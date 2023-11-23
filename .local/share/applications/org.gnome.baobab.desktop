@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=Disk Usage Analyzer (Baobab)
+Comment=Check folder sizes and available disk space
+Keywords=storage;space;cleanup;
+TryExec=baobab
+Exec=baobab %U
+Icon=org.gnome.baobab
+Terminal=false
+Type=Application
+StartupNotify=true
+MimeType=inode/directory;
+Categories=GTK;GNOME;System;Filesystem;X-GNOME-Utilities;
+DBusActivatable=true
+X-GNOME-UsesNotifications=true

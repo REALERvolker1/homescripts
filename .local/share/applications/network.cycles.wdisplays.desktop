@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Categories=GTK;Settings;DesktopSettings;HardwareSettings;
+Exec=wdisplays
+#Icon=wdisplays
+Icon=display
+Name=wDisplays
+GenericName=Displays configuration
+Comment=wlroots displays configuration
+X-Desktop-File-Install-Version=0.26
+Terminal=false
