@@ -11,7 +11,7 @@
 
 if ! command -v cargo &>/dev/null; then
     alias getcargo='bash <(curl -sSf https://sh.rustup.rs) --default-toolchain stable --profile complete --no-modify-path'
-    echo "No cargo found. Please run 'getcargo'"
+    echo "No cargo found. Please run the 'getcargo' alias I just created."
 fi
 
 __which() {
@@ -35,20 +35,21 @@ __which() {
     fi
 }
 
-alias whi{ch,hc}=__which
+alias whi{ch,hc}='__which '
 
 __homebin="$HOME/bin"
 
-__lscmd="command ls --color=auto --group-directories-first -A"
-__llcmd="$__lscmd -l"
+__lscmd="command ls --color=auto --group-directories-first -A "
+__llcmd="$__lscmd -l "
 # assign la before we mutate it
 alias la="$__lscmd"
 #command -v lsd >/dev/null 2>&1 && __lscmd=lsd
 if command -v eza >/dev/null 2>&1; then
-    __lscmd="eza -AX --group-directories-first --icons"
-    __llcmd="$__lscmd -lhM --git"
+    __lscmd="eza -AX --group-directories-first --icons "
+    __llcmd="$__lscmd -lhM --git "
 elif command -v lsd &>/dev/null; then
-    __lscmd=lsd
+    __lscmd='lsd '
+    __llcmd="$__lscmd -l "
 fi
 
 alias {{sl,l,s},ls}="$__lscmd" ll="$__llcmd"
@@ -118,119 +119,6 @@ __touchx() {
 for i in touch{x{,c,v},c,v}; do
     alias "$i=__touchx $i"
 done
-
-__mksh() {
-    local binpath="$HOME/bin/${1:?Error, please enter a filepath!}"
-    if [[ -e $binpath ]]; then
-        echo "Error, file '$binpath' already exists!"
-    else
-        __touchx touchx "$binpath"
-        cat >"$binpath" <<BRUH
-#!/usr/bin/bash
-# shellcheck shell=bash #disable=2034
-# a script by ${USER:-$(whoami)} to do a thing.
-
-declare -r ME="\${0##*/}"
-declare -r PROGNAME="\${ME%%.*}"
-declare -r PROGVERS='0.0.1'
-
-## Copyright (C) $(date +'%Y') ${USER:-$(whoami)}
-## This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
-## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-## See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-# function to put bash in either safe or unsafe mode
-__mode() {
-    if [[ "\${1:-}" == '--unsafe-mode' ]]; then
-        set +euo pipefail
-    else
-        set -euo pipefail
-        IFS=\$'\n\t'
-    fi
-}
-
-# determine a safe output to print to
-declare -i MYTTY=0
-declare -i PIPE_BOTH=0
-declare -i PIPEOUTPUT=0
-if [[ -t 1 && -t 2 ]]; then
-    MYTTY=1
-elif [[ -t 1 && ! -t 2 ]]; then
-    MYTTY=1
-    PIPEOUTPUT=2
-elif [[ ! -t 1 && -t 2 ]]; then
-    MYTTY=2
-    PIPEOUTPUT=1
-else
-    PIPE_BOTH=1
-fi
-declare -r MYTTY
-declare -r PIPEOUTPUT
-declare -r PIPE_BOTH
-
-_log() {
-    # split content with IFS
-    local IFS=\$'\n'
-    local content="\$*"
-    ((MYTTY)) && echo "[0m\$content[0m" >&"\$MYTTY"
-    if ((PIPE_BOTH)); then
-        echo "\$content"
-        echo "\$content" >&2
-    elif ((PIPEOUTPUT)); then
-        echo "\$content" >&"\$PIPEOUTPUT"
-    fi
-}
-
-# panic function, to gracefully tell the user what went wrong
-_panic() {
-    _log "[\$ME] panic!" "\$@"
-    # uncomment if you want to send a desktop notification
-    # [[ -n \${DISPLAY:-} || -n \${WAYLAND_DISPLAY:-} ]] && notify-send -i 'dialog-error' -a "\${0##*/}" 'Panic!' "\$content"
-    exit 1
-}
-
-# strip color function, idk it's useful ig lol
-strip_color() {
-    # Strip all occurences of ansi color strings from input strings
-    local ansi_regex='\[([0-9;]+)m'
-    local i
-    local -a matches=()
-    for i in "\$@"; do
-        while [[ \$i =~ \$ansi_regex ]]; do
-            matches+=("\${BASH_REMATCH[1]}")
-            i=\${i//\${BASH_REMATCH[0]}/}
-        done
-        echo "\$i"
-    done
-}
-
-# some useful characters
-TAB=\$'\t'
-LF=\$'\n'
-
-# box-drawing characters, powerline characters, and some other nerd font icons, useful for output
-#╭─┬─╮│    󰀄  󰕈
-#├─┼─┤│   󰓎 󰘳  󰂽
-#╰─┴─╯│   󰅟 󰘲 󰣇 󰣛
-# 󰬛󰬏󰬌 󰬘󰬜󰬐󰬊󰬒 󰬉󰬙󰬖󰬞󰬕 󰬍󰬖󰬟 󰬑󰬜󰬔󰬗󰬌󰬋 󰬖󰬝󰬌󰬙 󰬛󰬏󰬌 󰬓󰬈󰬡󰬠 󰬋󰬖󰬎
-
-# set it in safe mode, a reasonable default
-__mode
-
-# add main system binary folder to path if it isn't there already
-[[ ":\${PATH:-}:" != *':/usr/bin:'* ]] && PATH="\${PATH:-}:/usr/bin"
-
-# check for dependencies
-declare -a faildeps=()
-for i in 'notify-send' sed grep; do
-    command -v \$i &>/dev/null || faildeps+=("\$i")
-done
-((\${#faildeps[@]})) && _panic 'Missing dependencies' "\${faildeps[@]}"
-
-BRUH
-    fi
-    codium "$binpath"
-}
 
 alias chmodx='chmod +x' chmod-x='chmod -x'
 
