@@ -15,6 +15,7 @@ if ! command -v cargo &>/dev/null; then
 fi
 
 __which() {
+    # TODO: Move to zsh-only, multiplex output of 'whence'
     local shell_junk
     shell_junk="$(alias && declare -f)"
     local -a which_output
@@ -39,6 +40,8 @@ alias whi{ch,hc}='__which '
 
 __homebin="$HOME/bin"
 
+# TODO: idgaf about full compatibility anymore
+# check for all deps first. If not all deps are found, use an alternative fallback config
 __lscmd="command ls --color=auto --group-directories-first -A "
 __llcmd="$__lscmd -l "
 # assign la before we mutate it
@@ -88,6 +91,7 @@ alias rmf="$(command which rm) -rf"
 if command -v trash &>/dev/null; then
     alias rm='trash -i -r'
 else
+    # TODO: make 'better-rm' actually better than rm
     echo "trash command not installed! falling back to rm"
     alias rm=rmf
 fi
@@ -122,6 +126,7 @@ done
 
 alias chmodx='chmod +x' chmod-x='chmod -x'
 
+# TODO: Remove ~bin/$, as it is easier to run 'alias \$='''
 alias %="$__homebin/\$"
 
 alias copy="$__homebin/copy"
@@ -139,6 +144,7 @@ alias bap='bat --paging always'
 alias glop='glow --pager'
 alias bat{op,tio,io}=battop
 
+# TODO: migrate to whisper.cpp
 # OpenAI whisper -- run `pip install --user --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git` and `pip install --user blobfile`
 #command -v whisper &>/dev/null && alias whisp='whisper --language en --device cuda --model medium.en --output_format txt'
 alias record='pw-record --target "alsa_input.usb-ASUSTeK_COMPUTER_INC._C-Media_R__Audio-00.analog-stereo" '
@@ -149,6 +155,7 @@ whisp() {
     whisper "${whispargs[@]}" "$@"
 }
 
+# TODO: just use gpt instead
 if [[ -d "$HOME/src/text-generation-webui" ]]; then
     llama() {
         local oldpwd="$PWD"
@@ -175,6 +182,7 @@ fi
 alias diff=difft
 # command -v duf &>/dev/null && alias df=duf
 # command -v dutree &>/dev/null && alias du=dutree
+# TODO: make my own extract script
 command -v ouch &>/dev/null && alias extract='ouch decompress'
 
 alias unfuck-old-backup='tar --hole-detection=seek --keep-directory-symlink -xzf '
@@ -183,6 +191,7 @@ for i in free df du; do
     alias "$i=$i -h"
 done
 
+# TODO: migrate from ranger to something better
 alias ra=ranger
 
 alias fr='flatpak run'
@@ -193,6 +202,7 @@ alias wget='wget --show-progress'
 alias bg-gen='convert +append -resize x1080'
 alias ttymouse='sudo gpm -m /dev/input/mice -t imps2'
 
+# TODO: rename codium script to code
 alias code=codium
 
 alias {{vi,iv}{m,},v}="$EDITOR"
@@ -202,6 +212,8 @@ alias tmuxk='tmux kill-session -t'
 alias tmuxa='tmux attach -t'
 alias tmuxl='tmux list-sessions'
 
+# TODO: in my shell prompt, save and reset stty state after each command
+# Also: run 'cd .' to make sure I'm in the current directory to workaround a bug where removing and recreating a dir with the exact same name as CWD causes UB
 run-subshell() {
     local stty cmd
     [[ -t 0 ]] && stty="$(stty --save)"
@@ -235,11 +247,13 @@ venv() {
     fi
 }
 
+# TODO: I don't need pnpm because I have btrfs. Remove
 alias pnpmi='pnpm install --global'
 alias pnpml='pnpm list --global | fzf'
 
 alias tc='tsc && node .'
 
+# TODO: Make dotfiles script the main source of git commands
 alias gitm='git add -A && git commit -am "$(date +"Commit from shell alias at %D %r")" '
 alias gitp='git pull '
 alias tit='echo 😜 && git '
@@ -278,7 +292,7 @@ fi
 
 alias fli='flatpak install'
 alias flu='flatpak update'
-alias fls='flatpak search'
+alias fls='flatpak search' # replaced by ~/bin/flats
 
 alias fll='flatpak list | fzf'
 alias flc='flatpak remote-ls --updates'
@@ -292,6 +306,7 @@ if command -v pacman &>/dev/null; then
     # alias pacs='pacman -Sl | fzf'
 fi
 
+# TODO: make this nicer for wayland too
 alias xclassget='xprop | grep WM_CLASS'
 alias xkeyget="xev -event keyboard | grep -Eo 'keycode.*\)'"
 alias numlock-query="xset q | grep -Po 'Num Lock: *\K[a-z]*'"

@@ -88,6 +88,7 @@ fi
 if [ -z "${XDG_SESSION_ID:-}" ] || [ -z "${XDG_VTNR:-}" ]; then
     # who | tr -s ' ' '\t' | cut -f 2
     # only works with systemd or elogind
+    # TODO: Make this work even in distrobox
     if command -v loginctl >/dev/null 2>&1; then
         # respect shell IFS rules
         [ "${IFS+x}" = x ] && hasifs=1
@@ -149,6 +150,7 @@ if command -v batpipe >/dev/null 2>&1; then
     export BATPIPE="color"
 fi
 
+# TODO: refactor all codium stuff
 export VLK_VSC='/usr/bin/code'
 export TERMINAL='vlk-sensible-terminal 1'
 export BROWSER='vlk-sensible-browser 1'
@@ -268,6 +270,7 @@ elif [ -S /tmp/.ydotool_socket ]; then
     export YDOTOOL_SOCKET='/tmp/.ydotool_socket'
 fi
 
+# TODO: skip pathmunge if pathmunge bin doesn't exist. This can cause UB in zsh
 # __vlkenv_pathmunge_bin="$XDG_CONFIG_HOME/shell/rustcfg/pathmunge/target/release/pathmunge"
 __vlkenv_pathmunge_bin="$XDG_CONFIG_HOME/rustcfg/pathmunge/target/release/pathmunge"
 if [ ! -x "$__vlkenv_pathmunge_bin" ]; then
