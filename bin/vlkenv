@@ -238,8 +238,8 @@ export GOCACHE="$XDG_CACHE_HOME/go-build"
 export GOMODCACHE="${GOPATH:=$XDG_DATA_HOME/go}/pkg/mod"
 
 # python
-# PYTHONUSERBASE="$XDG_DATA_HOME/python"
-export PYTHONUSERBASE="$XDG_DATA_HOME/pythonuserbase"
+export PYTHONUSERBASE="$XDG_DATA_HOME/python"
+#export PYTHONUSERBASE="$XDG_DATA_HOME/pythonuserbase"
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc"
 export PYTHONPYCACHEPREFIX="$XDG_CACHE_HOME/python"
 export PYENV_ROOT="$XDG_DATA_HOME/pyenv"
