@@ -14,6 +14,7 @@ if ! command -v cargo &>/dev/null; then
     echo "No cargo found. Please run the 'getcargo' alias I just created."
 fi
 
+# Does not work with aliases like 'ls'
 __which() {
     # TODO: Move to zsh-only, multiplex output of 'whence'
     local shell_junk
@@ -46,26 +47,20 @@ __lscmd="command ls --color=auto --group-directories-first -A "
 __llcmd="$__lscmd -l "
 # assign la before we mutate it
 alias la="$__lscmd"
-#command -v lsd >/dev/null 2>&1 && __lscmd=lsd
 if command -v eza >/dev/null 2>&1; then
     __lscmd="eza -AX --group-directories-first --icons "
     __llcmd="$__lscmd -lhM --git "
-elif command -v lsd &>/dev/null; then
-    __lscmd='lsd '
-    __llcmd="$__lscmd -l "
 fi
 
 alias {{sl,l,s},ls}="$__lscmd" ll="$__llcmd"
 unset __lscmd __llcmd
 
-# alias {sl,l,s}=ls
-
+# unalias cd, so previous iterations don't get messed up
 unalias cd 2>/dev/null
+# cd to last directory I was in
 alias -- -='cd -'
-
-for i in ..{,.,..}; do
-    alias ".${i}=${i//./../}"
-done
+# cd realpath, resolves symlinks
+alias cdrp='cd -P '
 
 rp() {
     if [[ -z "${1:-}" ]]; then
@@ -93,7 +88,7 @@ if command -v trash &>/dev/null; then
 else
     # TODO: make 'better-rm' actually better than rm
     echo "trash command not installed! falling back to rm"
-    alias rm=rmf
+    alias rm='rm -ri'
 fi
 # remove junk files
 for i in "$HOME/".{xsel.log,wget-hsts}; do
@@ -338,7 +333,8 @@ alias penv='printenv | fzf'
 
 if [[ -n "${ZSH_VERSION:-}" ]]; then
     alias refresh='exec zsh'
-    alias lsh="hash -dL | sed 's/hash -d //g ; s/=/  \t  /g' | fzf"
+    #alias lsh="hash -dL | sed 's/hash -d //g ; s/=/  \t  /g' | fzf"
+    alias lsh="printf '\e[0;92m~%s\t\e[0;1;94m%s\e[0m\n' \${(@kv)nameddirs}"
     alias aliases='printf "\e[1;93m%s\e[0m = \e[92m%s\e[0m\n" "${(@kv)aliases}"'
     alias printl='print -l'
 
