@@ -37,22 +37,24 @@ __which() {
     fi
 }
 
-alias whi{ch,hc}='__which '
+alias whi{ch,hc}='__which'
 
 __homebin="$HOME/bin"
 
 # TODO: idgaf about full compatibility anymore
 # check for all deps first. If not all deps are found, use an alternative fallback config
-__lscmd="command ls --color=auto --group-directories-first -A "
-__llcmd="$__lscmd -l "
+__lscmd="command ls --color=auto --group-directories-first -A"
+__llcmd="$__lscmd -l"
 # assign la before we mutate it
 alias la="$__lscmd"
 if command -v eza >/dev/null 2>&1; then
-    __lscmd="eza -AX --group-directories-first --icons "
-    __llcmd="$__lscmd -lhM --git "
+    __lscmd="eza -AX --group-directories-first --icons always"
+    # add classifiers@/* if in a vtty, since my lscolors look super similar
+    [[ ${TERM-} == linux ]] && __lscmd="${__lscmd} -F"
+    __llcmd="$__lscmd -lhM --git"
 fi
 
-alias {{sl,l,s},ls}="$__lscmd" ll="$__llcmd"
+alias {{sl,l,s},ls}="$__lscmd " ll="$__llcmd "
 unset __lscmd __llcmd
 
 # unalias cd, so previous iterations don't get messed up
@@ -372,6 +374,52 @@ readme() {
     else
         cat "$1"
     fi
+}
+
+mnt() {
+    local disk="${1:?Error, no disk path selected!}"
+    local mount="${2:?Error, no mountpoint selected!}"
+    if [[ ! -b $disk ]]; then
+        lsblk -o NAME,LABEL,PATH,FSTYPE,SIZE,FSUSE%,MOUNTPOINT
+        echo "Error, path provided '${disk:-}' is not a disk!"
+        return 1
+    elif [[ $mount != '/mnt'* ]]; then
+        echo "Error, must mount to directory '/mnt'! Invalid mountpoint '$mount'"
+        return 1
+    elif [[ ! -d ${2:-} ]]; then
+        if [[ -e $mount || -L $mount ]]; then
+            echo "Error, mountpoint '$mount' is not a directory!"
+            return 1
+        fi
+        echo "Want to make directory '$mount'?"
+        local ans
+        read -r ans
+        [[ ${ans:-} == y ]] || return 1
+    fi
+    local -a mountargs=()
+    local fstype
+    fstype="$(lsblk -no FSTYPE "$disk" || :)"
+    case "${fstype:-}" in
+    ext4 | vfat | xfs) : ;;
+    btrfs)
+        mountargs+=(-o "compress=zstd:5,noatime")
+        ;;
+    *)
+        echo "Error, current fstype not supported at the moment!"
+        return 1
+        ;;
+    esac
+    mountargs+=("$disk" "$mount")
+
+    printf '\n%s' \
+        'Are you sure you want to mount?' \
+        "${mountargs[*]}" \
+        '[y/N] > '
+    local ans
+    read -r ans
+    [[ ${ans:-} == y ]] || return 1
+    sudo mount "${mountargs[@]}"
+    cd "$mount" || return 1
 }
 
 if ! command -v fzf &>/dev/null; then

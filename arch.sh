@@ -12,7 +12,7 @@ case "${1:-}" in
     pacman-key --lsign-key "$key"
     pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst'
     pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
-    printf '%s\n' '[chaotic-aur]' 'Include = /etc/pacman.d/chaotic-mirrorlist' | tee /etc/pacman.conf
+    printf '%s\n' '[chaotic-aur]' 'Include = /etc/pacman.d/chaotic-mirrorlist' >> /etc/pacman.conf
     pacman -Syyu
     ;;
 --asus)
@@ -21,7 +21,7 @@ case "${1:-}" in
     pacman-key --finger "$key"
     pacman-key --lsign-key "$key"
     pacman-key --finger "$key"
-    printf '%s\n' '[g14]' 'Server = https://arch.asus-linux.org' | tee /etc/pacman.conf
+    printf '%s\n' '[g14]' 'Server = https://arch.asus-linux.org' >> /etc/pacman.conf
     ;;
 *)
     echo "${0##*/}"
