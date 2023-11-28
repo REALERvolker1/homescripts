@@ -6,7 +6,8 @@ use v5.36;
 
 use Cwd 'abs_path';
 use POSIX qw(strftime);
-use URI::Escape;
+
+# use URI::Escape;
 
 sub prompt {
     print join( "\n", @_ ) . "\n";

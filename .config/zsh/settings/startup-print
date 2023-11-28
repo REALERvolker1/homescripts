@@ -14,7 +14,7 @@ local cachefile="$XDG_RUNTIME_DIR/dumfech-$XDG_SESSION_ID.cache"
             echo 'none'
         fi
         #uname -r | grep -o '^[^-]*-[^-\.]*'
-        
+
         kern="$(uname -r)"
         typeset -a karr
         vers="${kern%%-*}"
@@ -61,7 +61,7 @@ local cachefile="$XDG_RUNTIME_DIR/dumfech-$XDG_SESSION_ID.cache"
     ) >"$cachefile"
 
 # ik I'm cheating here a bit with a cachefile, but idk, it's a performance thing
-local -a cached=("${(f)$(<$cachefile)}")
+local -a cached=("${(@f)$(<$cachefile)}")
 
 # this is less computationally expensive and more cross-platform than running procps uptime
 local -a uptime

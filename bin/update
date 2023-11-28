@@ -44,9 +44,13 @@ if command -v pacman >/dev/null; then
         echo "pacman --noconfirm is dangerous! Skipping pacman updates!"
     fi
     # run this last to make sure pacman lock is not messed with while updating
-    sudo pacman -Fy >/dev/null &
-    pacjob="$!"
-
+    if command -v pkgfile &>/dev/null; then
+        _head 35 pkgfile
+        [ ! -d /var/cache/pkgfile ] && sudo mkdir -p /var/cache/pkgfile
+        sudo pkgfile --update
+    fi
+    _head 35 'pacman -Fy'
+    sudo pacman -Fy
 fi
 
 if command -v apt >/dev/null; then
@@ -88,8 +92,5 @@ if command -v cargo-install-update >/dev/null; then
     cargo install-update -a -g
 fi
 
-echo "Done with updates!"
-if [ "${pacjob:-x}" != x ] && ps -p "$pacjob" >/dev/null 2>/dev/null; then
-    echo "Waiting for pacman -Fy to finish"
-fi
 wait
+echo "Done with updates!"

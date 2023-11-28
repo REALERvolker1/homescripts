@@ -45,11 +45,7 @@ TMPPREFIX="$XDG_RUNTIME_DIR/zsh"
 KEYBOARD_HACK='\'
 
 export ZPLUGIN_DIR="$XDG_DATA_HOME/zsh-plugins"
-# __vlk_zsh_plugins=(
-#     "Aloxaf/fzf-tab"
-#     "zdharma-continuum/fast-syntax-highlighting"
-#     "zsh-users/zsh-autosuggestions"
-# )
+
 for i in "$ZDOTDIR/functions"/^*.zwc(.N); do
     [[ -f "$i" ]] && autoload -Uz "$i"
 done

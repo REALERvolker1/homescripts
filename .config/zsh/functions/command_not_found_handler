@@ -1,0 +1,72 @@
+emulate -LR zsh
+local command="${1-}"
+shift 1
+
+local LF=$'\n'
+
+internal::searchpkg::prompt() {
+    internal::fmt::println --no-newline --fg=255 --bg=31 --nxtbg=46 'Search for packages providing the command?'
+    internal::fmt::println --no-newline --fg=232 --bg=46 --nxtbg=124 Y
+    internal::fmt::println --no-newline --fg=255 --bg=124 N
+    print -n ' '
+    read -rq || return 1 # if the line is 'y' or 'Y', it returns 0. Otherwise, it returns 1.
+    print -n '[2K\r'
+    internal::fmt::println --no-newline --fg=255 --bg=31 'Searching Packages'
+    print -n '\r'
+}
+internal::fmt::println() {
+    local i bg fg nxtbg bold str="%k%f" line
+    local -a txt=()
+    for i in "$@"; do
+        case "${i:=}" in
+            --bg=*) bg="${i#*=}" ;;
+            --fg=*) fg="${i#*=}" ;;
+            --nxtbg=*) nxtbg="${i#*=}" ;;
+            --no-newline) unset line ;;
+            --no-bold) unset bold ;;
+            *) txt+=("$i") ;;
+        esac
+    done
+    [[ -n ${nxtbg:-} ]] && str="%K{$nxtbg}%f%k"
+    print -Pn "${bold+%B}%F{$fg}%K{$bg} ${(j: :)txt} ${bold+%b}%F{$bg}${str}${line+$LF}"
+}
+
+internal::fmt::println --no-newline --fg=232 --bg=196 --nxtbg=52 󰅗 ERROR
+internal::fmt::println --fg=255 --no-bold --bg=52 "command '%B${command}%b' not found!"
+
+if [[ ${ZSHRC_LOADED:-} == false ]]; then
+    print "$command '${(j:' ':)@}'" >>"$HOME/.zsh-faildeps" # (j: :) bypasses IFS, more reliable than $*
+elif [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
+    : # filter out non-interactive terminals
+elif command -v dnf &>/dev/null; then
+    internal::fmt::println --fg=255 --bg=52 "dnf is not implemented yet!"
+elif command -v pacman pkgfile &>/dev/null && internal::searchpkg::prompt; then
+    local -a packages=("${(@f)$(pkgfile -b $command || :)}")
+    print -n '[2K\r'
+    if [[ -n ${packages[1]-} ]]; then
+        internal::fmt::println --fg=255 --bg=31 'Available packages'
+        local i bgc fgc repo pkg
+        for i in $packages[@]; do
+            [[ -z ${i:-} || ${i:-} != *'/'* ]] && print $i && continue
+            repo="${i%%/*}"
+            pkg="${i#*/}"
+            case $repo in
+                core) bgc=226 fgc=17 ;;
+                extra) bgc=82 fgc=22 ;;
+                multilib) bgc=51 fgc=23 ;;
+                g14) bgc=165 fgc=54 ;;
+                chaotic-aur) bgc=198 fgc=52 ;;
+                aur) bgc=33 fgc=17 ;;
+                *) bgc=250 fgc=235 ;;
+            esac
+            internal::fmt::println --no-newline --fg=$fgc --bg=$bgc --nxtbg=$fgc $repo
+            internal::fmt::println --fg=$bgc --bg=$fgc $pkg
+        done
+    else
+        internal::fmt::println --no-bold --fg=255 --bg=52 "No packages matching '%B${command}%b' found!"
+    fi
+fi
+
+print -n '[0m'
+return 127
+# vim:ft=sh

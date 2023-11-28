@@ -1,0 +1,8 @@
+[FEDORA]
+additional_packages="git zsh dash figlet lolcat lsd eza neofetch fzf inotify-tools vim"
+home=${HOME}/.cache/ARCH
+image=archlinux:latest
+nvidia=true
+replace=false
+root=false
+start_now=false

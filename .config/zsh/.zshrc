@@ -1,17 +1,17 @@
-[[ -n $ZSH_VERSION && -z $ZSHRC_LOADED && $- == *i* ]] || {
+[[ -n ${ZSH_VERSION-} && -z ${ZSHRC_LOADED-} && $- == *i* ]] || {
     echo "failed to load zshrc"
     return 1
     exit 1
 }
 emulate -LR zsh
 set +euo pipefail
+ZSHRC_LOADED=false
 
-if [[ $IFS != $' \t\n\C-@' ]]; then
-    echo -n 'Non-default IFS: '
+if [[ $IFS != $' \t\n\C-@' ]] {
     declare IFS
-    echo "Resetting IFS"
+    echo 'Resetting non-default IFS'
     IFS=$' \t\n\C-@'
-fi
+}
 
 # Idea: debug mode function. When run, it adds useful stuff like lines/cols
 # and persistent exec time and whatever to my prompt
@@ -24,8 +24,6 @@ fi
 # Certain files like vlkrc and vlkenv from ~/bin are loaded along with other settings files
 
 foreach i ("${ZDOTDIR:-~/.config/zsh}/rc.d"/*.zsh) {
-    #[[ $i == *prompt* ]] && continue
-    #[[ $i == *plugins* ]] && continue
     if [[ $i == *.defer.zsh ]] {
         zsh-defer . "$i"
     } else {
@@ -34,7 +32,14 @@ foreach i ("${ZDOTDIR:-~/.config/zsh}/rc.d"/*.zsh) {
 }
 unset i
 ((${+VLKZSH_RECOMPILE})) && echo "Recompiling..." && recompile >/dev/null
-((COLUMNS > 55)) && startup-print
+# ((COLUMNS > 55)) && startup-print
+echo -en '\e[0H'
+if ((COLUMNS > 55)) {
+    dumbfetch
+    fortune -a -s | lolcat
+    lsdiff
+}
 
 ZSHRC_LOADED=true
 :
+

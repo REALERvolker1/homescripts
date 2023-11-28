@@ -77,7 +77,7 @@ rp() {
 
 alias cp='cp -r'
 
-alias {us,su}{do,od}=sudo
+alias {us,su}{do,od}='sudo '
 alias {,:}q=exit
 
 alias shutdown='systemctl poweroff'

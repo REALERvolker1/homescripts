@@ -292,17 +292,20 @@ ${content[err]}%(${index[transient]}V..${en[err]})\
 ${content[cwd]}${content[end]} "
 
 autoload -Uz vcs_info
-vcs_info
+
 zstyle ':vcs_info:*' enable git
 zstyle ':vcs_info:git:*' use-simple 'true'
 zstyle ':vcs_info:git:*' formats ' %r ${icon[git]} '
-# zstyle ':vcs_info:git:*' actionformats ' %r '
+$(
+    # zstyle ':vcs_info:git:*' actionformats ' %r '
+)
 
 __vlkprompt_internal[right_prompt]="%(${index[git]}V.${content[git_begin]}.)\\\${vcs_info_msg_0_}"
 RPROMPT="\${__vlkprompt_internal[right_prompt]}"
-
-# TIMEFMT -- the prompt you see in 'time command --args'
-# TIMEFMT="%J  %U user %S system %P cpu %*E total"
+$(
+    # TIMEFMT -- the prompt you see in 'time command --args'
+    # TIMEFMT="%J  %U user %S system %P cpu %*E total"
+)
 TIMEFMT="$(print -P "${cbg[tim]}%F{${txtcolor[d]}} ${icon[job]} Command: %B%%J ${set[sgr]}${cfg[tim]}${set[end]}${set[sgr]}
 ${cbg[cwd]}%F{${txtcolor[l]}} ${icon[tim]} Elapsed time: %B%%*E ${set[sgr]}${cfg[cwd]}${set[end]}${set[sgr]}
 ${cbg[hos]}%F{${txtcolor[l]}} ${icon[hos]} user CPU time: %B%%U%b, kernel CPU time: %B%%S%b (total: %B%%P%b) ${set[sgr]}${cfg[hos]}${set[end]}${set[sgr]}")"
@@ -310,15 +313,19 @@ ${cbg[hos]}%F{${txtcolor[l]}} ${icon[hos]} user CPU time: %B%%U%b, kernel CPU ti
 SUDO_PROMPT='$(print -P "\
 ${cbg[err]}${txc[l]} SUDO ${set[sgr]}${cfg[err]}${cbg[sud]}${set[end]}\
 ${cbg[sud]}${txc[l]} Please enter your password ${set[sgr]}${cfg[sud]}${set[sud_end]}${set[sgr]}") '
+$(
+    #PROMPT_EOL_MARK='$(print -P "${cbg[err]}${txc[l]} 󰌑 ${set[sgr]}${cfg[err]}${set[end]}${set[sgr]}")
+    #'
+    # command_not_found_handler() {
+    #     echo "$(print -P "${set[sgr]}${cbg[sud]}${txc[d]} ${icon[err]} ERROR ${set[sgr]}${cfg[sud]}${cbg[err]}${set[end]}\
+    # %F{${txtcolor[l]}} Command '%B\\\${1:-}%b' not found! ${set[sgr]}${cfg[err]}${set[end]}${set[sgr]}")"
+    #     return 127
+    # }
+)
+CNF_STRING="$(print -P "${set[sgr]}${cbg[sud]}${txc[d]} ${icon[err]} ERROR ${set[sgr]}${cfg[sud]}${cbg[err]}${set[end]}\
+%F{${txtcolor[l]}} Command '%B\\\\\`%b' not found! ${set[sgr]}${cfg[err]}${set[end]}${set[sgr]}")"
 
-#PROMPT_EOL_MARK='$(print -P "${cbg[err]}${txc[l]} 󰌑 ${set[sgr]}${cfg[err]}${set[end]}${set[sgr]}")
-#'
-
-command_not_found_handler() {
-    echo "\$(tput sgr0)$(print -P "${cbg[sud]}${txc[d]} ${icon[err]} ERROR ${set[sgr]}${cfg[sud]}${cbg[err]}${set[end]}\
-%F{${txtcolor[l]}} Command '%B\\\${1:-}%b' not found! ${set[sgr]}${cfg[err]}${set[end]}${set[sgr]}")"
-    return 127
-}
+vcs_info || alias vcs_info=true
 
 __vlkprompt_precmd() {
     local -i timer=\$((SECONDS - \${__vlkprompt_internal[old_time]}))
@@ -328,20 +335,20 @@ __vlkprompt_precmd() {
             local -i hour=\$((timer / 3600))
             local -i min=\$(((timer % 3600) / 60))
             local -i sec=\$((timer % 60))
-            if ((hour > 0)); then
+            if ((hour > 0)) {
                 timedisp="\${timedisp}\${hour}h "
                 timedisp_sm="\${timedisp_sm}\${hour}:"
                 ((min < 10)) && leading_zero=0
-            fi
-            if ((min > 0)); then
+            }
+            if ((min > 0)) {
                 timedisp="\${timedisp}\${min}m "
                 timedisp_sm="\${timedisp_sm}\${leading_zero:-}\${min}:"
                 ((sec < 10)) && leading_zero=0
-            fi
-            if ((sec > 0)); then
+            }
+            if ((sec > 0)){
                 timedisp="\${timedisp}\${sec}s "
                 timedisp_sm="\${timedisp_sm}\${leading_zero:-}\${sec}:"
-            fi
+            }
             timedisp="\${timedisp%* }"
             timedisp_sm="\${timedisp_sm%*:}"
         else
@@ -356,16 +363,11 @@ __vlkprompt_precmd() {
         psvar[${index[writable]}]="\${__vlkprompt_internal[pwd_writable]}"
         psvar[${index[git]}]="\${__vlkprompt_internal[pwd_git]}"
     else
-        #vcs_info
-        if type vcs_info | grep -q ' /[^ ]*'; then
-            vcs_info
-        else
-            vcs_info_msg_0_=''
-        fi
+        vcs_info
         if [[ \$PWD == \${__vlkprompt_internal[prev_pwd]} ]]; then
             psvar[${index[git]}]=1
         # elif git status &>/dev/null; then
-        elif [[ -n \$vcs_info_msg_0_ ]]; then
+        elif [[ -n \${vcs_info_msg_0_-} ]]; then
             __vlkprompt_internal[prev_pwd]="\$PWD"
             psvar[${index[git]}]=1
         elif [[ -w \$PWD ]]; then
@@ -375,11 +377,11 @@ __vlkprompt_precmd() {
         __vlkprompt_internal[pwd_git]="\${psvar[${index[git]}]}"
         __vlkprompt_internal[pwd_writable]="\${psvar[${index[writable]}]}"
     fi
-    if [[ -n \${CONDA_DEFAULT_ENV:-} ]]; then
+    if [[ -n \${CONDA_DEFAULT_ENV-} ]]; then
         psvar[${index[conda]}]=1
         __vlkprompt_internal[conda_str]="\${CONDA_DEFAULT_ENV}"
     fi
-    if [[ -n \${VIRTUAL_ENV:-} ]]; then
+    if [[ -n \${VIRTUAL_ENV-} ]]; then
         psvar[${index[venv]}]=1
         __vlkprompt_internal[venv_str]="\${VIRTUAL_ENV##*/}"
     fi
@@ -388,7 +390,7 @@ __vlkprompt_precmd() {
 export -U precmd_functions
 precmd_functions+=('__vlkprompt_precmd')
 
-if [[ -z \${DISTROBOX_ENTER_PATH:-} ]]; then
+if [[ -z \${DISTROBOX_ENTER_PATH-} ]] {
     __vlkprompt_sudo_cmd() {
         if sudo -vn &>/dev/null; then
             psvar[${index[sudo]}]=1
@@ -397,7 +399,7 @@ if [[ -z \${DISTROBOX_ENTER_PATH:-} ]]; then
         fi
     }
     precmd_functions+=('__vlkprompt_sudo_cmd')
-fi
+}
 
 __vlkprompt-zle-keymap-select() {
     if [[ \$KEYMAP == vicmd ]]; then
@@ -421,12 +423,12 @@ __vlkprompt-zle-line-init() {
         zle reset-prompt
         exit
     fi
-    local has_sudo="\${psvar[${index[sudo]}]}"
+    # local has_sudo="\${psvar[${index[sudo]}]}"
     psvar[${index[transient]}]=1
     RPROMPT=
     zle reset-prompt
     psvar=()
-    psvar[${index[sudo]}]="\$has_sudo"
+    # psvar[${index[sudo]}]="\$has_sudo"
     __vlkprompt_internal[old_time]=\$SECONDS
     __vlkprompt_internal[timer_str]=
     RPROMPT="\${__vlkprompt_internal[right_prompt]}"

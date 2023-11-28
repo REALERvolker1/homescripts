@@ -1,0 +1,1 @@
+/home/vlk/random/homescripts/bin/dumbfetch.zsh
