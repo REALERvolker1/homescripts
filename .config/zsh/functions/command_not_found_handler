@@ -4,16 +4,19 @@ shift 1
 
 local LF=$'\n'
 
-internal::searchpkg::prompt() {
-    internal::fmt::println --no-newline --fg=255 --bg=31 --nxtbg=46 'Search for packages providing the command?'
+internal::fmt::prompt() {
+    local question="$1"
+    local searchingstr="$2"
+    internal::fmt::println --no-newline --fg=255 --bg=31 --nxtbg=46 $question
     internal::fmt::println --no-newline --fg=232 --bg=46 --nxtbg=124 Y
     internal::fmt::println --no-newline --fg=255 --bg=124 N
     print -n ' '
     read -rq || return 1 # if the line is 'y' or 'Y', it returns 0. Otherwise, it returns 1.
     print -n '[2K\r'
-    internal::fmt::println --no-newline --fg=255 --bg=31 'Searching Packages'
+    internal::fmt::println --no-newline --fg=255 --bg=31 $searchingstr
     print -n '\r'
 }
+
 internal::fmt::println() {
     local i bg fg nxtbg bold str="%k%f" line
     local -a txt=()
@@ -40,16 +43,18 @@ elif [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
     : # filter out non-interactive terminals
 elif command -v dnf &>/dev/null; then
     internal::fmt::println --fg=255 --bg=52 "dnf is not implemented yet!"
-elif command -v pacman pkgfile &>/dev/null && internal::searchpkg::prompt; then
+elif command -v pacman pkgfile &>/dev/null && internal::fmt::prompt 'Search for packages providing the command?' 'Searching Packages'; then
     local -a packages=("${(@f)$(pkgfile -b $command || :)}")
     print -n '[2K\r'
     if [[ -n ${packages[1]-} ]]; then
         internal::fmt::println --fg=255 --bg=31 'Available packages'
         local i bgc fgc repo pkg
+        # local -a pkgs=()
         for i in $packages[@]; do
             [[ -z ${i:-} || ${i:-} != *'/'* ]] && print $i && continue
             repo="${i%%/*}"
             pkg="${i#*/}"
+            # pkgs+=("$repo/$pkg")
             case $repo in
                 core) bgc=226 fgc=17 ;;
                 extra) bgc=82 fgc=22 ;;
@@ -62,6 +67,12 @@ elif command -v pacman pkgfile &>/dev/null && internal::searchpkg::prompt; then
             internal::fmt::println --no-newline --fg=$fgc --bg=$bgc --nxtbg=$fgc $repo
             internal::fmt::println --fg=$bgc --bg=$fgc $pkg
         done
+        # if internal::fmt::prompt 'Want to install the package?' 'Installing...'; then
+        #     select i in $pkgs; do
+        #         echo $i
+        #         break
+        #     done
+        # fi
     else
         internal::fmt::println --no-bold --fg=255 --bg=52 "No packages matching '%B${command}%b' found!"
     fi

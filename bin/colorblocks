@@ -1,25 +1,170 @@
-#!/usr/bin/bash
+#!/usr/bin/zsh
+# why do easy thing when you can do hard thing?
 
-width="$(stty size | cut -d ' ' -f 1)"
+black=232
+white=255
 
-((width < 8)) && exit 1
+main_old() {
+    _print_block() {
+        local bg fg i
+        local -a retstr=()
 
-column_width=$((width / 8))
+        if [[ $1 == '--header='* ]]; then
+            print -Pl "${HEADER_NEWLINE:-}%B%K{236}%F{255} ${1#*=} %k%f%b" ''
+            shift 1
+        fi
 
-printf '\x1b[1m[16]\x1b[0m colors\n'
+        local -i colwidth=12
+        local -i halfwidth=6
+        if [[ $1 == '--width='* ]]; then
+            colwidth=${1#*=}
+            halfwidth=$((colwidth / 2))
+            shift 1
+        fi
 
-for i in {40..47} {100..107}; do
-    ((i == 100)) && echo
-    ((i > 99)) && printf '\x1b[1m' # TTY compatibility
-    printf "\x1b[%sm%-${column_width}s\x1b[0m" "$i" "$i"
-done
+        local -i iters=1
+        for i in "$@"; do
+            if [[ $i == *':'* ]]; then
+                bg=${i%:*}
+                fg=${i#*:}
+            else
+                bg=$i
+                fg=$white
+            fi
+            retstr+=("\e[0;1;48;5;${bg};38;5;${fg}m ${(l:3:: :)bg} ")
+            if ((${#retstr} == halfwidth)); then
+                retstr+=("\e[0m  ")
+            elif ((${#retstr} > colwidth)); then
+                print -f "\e[0m  ${(j..)retstr}\e[0m  \n"
+                retstr=()
+                if ((iters >= 3)); then
+                    iters=0
+                    print
+                fi
+                iters+=1
+            fi
+        done
+    }
+    HEADER_NEWLINE=$'\n'
+    _print_block --header='The 16 colors' --width=8 {0..8} {9..15}:$black
 
-printf '\n'
+    _print_block --header='the rest of the 255' \
+        {16..45} {46..51}:$black \
+        {52..75} {76..87}:$black \
+        {88..105} 1{06..23}:$black \
+        1{24..47} 1{48..59}:$black \
+        1{60..71} 1{72..95}:$black \
+        {196..207} 2{08..31}:$black
 
-#if [ "$(tput colors)" = 256 ]; then
-    printf '\n\x1b[1m[256]\x1b[0m colors\n'
-    for i in {0..255}; do
-        printf "\x1b[48;5;%sm%-${column_width}s\x1b[0m" "$i" "$i"
-        (($(($((i + 1)) % 8)) == 0)) && echo
+    unset HEADER_NEWLINE
+    _print_block --header='Grayscale' 2{32..43} 2{44..56}:$black
+}
+
+main() {
+    typeset -a colors tmpsel selection{1..4}
+
+    for i in {0..8} {9..15}:$black \
+            {16..45} {46..51}:$black \
+            {52..75} {76..87}:$black \
+            {88..105} 1{06..23}:$black \
+            1{24..47} 1{48..59}:$black \
+            1{60..71} 1{72..95}:$black \
+            {196..207} 2{08..31}:$black \
+            2{32..43} 2{44..56}:$black
+            do
+        if [[ $i == *':'* ]]; then
+            bg=${i%:*}
+            fg=${i#*:}
+        else
+            bg=$i
+            fg=$white
+        fi
+        colors+=("[0;1;38;5;${fg};48;5;${bg}m")
     done
-#fi
+
+    typeset -i iter{,two}=0
+
+    for i in ${(@)colors[1,8]}; do
+        selection1+=("${i} ${(l:2:: :)iter} (3${itertwo}) [0m")
+        iter+=1
+        itertwo+=1
+    done
+    itertwo=0
+
+    for i in ${(@)colors[9,16]}; do
+        selection1+=("${i} ${(l:2:: :)iter} (9${itertwo}) [0m")
+        iter+=1
+        itertwo+=1
+    done
+    itertwo=0
+
+    for i in ${(@)colors[17,124]}; do
+        tmpsel+=("${i} ${(l:3:: :)iter} ")
+        if ((itertwo == 5)); then
+            selection2+=("${(j..)tmpsel}[0m")
+            tmpsel=()
+            itertwo=0
+        else
+            itertwo+=1
+        fi
+        iter+=1
+    done
+    itertwo=0
+
+    for i in ${(@)colors[125,232]}; do
+        tmpsel+=("${i} ${(l:3:: :)iter} ")
+        if ((itertwo == 5)); then
+            selection3+=("${(j..)tmpsel}[0m")
+            tmpsel=()
+            itertwo=0
+        else
+            itertwo+=1
+        fi
+        iter+=1
+    done
+    itertwo=0
+
+    for i in ${(@)colors[233,256]}; do
+        selection4+=("${i} ${(l:3:: :)iter} [0m")
+        iter+=1
+    done
+
+    print -l '' \
+        '16 colors' \
+        '' \
+        ${(j..)selection1[1,8]} \
+        ${(j..)selection1[9,16]} \
+        '' \
+        '256 colors' \
+        ''
+
+    if ((${#selection2} == ${#selection3})); then
+        for ((i = 1; i <= ${#selection2}; i++)); do
+            print $selection2[$i] $selection3[$i]
+        done
+    else
+        print -l \
+            $selection2 \
+            '' \
+            $selection3
+    fi
+
+    print -l '' \
+        'Grayscale' \
+        '' \
+        ${(j..)selection4[1,12]} \
+        ${(j..)selection4[13,24]}
+}
+
+
+case "${1:-}" in
+--classic)
+    print -C $((LINES / 4)) "${(@f)$(for i in {0..255}; print -f "\e[1;48;5;${i};38;5;255m $i \e[0m\n")}"
+    ;;
+--tertiary)
+    main_old
+    ;;
+*)
+    main
+    ;;
+esac

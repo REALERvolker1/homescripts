@@ -134,6 +134,8 @@ colors[sud]=196
 
 set[sgr_full]='%k%f%b%u%s'
 set[sgr]='%k%f%b'
+# set[sgr_full]="$(printf '\e[0m')"
+# set[sgr]="${set[sgr_full]}"
 set[ansi]='8;5;'
 
 # distrobox -- $CONTAINER_ID
@@ -242,6 +244,8 @@ cat << EOF
 unsetopt single_line_zle
 setopt prompt_subst
 
+command -v stty || alias stty=true
+
 # important variables
 export VIRTUAL_ENV_DISABLE_PROMPT=1 # needed for proper python venv string
 declare -A __vlkprompt_internal=( \
@@ -299,7 +303,6 @@ zstyle ':vcs_info:git:*' formats ' %r ${icon[git]} '
 $(
     # zstyle ':vcs_info:git:*' actionformats ' %r '
 )
-
 __vlkprompt_internal[right_prompt]="%(${index[git]}V.${content[git_begin]}.)\\\${vcs_info_msg_0_}"
 RPROMPT="\${__vlkprompt_internal[right_prompt]}"
 $(
@@ -321,13 +324,19 @@ $(
     # %F{${txtcolor[l]}} Command '%B\\\${1:-}%b' not found! ${set[sgr]}${cfg[err]}${set[end]}${set[sgr]}")"
     #     return 127
     # }
+    #CNF_STRING="$(print -P "${set[sgr]}${cbg[sud]}${txc[d]} ${icon[err]} ERROR ${set[sgr]}${cfg[sud]}${cbg[err]}${set[end]}\
+#%F{${txtcolor[l]}} Command '%B\\\\\`%b' not found! ${set[sgr]}${cfg[err]}${set[end]}${set[sgr]}")"
 )
-CNF_STRING="$(print -P "${set[sgr]}${cbg[sud]}${txc[d]} ${icon[err]} ERROR ${set[sgr]}${cfg[sud]}${cbg[err]}${set[end]}\
-%F{${txtcolor[l]}} Command '%B\\\\\`%b' not found! ${set[sgr]}${cfg[err]}${set[end]}${set[sgr]}")"
-
 vcs_info || alias vcs_info=true
 
-__vlkprompt_precmd() {
+__vlkprompt_precmd() {$(
+    #    local stty="\\\$(stty --save)"
+    #if [[ \$stty != \${__vlkprompt_internal[stty]} ]]; then
+    #    __vlkprompt_internal[stty_prompt]='${cbg[sud]}${txc[l]} STTY DIFF '
+    #else
+    #    __vlkprompt_internal[stty_prompt]=''
+    #fi
+)
     local -i timer=\$((SECONDS - \${__vlkprompt_internal[old_time]}))
     if ((timer > ${MIN_TIMER_TIME_MINUS_ONE})); then
         local leading_zero timedisp timedisp_sm

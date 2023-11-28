@@ -92,6 +92,7 @@ panic( "Error, missing dependencies,", @faildeps ) unless ( !@faildeps );
 my $arg_update  = 0;
 my $arg_preview = 0;
 my $onlyshow    = "not-installed";
+my @queryarr;
 foreach (@ARGV) {
     if ( $_ eq '--update' or $_ eq '-u' ) {
         $arg_update = 1;
@@ -106,6 +107,10 @@ foreach (@ARGV) {
     }
     elsif ( $_ =~ /^-.*/ ) {
         panic( "Error, argument '$_' is not supported!", "", "Options:" );
+    }
+    else {
+        $_ =~ s/\'/\'\\\'\'/g;
+        push( @queryarr, $_ );
     }
 }
 refresh if ( !-e $PKGCACHEFILE ) or ( $arg_update == 1 );
@@ -152,8 +157,11 @@ open( FH, '>', "$PKGRUN" ) or die $!;
 print FH "$packagesfilestr\n";
 close(FH);
 
+my $querystr = '';
+$querystr = "-q '" . join( " ", @queryarr ) . "' " if ( defined $queryarr[0] );
+
 my $pkgsel =
-`fzf --ansi --preview="pacman -Si \\\$(echo {} | grep -oP '^[^/]+/\\K[^[:space:]]+')" --header='Use \e[1mTAB\e[0m to select multiple packages' --multi <'$PKGRUN'`;
+`fzf ${querystr} --ansi --preview="pacman -Si \\\$(echo {} | grep -oP '^[^/]+/\\K[^[:space:]]+')" --header='Use \e[1mTAB\e[0m to select multiple packages' --multi <'$PKGRUN'`;
 chomp($pkgsel);
 
 panic("No packages selected") unless ( $pkgsel ne "" );
