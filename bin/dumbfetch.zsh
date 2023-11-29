@@ -19,7 +19,7 @@ cachefile="$XDG_RUNTIME_DIR/zsh-dumbfetch-$XDG_SESSION_ID.cache"
         # get version numbers
         typeset -a karr=("${kern%%-*}")
 
-        matchstr="(XANMOD|ZEN|TKG|LQX|CACHY|CLEAR|NITRO|HARD|NEXT|RC|GIT)"
+        matchstr="(XANMOD|ZEN|TKG|LQX|CACHY|CLEAR|NITRO|HARD|NEXT|GIT)"
         # First, get the kernel name, and convert it to uppercase ':u'. Then, find all the text that matches
         # the expanded matchstr at the end. Invert the match with (M) so we only get the text that matched.
         # Use another (M) match, but this time match from the beginning. Since the last time was from the end,
