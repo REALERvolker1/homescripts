@@ -12,6 +12,7 @@ zstyle ':completion::complete:*'    use-cache           true
 zstyle ':completion:*:manuals'      separate-sections   true
 zstyle ':completion:*:*:*:*:processes' command "ps -e -u $USER -o pid,user,comm -w -w"
 zstyle ':completion:*'              use-cache on
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 #zstyle ':completion:*:*:cp:*' file-sort size
 
 # fzf completion config

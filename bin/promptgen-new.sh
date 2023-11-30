@@ -139,10 +139,13 @@ precmds[pwd]="__vlkprompt::precmd::dirtype() {
         psvar[${idx[wri]}]="\${__vlkprompt_internal[pwd_writable]}"
     else
         # need to re-run git/writable commands
-        local git_info=\"\${\${(M)\$(git config --get remote.origin.url 2>/dev/null|| :)%/*/*}#/}\"
+        # local git_info=\"\${\${(M)\$(git config --get remote.origin.url 2>/dev/null|| :)%/*/*}#/}\"
+        local git_info
+        git_info=\"\$(git config --get remote.origin.url 2>/dev/null | grep -oP '[^/.]+(?=.git|)$')\"
+        local gitret=\$?
         [[ -w \${PWD-} ]] && psvar[${idx[wri]}]=1
         # if it is a git repo, set contents to git
-        if [[ -n \${git_info-} ]]; then
+        if ((gitret)); then
             __vlkprompt_internal[pwd_contents]=\"${contents[git]}\"
             __vlkprompt_internal[right_prompt]=\"\${git_info}\"
         elif [[ -h \${PWD-} ]]; then

@@ -11,7 +11,7 @@ autostart-keyring.sh &
 autostart-polkit.sh &
 
 ydotoold &
-asusctl -c 80 &
+#asusctl -c 80 &
 
 # "$XDG_CONFIG_HOME/hypr/scripts/pluginload.sh" &
 #vlkbg.sh &

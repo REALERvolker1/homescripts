@@ -47,14 +47,23 @@ fn main() -> Result<(), io::Error> {
     //     println!("{}", i.unwrap().)
     // }
 
-    env::set_current_dir(&lsdiff_path)?;
-    let file_cmd = process::Command::new("lsd")
+    // env::set_current_dir(&lsdiff_path)?;
+    // let file_cmd = process::Command::new("lsd")
+    // .args([
+    // "--ignore-config",
+    // "-A1",
+    // "--group-directories-first",
+    // "--color=always",
+    // "--icon=always",
+    // ])
+    // .output()?
+    // .stdout;
+    let file_cmd = process::Command::new("eza")
         .args([
-            "--ignore-config",
-            "-A1",
+            "-AX1",
             "--group-directories-first",
+            "--icons=always",
             "--color=always",
-            "--icon=always",
         ])
         .output()?
         .stdout;

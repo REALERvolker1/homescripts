@@ -1,8 +1,0 @@
-[package]
-name = "lsprint"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-lscolors = { version = "0.15.0", features = ["nu-ansi-term"] }
-nu-ansi-term = "0.49.0"

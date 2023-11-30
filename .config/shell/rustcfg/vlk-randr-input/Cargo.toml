@@ -1,8 +1,0 @@
-[package]
-name = "vlk-randr-input"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-udev = "0.8.0"
-xcb = { version = "1.2.2", features = ["xinput"] }
