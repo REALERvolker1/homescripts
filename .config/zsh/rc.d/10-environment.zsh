@@ -36,8 +36,10 @@ SAVEHIST=50000
 HISTSIZE=60000
 READNULLCMD="${PAGER:-less}"
 
-PROMPT='%k%f
-%B %F{14}%~%f %(0?.%F{10}%#.%F{9}%? %#) %b%f'
+#PROMPT='%k%f
+#%B %F{14}%~%f %(0?.%F{10}%#.%F{9}%? %#) %b%f'
+PROMPT=$'%k%f\n%B %F{14}%~%f %(0?.%F{10}%#.%F{9}%? %#) %b%f'
+RPROMPT=
 ZLE_RPROMPT_INDENT=0
 PROMPT_EOL_MARK="${PROMPT_EOL_MARK:-}"
 TMPPREFIX="$XDG_RUNTIME_DIR/zsh"
@@ -46,12 +48,7 @@ KEYBOARD_HACK='\'
 
 export ZPLUGIN_DIR="$XDG_DATA_HOME/zsh-plugins"
 
-for i in "$ZDOTDIR/functions"/^*.zwc(.N); do
-    [[ -f "$i" ]] && autoload -Uz "$i"
-done
+for i in "$ZDOTDIR/functions"/^*.zwc(.N)
+    autoload -Uz $i
 
 chpwd_functions+=('__cd_ls')
-
-# __cd_ls() {
-
-# }

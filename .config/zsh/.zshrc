@@ -32,8 +32,7 @@ foreach i ("${ZDOTDIR:-~/.config/zsh}/rc.d"/*.zsh) {
 }
 unset i
 ((${+VLKZSH_RECOMPILE})) && echo "Recompiling..." && recompile >/dev/null
-# ((COLUMNS > 55)) && startup-print
-echo -en '\e[0H'
+echo -en '\e[0H' # clear the sccreen
 if ((COLUMNS > 55)) {
     dumbfetch
     fortune -a -s | lolcat

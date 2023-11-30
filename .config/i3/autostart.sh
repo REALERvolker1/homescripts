@@ -42,16 +42,18 @@ pointer.sh -n &
     xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 ) &
 
-#nm-applet &
+nm-applet &
+#firewall-applet &
 #flameshot &
 
 picom &
 #flashfocus &
 vlkbg.sh &
-(
-    # crashes all the time, doesn't like me very much but will bend to my will eventually
-    while :; do
-        autotiling-rs
-    done
-) &
+#(
+# crashes all the time, doesn't like me very much but will bend to my will eventually
+#    while :; do
+#        autotiling-rs
+#    done
+#) &
+autotiling-rs &
 #scratchpad_terminal.sh &

@@ -244,7 +244,7 @@ cat << EOF
 unsetopt single_line_zle
 setopt prompt_subst
 
-command -v stty || alias stty=true
+# command -v stty &>/dev/null || alias stty=true
 
 # important variables
 export VIRTUAL_ENV_DISABLE_PROMPT=1 # needed for proper python venv string

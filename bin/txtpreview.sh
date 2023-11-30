@@ -27,6 +27,15 @@ view_img() {
     chafa --format='symbols' --symbols all --animate=off "${1:-}"
 }
 
+view_markdown() {
+    [[ -t 0 ]] && return 1
+    if command -v glow &>/dev/null; then
+        glow "$@"
+    else
+        bat -l md "$@"
+    fi
+}
+
 tmpimg="$XDG_RUNTIME_DIR/tmp.jpg"
 
 find_deps
@@ -37,7 +46,8 @@ for i in "$@"; do
     fi
     i="$(realpath -e "$i")"
     ext="${i##*.}"
-    type="$(file -bL --mime-type "$i")"
+    filecmd="$(file -bLi "$i")"
+    type="${filecmd%%;*}"
 
     echo "$i"
 
@@ -65,39 +75,32 @@ for i in "$@"; do
         view_img "$i"
         ;;
     *)
-        case "${ext:-}" in
-        doc)
-            pandoc -f docx -t markdown "$i" | bat
-            ;;
-        odt | docx | org | rtf | html | epub | latex | textile | csv)
-            pandoc -f "$ext" -t markdown "$i" | bat
-            ;;
-        md)
-            bat "$i"
-            ;;
-        xls | xlsx | ods)
-            if depcheck in2csv; then
-                in2csv "$i" | pandoc -f csv -t plain -
-            else
-                stat "$i"
-            fi
-            ;;
-        *)
-            content="$(
-                if [[ "$type" == *'text'* ]]; then
-                    bat_content="$(bat --color=always --line-range=:200 "$i")"
-                    un_ansiid_bat_content="$(bat --color=always --line-range=:200 "$i" | sed "s/$(printf '\e\\[')[^m]*m//g")"
-                    if [[ "${un_ansiid_bat_content:-}" != '[bat warning]'* && "${un_ansiid_bat_content:-}" != '[bat error]'* ]]; then
-                        echo "$bat_content"
-                    fi
+        if [[ ${filecmd-} == *ascii || ${filecmd-} == *utf-8 ]]; then
+            case "${ext:-}" in
+            doc)
+                pandoc -f docx -t markdown "$i" | view_markdown
+                ;;
+            odt | docx | org | rtf | html | epub | latex | textile | csv)
+                pandoc -f "$ext" -t markdown "$i" | view_markdown
+                ;;
+            md)
+                bat "$i"
+                ;;
+            xls | xlsx | ods)
+                if depcheck in2csv; then
+                    in2csv "$i" | pandoc -f csv -t plain -
+                else
+                    echo -e "\e[1mNon-critical dependency 'in2csv' not found!\e[0m"
+                    stat "$i"
                 fi
-            )"
-            if [[ -z "${content:-}" || "${content:-}" == *"($$)"* ]]; then
-                content="$(stat "$i")"
-            fi
-            echo "$content"
-            ;;
-        esac
+                ;;
+            *)
+                view_markdown "$i"
+                ;;
+            esac
+        else
+            stat "$i"
+        fi
         ;;
     esac
 done

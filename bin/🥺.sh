@@ -1,0 +1,2 @@
+#!/usr/bin/dash
+echo 🥺

