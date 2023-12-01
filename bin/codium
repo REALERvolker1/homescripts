@@ -29,8 +29,8 @@ noinst() {
     echo 'Error,' "Could not find VSCodium installation"
     exit 1
 }
-
-#[[ -n ${WAYLAND_DISPLAY:-} ]] && codeargs+=(--enable-features=UseOzonePlatform --ozone-platform=wayland)
+# code-oss doesn't work with wayland
+[[ ${codecmd:-} == *codium && -n ${WAYLAND_DISPLAY:-} ]] && codeargs+=(--enable-features=UseOzonePlatform --ozone-platform=wayland)
 
 if [[ ! -x $codecmd ]]; then
     command -v flatpak &>/dev/null || noinst

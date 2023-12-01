@@ -16,45 +16,45 @@ order += "wireless _first_"
 order += "load"
 order += "memory"
 order += "volume master"
-order += "tztime local"
 order += "battery all"
+order += "tztime local"
 
 wireless _first_ {
-        format_up = "WLAN %bitrate"
-        format_down = "W"
+        format_up = "󰖩 %bitrate"
+        format_down = "󰖪 "
 
         format_bitrate = "%g %cb/s"
 }
 
 battery all {
-        format = "%status %percentage"
-        format_down = "NO BAT"
+        format = "%status %percentage (%consumption)"
+        format_down = "󱉞 "
         format_percentage = "%.00f%s"
         last_full_capacity = true
 
-        status_chr = "CHARGING"
-        status_bat = "BAT"
-        status_unk = "UNKNOWN"
-        status_full = "FULL"
+        status_chr = "󰂄"
+        status_bat = "󰁿"
+        status_unk = "󰂑"
+        status_full = "󰂏"
         low_threshold = 25
         threshold_type = percentage
 }
 
 load {
-        format = "LOAD %1min"
+        format = "󰍛 %1min"
 }
 
 volume master {
     device = "pulse"
-    format = "VOL: %volume"
-    format_muted = "MUTE"
+    format = "󰕾 %volume"
+    format_muted = "󰝟 "
 }
 
 memory {
-        format = "MEM %used (SHMEM %percentage_shared)"
+        format = "󰭰 %used (%percentage_shared shmem)"
         threshold_degraded = "25%"
         threshold_critical = "10%"
-        format_degraded = "LOW MEM (%used), AVAIL (%available)"
+        format_degraded = "󰍛 %used %available available"
         #color_good = "#00FF00"
         #color_degraded = "#FFFF00"
         #color_bad = "#FF0000"

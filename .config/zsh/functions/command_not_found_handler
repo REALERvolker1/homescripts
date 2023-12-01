@@ -42,7 +42,7 @@ if [[ ${ZSHRC_LOADED:-} == false ]]; then
 elif [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
     : # filter out non-interactive terminals
 elif command -v dnf &>/dev/null; then
-    internal::fmt::println --fg=255 --bg=52 "dnf is not implemented yet!"
+    internal::fmt::println --fg=255 --bg=52 "dnf is not implemented yet! look at https://command-not-found.com"
 elif command -v pacman pkgfile &>/dev/null && internal::fmt::prompt 'Search for packages providing the command?' 'Searching Packages'; then
     local -a packages=("${(@f)$(pkgfile -b $command || :)}")
     print -n '[2K\r'
@@ -76,6 +76,8 @@ elif command -v pacman pkgfile &>/dev/null && internal::fmt::prompt 'Search for 
     else
         internal::fmt::println --no-bold --fg=255 --bg=52 "No packages matching '%B${command}%b' found!"
     fi
+else
+    internal::fmt::println --fg=255 --bg=55 "Your package manager is not implemented yet! Try looking at https://command-not-found.com"
 fi
 
 print -n '[0m'

@@ -43,12 +43,13 @@ typeset -A icn=(
 
 typeset -A set=( [end]=  [end_r]=  [sgr]='[0m' )
 
+# VIRTUAL_ENV:t
 typeset -A strn=(
     [pwd]='%\$((COLUMNS / 2))<..<%~'
     [err]='%?'
     [job]='%j'
-    [vev]='\${__vlkprompt_internal[venv_str]}'
-    [con]='\${__vlkprompt_internal[conda_str]}'
+    [vev]='\${VIRTUAL_ENV##*/}'
+    [con]='\${CONDA_DEFAULT_ENV}'
     [dbx]='${CONTAINER_ID-}'
     [hos]="%(${idx[short]}V.%m.%M)"
 )
@@ -58,7 +59,7 @@ fmt_segment() {
     local endicon=$set[end]
     for i in "$@"; do
         i_val="${i#*=}"
-        case "${i:-}" in
+        case "${i:=}" in
         -bg=*) bgcolor="$i_val" ;;
         -tx=*) txtcolor="$i_val" ;;
         -icn=*) icon="$i_val" ;;
@@ -66,7 +67,7 @@ fmt_segment() {
         *) content="$i" ;;
         esac
     done
-    icon="${${icon:+$icon }:-}" # either ' ' or ''
+    icon="${${icon:+ $icon }:- }" # either '  ' or ' '
     txtcolor="[1;38;5;${txtcolor}m"
     if [[ -n ${short_content:=} ]]; then
 
@@ -77,7 +78,7 @@ fmt_segment() {
     # It prints the end icon because the previous module gave it its color. It gives its fg color to the next module to color in.
     # If there was any short content, then it will print the long content only if it is in long mode.
     # Otherwise, it checks for short content, and if there is none, then it will just print content regardless.
-    print "[48;5;${bgcolor}m%(${idx[short]}V.$txtcolor ${short_content:-}.${set[end]}$txtcolor $icon${short_content:+$content})${${short_content:+}:-$content} [0;38;5;${bgcolor}m"
+    print "[48;5;${bgcolor}m%(${idx[short]}V.$txtcolor ${short_content:-}.${set[end]}${txtcolor}${icon}${short_content:+$content})${${short_content:+}-$content} [0;38;5;${bgcolor}m"
 }
 
 typeset -A contents=(
@@ -92,26 +93,30 @@ typeset -A contents=(
 )
 
 typeset -A right_contents=(
-    [git]=
+    [git]="[38;5;${clr[git]}m${set[end_r]}[0;1;38;5;${clr[d]};48;5;${clr[git]}m \\\${__vlkprompt_internal[git_right_prompt]} ${icn[git]} [0m"
 )
 
 foreach i (err:l job:d vev:d con:d hos:l dbx:l) {
     key="${i%:*}"
     txt="${i##*:}"
-    contents[$key]="$(fmt_segment -bg=$clr[$key] -tx=$clr[$txt] -icn=$icn[$key] $strn[$key])"
+    contents[$key]="$(fmt_segment -bg=$clr[$key] -tx=$clr[$txt] -icn=$icn[$key] "${(q)strn[$key]}")"
 }
 
 contents[err]="%(0?..${contents[err]})"
 contents[job]="%(1j.${contents[job]}.)"
 contents[tim]="%(${idx[tim]}V.${contents[tim]}.)"
-contents[con]="%(${idx[con]}V.${contents[con]}.)"
-contents[vev]="%(${idx[vev]}V.${contents[vev]}.)"
+# contents[con]="%(${idx[con]}V.${contents[con]}.)"
+# contents[vev]="%(${idx[vev]}V.${contents[vev]}.)"
 
 contents[pwd]="%(${idx[vim]}V.${contents[vim]}.\\\${__vlkprompt_internal[pwd_str]})"
+contents[vev]='\${__vlkprompt_internal[venv_str]}'
+
+contents[vev_full]='\${__vlkprompt_internal[venv_str]}'
+contents[con_full]='\${__vlkprompt_internal[conda_str]}'
 
 declare -A precmds promptwidgets promptparts
 
-timefmt_ucpubg='[0;48;5;${clr[hos]};38;5;${clr[l]}m'
+timefmt_ucpubg="[0;48;5;${clr[hos]};38;5;${clr[l]}m"
 promptparts[timefmt]="[0;48;5;${clr[tim]};38;5;${clr[d]}m Command: [1m%J [0;38;5;${clr[tim]}m${set[end]}
 [0;48;5;${clr[cwd]};38;5;${clr[l]}m Elapsed time: [1m%*E [0;38;5;${clr[cwd]}m${set[end]}
 $timefmt_ucpubg user CPU time: [1m%U$timefmt_ucpubg \
@@ -129,7 +134,7 @@ declare -A vlkprompt_internals=(
     [old_time]=
     [timer_str]=
     [timer_str_small]=
-    [right_prompt]=
+    [git_right_prompt]=
     [tmpdir]='${TMPPREFIX:-${XDG_RUNTIME_DIR:-/tmp}}/vlkprompt-internal.zsh'
 )
 
@@ -147,7 +152,7 @@ precmds[pwd]="__vlkprompt::precmd::dirtype() {
         # if it is a git repo, set contents to git
         if ((gitret)); then
             __vlkprompt_internal[pwd_contents]=\"${contents[git]}\"
-            __vlkprompt_internal[right_prompt]=\"\${git_info}\"
+            __vlkprompt_internal[git_right_prompt]=\"\${git_info}\"
         elif [[ -h \${PWD-} ]]; then
             __vlkprompt_internal[pwd_contents]=\"${contents[lnk]}\"
         else
@@ -160,8 +165,7 @@ precmds[pwd]="__vlkprompt::precmd::dirtype() {
 
 precmds[vev]="__vlkprompt::precmd::venv() {
     if [[ -n \${VIRTUAL_ENV-} ]]; then
-        psvar[${idx[vev]}]=1
-        __vlkprompt_internal[venv_str]="\${VIRTUAL_ENV##*/}"
+        __vlkprompt_internal[venv_str]=\"${contents[vev]}\"
     fi
 }
 # needed for proper python venv string
@@ -170,8 +174,7 @@ precmd_functions+=('__vlkprompt::precmd::venv')"
 
 precmds[con]="__vlkprompt::precmd::conda() {
     if [[ -n \${CONDA_DEFAULT_ENV-} ]]; then
-        psvar[${idx[con]}]=1
-        __vlkprompt_internal[conda_str]="\${CONDA_DEFAULT_ENV}"
+        __vlkprompt_internal[conda_str]=\"${contents[con]}\"
     fi
 }
 precmd_functions+=('__vlkprompt::precmd::conda')"
@@ -253,7 +256,7 @@ promptwidgets[shortprompt]="__vlkprompt::widget::shortprompt() {
         [timer_str]=
         [timer_str_small]=
     )
-    RPROMPT="\${__vlkprompt_internal[right_prompt]}"
+    RPROMPT="\${__vlkprompt_internal[git_right_prompt]}"
     if ((ret)); then
         zle send-break
     else
@@ -280,31 +283,28 @@ type zsh-defer &>/dev/null || return"
 
 if ! command -v conda &>/dev/null; then
     echo "command 'conda' not found. Removing from prompt"
-    contents[con]=''
-    precmds[con]=''
+    contents[con]=
+    contents[con_full]=
+    precmds[con]=
 else
     vlkprompt_internals[conda_str]=
 fi
-if ! command -v pip &>/dev/null; then
-    echo "command 'pip' not found. Removing from prompt"
-    contents[vev]=''
-    precmds[vev]=''
+if ! python3 -m venv -h &>/dev/null; then
+    echo "Python venv support not found. Removing from prompt"
+    contents[vev]=
+    contents[vev_full]=
+    precmds[vev]=
 else
     vlkprompt_internals[venv_str]=
 fi
 
-# echo "
-# PROMPT=\"${set[sgr]}%(${idx[short]}V.."$'\n'")\${(j..)EXTRA}\
-# ${contents[con]:-}${contents[vev]:-}\"\
-# "
-
 promptparts[prompt]="PROMPT='${set[sgr]}%(${idx[short]}V..
 )\${__vlkprompt_internal[login_content]-}\${__vlkprompt_internal[host_content]-}\
-${contents[con]-}${contents[vev]-}\
+${contents[con_full]-}${contents[vev_full]-}\
 ${contents[tim]}${contents[job]}${contents[err]}\
 ${contents[pwd]}${contents[sud]}'"
 
-promptparts[rprompt]=
+promptparts[rprompt]="RPROMPT='${right_contents[git]}'"
 
-printf '\e[0m[%s] => %s\e[0m\n' "${(@kv)promptparts}" "${(@kv)contents}" # "${(@kv)promptwidgets}" "${(@kv)precmds}"
+printf '\e[0m[%s] => %s\e[0m\n' "${(@kv)promptparts}" "${(@kv)contents}" "${(@kv)right_contents}" # "${(@kv)promptwidgets}" "${(@kv)precmds}"
 # printf "\e[0m[%s] => %s${set[end]}\e[0m\n" "${(@kv)contents}"

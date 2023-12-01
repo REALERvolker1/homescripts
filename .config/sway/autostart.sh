@@ -8,22 +8,20 @@ xhost +local: &
 autostart-keyring.sh &
 autostart-polkit.sh &
 
-ydotoold &
-asusctl -c 80 &
+#ydotoold &
+#asusctl -c 80 &
 
-autostart-gammastep.sh &
+#autostart-gammastep.sh &
 dunst &
-# hyprpaper &
 
-nm-applet &
+#nm-applet &
 
-set-cursor-theme.sh --session &
-steam-symlink-unfucker.sh &
+#set-cursor-theme.sh --session &
+#steam-symlink-unfucker.sh &
 
-pointer.sh -n &
-pmgmt.sh --monitor &
-# scratchpad_terminal.sh &
+#pointer.sh -n &
+#pmgmt.sh --monitor &
 
 autostart-clipboard.sh &
-autotiling-rs &
+#autotiling-rs &
 scratchpad_terminal.sh &
