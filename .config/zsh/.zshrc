@@ -3,6 +3,7 @@
     return 1
     exit 1
 }
+echo -n '[H[2J' # clear the screen
 emulate -LR zsh
 set +euo pipefail
 ZSHRC_LOADED=false
@@ -32,7 +33,6 @@ foreach i ("${ZDOTDIR:-~/.config/zsh}/rc.d"/*.zsh) {
 }
 unset i
 ((${+VLKZSH_RECOMPILE})) && echo "Recompiling..." && recompile >/dev/null
-echo -en '\e[0H' # clear the sccreen
 if ((COLUMNS > 55)) {
     dumbfetch
     fortune -a -s | lolcat

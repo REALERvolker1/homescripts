@@ -85,13 +85,8 @@ alias reboot='systemctl reboot'
 alias logout="loginctl kill-session '$XDG_SESSION_ID'"
 
 alias rmf="$(command which rm) -rf"
-if command -v trash &>/dev/null; then
-    alias rm='trash -i -r'
-else
-    # TODO: make 'better-rm' actually better than rm
-    echo "trash command not installed! falling back to rm"
-    alias rm='rm -ri'
-fi
+#command -v trash &>/dev/null && alias rm='trash -i -r'
+alias rm='better-rm '
 # remove junk files
 for i in "$HOME/".{xsel.log,wget-hsts}; do
     [[ -e "$i" ]] && rmf "$i"
@@ -124,7 +119,8 @@ done
 alias chmodx='chmod +x' chmod-x='chmod -x'
 
 # TODO: Remove ~bin/$, as it is easier to run 'alias \$='''
-alias %="$__homebin/\$"
+# alias %="$__homebin/\$"
+alias {\$,%}=''
 
 alias copy="$__homebin/copy"
 alias copycat="$__homebin/copy --cat"
@@ -141,29 +137,55 @@ alias bap='bat --paging always'
 alias glop='glow --pager'
 alias bat{op,tio,io}=battop
 
-# TODO: migrate to whisper.cpp
-# OpenAI whisper -- run `pip install --user --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git` and `pip install --user blobfile`
-#command -v whisper &>/dev/null && alias whisp='whisper --language en --device cuda --model medium.en --output_format txt'
 alias record='pw-record --target "alsa_input.usb-ASUSTeK_COMPUTER_INC._C-Media_R__Audio-00.analog-stereo" '
 
-whisp() {
+whisp-py() {
+    # designed for use with openai whisper
+    # pip install --user --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git ; pip install --user blobfile
     local -a whispargs=(--language en --device cuda --model medium.en --output_format txt)
     echo "starting whisper with args '${whispargs[*]} $*'"
     whisper "${whispargs[@]}" "$@"
 }
+whisp() {
+    # designed for use with whisper.cpp
+    # https://github.com/ggerganov/whisper.cpp
+    local model="$HOME/random/whisper-cpp/ggml-medium.en.bin"
+    local file="${1-}"
+    file="$(realpath "$file" || :)"
+    local file_base="${file%/*}"
+    if [[ ! -f "$file" ]]; then
+        echo "Error, please input an audio file!"
+        return 1
+    fi
+    if [[ ! -f "${model-}" ]]; then
+        echo "Error, model '${model-}' does not seem to be installed!"
+        return 2
+    fi
+    if [[ ! -w "${file_base-}" ]]; then
+        echo "Error, file basepath '${file_base-}' is not writable!"
+        return 3
+    fi
+    # whisper.cpp is very picky about the wav format
+    local mydir="${XDG_CACHE_HOME:=$HOME/.cache}/whisp"
+    local myfile="$mydir/${file##*/}"
+    local oldpwd="${PWD:=$(pwd)}"
+    (
+        # make temporary cache dir
+        mkdir -p "$mydir"
+        builtin cd "$mydir"
+        # ffmpeg writes new file to temporary output myfile
+        command ffmpeg -i "$file" -acodec pcm_s16le -ar 16000 "$myfile"
+    ) || return
+    local -a whispargs=(--output-txt --print-colors --print-progress --language en --model "$model" -f "$myfile")
+    echo "starting whisper with args '${whispargs[*]} $*'"
+    whisper.cpp "${whispargs[@]}"
+    # remove temporary output file, move all other files
+    command rm "$myfile"
+    command mv -i "$mydir"/* "$file_base"
+    builtin cd "$oldpwd" || return
+    command rm -r "$mydir"
+}
 
-# TODO: just use gpt instead
-if [[ -d "$HOME/src/text-generation-webui" ]]; then
-    llama() {
-        local oldpwd="$PWD"
-        cd "$HOME/src/text-generation-webui" || return 1
-        conda activate textgen
-        python3 ./server.py --chat-buttons --model 'llama-2-13b-chat.Q5_K_M.gguf' --character 'Bob, the real boy'
-        conda deactivate
-        cd "$oldpwd" || return 1
-    }
-    alias textgen=llama
-fi
 #alias llama="cd $HOME/src/text-generation-webui && conda run -vvv -n textgen python ./server.py"
 
 alias download='curl -sfLO '
@@ -177,10 +199,7 @@ else
 fi
 
 alias diff=difft
-# command -v duf &>/dev/null && alias df=duf
-# command -v dutree &>/dev/null && alias du=dutree
-# TODO: make my own extract script
-command -v ouch &>/dev/null && alias extract='ouch decompress'
+# alias extract='ouch decompress'
 
 alias unfuck-old-backup='tar --hole-detection=seek --keep-directory-symlink -xzf '
 
@@ -196,21 +215,11 @@ alias fps='flatpak ps'
 
 alias wget='wget --show-progress'
 
-alias bg-gen='convert +append -resize x1080'
-alias ttymouse='sudo gpm -m /dev/input/mice -t imps2'
-
-# TODO: rename codium script to code
-alias code=codium
+# alias bg-gen='convert +append -resize x1080'
+# alias ttymouse='sudo gpm -m /dev/input/mice -t imps2'
 
 alias {{vi,iv}{m,},v}="$EDITOR"
-alias svim=sudoedit
 
-alias tmuxk='tmux kill-session -t'
-alias tmuxa='tmux attach -t'
-alias tmuxl='tmux list-sessions'
-
-# TODO: in my shell prompt, save and reset stty state after each command
-# Also: run 'cd .' to make sure I'm in the current directory to workaround a bug where removing and recreating a dir with the exact same name as CWD causes UB
 run-subshell() {
     local stty cmd
     [[ -t 0 ]] && stty="$(stty --save)"
@@ -296,7 +305,7 @@ alias flc='flatpak remote-ls --updates'
 
 if command -v pacman &>/dev/null; then
     alias unfuck-pacman-cache="sudo pacman -Qk | grep '[^0] missing files'"
-    alias paci='sudo pacman -S '
+    alias paci='sudo pacman -S --needed '
     alias pacr='sudo pacman -Rcs '
     alias pacl='pacman -Q | fzf'
     alias pacb='pacman -Fl | grep -E "\s+(${PATH//:\//|})" | fzf'

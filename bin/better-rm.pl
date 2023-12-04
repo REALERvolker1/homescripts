@@ -8,6 +8,7 @@ use Cwd 'abs_path';
 use POSIX qw(strftime);
 
 # use URI::Escape;
+die "Unfinished script!\n";
 
 sub prompt {
     print join( "\n", @_ ) . "\n";

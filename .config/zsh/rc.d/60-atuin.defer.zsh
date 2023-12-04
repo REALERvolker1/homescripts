@@ -3,7 +3,7 @@ autoload -U add-zsh-hook
 export ATUIN_SESSION=$(atuin uuid)
 _atuin_preexec() {
     local id
-    id="$(atuin history start -- "$1" || :)"
+    id=$(atuin history start -- "$1")
     export ATUIN_HISTORY_ID="$id"
 }
 _atuin_precmd() {
@@ -17,7 +17,7 @@ _atuin_search() {
     zle -I
     output=$(ATUIN_SHELL_ZSH=t ATUIN_LOG=error atuin search $* -i -- $BUFFER 3>&1 1>&2 2>&3)
     zle reset-prompt
-    if [[ -n ${output-} ]]; then
+    if [[ -n $output ]]; then
         RBUFFER=""
         LBUFFER=$output
     fi

@@ -9,7 +9,8 @@ if [ "${0##*/}" != dash ] || [ -n "${DASHRC_LOADED:-}" ] || [ "${-#*i}" = "$-" ]
     exit
 fi
 
-. ~/bin/vlkenv
+# no longer POSIX compliant
+#. ~/bin/vlkenv
 
 __lscmd="ls --color=auto --group-directories-first"
 
@@ -25,7 +26,7 @@ alias q=exit
 
 PS1='$(
     r="$?"
-    i="$(echo "$PWD" | sed "s|^$HOME|~|") \$"
+    i="$(pwd | sed "s|^$HOME|~|") \$"
     [ "$r" -ne 0 ] && i="[$r] $i"
     tput sgr0 ; tput bold
     echo -n "$i "

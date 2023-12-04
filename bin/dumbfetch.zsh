@@ -24,7 +24,7 @@ cachefile="$XDG_RUNTIME_DIR/zsh-dumbfetch-$XDG_SESSION_ID.cache"
         # the expanded matchstr at the end. Invert the match with (M) so we only get the text that matched.
         # Use another (M) match, but this time match from the beginning. Since the last time was from the end,
         # we will be left with the matched string.
-        karr+=(${(M)${(M)${kern:u}%%${~matchstr}*}##*${~matchstr}})
+        karr+=(${(M)${(M)${kern:u}%${~matchstr}*}##*${~matchstr}})
 
         [[ $kern == *(g14|rog)* ]] && karr+=(ROG) # Kernel with Asus-Linux patches
         [[ $kern == *lts* ]] && karr+=('(LTS)') # LTS kernel

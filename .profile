@@ -24,4 +24,5 @@ if [ "${-#*i}" != "$-" ]; then
 #    eval $(set-cursor-theme.sh --shell-eval)
 fi
 eval $(set-cursor-theme.sh --shell-eval)
+#printf '%s\n' '' "$(date +'%X %x')" '' "$(printenv)" >~/.logenv
 PROFILESOURCED=true

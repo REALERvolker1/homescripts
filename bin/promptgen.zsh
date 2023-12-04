@@ -338,6 +338,7 @@ __vlkprompt_precmd() {$(
     #else
     #    __vlkprompt_internal[stty_prompt]=''
     #fi
+    # Also: run 'cd .' to make sure I'm in the current directory to workaround a bug where removing and recreating a dir with the exact same name as CWD causes UB
 )
     local -i timer=\$((SECONDS - \${__vlkprompt_internal[old_time]}))
     if ((timer > ${MIN_TIMER_TIME_MINUS_ONE})); then

@@ -152,7 +152,7 @@
     "telemetry.telemetryLevel": "off",
     "code-runner.enableAppInsights": false,
     "workbench.settings.enableNaturalLanguageSearch": false,
-    "update.mode": "start",
+    "update.mode": "manual",
     "extensions.autoUpdate": "onlyEnabledExtensions",
     "python.experiments.optOutFrom": ["All"],
     "workbench.commandPalette.experimental.suggestCommands": true,

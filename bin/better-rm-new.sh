@@ -70,44 +70,116 @@ urlencode() {
 
 _delete_forever() {
     local filepath="${1:?Error, please select file to add to trash!}"
-    if _prompt "Delete filepath '$filepath' forever? (a really long time)"; then
-        echo deleting
+    local -i confirm=0
+    [[ "${2-}" == --confirm ]] && confirm=1
+    if ((confirm)) || _prompt "Delete filepath '$filepath' forever? (a really long time)"; then
+        echo "Deleting --- $filepath"
+        rm -rf "$filepath"
     else
         echo "Skipping ---"
         return
     fi
 }
 
+# _send_trash() {
+#     local filepath="${1:?Error, please select file to add to trash!}"
+
+#     # xdg says if you don't have it in your $HOME, it can't be removed
+#     if [[ "${filepath:-}" != "${HOME:-}"* ]]; then
+#         echo "Error, could not trash file path '$filepath'!"
+#         _delete_forever "$filepath"
+#         return
+#     elif _prompt "Trash filepath '$filepath'?"; then
+#         local filepath_urlencode deletedate
+#         # required for trashinfo spec
+#         # reference: https://github.com/andreafrancia/trash-cli/blob/master/trashcli/put/format_trash_info.py
+#         filepath_urlencode="$(
+#             IFS='/'
+#             for i in $filepath; do
+#                 [[ -z $i ]] && continue
+#                 printf '/'
+#                 urlencode "$i"
+#             done
+#         )"
+#         printf -v deletedate "%(%Y-%m-%dT%H:%M:%S)T\n" -1
+
+#         local ogfp="${filepath##*/}"
+#         local target="$TRASHDIR/files/$ogfp"
+#         local infotarget="${TRASHDIR}/info/$ogfp"
+#         local potential_target
+#         local potential_infotarget
+#         local -i iter=0
+#         while [[ -e "${infotarget-}" && -e "${target-}" ]]; do
+#             iter=$((iter + 1))
+#             potential_target="${target} ($iter)"
+#             potential_infotarget="${infotarget} ($iter)"
+#         done
+#         infotarget="${potential_infotarget}.trashinfo"
+#         target="$potential_target"
+
+#         echo "$filepath $deletedate"
+
+#         if mv "$filepath" "$target"; then
+#             printf '%s\n' \
+#                 '[Trash Info]' \
+#                 "Path=$filepath_urlencode" \
+#                 "DeletionDate=$deletedate" >"$infotarget"
+#         else
+#             echo "Error trashing file"
+#         fi
+#     else
+#         echo "Skipping ---"
+#         return
+#     fi
+# }
+
+# I don't trust myself to implement the trash function properly in shell
 _send_trash() {
     local filepath="${1:?Error, please select file to add to trash!}"
+    local -i confirm=0
+    [[ "${2-}" == --confirm ]] && confirm=1
 
     # xdg says if you don't have it in your $HOME, it can't be removed
     if [[ "${filepath:-}" != "${HOME:-}"* ]]; then
         echo "Error, could not trash file path '$filepath'!"
         _delete_forever "$filepath"
         return
-    elif _prompt "Trash filepath '$filepath'?"; then
-        local filepath_urlencode deletedate
-        # required for trashinfo spec
-        # reference: https://github.com/andreafrancia/trash-cli/blob/master/trashcli/put/format_trash_info.py
-        filepath_urlencode="$(
-            IFS='/'
-            for i in $filepath; do
-                printf '/'
-                urlencode "$i"
-            done
-        )"
-        printf -v deletedate "%(%Y-%m-%dT%H:%M:%S)T\n" -1
 
-        echo "$filepath $filepath_urlencode $deletedate"
-        echo "[Trash Info]
-Path=$filepath_urlencode
-DeletionDate=$deletedate" #>"${TRASHDIR}/info/${filepath_urlencode}"
+    elif ((confirm)) || _prompt "Trash filepath '$filepath'?"; then
+        if ((HAS_TRASH_CLI)); then
+            echo "Trashing --- $filepath"
+            trash -f "$filepath"
+        elif [[ -z ${DUMB_TRASH_DIR-} || ! -d ${DUMB_TRASH_DIR-} ]]; then
+            _panic "FATAL ERROR!!! \$DUMB_TRASH_DIR has either been moved, or lost its value!" \
+                'You should NEVER see this error. If you do, your computer is probably fucked'
+        else
+            echo "Moving to fallback trash --- $filepath"
+            mv -i "$filepath" "$DUMB_TRASH_DIR"
+        fi
+
     else
         echo "Skipping ---"
         return
     fi
 }
+declare -i HAS_TRASH_CLI=0
+if command -v trash &>/dev/null; then
+    HAS_TRASH_CLI=1
+else
+    DUMB_TRASH_DIR="${XDG_CACHE_HOME:=$HOME/.cache}/dumb-trash-dir"
+    echo "Error, 'trash-cli' was not found! Falling back to dumb trash! ($DUMB_TRASH_DIR)"
+    mkdir -p "$DUMB_TRASH_DIR" || exit
+    HAS_TRASH_CLI=0
+fi
+if command -v lscolors &>/dev/null; then
+    __colorize() {
+        lscolors "$@"
+    }
+else
+    __colorize() {
+        ls --color=always -Ad "$@"
+    }
+fi
 
 # box-drawing characters, powerline characters, and some other nerd font icons, useful for output
 #╭─┬─╮│    󰀄  󰕈
@@ -141,7 +213,7 @@ _addfile() {
     fi
 }
 
-declare -i TRASH=1
+declare -i TRASH=32
 declare -i STOP_ARGSPARSE=0
 
 for i in "$@"; do
@@ -182,7 +254,29 @@ done
 ((${#errors[@]})) && _panic 'Error, could not find files:' "${errors[@]}"
 ((${#files[@]})) || _panic "Error, please select files to add to trash!"
 
-if ((TRASH)); then
+if ((TRASH == 32)); then
+    echo "case-insensitive options:"
+    for i in "${files[@]}"; do
+        unset ans
+        printf '%s\n' \
+            '' \
+            "What do you want to do with this file?" \
+            "$(__colorize "$i")" \
+            ''
+        printf '%s: %s\n' \
+            T Trash \
+            D Delete \
+            S Skip \
+            Q Quit
+        read -r -p '[t/d/S/q] > ' ans
+        case "${ans-}" in
+        [Tt]) _send_trash "$i" --confirm ;;
+        [Dd]) _delete_forever "$i" --confirm ;;
+        [Ss] | '') echo "Skipping ---" && continue ;;
+        [Qq]) echo "Quitting ---" && exit ;;
+        esac
+    done
+elif ((TRASH)); then
     for i in "${files[@]}"; do
         _send_trash "$i"
     done

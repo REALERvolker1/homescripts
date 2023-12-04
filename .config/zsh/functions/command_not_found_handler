@@ -4,6 +4,10 @@ shift 1
 
 local LF=$'\n'
 
+internal::ask4search() {
+    internal::fmt::prompt 'Search for packages providing the command?' 'Searching Packages'
+}
+
 internal::fmt::prompt() {
     local question="$1"
     local searchingstr="$2"
@@ -41,20 +45,51 @@ if [[ ${ZSHRC_LOADED:-} == false ]]; then
     print "$command '${(j:' ':)@}'" >>"$HOME/.zsh-faildeps" # (j: :) bypasses IFS, more reliable than $*
 elif [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
     : # filter out non-interactive terminals
-elif command -v dnf &>/dev/null; then
-    internal::fmt::println --fg=255 --bg=52 "dnf is not implemented yet! look at https://command-not-found.com"
-elif command -v pacman pkgfile &>/dev/null && internal::fmt::prompt 'Search for packages providing the command?' 'Searching Packages'; then
+elif command -v dnf &>/dev/null && internal::ask4search; then
+    # internal::fmt::println --fg=255 --bg=52 "dnf is not implemented yet! look at https://command-not-found.com"
+    local -a packages=("${(@f)$(dnf repoquery --qf "%{reponame}\t%{name}\t%{version}" --latest-limit 1 --whatprovides /usr/bin/$command 2>/dev/null || :)}")
+    ((${#packages[1]})) || packages=("${(@f)$(dnf repoquery --qf "%{reponame}\t%{name}\t%{version}" --latest-limit 1 --whatprovides $command 2>/dev/null || :)}")
+    print -n '[2K\r'
+    if [[ -n ${packages[1]-} ]]; then
+        internal::fmt::println --fg=255 --bg=31 'Available packages'
+        local i bgc fgc repo pkg vrsn
+        for i in $packages[@]; do
+            # [[ -z ${i:-} || ${i:-} != *'/'* ]] && print $i && continue
+            repo="${i%%$'\t'*}"
+            pkg="${i#*$'\t'}"
+            pkg="${pkg%$'\t'*}"
+            vrsn="${i##*$'\t'}"
+            case $repo in
+                fedora) bgc=17 fgc=75 ;;
+                updates) bgc=82 fgc=22 ;;
+                terra) bgc=117 fgc=21 ;;
+                charm) bgc=171 fgc=255 ;;
+                'fedora-cisco-openh264') bgc=51 fgc=23 ;;
+                'rpmfusion-free') bgc=40 fgc=22 ;;
+                'rpmfusion-free-updates') bgc=46 fgc=22 ;;
+                'rpmfusion-free-tainted') bgc=52 fgc=196 ;;
+                'rpmfusion-nonfree') bgc=94 fgc=175 ;;
+                'rpmfusion-nonfree-updates') bgc=166 fgc=185 ;;
+                'rpmfusion-nonfree-tainted') bgc=52 fgc=196 ;;
+                *) bgc=250 fgc=235 ;;
+            esac
+            internal::fmt::println --no-newline --fg=$fgc --bg=$bgc --nxtbg=$fgc $repo
+            internal::fmt::println --no-newline --fg=$bgc --bg=$fgc --nxtbg=$bgc $pkg
+            internal::fmt::println --fg=$fgc --bg=$bgc $vrsn
+        done
+    else
+        internal::fmt::println --no-bold --fg=255 --bg=52 "No packages matching '%B${command}%b' found!"
+    fi
+elif command -v pacman pkgfile &>/dev/null && internal::ask4search; then
     local -a packages=("${(@f)$(pkgfile -b $command || :)}")
     print -n '[2K\r'
     if [[ -n ${packages[1]-} ]]; then
         internal::fmt::println --fg=255 --bg=31 'Available packages'
         local i bgc fgc repo pkg
-        # local -a pkgs=()
         for i in $packages[@]; do
             [[ -z ${i:-} || ${i:-} != *'/'* ]] && print $i && continue
             repo="${i%%/*}"
             pkg="${i#*/}"
-            # pkgs+=("$repo/$pkg")
             case $repo in
                 core) bgc=226 fgc=17 ;;
                 extra) bgc=82 fgc=22 ;;
@@ -67,17 +102,11 @@ elif command -v pacman pkgfile &>/dev/null && internal::fmt::prompt 'Search for 
             internal::fmt::println --no-newline --fg=$fgc --bg=$bgc --nxtbg=$fgc $repo
             internal::fmt::println --fg=$bgc --bg=$fgc $pkg
         done
-        # if internal::fmt::prompt 'Want to install the package?' 'Installing...'; then
-        #     select i in $pkgs; do
-        #         echo $i
-        #         break
-        #     done
-        # fi
     else
         internal::fmt::println --no-bold --fg=255 --bg=52 "No packages matching '%B${command}%b' found!"
     fi
-else
-    internal::fmt::println --fg=255 --bg=55 "Your package manager is not implemented yet! Try looking at https://command-not-found.com"
+# else
+    # internal::fmt::println --fg=255 --bg=55 "Your package manager is not implemented yet! Try looking at https://command-not-found.com"
 fi
 
 print -n '[0m'

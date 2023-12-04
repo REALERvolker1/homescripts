@@ -101,12 +101,12 @@ fi;\
 "
 
 if cmd distrobox; then
-    # boxes="$(distrobox ls --no-color 2>/dev/null | grep -v '^ID' | cut -d '|' -f 2 | sed 's/[[:blank:]]//g')"
-    boxes="$(distrobox-ls --no-color 2>/dev/null | sed -z 's/^ID[^\n]*\n//; s/[[:blank:]]//g' | cut -d '|' -f 2 || :)"
-    for i in $boxes; do
-        _head "Distrobox '$i'"
-        unsafe distrobox-enter -n "$i" -- /bin/sh -c "$distrobox_script"
-    done
+    distrobox upgrade --all
+    #boxes="$(distrobox-ls --no-color 2>/dev/null | sed -z 's/^ID[^\n]*\n//; s/[[:blank:]]//g' | cut -d '|' -f 2 || :)"
+    #for i in $boxes; do
+    #    _head "Distrobox '$i'"
+    #    unsafe distrobox-enter -n "$i" -- /bin/sh -c "$distrobox_script"
+    #done
 fi
 
 if cmd flatpak; then

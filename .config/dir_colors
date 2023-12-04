@@ -191,6 +191,7 @@ EXEC 01;38;5;46 # files with execute permission
 .amd64 38;5;52
 .i686 38;5;52
 .service 38;5;52
+*passwd 38;5;52
 
 # image formats
 .avif 38;5;135 # AV1-codec image
@@ -336,6 +337,7 @@ EXEC 01;38;5;46 # files with execute permission
 
 # git stuff
 .gitattributes 38;5;91
+.gitconfig 38;5;91
 .gitmodules 38;5;91
 .editorconfig 38;5;91 # Editorconfig for syncing editor settings
 .git 38;5;91
@@ -371,6 +373,8 @@ EXEC 01;38;5;46 # files with execute permission
 .sock 38;5;238 # "socket" file
 .history 38;5;238
 .mask 38;5;238
+*shadow 38;5;238
+
 #.trashinfo 38;5;238 # trash information file
 .zcompdump 38;5;238 # zsh completion
 .bash_history 38;5;238
@@ -459,6 +463,7 @@ EXEC 01;38;5;46 # files with execute permission
 .toml 38;5;116 # rust Cargo.toml language
 .ron 38;5;116 # rusty object notation
 .ini 38;5;116 # key=value config with headers that look like [this]
+.ind 38;5;116
 .json 38;5;116 # json
 .jsonc 38;5;116 # json but with comments
 .jsonld 38;5;116 # json
@@ -602,6 +607,7 @@ EXEC 01;38;5;46 # files with execute permission
 .dash 38;5;71 # Debian Almquist shell script
 .bash 38;5;71 # Bruh Almighty shell script
 .ksh 38;5;71 # Kornography shell script
+.rksh 38;5;71 # Kornography shell script
 .csh 38;5;70 # A crime against humanity
 .tcsh 38;5;70 # A slightly less awful crime against humanity
 .zsh 38;5;71 # Hello, my name is ${(M)array:#${~${(O@)array//?/?}[1]}}, nice to meet you
@@ -614,6 +620,15 @@ EXEC 01;38;5;46 # files with execute permission
 .sh-session 1;38;5;71 # Shell session
 *-bash 38;5;34 # Something related to bash
 *-zsh 38;5;34 # Something related to zsh
+.zshrc 1;38;5;113
+*bashrc 1;38;5;113
+.profile 1;38;5;113
+.bash_profile 1;38;5;113
+*bash_logout 1;38;5;113
+*zprofile 1;38;5;113
+*zshenv 1;38;5;113
+*zlogout 1;38;5;113
+*zlogin 1;38;5;113
 
 # script
 .pl 38;5;67 # perl scripts
@@ -683,6 +698,7 @@ EXEC 01;38;5;46 # files with execute permission
 # shitty proprietary
 .swf 38;5;196 # Adobe Flash Script
 .swift 38;5;196 # Apple programming language
+.applescript 38;5;196 # Apple programming language
 .m 38;5;196 # Apple Objective-C
 .mm 38;5;196 # Apple Objective-C++
 .matlab 38;5;196 # MATLAB code
@@ -717,6 +733,7 @@ EXEC 01;38;5;46 # files with execute permission
 # asm
 .s 38;5;107 # generic source code (assembly?)
 .S 38;5;107 # SOARSE COD
+.as 38;5;107 # assembly src
 .asm 38;5;107 # assembly src
 .a51 38;5;107 # A51 Assembler src
 .nasm 38;5;107 # Netwide Assembler src
@@ -784,6 +801,7 @@ EXEC 01;38;5;46 # files with execute permission
 .nim 38;5;142 # Nim-lang source code
 .cr 38;5;142 # Crystal lang source code
 .nix 38;5;142 # Nix Package Manager script
+.flake 38;5;142 # Nix flake
 .ch 38;5;142 # Clipper lang header, as well as chroma file
 .apl 38;5;142 # APL source code
 .ahk 38;5;142 # AutoHotKey script
@@ -793,6 +811,7 @@ EXEC 01;38;5;46 # files with execute permission
 .ex 38;5;142 # Euphoria code
 .exs 38;5;108 # Elixir code
 .elm 38;5;108 # ELM code
+.elc 38;5;108 # ELM code
 .erl 38;5;105 # Erlang
 .jade 38;5;105 # Jade
 .j 38;5;105 # Jasmine
@@ -812,6 +831,8 @@ EXEC 01;38;5;46 # files with execute permission
 .emberscript 38;5;202 # emberscript
 .io 38;5;105
 .ios 38;5;105
+.bbl 38;5;105
+.arj 38;5;105
 
 # https://github.com/REALERvolker1/homescripts
 # Javascript
@@ -981,9 +1002,13 @@ EXEC 01;38;5;46 # files with execute permission
 .mk 38;5;202 # Makefile
 .mak 38;5;184 # Makefile
 .replit 38;5;91 # config for replit code platform
-*Makefile 38;5;202 # GNU Makefile
-*makefile 38;5;202
-*MAKEFILE 38;5;202
+*Makefile 1;38;5;202 # GNU Makefile
+*makefile 1;38;5;202
+*MAKEFILE 1;38;5;202
+*Makefile.am 1;38;5;202
+*Makefile.in 1;38;5;202
+*package.json 38;5;202
+*package-lock.json 38;5;238
 
 # DOCUMENT {{{
 # LaTeX
@@ -998,6 +1023,9 @@ EXEC 01;38;5;46 # files with execute permission
 
 .md 38;5;159 # markdown
 .MD 38;5;159 # MARKDOWN
+*README 1;38;5;159
+*README.md 1;38;5;159
+*readme 1;38;5;159
 .markdown 38;5;159 # markdown
 .cat 38;5;159 # some doc format
 .rtf 38;5;159 # rich text
@@ -1017,6 +1045,7 @@ EXEC 01;38;5;46 # files with execute permission
 .doc 38;5;27 # ms word doc legacy
 .pptx 38;5;202 # ms powerpoint
 .ppt 38;5;202 # ms powerpoint legacy
+.pps 38;5;202
 .xlsx 38;5;34 # excel
 .xls 38;5;34 # excel legacy
 .dot 38;5;27 # ms word document template
@@ -1028,12 +1057,19 @@ EXEC 01;38;5;46 # files with execute permission
 .otf 38;5;159 # opentype font
 .psf 38;5;159 # console font (or photoshop proof)
 .fnt 38;5;159 # random ass font format
+.fon 38;5;159 # random ass font format
 .eot 38;5;159 # embedded opentype font
 .woff 38;5;159 # web font
 .woff2 38;5;159 # web font 2 electric boogaloo
 .afm 38;5;159 # Adobe font metrics
 
 *LICENSE 38;5;192 # license
+*CODEOWNERS 38;5;192 # owners
+*CONTRIBUTORS 38;5;192 # contributors
+*COPYING 38;5;192
+*COPYRIGHT 38;5;192
+*MANIFEST.in 38;5;192
+*TODO 38;5;192
 
 # manpages
 .man 38;5;158
