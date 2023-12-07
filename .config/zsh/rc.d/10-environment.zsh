@@ -31,7 +31,8 @@ export -U XDG_DATA_DIRS
 export -U chpwd_functions
 export -U precmd_functions
 
-HISTFILE="$XDG_STATE_HOME/zshist"
+# prevent all those pacman commands from showing up in my fedora machine history
+[[ -z ${DISTROBOX_ENTER_PATH-} ]] && HISTFILE="$XDG_STATE_HOME/zshist"
 SAVEHIST=50000
 HISTSIZE=60000
 READNULLCMD="${PAGER:-less}"

@@ -3,7 +3,7 @@
 boxcolor="[0;38;5;$((RANDOM % 255))m"
 cachefile="$XDG_RUNTIME_DIR/zsh-dumbfetch-$XDG_SESSION_ID.cache"
 [[  "${1:-}" == '--no-cache' || ! -f $cachefile ]] && (
-        print caching >&2
+        #print caching >&2
         # run command, then get all unique (u) values after "Use%". split into array with newlines (f)
         print ${(f)${(u)$(df -h -l -t btrfs -t xfs -t ext4 -t exfat --output=pcent)#Use%}}
 

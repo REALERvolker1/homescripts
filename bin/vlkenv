@@ -125,12 +125,16 @@ if [[ -z ${XDG_SESSION_ID-} ]]; then
 fi
 
 # set LS_COLORS
-if [[ -z ${EXPORTED_LS_COLORS-} || -z ${LS_COLORS-} ]]; then
-    __dircolor_cache="$XDG_RUNTIME_DIR/dircolors.cache"
+__dircolor_cache="$XDG_RUNTIME_DIR/dircolors.cache"
+#if [[ -f "$__dircolor_cache" && -n ${EXPORTED_LS_COLORS-} && -n ${LS_COLORS-} ]]; then
+    #export LS_COLORS
+#else
     if [[ ! -f "$__dircolor_cache" ]]; then
         for i in {"${XDG_CONFIG_HOME:=$HOME/.config}",$HOME}/{,.}dir_colors; do
             if [[ -r $i ]]; then
-                dircolors --sh "$i" >"$__dircolor_cache" && break
+                dircolors --sh "$i" | sed 's/^ex.*$// ; s/^LS/export LS/' >"$__dircolor_cache" && break
+                [[ -n ${ZSH_VERSION-} ]] && zcompile "$i"
+                break
             fi
         done
     fi
@@ -142,8 +146,8 @@ if [[ -z ${EXPORTED_LS_COLORS-} || -z ${LS_COLORS-} ]]; then
     else
         echo "Error loading dircolors cache!"
     fi
-    unset __dircolor_cache
-fi
+#fi
+unset __dircolor_cache
 
 if [[ ${EDITOR-} != nvim ]]; then
     # unset EDITOR
@@ -325,7 +329,6 @@ dir_pref_before=(
 )
 dir_pref_after=(
     /usr{/local,}/bin
-    /opt/anaconda/bin
 )
 essentials='/usr/bin'
 INIT_PATH="${PATH-}"
@@ -337,9 +340,7 @@ dir_pref_before=(
 )
 dir_pref_after=(
     /usr{/local,}/share
-    /opt/anaconda/share
 )
-#essentials='/usr/share'
 # I have zero trust when it comes to this shit
 #essentials='/var/lib/flatpak/exports/share:/usr/local/share:/usr/share'
 essentials=/usr/share

@@ -1,4 +1,6 @@
-# vim:ft=sh
+# vim:ft=zsh
+emulate -L zsh
+setopt EXTENDED_GLOB
 
 local -a plugins
 local i
@@ -12,17 +14,20 @@ if command -v atuin &>/dev/null; then
     ) >"$ZDOTDIR/rc.d/60-atuin.defer.zsh"
 fi
 
-# for i in "$ZDOTDIR/rc.d/"*.zsh; do
-#     plugins+=("$i")
-# done
 plugins+=(
-    "$ZDOTDIR/rc.d/"*.zsh
+    "$ZDOTDIR/rc.d/"*.zsh(.N)
     "$ZDOTDIR/.zshrc"
     "$ZDOTDIR/.zshenv"
     "$ZDOTDIR/.zprofile"
+    # plugins
+    "$ZPLUGIN_DIR/fzf-tab/"fzf-tab.zsh
+    "$ZPLUGIN_DIR/fzf-tab/lib/"^*.zwc(.N)
+    "$ZPLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
+    # I kept getting file write errors
+    #"$ZPLUGIN_DIR/fast-syntax-highlighting/→chroma/"^*.zwc(.N)
 )
 
 foreach i ($plugins) {
-    [ -f "$i.zwc" ] && command -p rm -f "$i.zwc" && print -P "%F{9}Removed %B${i}.zwc%b%f"
-    [ -f "$i" ] && zcompile "$i" && print -P "%F{10}Compiled %B${i}%b%f"
+    [[ -f "$i.zwc" ]] && command -p rm -f "$i.zwc" && print -P "%F{9}Removed %B${i}.zwc%b%f"
+    [[ -f $i ]] && zcompile -Uz "$i" && print -P "%F{10}Compiled %B${i}%b%f"
 }

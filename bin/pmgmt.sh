@@ -13,7 +13,8 @@ ac_command_center() {
     echo "$1"
     if [ "$1" = true ]; then
         light -Srs "$KEYBOARD_PATH" 3
-        light -S 80
+        #light -S 80
+        brightnessctl s '80%'
         powerprofilesctl set performance
         asusctl bios -O true
         #nvidia-smi dmon -d 5 &>/dev/null &
@@ -24,7 +25,8 @@ ac_command_center() {
 
     elif [ "$1" = false ]; then
         light -Srs "$KEYBOARD_PATH" 1
-        light -S 40
+        #light -S 40
+        brightnessctl s '40%'
         powerprofilesctl set balanced
         asusctl bios -O false
     fi

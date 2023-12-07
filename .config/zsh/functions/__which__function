@@ -1,0 +1,103 @@
+# __which() {
+#     local shell_junk output i
+#     shell_junk="$(alias && declare -f)"
+#     local -a which_output
+#     for i in "$@"; do
+#         output="$(command which --tty-only --read-alias --read-functions --show-tilde --show-dot "$i" <<<"$shell_junk")"
+#         if [[ -L "${output:-}" ]]; then
+#             echo "$output => [1;96m$(realpath "$output")[0m" # 
+#         else
+#             which_output+=("$output")
+#         fi
+#     done
+#     if command -v bat &>/dev/null; then
+#         printf '%s\n' "${which_output[@]}" | bat -l sh
+#     else
+#         printf '%s\n' "${which_output[@]}"
+#     fi
+# }
+
+emulate -L zsh
+
+oldifs="${IFS-}"
+IFS=$'\n\t'
+
+local -a colorcmd
+local -a batcmd
+# fall back if we don't have the required deps
+if ((${+commands[lscolors]})); then
+    colorcmd=("${commands[lscolors]}")
+elif ((${+commands[ls]})); then
+    colorcmd=("${commands[ls]}" --color=always -d)
+else
+    builtin whence -ca "$@"
+    builtin return $?
+fi
+if ((${+commands[bat]})); then
+    batcmd=("${commands[bat]}" -l sh)
+elif ((${+commands[tee]})); then
+    batcmd=("${commands[tee]}")
+else
+    builtin whence -ca "$@"
+    builtin return $?
+fi
+
+local line i cmd type i_tmp cmdroot color scalar_arr
+local -a output
+local -a all_elements
+
+builtin whence -w "$@" | while builtin read -r line; do
+    output=()
+    cmd="${line%: *}"
+    type="${line##*: }"
+
+    case "$type" in
+    'alias')
+        color=96
+        scalar_arr=$aliases[$cmd]
+        cmdroot="${scalar_arr%% *}"
+
+        output+=("${(@f)$(builtin print -l "$cmd='$scalar_arr'" | $batcmd)}")
+
+        ((${+commands[$cmdroot]})) && output+=("${(@f)$($colorcmd "${(@f)$(whence -pa "${cmdroot}")}")}")
+        ((${+commands[$cmd]})) && output+=("${(@f)$($colorcmd "${(@f)$(whence -pa "${cmd}")}")}")
+
+        ((${+functions[$cmdroot]})) && output+=("${(@f)$(builtin whence -x 4 -f "$cmdroot" | $batcmd)}")
+        ((${+functions[$cmd]})) && output+=("${(@f)$(builtin whence -x 4 -f "$cmd" | $batcmd)}")
+
+        ;;
+    'command')
+        color=92
+        scalar_arr=$commands[$cmd]
+        i_tmp="$(builtin whence -S "$cmd")"
+        if [[ $i_tmp != $scalar_arr ]]; then
+            output+=("${(j. -> .)${(@f)$($colorcmd "${(s. -> .)i_tmp}")}}")
+        else
+            output+=("$($colorcmd "$scalar_arr")")
+            while builtin read -r i; do
+                [[ $i != $scalar_arr ]] && output+=("[0;2m${i}[0m")
+            done < <(builtin whence -a "$cmd")
+        fi
+
+        if ((${+commands[whereis]})); then
+            output+=("${(j. .)${(@f)$($colorcmd "${(s. .)$("${commands[whereis]}" "$cmd")}" 2>/dev/null)}}")
+        fi
+    ;;
+    'function')
+        color=94
+        output+=("${(@f)$(builtin whence -x 4 -f "$cmd" | $batcmd)}")
+        ;;
+    'builtin') color=95 ;;
+    'reserved') color=91 ;;
+    *) color=31 ;;
+    esac
+    all_elements+=(
+        "=== [1;${color:-91}m${type}[0m [0;1m${cmd}[0m ==="
+        $output
+        '[0m'
+        ''
+    )
+done
+builtin print -ln $all_elements
+
+IFS="$oldifs"

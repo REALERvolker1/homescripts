@@ -8,6 +8,8 @@ if [ "${USER:=$(whoami)}" = root ]; then
     exit 1
 fi
 
+[[ ${1-} == --shutdown ]] && command -v systemctl &>/dev/null && SHUTDOWN=1
+
 unsafe() {
     set +euo pipefail
     if (($#)); then
@@ -124,3 +126,4 @@ if (($(jobs | wc -l))); then
 fi
 wait
 echo "Done with updates!"
+((${SHUTDOWN:-0})) && systemctl poweroff

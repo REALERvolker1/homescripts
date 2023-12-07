@@ -34,23 +34,11 @@ rmhomefunc() {
 }
 rmcfgfunc() {
     rm "$steamdir/.config"/*(@) &>/dev/null && echo "removed config symlinks"
-    #for i in "$steamdir/"{Music,Pictures}; do
-    #    [[ ! -e "$i" && -h "$i" ]] && rm "$i"
-    #done
 }
 
-(
-    while true; do
-        rmhomefunc
-    inotifywait -qe create "$steamdir"
-done
-) &
-
-(
 while true; do
     rmcfgfunc
     inotifywait -qe create "$steamdir/.config"
 done
-) &
 
 wait

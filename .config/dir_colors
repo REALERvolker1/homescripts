@@ -180,9 +180,11 @@ EXEC 01;38;5;46 # files with execute permission
 .crx 38;5;128 # Chromium extension
 .repo 38;5;128 # RPM/Yum repo
 .spec 38;5;128 # RPM spec
+.xpi 38;5;128 # Web Extension
 
 # critical system
 .efi 38;5;52
+.stub 38;5;52
 .EFI 38;5;52
 .x86_64 38;5;52
 .x86 38;5;52
@@ -190,7 +192,7 @@ EXEC 01;38;5;46 # files with execute permission
 .aarch64 38;5;52
 .amd64 38;5;52
 .i686 38;5;52
-.service 38;5;52
+.i386 38;5;52
 *passwd 38;5;52
 
 # image formats
@@ -317,7 +319,9 @@ EXEC 01;38;5;46 # files with execute permission
 *# 38;5;240 # backup 'file#'
 .bak 38;5;240 # backup
 .backup 38;5;240 # backup
+.token 38;5;240
 .old 38;5;240 # old version of a file
+.OLD 38;5;240 # old version of a file
 .orig 38;5;240 # original version of a file
 .kate-swp 38;5;240 # Kate swap
 
@@ -372,6 +376,7 @@ EXEC 01;38;5;46 # files with execute permission
 .tmp 38;5;238 # tmp file
 .sock 38;5;238 # "socket" file
 .history 38;5;238
+.chk 38;5;238
 .mask 38;5;238
 *shadow 38;5;238
 
@@ -419,6 +424,7 @@ EXEC 01;38;5;46 # files with execute permission
 .cljc 38;5;238 # Clojure compiled I think?
 .pak 38;5;238 # Chromium stuff
 .vpkg 38;5;238 # visual studio pkg
+.symbols 38;5;238
 
 .gguf 38;5;130 # AI LLM dataset
 .tiktoken 38;5;130 # AI LLM tokens
@@ -429,6 +435,7 @@ EXEC 01;38;5;46 # files with execute permission
 .vscdb 38;5;242
 .empty 38;5;242
 .pack 38;5;242
+*- 38;5;242
 
 # ROM
 .z64 38;5;241 # Nintendo 64 ROM
@@ -496,6 +503,7 @@ EXEC 01;38;5;46 # files with execute permission
 
 .syntax 38;5;116 # Syntax file
 .conf 38;5;116 # generic config
+.gen 38;5;116 # generated
 .properties 38;5;116 # generic config
 .defaults 38;5;116 # the default config
 .prefs 38;5;116 # Preferences
@@ -504,6 +512,8 @@ EXEC 01;38;5;46 # files with execute permission
 .local 38;5;116
 .locale 38;5;116 # language
 .rules 38;5;116 # rules config like for udev and whatnot
+.type 38;5;116 # some type
+.types 38;5;116
 .alias 38;5;116 # aliases
 *aliases 38;5;116 # more aliases
 .kbd 38;5;116 # keyboard stuff
@@ -516,6 +526,7 @@ EXEC 01;38;5;46 # files with execute permission
 .bconf 38;5;116 # no idea what this was from
 .lst 38;5;116 # list
 .list 38;5;116 # list
+.page 38;5;116
 .resources 38;5;116 # res
 
 .zone 38;5;116 # DNS zone
@@ -523,12 +534,13 @@ EXEC 01;38;5;46 # files with execute permission
 
 .example 38;5;153
 .template 38;5;153
-.login 38;5;153
 .file 38;5;153
+.files 38;5;153
 .deny 38;5;153
 .updated 38;5;153
 .blacklist 38;5;153
 .cache 38;5;153
+#.cache-8 38;5;153
 .version 38;5;153
 .changed 38;5;153
 .perms 38;5;153
@@ -541,9 +553,10 @@ EXEC 01;38;5;46 # files with execute permission
 .fmt 38;5;153
 .TAG 38;5;153
 *hst 38;5;153 # history for something
-.log 38;5;153 # a log of something
+*log 38;5;153 # a log of something
 *info 38;5;153 # info
 .menu 38;5;153
+.catalog 38;5;153
 
 .ans 38;5;147 # ANSI text file
 .ansi 38;5;147 # ANSI text file
@@ -564,6 +577,12 @@ EXEC 01;38;5;46 # files with execute permission
 .desktop 38;5;99 # Freedesktop Desktop Entry
 .theme 38;5;99 # Freedesktop theme
 .run 38;5;99 # Run executable
+.service 1;38;5;99 # systemd service
+.timer 1;38;5;99 # systemd timer
+.preset 38;5;99 # systemd preset
+.socket 38;5;99 # sockets that aren't really sockets
+.slice 38;5;99 # systemd slices
+.path 38;5;242
 
 .sql 38;5;116 # SQL script
 .spdx 38;5;116
@@ -573,7 +592,10 @@ EXEC 01;38;5;46 # files with execute permission
 .eml 38;5;116 # Email
 .ctl 38;5;116
 .manifest 38;5;116
+.net 38;5;116
+.network 38;5;116
 .lnk 38;5;116 # Windows shortcut
+.link 38;5;116
 .tbl 38;5;116 # Table file
 .table 38;5;116 # Table file
 
@@ -600,6 +622,7 @@ EXEC 01;38;5;46 # files with execute permission
 *login 38;5;113
 *logout 38;5;113
 # *fstab 38;5;113 # mainly /etc/fstab. idk
+.login 38;5;153
 
 # Shell
 .sh 38;5;71 # Shell script
@@ -620,8 +643,9 @@ EXEC 01;38;5;46 # files with execute permission
 .sh-session 1;38;5;71 # Shell session
 *-bash 38;5;34 # Something related to bash
 *-zsh 38;5;34 # Something related to zsh
-.zshrc 1;38;5;113
-*bashrc 1;38;5;113
+
+*shrc 1;38;5;114
+#*bashrc 1;38;5;113
 .profile 1;38;5;113
 .bash_profile 1;38;5;113
 *bash_logout 1;38;5;113
@@ -840,6 +864,9 @@ EXEC 01;38;5;46 # files with execute permission
 .mjs 38;5;149 # ECMAscript Module JS
 .cjs 38;5;149 # CommonJS
 .ts 38;5;45 # Typescript
+.d.ts 38;5;43 # Generated typescript types
+.config.ts 38;5;44 # Typescript config
+.config.js 38;5;44 # Javascript config
 .mts 38;5;45 # ECMAscript Module TS
 .cts 38;5;45 # ECMAscript Module JS
 .coffee 38;5;94 # Coffee Script
@@ -872,6 +899,8 @@ EXEC 01;38;5;46 # files with execute permission
 .jsp 38;5;166 # PHP but it's actually java
 .htmx 38;5;167 # HTML but with more interactivity (Javascript framework)
 .svelte 38;5;172 # Svelte javascript framework (basically looks like html)
+*+page.svelte 38;5;172 # Sveltekit page
+*+layout.svelte 38;5;172 # Sveltekit layout
 .astro 38;5;172 # Astro javascript framework (basically looks like html)
 
 # Networking
@@ -1064,12 +1093,9 @@ EXEC 01;38;5;46 # files with execute permission
 .afm 38;5;159 # Adobe font metrics
 
 *LICENSE 38;5;192 # license
-*CODEOWNERS 38;5;192 # owners
-*CONTRIBUTORS 38;5;192 # contributors
 *COPYING 38;5;192
 *COPYRIGHT 38;5;192
 *MANIFEST.in 38;5;192
-*TODO 38;5;192
 
 # manpages
 .man 38;5;158

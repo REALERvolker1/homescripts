@@ -95,6 +95,6 @@ bar {
     i3bar_command i3bar --transparency
     #status_command i3status-rs
     #status_command i3status
-    status_command nice -n 20 i3status
+    status_command nice -10 i3status
 }
 

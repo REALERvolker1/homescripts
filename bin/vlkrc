@@ -9,48 +9,18 @@
     exit 1
 }
 
-if ! command -v cargo &>/dev/null; then
-    alias getcargo='bash <(curl -sSf https://sh.rustup.rs) --default-toolchain stable --profile complete --no-modify-path'
-    echo "No cargo found. Please run the 'getcargo' alias I just created."
-fi
-
-# Does not work with aliases like 'ls'
-__which() {
-    # TODO: Move to zsh-only, multiplex output of 'whence'
-    local shell_junk
-    shell_junk="$(alias && declare -f)"
-    local -a which_output
-    local output
-    local i
-    for i in "$@"; do
-        output="$(command which --tty-only --read-alias --read-functions --show-tilde --show-dot "$i" <<<"$shell_junk")"
-        if [[ -L "${output:-}" ]]; then
-            echo "$output => [1;96m$(realpath "$output")[0m" # 
-        else
-            which_output+=("$output")
-        fi
-    done
-    if command -v bat &>/dev/null; then
-        printf '%s\n' "${which_output[@]}" | bat -l sh
-    else
-        printf '%s\n' "${which_output[@]}"
-    fi
-}
-
-alias whi{ch,hc}='__which'
+#alias getcargo='bash <(curl -sSf https://sh.rustup.rs) --default-toolchain stable --profile complete --no-modify-path'
 
 __homebin="$HOME/bin"
 
-# TODO: idgaf about full compatibility anymore
 # check for all deps first. If not all deps are found, use an alternative fallback config
 __lscmd="command ls --color=auto --group-directories-first -A"
 __llcmd="$__lscmd -l"
 # assign la before we mutate it
-alias la="$__lscmd"
-if command -v eza >/dev/null 2>&1; then
-    __lscmd="eza -AX --group-directories-first --icons always"
-    # add classifiers@/* if in a vtty, since my lscolors look super similar
-    [[ ${TERM-} == linux ]] && __lscmd="${__lscmd} -F"
+# add classifiers@/* if in a vtty, since my lscolors look super similar
+alias la="$__lscmd -F"
+if [[ ${TERM-} != linux && -z ${DISTROBOX_ENTER_PATH-} ]] && command -v eza >/dev/null 2>&1; then
+    __lscmd="eza -AX --group-directories-first --icons=always"
     __llcmd="$__lscmd -lhM --git"
 fi
 
@@ -118,14 +88,13 @@ done
 
 alias chmodx='chmod +x' chmod-x='chmod -x'
 
-# TODO: Remove ~bin/$, as it is easier to run 'alias \$='''
-# alias %="$__homebin/\$"
-alias {\$,%}=''
+[[ -z ${BASH_VERSION-} ]] && alias {\$,%}=''
 
 alias copy="$__homebin/copy"
 alias copycat="$__homebin/copy --cat"
 
 alias ple='perl -wlne '
+alias gc='rg --pretty --context=5 --pcre2 --ignore-case '
 
 for i in {,xz,z}{,e,f}grep; do
     alias "$i=$i --color=auto"
@@ -221,15 +190,14 @@ alias wget='wget --show-progress'
 alias {{vi,iv}{m,},v}="$EDITOR"
 
 run-subshell() {
-    local stty cmd
-    [[ -t 0 ]] && stty="$(stty --save)"
+    [[ -n ${ZSH_VERSION-} ]] && ttyctl -f
     cmd="${1:-}"
     [[ ${cmd:-} =~ (|t)csh ]] && echo 💀
     command -v "$cmd" >/dev/null || return
     shift 1
     HISTFILE="${SHELLHIST:-/dev/null}" $cmd "$@"
     local -i retval="$?"
-    [[ -n ${stty:-} ]] && stty "$stty"
+    [[ -n ${ZSH_VERSION-} ]] && ttyctl -u
     return $retval
 }
 
@@ -253,9 +221,8 @@ venv() {
     fi
 }
 
-# TODO: I don't need pnpm because I have btrfs. Remove
-alias pnpmi='pnpm install --global'
-alias pnpml='pnpm list --global | fzf'
+alias npmi='npm install --global'
+alias npml='npm list --global | fzf'
 
 alias tc='tsc && node .'
 
@@ -336,8 +303,26 @@ alias printfn="printf '%s\n' "
 alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 alias chars='perl -e "foreach(@ARGV){open(my \$f,\"<\",\"\$_\") or die \"\$!\";my \$c;while(read(\$f,\$c,1)){print \"\$c\n\";}close \$f;}" '
 
-alias ARCH='distrobox-enter -n ARCH -- bash -l'
-alias FEDORA='distrobox-enter -n FEDORA -- bash -l'
+_vlkrc::dbx::distro() {
+    local name="${1:?Error, please specify a distrobox container name!}"
+    shift 1
+    local -a cmd=("$@")
+    ((${#cmd[@]})) || cmd=(bash -l)
+    if distrobox-list | cut -d '|' -f 2 | grep -q -m 1 "$name"; then
+        distrobox-enter -n "$name" -- "${cmd[@]}"
+        return $?
+    elif ! command -v distrobox &>/dev/null; then
+        echo "Error, you don't seem to have distrobox installed!"
+    else
+        echo "Error, that distrobox container, '$name', does not exist!"
+    fi
+    return 1
+}
+
+alias ARCH='_vlkrc::dbx::distro ARCH'
+alias FEDORA='_vlkrc::dbx::distro FEDORA'
+#alias ARCH='distrobox-enter -n ARCH -- bash -l'
+#alias FEDORA='distrobox-enter -n FEDORA -- bash -l'
 
 alias fenv='declare | fzf'
 alias penv='printenv | fzf'
@@ -348,9 +333,11 @@ if [[ -n "${ZSH_VERSION:-}" ]]; then
     alias lsh="printf '\e[0;92m~%s\t\e[0;1;94m%s\e[0m\n' \${(@kv)nameddirs}"
     alias aliases='printf "\e[1;93m%s\e[0m = \e[92m%s\e[0m\n" "${(@kv)aliases}"'
     alias printl='print -l'
+    alias whi{ch,hc}='__which__function'
 
 elif [[ -n "${BASH_VERSION:-}" ]]; then
     alias refresh='exec bash'
+    alias whi{ch,hc}='(alias; declare -f) | command which --tty-only --read-alias --read-functions --show-tilde --show-dot'
 fi
 
 if command -v grub2-mkconfig &>/dev/null; then

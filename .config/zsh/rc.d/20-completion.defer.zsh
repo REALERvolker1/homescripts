@@ -6,14 +6,17 @@ zstyle :compinstall filename "$ZDOTDIR/.zshrc"
 autoload -Uz compinit
 compinit -d "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION"
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-zstyle ':completion:*'              list-dirs-first     true
-zstyle ':completion:*'              verbose             true
-zstyle ':completion::complete:*'    use-cache           true
-zstyle ':completion:*:manuals'      separate-sections   true
+zstyle ':completion:*' list-dirs-first true
+zstyle ':completion:*' verbose true
+zstyle ':completion::complete:*' use-cache true
+zstyle ':completion:*:manuals' separate-sections true
 zstyle ':completion:*:*:*:*:processes' command "ps -e -u $USER -o pid,user,comm -w -w"
-zstyle ':completion:*'              use-cache on
+zstyle ':completion:*' use-cache on
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 #zstyle ':completion:*:*:cp:*' file-sort size
+
+# do not use if you run untrusted completion scripts, as they can run with sudo
+#zstyle ':completion::complete:*' gain-privileges 1
 
 # fzf completion config
 # $ZDOTDIR/settings/fzf-preview.sh
@@ -26,7 +29,11 @@ zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=ri
 
 zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word'
 
-zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview 'print -l "\$${(%)${word/#/%B}/%/%b}" ${(P)word}'
+# zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview 'print -l "[1m$word[0m" ${(P)word}'
+zstyle ':fzf-tab:complete:(-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview 'print -l "[1m$word[0m" ${(P)word}'
+zstyle ':fzf-tab:complete:-command-:*' fzf-preview 'whence -p $word'
+zstyle ':fzf-tab:complete:-tilde-:*' fzf-preview 'print "~$word" "=>" ${~word/#/\~}; command ls --color=always --group-directories-first -A ${~word/#/\~}'
+# zstyle ':fzf-tab:complete:-tilde-:*' fzf-preview 'echo ${~word/#/\~}'
 zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-flags --preview-window=right:'30%':wrap
 #zstyle ':fzf-tab:complete:-command-:*' fzf-preview 'txtpreview.sh ${(Q)realpath}'
 

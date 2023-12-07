@@ -36,7 +36,7 @@ unset i
 if ((COLUMNS > 55)) {
     dumbfetch
     fortune -a -s | lolcat
-    lsdiff
+    [[ -z ${DISTROBOX_ENTER_PATH-} ]] && lsdiff
 }
 
 ZSHRC_LOADED=true

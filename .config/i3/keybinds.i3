@@ -81,8 +81,10 @@ bindsym Scroll_Lock nop kitti3
 bindsym XF86Launch4 $exec "dunstify -a $XDG_CURRENT_DESKTOP -- asusctl 'Aura mode not changed -- not configured'"
 
 # Brightness key
-bindsym XF86MonBrightnessUp $exec light -A 10
-bindsym XF86MonBrightnessDown $exec light -U 10
+bindsym XF86MonBrightnessUp $exec brightnessctl s '+10%'
+#bindsym XF86MonBrightnessUp $exec light -A 10
+bindsym XF86MonBrightnessDown $exec brightnessctl s '10%-'
+#bindsym XF86MonBrightnessDown $exec light -U 10
 
 # Touchpad toggle
 bindsym XF86TouchpadToggle $exec pointer.sh -t

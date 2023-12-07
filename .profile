@@ -1,5 +1,5 @@
 # shellcheck shell=dash
-. "${HOME:-~}/bin/vlkenv"
+[ -n "${ZSH_VERSION:-$BASH_VERSION}" ] && . "${HOME:-~}/bin/vlkenv"
 
 # tab_character='	'
 # expr "$-" : '.*i' >/dev/null

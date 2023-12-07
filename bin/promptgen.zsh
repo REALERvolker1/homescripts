@@ -340,6 +340,7 @@ __vlkprompt_precmd() {$(
     #fi
     # Also: run 'cd .' to make sure I'm in the current directory to workaround a bug where removing and recreating a dir with the exact same name as CWD causes UB
 )
+    printf '%b' '\\e[0m\\e(B\\e)0\\017\\e[?5l\\e7\\e[0;0r\\e8'
     local -i timer=\$((SECONDS - \${__vlkprompt_internal[old_time]}))
     if ((timer > ${MIN_TIMER_TIME_MINUS_ONE})); then
         local leading_zero timedisp timedisp_sm
@@ -403,6 +404,7 @@ export -U precmd_functions
 precmd_functions+=('__vlkprompt_precmd')
 
 __vlkprompt_stty_cmd() {
+    # todo: use ttyctl
     local retval=\$?
     local current_stty="\$(stty --save)"
     if [[ \${current_stty:=} != \${__vlkprompt_internal[stty]:=} ]]; then

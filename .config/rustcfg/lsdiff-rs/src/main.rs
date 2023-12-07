@@ -64,6 +64,7 @@ fn main() -> Result<(), io::Error> {
             "--group-directories-first",
             "--icons=always",
             "--color=always",
+            &lsdiff_path_string,
         ])
         .output()?
         .stdout;
