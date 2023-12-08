@@ -8,6 +8,7 @@
 .config/bar-scripts/**/target
 .config/shell/**/target
 .config/rustcfg/**/target
+.config/zsh/**/target
 .config/**/*.zwc
 #.config/shell/*.zwc
 .config/tmux/plugins

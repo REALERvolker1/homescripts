@@ -30,7 +30,8 @@ export -U PATH path FPATH fpath
 export -U XDG_DATA_DIRS
 export -U chpwd_functions
 export -U precmd_functions
-
+typeset -U module_path
+module_path+=("$ZDOTDIR/modules")
 # prevent all those pacman commands from showing up in my fedora machine history
 [[ -z ${DISTROBOX_ENTER_PATH-} ]] && HISTFILE="$XDG_STATE_HOME/zshist"
 SAVEHIST=50000
