@@ -20,6 +20,7 @@ if [[ $IFS != $' \t\n\C-@' ]] {
 ### shell session settings
 # VLKPROMPT_SKIP=1
 # VLKPLUG_SKIP=1
+# VLKATUIN_SKIP=1
 # VLKZSH_RECOMPILE=1
 
 # Certain files like vlkrc and vlkenv from ~/bin are loaded along with other settings files
@@ -31,14 +32,18 @@ foreach i ("${ZDOTDIR:-~/.config/zsh}/rc.d"/*.zsh) {
         . "$i"
     }
 }
-unset i
+# for i in "$ZDOTDIR/functions"/*.zwc(.N)
+for i in "$ZDOTDIR/functions"/^*.zwc(.N)
+    autoload -Uz $i
+
 ((${+VLKZSH_RECOMPILE})) && echo "Recompiling..." && recompile >/dev/null
+
 if ((COLUMNS > 55)) {
     dumbfetch
     fortune -a -s | lolcat
     [[ -z ${DISTROBOX_ENTER_PATH-} ]] && lsdiff
 }
-
+unset i
 ZSHRC_LOADED=true
 :
 

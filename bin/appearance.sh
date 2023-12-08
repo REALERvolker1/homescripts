@@ -145,44 +145,104 @@ _set_fontconfig() {
         else
             hinting=false
         fi
-        printf '%s\n' \
-            '<?xml version="1.0"?>' \
-            '<!DOCTYPE fontconfig SYSTEM "fonts.dtd">' \
-            "<!--${gen_comment}-->" \
-            '<fontconfig>' \
-            '    <match target="font">' \
-            '        <edit name="antialias" mode="assign">' \
-            "            <bool>${antialiasing}</bool>" \
-            '        </edit>' \
-            '        <edit name="hinting" mode="assign">' \
-            "            <bool>${hinting}</bool>" \
-            '        </edit>' \
-            '        <edit name="hintstyle" mode="assign">' \
-            "            <const>${xft[hintstyle]}</const>" \
-            '        </edit>' \
-            '        <edit name="rgba" mode="assign">' \
-            "            <const>${xft[rgba]}</const>" \
-            '        </edit>' \
-            '    </match>' \
-            '    <alias>' \
-            '        <family>sans-serif</family>' \
-            '        <prefer>' \
-            "$(printf '            <family>%s</family>\n' "${fonts_sans[@]}")" \
-            '        </prefer>' \
-            '    </alias>' \
-            '    <alias>' \
-            '        <family>serif</family>' \
-            '        <prefer>' \
-            "$(printf '            <family>%s</family>\n' "${fonts_serif[@]}")" \
-            '        </prefer>' \
-            '    </alias>' \
-            '    <alias>' \
-            '        <family>monospace</family>' \
-            '        <prefer>' \
-            "$(printf '            <family>%s</family>\n' "${fonts_mono[@]}")" \
-            '        </prefer>' \
-            '    </alias>' \
-            '</fontconfig>'
+        # printf '%s\n' \
+        #     '<?xml version="1.0"?>' \
+        #     '<!DOCTYPE fontconfig SYSTEM "fonts.dtd">' \
+        #     "<!--${gen_comment}-->" \
+        #     '<fontconfig>' \
+        #     '    <match target="font">' \
+        #     '        <edit name="antialias" mode="assign">' \
+        #     "            <bool>${antialiasing}</bool>" \
+        #     '        </edit>' \
+        #     '        <edit name="hinting" mode="assign">' \
+        #     "            <bool>${hinting}</bool>" \
+        #     '        </edit>' \
+        #     '        <edit name="hintstyle" mode="assign">' \
+        #     "            <const>${xft[hintstyle]}</const>" \
+        #     '        </edit>' \
+        #     '        <edit name="rgba" mode="assign">' \
+        #     "            <const>${xft[rgba]}</const>" \
+        #     '        </edit>' \
+        #     '    </match>' \
+        #     '    <alias>' \
+        #     '        <family>sans-serif</family>' \
+        #     '        <prefer>' \
+        #     "$(printf '            <family>%s</family>\n' "${fonts_sans[@]}")" \
+        #     '        </prefer>' \
+        #     '    </alias>' \
+        #     '    <alias>' \
+        #     '        <family>serif</family>' \
+        #     '        <prefer>' \
+        #     "$(printf '            <family>%s</family>\n' "${fonts_serif[@]}")" \
+        #     '        </prefer>' \
+        #     '    </alias>' \
+        #     '    <alias>' \
+        #     '        <family>monospace</family>' \
+        #     '        <prefer>' \
+        #     "$(printf '            <family>%s</family>\n' "${fonts_mono[@]}")" \
+        #     '        </prefer>' \
+        #     '    </alias>' \
+        #     '</fontconfig>'
+        cat <<EOF
+<?xml version="1.0"?>
+    <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+    <!--${gen_comment}-->
+    <fontconfig>
+        <match target="font">
+            <edit name="antialias" mode="assign">
+                <bool>${antialiasing}</bool>
+            </edit>
+            <edit name="hinting" mode="assign">
+                <bool>${hinting}</bool>
+            </edit>
+            <edit name="hintstyle" mode="assign">
+                <const>${xft[hintstyle]}</const>
+            </edit>
+            <edit name="rgba" mode="assign">
+                <const>${xft[rgba]}</const>
+            </edit>
+        </match>
+        <match target="pattern">
+            <test qual="any" name="family"><string>emoji</string></test>
+            <edit name="family" mode="assign" binding="same"><string>Apple Color Emoji</string></edit>
+        </match>
+        <!-- This adds Apple Color Emoji as a final fallback font for the default font families. -->
+        <match target="pattern">
+            <test name="family"><string>sans</string></test>
+            <edit name="family" mode="append"><string>Apple Color Emoji</string></edit>
+        </match>
+        <match target="pattern">
+            <test name="family"><string>serif</string></test>
+            <edit name="family" mode="append"><string>Apple Color Emoji</string></edit>
+        </match>
+        <match target="pattern">
+            <test name="family"><string>sans-serif</string></test>
+            <edit name="family" mode="append"><string>Apple Color Emoji</string></edit>
+        </match>
+        <match target="pattern">
+            <test name="family"><string>monospace</string></test>
+            <edit name="family" mode="append"><string>Apple Color Emoji</string></edit>
+        </match>
+        <alias>
+            <family>sans-serif</family>
+            <prefer>
+    $(printf '            <family>%s</family>\n' "${fonts_sans[@]}")
+            </prefer>
+        </alias>
+        <alias>
+            <family>serif</family>
+            <prefer>
+    $(printf '            <family>%s</family>\n' "${fonts_serif[@]}")
+            </prefer>
+        </alias>
+        <alias>
+            <family>monospace</family>
+            <prefer>
+    $(printf '            <family>%s</family>\n' "${fonts_mono[@]}")
+            </prefer>
+        </alias>
+    </fontconfig>
+EOF
     ) >"${pth[font]}"
 }
 

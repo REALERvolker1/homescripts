@@ -2,17 +2,26 @@
 # ((${#$(typeset -f compinit | grep -oP 'builtin.*-XUz\K.*$')} > 0)) || return
 # [ -n "${DISTROBOX_ENTER_PATH:-}" ] && return
 
-zstyle :compinstall filename "$ZDOTDIR/.zshrc"
+zstyle :compinstall filename "${ZDOTDIR:-$HOME}/.zshrc"
 autoload -Uz compinit
 compinit -d "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION"
+
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' list-dirs-first true
+
 zstyle ':completion:*' verbose true
 zstyle ':completion::complete:*' use-cache true
+zstyle ':completion:*' use-cache true
+
 zstyle ':completion:*:manuals' separate-sections true
 zstyle ':completion:*:*:*:*:processes' command "ps -e -u $USER -o pid,user,comm -w -w"
-zstyle ':completion:*' use-cache on
+
+zstyle ':completion:*' completer _complete _match _approximate
+zstyle ':completion:*:approximate:*' max-errors 3 numeric
+
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+# zstyle ':completion:*' matcher-list 'r:[[:ascii:]]||[[:ascii:]]=** r:|=* m:{a-z\-}={A-Z\_}'
+
 #zstyle ':completion:*:*:cp:*' file-sort size
 
 # do not use if you run untrusted completion scripts, as they can run with sudo

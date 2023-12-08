@@ -3,31 +3,72 @@ emulate -L zsh
 setopt EXTENDED_GLOB
 
 local -a plugins
-local i
+local -A async_jobs
 
-# echo 'command -v atuin &>/dev/null || return'
-# echo '[[ "$TERM" == "linux" ]] && return'
-if command -v atuin &>/dev/null; then
-    (
-        echo '[[ "$TERM" != "linux" ]] && command -v atuin &>/dev/null || return'
-        atuin init zsh | grep -vE '(echoti|^[[:space:]]*#|^[[:space:]]*$)'
-    ) >"$ZDOTDIR/rc.d/60-atuin.defer.zsh"
-fi
+# start async jobs early
+(
+    if ((${+functions[build-fzf-tab-module]})); then
+        builtin print "[0;94mCompiling fzf-tab lscolors module[0m"
+        if build-fzf-tab-module &>/dev/null; then
+            builtin print "[0;1;92mThe fzf-tab lscolors module has been built successfully.[0m"
+        else
+            builtin print "[0;1;91mErrors compiling module. Please run 'build-fzf-tab-module' in a terminal.[0m"
+        fi
+    fi
+) &
+local await=$!
+async_jobs[fzf_lscolors]=$await
+
+# This overwrites my own mods
+# if ((${+commands[atuin]})); then
+#     builtin print "[0;93mGenerating atuin init script[0m"
+#     (
+#         # echo '[[ "$TERM" != "linux" ]] && command -v atuin &>/dev/null || return'
+#         builtin print '[[ ${TERM:-linux} != "linux" && $+commands[atuin] -eq 1 && -z ${VLKATUIN_SKIP-} ]] || return'
+#         command atuin init zsh | command grep -vE '(echoti|^[[:space:]]*#|^[[:space:]]*$)' # fix home/end keys
+#     ) >"$ZDOTDIR/rc.d/60-atuin.defer.zsh"
+# fi
 
 plugins+=(
-    "$ZDOTDIR/rc.d/"*.zsh(.N)
-    "$ZDOTDIR/.zshrc"
-    "$ZDOTDIR/.zshenv"
-    "$ZDOTDIR/.zprofile"
-    # plugins
+    "$ZDOTDIR/rc.d/"*.zsh(.N) #"
+    "$ZDOTDIR"/.z{sh{rc,env},profile}
+    # fzf tab plugin
     "$ZPLUGIN_DIR/fzf-tab/"fzf-tab.zsh
     "$ZPLUGIN_DIR/fzf-tab/lib/"^*.zwc(.N)
+    "$ZPLUGIN_DIR/fzf-tab/lib/zsh-ls-colors/ls-colors.zsh"
+    # zsh-autosuggestions
     "$ZPLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
-    # I kept getting file write errors
-    #"$ZPLUGIN_DIR/fast-syntax-highlighting/→chroma/"^*.zwc(.N)
+    # fast-syntax-highlighting
+    "$ZPLUGIN_DIR/fast-syntax-highlighting/"fast-{{,string-}highlight,theme}
+    "$ZPLUGIN_DIR/fast-syntax-highlighting/"fast-syntax-highlighting.plugin.zsh
 )
 
-foreach i ($plugins) {
-    [[ -f "$i.zwc" ]] && command -p rm -f "$i.zwc" && print -P "%F{9}Removed %B${i}.zwc%b%f"
-    [[ -f $i ]] && zcompile -Uz "$i" && print -P "%F{10}Compiled %B${i}%b%f"
-}
+if [[ -d "$ZPLUGIN_DIR/fast-syntax-highlighting/→chroma" ]]; then
+    builtin print "[0;95mMoving fsyh chroma[0m"
+    local i
+    for i in $ZPLUGIN_DIR/fast-syntax-highlighting/**/*(.); do
+        command sed -i 's/→chroma/chroma/g' $i
+    done
+    command mv "$ZPLUGIN_DIR/fast-syntax-highlighting/"{→,}chroma
+    plugins+=( "$ZPLUGIN_DIR/fast-syntax-highlighting/chroma/"^*.zwc(.N) )
+fi
+
+local lastpath
+local script
+for script in $plugins; do
+    if [[ ${lastpath-} != ${script:h} ]]; then
+        builtin print -l '' "[0;1;32m${script:h}[0m"
+        lastpath=${script:h}
+    fi
+
+    if [[ -f "$script.zwc" ]]; then
+        command -p rm -f "$script.zwc" || builtin print "[0;91mFailed to remove [1m${script:t}.zwc[0m"
+    fi
+    [[ -f $script ]] && builtin zcompile -Uz "$script" && builtin print "[0;92mCompiled [1m${script:t}[0m"
+done
+
+if ((${#async_jobs})); then
+    builtin print -l '' "[0;1mWaiting for jobs[0m"
+    builtin printf "[\e[1;96m%s\e[0m]\t\e[1;93m%s\e[0m\n" "${(@kv)async_jobs}"
+    builtin wait ${(@v)async_jobs}
+fi

@@ -1,39 +1,40 @@
-[[ "$TERM" != "linux" ]] && command -v atuin &>/dev/null || return
-autoload -U add-zsh-hook
-export ATUIN_SESSION=$(atuin uuid)
-_atuin_preexec() {
+[[ ${TERM:-linux} != linux && $+commands[atuin] -eq 1 && -z ${VLKATUIN_SKIP-} ]] || return
+export ATUIN_SESSION="$(atuin uuid)"
+__atuin::preexec() {
     local id
-    id=$(atuin history start -- "$1")
-    export ATUIN_HISTORY_ID="$id"
+    id="$(atuin history start -- "${1-}")"
+    export ATUIN_HISTORY_ID=${id-}
 }
-_atuin_precmd() {
-    local EXIT="$?"
-    [[ -z "${ATUIN_HISTORY_ID:-}" ]] && return
-    (ATUIN_LOG=error atuin history end --exit $EXIT -- $ATUIN_HISTORY_ID &) >/dev/null 2>&1
-    export ATUIN_HISTORY_ID=""
+
+__atuin::precmd() {
+    [[ -z ${ATUIN_HISTORY_ID-} ]] && return
+    local -i EXIT=$?
+    (ATUIN_LOG=error atuin history end --exit $EXIT -- $ATUIN_HISTORY_ID &) &>/dev/null
+    export ATUIN_HISTORY_ID=
 }
-_atuin_search() {
+
+__atuin::zle::search() {
     emulate -L zsh
     zle -I
-    output=$(ATUIN_SHELL_ZSH=t ATUIN_LOG=error atuin search $* -i -- $BUFFER 3>&1 1>&2 2>&3)
+    local output
+    output=$(ATUIN_SHELL_ZSH=t ATUIN_LOG=error atuin search $* -i -- ${BUFFER-} 3>&1 1>&2 2>&3)
     zle reset-prompt
-    if [[ -n $output ]]; then
-        RBUFFER=""
+    if [[ -n ${output-} ]]; then
+        RBUFFER=
         LBUFFER=$output
     fi
-    if [[ $LBUFFER == __atuin_accept__:* ]]
+    if [[ ${LBUFFER-} == __atuin_accept__:* ]]
     then
         LBUFFER=${LBUFFER#__atuin_accept__:}
         zle accept-line
     fi
 }
-_atuin_up_search() {
-    _atuin_search --shell-up-key-binding
-}
-add-zsh-hook preexec _atuin_preexec
-add-zsh-hook precmd _atuin_precmd
-zle -N _atuin_search_widget _atuin_search
-zle -N _atuin_up_search_widget _atuin_up_search
+__atuin::zle::up_search() __atuin::zle::search --shell-up-key-binding
+
+preexec_functions+=('__atuin::preexec')
+precmd_functions+=('__atuin::precmd')
+zle -N _atuin_search_widget __atuin::zle::search
+zle -N _atuin_up_search_widget __atuin::zle::up_search
 bindkey '^r' _atuin_search_widget
 bindkey '^[[A' _atuin_up_search_widget
 bindkey '^[OA' _atuin_up_search_widget

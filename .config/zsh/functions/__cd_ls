@@ -1,6 +1,26 @@
-local -i fcount=${#${(f)"$(print -l ./*(N))"}}
-if ((fcount < 30)); then
-    lsd
+local -a dircontents=(./*(N))
+local -i fcount=${#dircontents}
+# local -i fcount=${#${(f)"$(print -l ./*(N))"}}
+if ((fcount < 50)); then
+    ((${+__CD_LS_CMD})) || {
+        typeset -ag __CD_LS_CMD
+        local -i is_xterm=1
+        # local cdls_debug=1
+        [[ ${TERM:-linux} == linux || ${TTY:-$(tty)} != *pts* || ${+DISTROBOX_ENTER_PATH} -eq 1 ]] && is_xterm=0
+
+        if ((is_xterm && ${+commands[eza]})); then
+            __CD_LS_CMD=(command eza -AX --group-directories-first --icons=always)
+        elif ((is_xterm && ${+commands[lsd]})); then
+            __CD_LS_CMD=(command lsd)
+        elif ((${+commands[ls]})); then
+            __CD_LS_CMD=(command ls --color=auto --group-directories-first -A -F)
+        fi
+        if ((${+__CD_LS_CMD} == 0 || cdls_debug)) {
+            __cd_ls::listdir() print -c ${(@)dircontents:t}
+            __CD_LS_CMD=(__cd_ls::listdir)
+        }
+    }
+    $__CD_LS_CMD
 else
-    echo -e "\e[${${${LS_COLORS#*:di=}%%:*}:-1;94}m${fcount}\e[0m items in this folder"
+    print "[${${${LS_COLORS#*:di=}%%:*}:-1;94}m${fcount:-?}[0m items in this folder"
 fi

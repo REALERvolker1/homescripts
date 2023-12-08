@@ -49,7 +49,4 @@ KEYBOARD_HACK='\'
 
 export ZPLUGIN_DIR="$XDG_DATA_HOME/zsh-plugins"
 
-for i in "$ZDOTDIR/functions"/^*.zwc(.N)
-    autoload -Uz $i
-
 chpwd_functions+=('__cd_ls')

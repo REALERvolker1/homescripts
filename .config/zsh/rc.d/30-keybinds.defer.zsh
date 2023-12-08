@@ -46,16 +46,17 @@ autoload -U edit-command-line
 zle -N edit-command-line
 bindkey $keymap[Ce] edit-command-line
 
-__zle-vlk-sudo-prefix() {
+__vlk::zle::sudo_prefix() {
     [[ $BUFFER == [[:space:]]# ]] && zle .up-history
     LBUFFER="sudo $LBUFFER"
 }
 
-zle -N __zle-vlk-sudo-prefix
-bindkey -M main "${keymap[AshiftS]}" __zle-vlk-sudo-prefix
+zle -N __vlk::zle::sudo_prefix
+bindkey -M main "${keymap[AshiftS]}" __vlk::zle::sudo_prefix
+
 bindkey -M main "${keymap[As]}" expand-cmd-path
 
-__zle-vlk-replace-multiple-dots() {
+__vlk::zle::multidot_replace() {
     local dots=$LBUFFER[-3,-1]
     if [[ $dots =~ "^[ //\"']?\.\.$" ]]; then
         LBUFFER=$LBUFFER[1,-3]'../.'
@@ -67,13 +68,13 @@ __zle-vlk-replace-multiple-dots() {
 #     local points=$LBUFFER[-2,-1]
 #     if [[ $points =~ "^[ //\"']?\.\.$" ]]; then
 # }
-zle -N __zle-vlk-replace-multiple-dots
-bindkey "." __zle-vlk-replace-multiple-dots
+zle -N __vlk::zle::multidot_replace
+bindkey "." __vlk::zle::multidot_replace
 
-__zle-vlk-expand-alias() {
+__vlk::zle::expand_alias() {
     zle _expand_alias
     zle self-insert
     zle backward-delete-char
 }
-zle -N __zle-vlk-expand-alias
-bindkey -M main "${keymap[Ca]}" __zle-vlk-expand-alias
+zle -N __vlk::zle::expand_alias
+bindkey -M main "${keymap[Ca]}" __vlk::zle::expand_alias
