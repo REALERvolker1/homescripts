@@ -19,6 +19,7 @@ __vlkplugin::load() {
     fi
 }
 
+# to try: https://github.com/marlonrichert/zsh-autocomplete
 __vlkplugin::refresh() {
     : "${ZPLUGIN_DIR:=${XDG_DATA_HOME:=$HOME/.local/share}/zsh-plugins}"
     [[ ${1-} == '--refresh' ]] && command rm -rf "$ZPLUGIN_DIR"

@@ -339,6 +339,11 @@ SUDO_PROMPT='$(print -P "\
 ${cbg[err]}${txc[l]} SUDO ${set[sgr]}${cfg[err]}${cbg[sud]}${set[end]}\
 ${cbg[sud]}${txc[l]} Please enter your password ${set[sgr]}${cfg[sud]}${set[sud_end]}${set[sgr]}") '
 $(
+    # I will make this a lot nicer in the next promptgen script
+)
+SPROMPT="[0;1;48;5;45;38;5;232m Correct [0;38;5;45;48;5;196m${set[end]}[1;38;5;232m %R [0;38;5;196;48;5;45m${set[end]}[1;38;5;232m to [0;38;5;45;48;5;46m${set[end]}[1;38;5;17m %r [0;38;5;46;48;5;21m${set[end]}[1;38;5;255m nyae? [0;38;5;21m${set[end]}[0m "
+
+$(
     #PROMPT_EOL_MARK='$(print -P "${cbg[err]}${txc[l]} 󰌑 ${set[sgr]}${cfg[err]}${set[end]}${set[sgr]}")
     #'
     # command_not_found_handler() {

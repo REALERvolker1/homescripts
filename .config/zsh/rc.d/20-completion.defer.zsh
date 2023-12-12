@@ -29,7 +29,7 @@ zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 
 
 # fzf completion config
 # $ZDOTDIR/settings/fzf-preview.sh
-zstyle ':fzf-tab:complete:*:*' fzf-preview 'txtpreview.sh ${(Q)realpath}'
+zstyle ':fzf-tab:complete:*:*' fzf-preview 'txtpreview.zsh ${(Q)realpath}'
 #zstyle ':fzf-tab:complete:*:*' fzf-preview 'env LESSOPEN="|$ZDOTDIR/settings/lessfilter.sh %s" less ${(Q)realpath}'
 
 #zstyle ':fzf-tab:complete:*:*:cp:*' file-sort size

@@ -30,6 +30,9 @@ unsetopt sh_glob sh_file_expansion sh_option_letters sh_word_split \
     ksh_glob ksh_autoload ksh_glob ksh_option_print ksh_typeset \
     hist_no_functions all_export global_export auto_named_dirs mark_dirs null_glob pipefail
 
+# load PCRE module
+zmodload zsh/pcre
+
 ZSHRC_LOADED=false
 
 if [[ $IFS != $' \t\n\C-@' ]] {
