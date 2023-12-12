@@ -33,10 +33,12 @@ __vlkplugin::refresh() {
     typeset -A sugz=(
         [url]='https://github.com/zsh-users/zsh-autosuggestions'
         [plugin]="$ZPLUGIN_DIR/$sug/$sug.zsh"
+        [branch]=develop
     )
     typeset -A fzfz=(
         [url]='https://github.com/Aloxaf/fzf-tab'
         [plugin]="$ZPLUGIN_DIR/$fzf/$fzf.zsh"
+        [cmds]=recompile # build-fzf-tab-module
     )
 
     typeset -a error_plugins=()
@@ -44,17 +46,28 @@ __vlkplugin::refresh() {
         typeset -A plugin=("${(Pkv@)plug}")
         __vlkplugin::load $plugin[plugin] && continue
 
-        command git clone $plugin[url] ${plugin[plugin]:h}
-        __vlkplugin::load $plugin[plugin] && continue
+        local plugindir=${plugin[plugin]:h}
 
-        error_plugins+=(${plugin[plugin]##*/})
+        command git clone $plugin[url] $plugindir
+        if ((${+plugin[branch]})); then
+            local prevwd="$PWD"
+            builtin cd $plugindir &>/dev/null
+            command git checkout $plugin[branch]
+            builtin cd $prevwd &>/dev/null
+        fi
+        if __vlkplugin::load $plugin[plugin]; then
+            if ((${+plugin[cmds]})); then
+                exec $plugin[cmds]
+            fi
+        else
+            error_plugins+=($plugindir)
+        fi
     }
 
     ((${#error_plugins})) && printf '🟥 %s\n' ${(@)error_plugins}
     __VLKPLUGINS_LOADED=1
 }
 __vlkplugin::refresh
-clear
 
 __vlkplugin::fast_theme() {
     if [[ ${FAST_THEME_NAME-} != 'vlk-fsyh' ]]; then

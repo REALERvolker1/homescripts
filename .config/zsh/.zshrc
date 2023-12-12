@@ -4,7 +4,7 @@
     exit 1
 }
 # clear the screen, then reset all, including font.
-print -n '[0m[H[2J'\ '(B)0\017[?5l7[0;0r8'
+print -n '[0m[H[2J''(B)0\017[?5l7[0;0r8'
 
 # use zsh emulation, don't do any weirdness with arrays and whatnot
 emulate -LR zsh
@@ -28,7 +28,7 @@ setopt inc_append_history share_history \
 
 unsetopt sh_glob sh_file_expansion sh_option_letters sh_word_split \
     ksh_glob ksh_autoload ksh_glob ksh_option_print ksh_typeset \
-    hist_no_functions all_export global_export auto_named_dirs mark_dirs null_glob pipefail
+    hist_no_functions all_export global_export mark_dirs null_glob pipefail
 
 # load PCRE module
 zmodload zsh/pcre
