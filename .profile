@@ -4,6 +4,8 @@
 # tab_character='	'
 # expr "$-" : '.*i' >/dev/null
 
+expr ":$PATH:" : '.*:/usr/bin:.*' >/dev/null || export PATH="${PATH}:/usr/bin"
+
 if [ "${-#*i}" != "$-" ]; then
     [ "${HOSTNAME:=$(hostname)}" = "${CURRENT_HOSTNAME:-n}" ] && loginctl list-sessions --no-pager
     case "$0" in
@@ -24,5 +26,5 @@ if [ "${-#*i}" != "$-" ]; then
 #    eval $(set-cursor-theme.sh --shell-eval)
 fi
 eval $(set-cursor-theme.sh --shell-eval)
-#printf '%s\n' '' "$(date +'%X %x')" '' "$(printenv)" >~/.logenv
+#( date +'%X %x'; printenv; ) >~/.logenv
 PROFILESOURCED=true

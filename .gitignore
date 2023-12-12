@@ -9,6 +9,7 @@
 .config/shell/**/target
 .config/rustcfg/**/target
 .config/zsh/**/target
+.config/zsh/.zcompdump
 .config/**/*.zwc
 #.config/shell/*.zwc
 .config/tmux/plugins

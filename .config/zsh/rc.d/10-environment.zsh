@@ -1,11 +1,3 @@
-setopt inc_append_history share_history \
-    hist_ignore_all_dups hist_expire_dups_first \
-    hist_reduce_blanks hist_no_store hist_ignore_space \
-    hist_fcntl_lock extended_history \
-    auto_cd auto_pushd pushd_ignore_dups multios \
-    extended_glob glob_complete complete_in_word glob_dots interactive_comments \
-    prompt_subst nobgnice
-
 for i in \
     zsh="$ZDOTDIR" \
     bin="$HOME/bin" \
@@ -25,7 +17,7 @@ for i in \
     steam="$HOME/.var/app/com.valvesoftware.Steam/.local/share/Steam"; do
     hash -d $i
 done
-fpath=("$ZDOTDIR/functions" "$ZDOTDIR/site-functions" $fpath)
+fpath=("$ZDOTDIR/site-functions" $fpath)
 export -U PATH path FPATH fpath
 export -U XDG_DATA_DIRS
 export -U chpwd_functions

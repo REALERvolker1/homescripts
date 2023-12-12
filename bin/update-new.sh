@@ -126,4 +126,4 @@ if (($(jobs | wc -l))); then
 fi
 wait
 echo "Done with updates!"
-((${SHUTDOWN:-0})) && systemctl poweroff
+((${SHUTDOWN:-0})) && systemctl poweroff || :

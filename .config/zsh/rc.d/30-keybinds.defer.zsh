@@ -1,8 +1,5 @@
 # keybinds for zsh
 
-# Disable CTRL-s from freezing your terminal's output.
-stty stop undef
-
 bindkey -v
 export KEYTIMEOUT=1
 
@@ -21,60 +18,56 @@ typeset -A keymap=(
     [Cy]="^Y"
     [Ce]="^E"
 )
-
-bindkey "${keymap[home]}" beginning-of-line
-bindkey "${keymap[end]}" end-of-line
-bindkey "${keymap[delete]}" delete-char
-bindkey "${keymap[Cright]}" forward-word
-bindkey "${keymap[Cleft]}" backward-word
-bindkey "${keymap[backspace]}" backward-delete-char
-bindkey "${keymap[backspace_two]}" backward-delete-char
-bindkey "${keymap[Cz]}" undo
-bindkey "${keymap[Cy]}" redo
-
-bindkey -M vicmd "${keymap[home]}" beginning-of-line
-bindkey -M vicmd "${keymap[end]}" end-of-line
-bindkey -M vicmd "${keymap[delete]}" delete-char
-bindkey -M vicmd "${keymap[Cright]}" forward-word
-bindkey -M vicmd "${keymap[Cleft]}" backward-word
-bindkey -M vicmd "${keymap[backspace]}" backward-delete-char
-bindkey -M vicmd "${keymap[backspace_two]}" backward-delete-char
-bindkey -M vicmd "${keymap[Cz]}" undo
-bindkey -M vicmd "${keymap[Cy]}" redo
+for i in main vicmd; do
+    bindkey -M $i $keymap[home] beginning-of-line
+    bindkey -M $i $keymap[end] end-of-line
+    bindkey -M $i $keymap[delete] delete-char
+    bindkey -M $i $keymap[Cright] forward-word
+    bindkey -M $i $keymap[Cleft] backward-word
+    bindkey -M $i $keymap[backspace] backward-delete-char
+    bindkey -M $i $keymap[backspace_two] backward-delete-char
+    bindkey -M $i $keymap[Cz] undo
+    bindkey -M $i $keymap[Cy] redo
+done
 
 autoload -U edit-command-line
 zle -N edit-command-line
 bindkey $keymap[Ce] edit-command-line
 
+bindkey -M main $keymap[As] expand-cmd-path
+
 __vlk::zle::sudo_prefix() {
-    [[ $BUFFER == [[:space:]]# ]] && zle .up-history
+    [[ ${BUFFER-} == [[:space:]]# ]] && zle .up-history
     LBUFFER="sudo $LBUFFER"
 }
-
 zle -N __vlk::zle::sudo_prefix
-bindkey -M main "${keymap[AshiftS]}" __vlk::zle::sudo_prefix
+bindkey -M main $keymap[AshiftS] __vlk::zle::sudo_prefix
 
-bindkey -M main "${keymap[As]}" expand-cmd-path
-
+# replace ... with ../..
 __vlk::zle::multidot_replace() {
     local dots=$LBUFFER[-3,-1]
-    if [[ $dots =~ "^[ //\"']?\.\.$" ]]; then
-        LBUFFER=$LBUFFER[1,-3]'../.'
-    fi
+    [[ ${dots-} =~ "^[ //\"']?\.\.$" ]] && LBUFFER=$LBUFFER[1,-3]'../.'
     zle self-insert
 }
-
-# __vlk-zle-replace-exclamation-points() {
-#     local points=$LBUFFER[-2,-1]
-#     if [[ $points =~ "^[ //\"']?\.\.$" ]]; then
-# }
 zle -N __vlk::zle::multidot_replace
-bindkey "." __vlk::zle::multidot_replace
+bindkey -M main '.' __vlk::zle::multidot_replace
+
+__vlk::zle::hlep() {
+    [[ ${LBUFFER:=} =~ (\'|\") || $LBUFFER != *'-hle' ]] || LBUFFER="${LBUFFER:: -3}hel"
+    zle self-insert
+}
+zle -N __vlk::zle::hlep
+bindkey -M main 'p' __vlk::zle::hlep
 
 __vlk::zle::expand_alias() {
     zle _expand_alias
     zle self-insert
     zle backward-delete-char
 }
+
+# Disable CTRL-s from freezing your terminal's output.
+# Has no effect in my zshconfig because I use zsh-defer for this config file
+stty stop undef
+
 zle -N __vlk::zle::expand_alias
-bindkey -M main "${keymap[Ca]}" __vlk::zle::expand_alias
+bindkey -M main $keymap[Ca] __vlk::zle::expand_alias

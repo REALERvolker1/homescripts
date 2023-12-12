@@ -16,6 +16,17 @@ local -A async_jobs
         fi
     fi
 ) &
+
+local rsmod rsmodpath
+local oldcwd=$PWD
+for rsmod in "$ZDOTDIR/modules"/*(@); do
+    rsmodpath=${${rsmod:A}%\/target\/*}
+    cd $rsmodpath || continue
+    rustup override set nightly # needed to build that one zsh module library
+    cargo build --release
+done
+cd $oldcwd
+
 local await=$!
 async_jobs[fzf_lscolors]=$await
 
@@ -41,6 +52,7 @@ plugins+=(
     # fast-syntax-highlighting
     "$ZPLUGIN_DIR/fast-syntax-highlighting/"fast-{{,string-}highlight,theme}
     "$ZPLUGIN_DIR/fast-syntax-highlighting/"fast-syntax-highlighting.plugin.zsh
+    "$ZPLUGIN_DIR/fast-syntax-highlighting/".fast^*.zwc(.N)
 )
 
 if [[ -d "$ZPLUGIN_DIR/fast-syntax-highlighting/→chroma" ]]; then

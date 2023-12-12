@@ -19,9 +19,10 @@ __cexec() {
 }
 
 if [ -n "${WAYLAND_DISPLAY:-}" ]; then
-    #__cexec 'wl-clip-persist' --clipboard both
+    # wl-clip-persist clipboard primary/both makes text nonselectable in gtk applications
+    # https://github.com/Linus789/wl-clip-persist/issues/3
     if chkcmd wl-clip-persist; then
-        __cexec --safe 'wl-clip-persist' --clipboard both
+        __cexec --safe 'wl-clip-persist' --clipboard regular
     else
         pkill -ef clipmon
         for i in clipmon /usr/lib/clipmon /usr/libexec/clipmon; do
