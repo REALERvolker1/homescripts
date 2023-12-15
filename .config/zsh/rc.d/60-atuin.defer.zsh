@@ -1,4 +1,4 @@
-[[ ${TERM:-linux} != linux && $+commands[atuin] -eq 1 && -z ${VLKATUIN_SKIP-} ]] || return
+[[ ${VLKZSH_SAFEMODE:-1} -eq 0 && $+commands[atuin] -eq 1 && -z ${VLKATUIN_SKIP-} ]] || return
 export ATUIN_SESSION="$(atuin uuid)"
 __atuin::preexec() {
     local id

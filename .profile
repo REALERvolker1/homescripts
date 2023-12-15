@@ -4,7 +4,7 @@
 # tab_character='	'
 # expr "$-" : '.*i' >/dev/null
 
-expr ":$PATH:" : '.*:/usr/bin:.*' >/dev/null || export PATH="${PATH}:/usr/bin"
+expr ":$PATH:" : '.*:/usr/bin:.*' >/dev/null 2>&1 || export PATH="${PATH}:/usr/bin"
 
 if [ "${-#*i}" != "$-" ]; then
     [ "${HOSTNAME:=$(hostname)}" = "${CURRENT_HOSTNAME:-n}" ] && loginctl list-sessions --no-pager

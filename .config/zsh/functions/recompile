@@ -1,21 +1,26 @@
 # vim:ft=zsh
-emulate -L zsh
+emulate -L zsh -o extended_glob
 setopt EXTENDED_GLOB
 
 local -a plugins
 local -A async_jobs
+local await
 
-# start async jobs early
-(
-    if ((${+functions[build-fzf-tab-module]})); then
-        builtin print "[0;94mCompiling fzf-tab lscolors module[0m"
-        if build-fzf-tab-module &>/dev/null; then
-            builtin print "[0;1;92mThe fzf-tab lscolors module has been built successfully.[0m"
-        else
-            builtin print "[0;1;91mErrors compiling module. Please run 'build-fzf-tab-module' in a terminal.[0m"
+if [[ ! -f ${FZF_TAB_HOME:-}/modules/Src/aloxaf/fzftab.so || ${1-} =~ --(all|lscolors|fzf|fzf-tab) ]]; then
+    (
+        if ((${+functions[build-fzf-tab-module]})); then
+            builtin print "[0;94mCompiling fzf-tab lscolors module[0m"
+            if build-fzf-tab-module &>/dev/null; then
+                builtin print "[0;1;92mThe fzf-tab lscolors module has been built successfully.[0m"
+            else
+                builtin print "[0;1;91mErrors compiling module. Please run 'build-fzf-tab-module' in a terminal.[0m"
+            fi
         fi
-    fi
-) &
+    ) &
+    await=$!
+    async_jobs[fzf_lscolors]=$await
+fi
+
 
 local rsmod rsmodpath
 local oldcwd=$PWD
@@ -26,9 +31,6 @@ for rsmod in "$ZDOTDIR/modules"/*(@); do
     cargo build --release
 done
 cd $oldcwd
-
-local await=$!
-async_jobs[fzf_lscolors]=$await
 
 # This overwrites my own mods
 # if ((${+commands[atuin]})); then

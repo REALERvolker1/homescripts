@@ -1,14 +1,10 @@
-if [[ ${TERM-} == linux || ${TTY:-$(tty)} == /dev/tty* || -n ${VLKPLUG_SKIP-} ]]; then
-    zmodload zsh/nearcolor # make truecolors behave well in TTY
-    return
-fi
+[[ ${VLKZSH_SAFEMODE:-1} -eq 1 || -n ${VLKPLUG_SKIP-} ]] && return
 
 ZSH_AUTOSUGGEST_STRATEGY=(match_prev_cmd completion history)
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=30
 ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 ZSH_AUTOSUGGEST_HISTORY_IGNORE="?(#c50,)"
 
-typeset -i __VLKPLUGINS_LOADED=0
 __vlkplugin::load() {
     if [[ -f $1 ]]; then
         zsh-defer . "$1"
@@ -38,7 +34,7 @@ __vlkplugin::refresh() {
     typeset -A fzfz=(
         [url]='https://github.com/Aloxaf/fzf-tab'
         [plugin]="$ZPLUGIN_DIR/$fzf/$fzf.zsh"
-        [cmds]=recompile # build-fzf-tab-module
+        [cmds]="recompile --all" # build-fzf-tab-module
     )
 
     typeset -a error_plugins=()
@@ -65,7 +61,6 @@ __vlkplugin::refresh() {
     }
 
     ((${#error_plugins})) && printf '🟥 %s\n' ${(@)error_plugins}
-    __VLKPLUGINS_LOADED=1
 }
 __vlkplugin::refresh
 

@@ -71,3 +71,4 @@ stty stop undef
 
 zle -N __vlk::zle::expand_alias
 bindkey -M main $keymap[Ca] __vlk::zle::expand_alias
+

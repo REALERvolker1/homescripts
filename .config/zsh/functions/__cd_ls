@@ -1,3 +1,4 @@
+emulate -L zsh -o extended_glob
 local -a dircontents=(./*(N))
 local -i fcount=${#dircontents}
 # local -i fcount=${#${(f)"$(print -l ./*(N))"}}

@@ -22,7 +22,7 @@
     "files.trimTrailingWhitespace": true,
     "workbench.enableExperiments": false,
     "workbench.welcomePage.extraAnnouncements": false,
-    "workbench.colorTheme": "One Dark Pro Darker",
+    "workbench.colorTheme": "Two Monokai Darker",
     "workbench.preferredDarkColorTheme": "One Dark Pro Darker",
     "workbench.preferredLightColorTheme": "Visual Studio Light",
     "workbench.tips.enabled": false,
@@ -64,7 +64,6 @@
     "svelte.enable-ts-plugin": true,
     "files.insertFinalNewline": true,
     "prettier.semi": false,
-    "prettier.singleAttributePerLine": true,
     "prettier.tabWidth": 4,
     "git.enableSmartCommit": true,
     "editor.guides.highlightActiveIndentation": "always",
@@ -136,11 +135,6 @@
     "[perl]": {
         "editor.defaultFormatter": "richterger.perl"
     },
-    "python.analysis.extraPaths": [
-        "/home/vlk/.vscode-oss/extensions/continue.continue-0.2.0-linux-x64",
-        "/home/vlk/.vscode-oss/extensions/continue.continue-0.5.0-linux-x64",
-        "/home/vlk/.vscode-oss/extensions/continue.continue-0.6.0-linux-x64"
-    ],
     "python.autoComplete.extraPaths": [
         "/home/vlk/.vscode-oss/extensions/continue.continue-0.2.0-linux-x64",
         "/home/vlk/.vscode-oss/extensions/continue.continue-0.5.0-linux-x64",
@@ -162,5 +156,20 @@
     "html.format.enable": false,
     "[html]": {
         "editor.defaultFormatter": "vscode.html-language-features"
-    }
+    },
+    "ccls.cache.directory": ".cache/ccls",
+    "perl.cacheDir": "${workspace}/.cache/perl-lang",
+    "bashIde.backgroundAnalysisMaxFiles": 0,
+    "shellformat.effectLanguages": [
+        "shellscript",
+        "dockerfile",
+        "dotenv",
+        "hosts",
+        "jvmoptions",
+        "ignore",
+        "gitignore",
+        "properties",
+        "spring-boot-properties",
+        "azcli"
+    ]
 }

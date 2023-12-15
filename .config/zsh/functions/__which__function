@@ -17,7 +17,7 @@
 #     fi
 # }
 
-emulate -L zsh
+emulate -L zsh -o extended_glob
 
 oldifs="${IFS-}"
 IFS=$'\n\t'

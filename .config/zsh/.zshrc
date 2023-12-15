@@ -1,16 +1,21 @@
-[[ -n ${ZSH_VERSION-} && $- == *i* ]] || {
+[[ -n ${ZSH_VERSION-} && -o i ]] || {
     echo "failed to load zshrc"
     return 1
     exit 1
 }
-# clear the screen, then reset all, including font.
-print -n '[0m[H[2J''(B)0\017[?5l7[0;0r8'
+unset ZSHRC_LOADED
 
 # use zsh emulation, don't do any weirdness with arrays and whatnot
 emulate -LR zsh
 
-# get out of safe mode, unset debug logging
-set +xeu pipefail
+# clear the screen, then reset all, including font.
+print -n '[0m[H[2J''(B)0\017[?5l7[0;0r8'
+
+### shell session settings
+# VLKPROMPT_SKIP=1
+# VLKPLUG_SKIP=1
+# VLKATUIN_SKIP=1
+# VLKZSH_RECOMPILE=1
 
 # make ctrl+S not freeze the terminal
 stty stop undef
@@ -28,12 +33,18 @@ setopt inc_append_history share_history \
 
 unsetopt sh_glob sh_file_expansion sh_option_letters sh_word_split \
     ksh_glob ksh_autoload ksh_glob ksh_option_print ksh_typeset \
-    hist_no_functions all_export global_export mark_dirs null_glob pipefail
+    hist_no_functions all_export global_export mark_dirs null_glob \
+    no_unset err_exit pipefail
 
-# load PCRE module
+# load zsh modules
 zmodload zsh/pcre
 
-ZSHRC_LOADED=false
+typeset -ig VLKZSH_SAFEMODE=0
+if [[ ${TERM-} == linux || ${TTY:=$(tty)} == /dev/tty* || ${COLORTERM-} != truecolor ]]; then
+    VLKZSH_SAFEMODE=1
+    # make truecolors behave well in TTY
+    zmodload zsh/nearcolor
+fi
 
 if [[ $IFS != $' \t\n\C-@' ]] {
     declare IFS
@@ -43,12 +54,6 @@ if [[ $IFS != $' \t\n\C-@' ]] {
 
 # Idea: debug mode function. When run, it adds useful stuff like lines/cols
 # and persistent exec time and whatever to my prompt
-
-### shell session settings
-# VLKPROMPT_SKIP=1
-# VLKPLUG_SKIP=1
-# VLKATUIN_SKIP=1
-# VLKZSH_RECOMPILE=1
 
 # Certain files like vlkrc and vlkenv from ~/bin are loaded along with other settings files
 
@@ -71,6 +76,6 @@ if ((COLUMNS > 55)) {
     [[ -z ${DISTROBOX_ENTER_PATH-} ]] && lsdiff
 }
 unset i
-ZSHRC_LOADED=true
+typeset -i ZSHRC_LOADED=1
 :
 
