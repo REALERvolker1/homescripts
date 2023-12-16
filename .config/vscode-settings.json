@@ -22,7 +22,7 @@
     "files.trimTrailingWhitespace": true,
     "workbench.enableExperiments": false,
     "workbench.welcomePage.extraAnnouncements": false,
-    "workbench.colorTheme": "Two Monokai Darker",
+    "workbench.colorTheme": "One Dark Pro Darker",
     "workbench.preferredDarkColorTheme": "One Dark Pro Darker",
     "workbench.preferredLightColorTheme": "Visual Studio Light",
     "workbench.tips.enabled": false,
