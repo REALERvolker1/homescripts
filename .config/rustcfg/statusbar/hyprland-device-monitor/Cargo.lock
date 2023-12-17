@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "echoc"
+name = "hyprland-device-monitor"
 version = "0.1.0"

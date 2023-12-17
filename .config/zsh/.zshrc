@@ -70,6 +70,9 @@ for i in "$ZDOTDIR/functions"/^*.zwc(.N)
 
 ((${+VLKZSH_RECOMPILE})) && echo "Recompiling..." && recompile >/dev/null
 
+#eval "$(zoxide init zsh)"
+alias c=z
+
 if ((COLUMNS > 55)) {
     dumbfetch
     fortune -a -s | lolcat

@@ -1,0 +1,27 @@
+[package]
+name = "ls-colors-cli"
+description = "A better lscolors CLI. Colorize all your paths with LS_COLORS!"
+version = "0.1.0"
+edition = "2021"
+categories = ["command-line-interface"]
+
+keywords = [
+    "dircolors",
+    "coreutils",
+    "cli",
+    "linux",
+    "terminal",
+    "filesystem",
+    "color",
+]
+license = "MIT/Apache-2.0"
+readme = "README.md"
+
+[[bin]]
+name = "ls-colors"
+path = "src/bin.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lscolors = { version = "0.16.0", default-features = false, features = ["nu-ansi-term", "gnu_legacy"] }

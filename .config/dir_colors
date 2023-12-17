@@ -161,6 +161,9 @@ EXEC 01;38;5;46 # files with execute permission
 .qcow 1;38;5;126 # QEMU Copy-on-Write disk image
 .qcow2 1;38;5;126 # QCOW 2 electric boogaloo
 .qed 1;38;5;126 # QEMU Enhanced Disk image
+.vhd 1;38;5;126 # Virtualbox hard disk
+.vdi 1;38;5;126 # Virtualbox disk image
+.vmdk 1;38;5;126 # Virtualbox machine disk
 .hdd 1;38;5;126 # MacOS parallels hard disk
 
 # packages

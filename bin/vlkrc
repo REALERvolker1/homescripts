@@ -272,8 +272,10 @@ alias flc='flatpak remote-ls --updates'
 
 if command -v pacman &>/dev/null; then
     alias unfuck-pacman-cache="sudo pacman -Qk | grep '[^0] missing files'"
-    alias paci='sudo pacman -S --needed '
-    alias pacr='sudo pacman -Rcs '
+    #alias paci='sudo pacman -S --needed '
+    alias paci='pacman -Si'
+    alias paqm='pacman -Qm' # list AUR packages
+    alias pacr='sudo pacman -Rcs'
     alias pacl='pacman -Q | fzf'
     alias pacb='pacman -Fl | grep -E "\s+(${PATH//:\//|})" | fzf'
     # alias pacs='pacman -Sl | fzf'

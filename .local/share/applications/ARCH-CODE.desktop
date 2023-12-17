@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=ARCH-CODE
+GenericName=Terminal entering ARCH-CODE
+Comment=Terminal entering ARCH-CODE
+Categories=Distrobox;System;Utility
+Exec=/usr/bin/distrobox enter  ARCH-CODE
+Icon=/home/vlk/.local/share/icons/distrobox/arch.png
+Keywords=distrobox;
+NoDisplay=false
+Terminal=true
+TryExec=/usr/bin/distrobox
+Type=Application
