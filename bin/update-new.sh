@@ -101,26 +101,27 @@ if command -v apt; then\
     sudo apt update && sudo apt upgrade;\
 fi;\
 "
-
-if cmd distrobox; then
-    distrobox upgrade --all
-    #boxes="$(distrobox-ls --no-color 2>/dev/null | sed -z 's/^ID[^\n]*\n//; s/[[:blank:]]//g' | cut -d '|' -f 2 || :)"
-    #for i in $boxes; do
-    #    _head "Distrobox '$i'"
-    #    unsafe distrobox-enter -n "$i" -- /bin/sh -c "$distrobox_script"
-    #done
-fi
+(
+    if cmd rustup; then
+        _head '󱘗 rustup' '38;5;166'
+        unsafe rustup update
+    fi
+    if cmd cargo-install-update; then
+        _head '󱘗 cargo' '38;5;166'
+        unsafe cargo install-update -a -g
+    fi
+) &
 
 if cmd flatpak; then
     _head ' flatpak' 94
     unsafe flatpak update -y
 fi
 
-if cmd cargo-install-update; then
-    _head '󱘗 cargo' '38;5;166'
-    unsafe cargo install-update -a -g
+if cmd distrobox; then
+    _head '󰡨 Distrobox' '38;5;95'
+    distrobox upgrade --all
 fi
-if (($(jobs | wc -l))); then
+if (($(jobs -r | wc -l))); then
     echo "Waiting for background jobs to finish"
     jobs
 fi
