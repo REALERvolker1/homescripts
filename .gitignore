@@ -11,6 +11,7 @@
 .config/zsh/**/target
 .config/zsh/.zcompdump
 .config/**/*.zwc
+.config/**/node_modules
 #.config/shell/*.zwc
 .config/tmux/plugins
 .config/nushell/history.txt

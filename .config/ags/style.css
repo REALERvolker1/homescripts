@@ -1,0 +1,6 @@
+.workspace_button_visible {
+    background-color: purple;
+}
+.workspace_button_active {
+    background-color: red;
+}
