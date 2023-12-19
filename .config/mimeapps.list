@@ -1,0 +1,29 @@
+[Default Applications]
+x-scheme-handler/https=re.sonny.Junction.desktop
+x-scheme-handler/http=re.sonny.Junction.desktop
+video/mp4=vlc.desktop
+video/x-matroska=vlc.desktop
+image/png=org.gnome.Loupe.desktop
+audio/mpeg=io.bassi.Amberol.desktop
+image/jpeg=org.gnome.Loupe.desktop
+font/ttf=org.gnome.font-viewer.desktop
+application/pdf=org.gnome.Evince.desktop
+text/plain=org.gnome.TextEditor.desktop
+application/x-shellscript=org.gnome.TextEditor.desktop
+text/x-csrc=org.gnome.TextEditor.desktop
+application/xml=org.gnome.TextEditor.desktop
+
+[Added Associations]
+x-scheme-handler/https=io.gitlab.librewolf-community.desktop;org.mozilla.firefox.desktop;com.brave.Browser.desktop;
+video/mp4=vlc.desktop;
+video/x-matroska=vlc.desktop;
+image/png=org.gnome.Loupe.desktop;
+audio/mpeg=io.bassi.Amberol.desktop;
+x-scheme-handler/http=io.gitlab.librewolf-community.desktop;
+image/jpeg=org.gnome.Loupe.desktop;
+font/ttf=org.gnome.font-viewer.desktop;
+application/pdf=org.gnome.Evince.desktop;
+text/plain=org.gnome.TextEditor.desktop;
+application/x-shellscript=org.gnome.TextEditor.desktop;
+text/x-csrc=org.gnome.TextEditor.desktop;
+application/xml=org.gnome.TextEditor.desktop;

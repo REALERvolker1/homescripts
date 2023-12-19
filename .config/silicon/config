@@ -1,0 +1,6 @@
+--shadow-color '#555'
+--shadow-blur-radius 30
+--theme TwoDark
+--no-window-controls
+--font monospace
+--background '#7857ff'
