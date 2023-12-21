@@ -120,10 +120,8 @@ where
 
     Ok(sel_string)
 }
-// proc::Proc
-/// A function to get the terminal width for the preferred width.
-///
-/// If it cannot get the terminal width, then it will return usize::MAX, basically disabling it anyways.
+
+/// A function to get the terminal width for the preferred width. If it cannot get the terminal width, then it will return usize::MAX, basically disabling it anyways.
 pub fn terminal_width() -> usize {
     let size_cmd_output = process::Command::new("tput").arg("cols").output();
 
@@ -140,8 +138,9 @@ pub fn terminal_width() -> usize {
 }
 
 /// Check the PATH for multiple binaries.
-pub fn check_dependencies(binaries_list: &[&str]) -> Result<(), procinfo::ProcError> {
+pub fn check_dependencies(binaries_list: &[&str]) -> Result<Vec<String>, procinfo::ProcError> {
     let mut binaries = HashSet::new();
+    let mut has_binaries = Vec::new();
     {
         let _bruh = binaries_list.iter().map(|p| binaries.insert(*p));
     }
@@ -159,6 +158,7 @@ pub fn check_dependencies(binaries_list: &[&str]) -> Result<(), procinfo::ProcEr
         let read_dir = if let Ok(rd) = dir.read_dir() {
             rd
         } else {
+            // If we couldn't read the dir, it probably wasn't important anyway
             continue;
         };
         for file_name in read_dir
@@ -169,13 +169,14 @@ pub fn check_dependencies(binaries_list: &[&str]) -> Result<(), procinfo::ProcEr
             for bin in binaries.clone() {
                 if file_name == bin {
                     binaries.remove(bin);
+                    has_binaries.push(bin.to_owned());
                 }
             }
         }
     }
     if binaries.is_empty() {
         // We are done here
-        Ok(())
+        Ok(has_binaries)
     } else {
         Err(procinfo::ProcError::PathBinaryError(
             binaries

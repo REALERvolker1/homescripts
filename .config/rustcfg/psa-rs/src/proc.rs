@@ -141,7 +141,8 @@ impl StyleCache {
 pub struct Proc {
     pub name: String,
     pub state: procinfo::RecognizedStates,
-    pub user: procinfo::User,
+    // pub user: procinfo::User,
+    pub user_fmt: String,
     pub pid: i32,
     pub pid_styled: String,
     pub ppid: i32,
@@ -153,7 +154,8 @@ impl Default for Proc {
         Self {
             name: "".to_owned(),
             state: procinfo::RecognizedStates::Unknown,
-            user: procinfo::User::default(),
+            // user: procinfo::User::default(),
+            user_fmt: "".to_owned(),
             pid: -1,
             pid_styled: "".to_owned(),
             ppid: -1,
@@ -164,29 +166,12 @@ impl Default for Proc {
 }
 impl Proc {
     /// Basically the main function lmao. It takes so many args because it is supposed to be used in one specific way.
-    ///
-    /// Don't use this for anything other than formatting all the args.
     pub fn from_procfs_proc(
         procfs_process: procfs::process::Process,
-        show_all: bool,
-        user: &procinfo::User,
+        user: Rc<procinfo::User>,
         style_cache: &mut StyleCache,
         approximate_preferred_width: usize,
     ) -> Result<Proc, procinfo::ProcError> {
-        // do uid filtering first, make sure we need to show it or not before computing all this
-        let uid = procfs_process.uid()?;
-        // let (filter_type, user) = if show_all {
-        //     if let Some(user) = user_cache.get_user(uid) {
-        //         (user.filter_type, unrc!(user))
-        //     } else {
-        //         return Err(procinfo::ProcError::UserError(
-        //             procinfo::UserErrorType::MatchFilter,
-        //         ));
-        //     }
-        // } else {
-        //     let user_arc = Arc::clone(&procinfo::USER);
-        //     (user_arc.filter_type, unrc!(user_arc))
-        // };
         let filter_type = user.filter_type;
 
         let my_pid = procfs_process.pid();
@@ -276,7 +261,8 @@ impl Proc {
         Ok(Self {
             name,
             state,
-            user: user.to_owned(),
+            // user: unrc!(user),
+            user_fmt: user.paint(),
             pid: my_pid,
             pid_styled: style_pid,
             ppid: parent_pid,
@@ -285,12 +271,7 @@ impl Proc {
         })
     }
     pub fn console_style(&self) -> String {
-        let args_string = self
-            .styled_args
-            .iter()
-            .map(|a| a.to_owned())
-            .collect::<Vec<String>>()
-            .join(" ");
+        let args_string = self.styled_args.join(" ");
         format!(
             "{}{}{}{}{}",
             self.pid_styled,
@@ -308,17 +289,23 @@ ARGS: {}",
             self.pid_styled,
             self.name,
             self.state.paint(),
-            self.user.paint(),
+            // self.user.paint(),
+            self.user_fmt,
             self.styled_args.join(" ")
         )
     }
-}
+    pub fn from_pid(pid: i32) -> Result<Self, procinfo::ProcError> {
+        let procfs_process = procfs::process::Process::new(pid)?;
+        let user = if let Some(u) = procinfo::User::from_uid(procfs_process.uid()?) {
+            Rc::new(u)
+        } else {
+            return Err(procinfo::ProcError::CustomError(
+                "Could not find user!".to_owned(),
+            ));
+        };
 
-// /// implemented quick and dirty
-// fn style_args<'a, I>(args: I, style_cache: &mut StyleCache) -> Vec<String>
-// where
-//     I: Iterator<Item = &'a String>,
-// {
-//     args.map(|a| style_cache.get_styled_arg(a))
-//         .collect::<Vec<String>>()
-// }
+        let mut style_cache = StyleCache::default();
+
+        Self::from_procfs_proc(procfs_process, user, &mut style_cache, 0)
+    }
+}

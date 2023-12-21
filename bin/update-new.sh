@@ -41,7 +41,7 @@ else
 fi
 readonly DISTRO_COLOR
 
-echo "This script requires sudo"
+sudo -vn &>/dev/null || echo "This script requires sudo"
 sudo -v
 
 if cmd apt; then
@@ -76,6 +76,9 @@ if cmd pacman; then
         _head ' pacman'
         unsafe sudo pacman -Syyu
     fi
+    if cmd reflector; then
+        unsafe sudo reflector '@/etc/xdg/reflector/reflector.conf' --save '/etc/pacman.d/mirrorlist' &
+    fi
     if cmd pkgfile; then
         _head "Backgrounding pkgfile" 95
         [ ! -d /var/cache/pkgfile ] && sudo mkdir -p /var/cache/pkgfile
@@ -85,22 +88,6 @@ if cmd pacman; then
     unsafe sudo pacman -Fy &>/dev/null &
 fi
 
-# distrobox_script="if command -v pacman; thensudo pacman -Syu; fi"
-distrobox_script="\
-if command -v pacman; then\
-    if command -v yay; then\
-        yay -Syu --devel;\
-    else\
-        sudo pacman -Syu;\
-    fi;\
-fi;\
-if command -v dnf; then\
-    sudo dnf upgrade --refresh;\
-fi;\
-if command -v apt; then\
-    sudo apt update && sudo apt upgrade;\
-fi;\
-"
 (
     if cmd rustup; then
         _head '󱘗 rustup' '38;5;166'

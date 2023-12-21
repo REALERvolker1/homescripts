@@ -1,12 +1,14 @@
-use std::env;
+use std::{env, rc::Rc};
 use users;
 
 mod command;
+mod options;
 mod proc;
 mod procinfo;
 mod style;
 
-const KERNEL_OR_INIT_PPIDS: [i32; 3] = [0, 1, 2];
+/// Common PIDs of kernel processes (like [kworker/kslavelabor] and [kthreadd])
+const KERNEL_OR_INIT_PIDS: [i32; 3] = [0, 1, 2];
 
 fn main() -> Result<(), procinfo::ProcError> {
     let mut args_iter = env::args().skip(1);
@@ -19,9 +21,16 @@ fn main() -> Result<(), procinfo::ProcError> {
                 show_preview_window_nocache(&args)?
             }
             _ => {
+                let help_text = vec![
+                    "--all\tShows all processes, not just those owned by you",
+                    "",
+                    "Running this command without any args will show all processes owned by the current user",
+                ];
                 println!(
-                    "unknown arg: '{}'\nFlag --all will show all processes",
-                    first_arg
+                    "Unknown arg: '{}'\nUsage: {} [options]\n{}",
+                    first_arg,
+                    env!("CARGO_PKG_NAME"),
+                    help_text.join("\n")
                 );
             }
         }
@@ -35,11 +44,23 @@ fn main() -> Result<(), procinfo::ProcError> {
 /// The preview window, with more up to date information, without a cachefile
 fn show_preview_window_nocache(fzf_output: &str) -> Result<(), procinfo::ProcError> {
     if let Some(pid) = command::get_pid_from_fzf_output(fzf_output) {
-        if let Ok(process) = procfs::process::Process::new(pid) {
-            let mut style_cache = proc::StyleCache::default();
-            // let user_cache = procinfo::UserList::all();
-            let user = procinfo::User::from_uid(process.uid()?).unwrap();
-            let proc = proc::Proc::from_procfs_proc(process, true, &user, &mut style_cache, 0)?;
+        let process = proc::Proc::from_pid(pid)?;
+        println!("{}", process.info_style());
+    }
+    Err(procinfo::ProcError::CustomError(
+        "Could not find process!".to_owned(),
+    ))
+}
+
+/*
+/// The preview window preview command, using a cachefile that shows a snapshot of the machine state
+///
+/// as it was when the program started running
+fn show_preview_window(fzf_output: &str) -> Result<(), procinfo::ProcError> {
+    let mut serde_reader = command::SerdeReader::new_empty()?;
+    serde_reader.from_file()?;
+    if let Some(pid) = command::get_pid_from_fzf_output(fzf_output) {
+        if let Some(proc) = serde_reader.get_process_by_pid(pid) {
             println!("{}", proc.info_style());
             return Ok(());
         }
@@ -48,23 +69,7 @@ fn show_preview_window_nocache(fzf_output: &str) -> Result<(), procinfo::ProcErr
         "Could not find process!".to_owned(),
     ))
 }
-
-/// The preview window preview command, using a cachefile that shows a snapshot of the machine state
-///
-/// as it was when the program started running
-// fn show_preview_window(fzf_output: &str) -> Result<(), procinfo::ProcError> {
-//     let mut serde_reader = command::SerdeReader::new_empty()?;
-//     serde_reader.from_file()?;
-//     if let Some(pid) = command::get_pid_from_fzf_output(fzf_output) {
-//         if let Some(proc) = serde_reader.get_process_by_pid(pid) {
-//             println!("{}", proc.info_style());
-//             return Ok(());
-//         }
-//     }
-//     Err(procinfo::ProcError::CustomError(
-//         "Could not find process!".to_owned(),
-//     ))
-// }
+*/
 
 /// the real main() function
 fn main_process_screen(show_all: bool) -> Result<(), procinfo::ProcError> {
@@ -100,23 +105,17 @@ fn main_process_screen(show_all: bool) -> Result<(), procinfo::ProcError> {
             } else {
                 return None;
             };
-            if !show_all && (KERNEL_OR_INIT_PPIDS.contains(&p.pid()) || uid != my_uid) {
-                return None;
+            if !show_all {
+                if KERNEL_OR_INIT_PIDS.contains(&p.pid) || uid != my_uid {
+                    return None;
+                }
             }
             if let Some(u) = user_cache.get_user(uid) {
-                let user = u.as_ref().to_owned();
-                Some(proc::Proc::from_procfs_proc(
-                    p,
-                    show_all,
-                    &user,
-                    &mut style_cache,
-                    preferred_width_base,
-                ))
+                proc::Proc::from_procfs_proc(p, u, &mut style_cache, preferred_width_base).ok()
             } else {
                 None
             }
         })
-        .filter_map(|p| p.ok())
         .collect::<Vec<_>>();
 
     // put the output strings here because the processes are moved into the SerdeReader
@@ -125,24 +124,43 @@ fn main_process_screen(show_all: bool) -> Result<(), procinfo::ProcError> {
         .map(|p| p.console_style())
         .collect::<Vec<_>>();
 
-    // println!("{}", console_output.join("\n"));
-
     // Make a new SerdeReader with the processes
-    let serde_reader = command::SerdeReader::new_with_procs(processes)?;
-
+    // let serde_reader = command::SerdeReader::new_with_procs(processes)?;
     // put everything into a file for this program to read
-    serde_reader.to_file()?;
+    // serde_reader.to_file()?;
 
     // fzf_menu
-    if let Ok(selected) = command::fzf_menu(console_output.iter(), &preview_cmd) {
-        println!("Selected: {}", selected);
-    } else {
-        println!("No process selected");
-    }
+    let selected_proc =
+        if let Ok(selected_line) = command::fzf_menu(console_output.iter(), &preview_cmd) {
+            proc_from_fzf_output(&selected_line)?
+        } else {
+            println!("No process selected");
+            return Ok(());
+        };
+    // options::print_verbose(1115)?;
+    let mut opts = options::PrintMap::new();
+    opts.fmt_pid(1115)?;
 
     // remove the tmpfile
-    serde_reader.cleanup()?;
-    // serde_reader.
+    // serde_reader.cleanup()?;
 
     Ok(())
+}
+
+/// Show the options for each process
+fn process_opts(process: proc::Proc, show_all: bool) -> Result<(), procinfo::ProcError> {
+    // This is a list of possible options. Can be expanded upon
+    let mut options: Vec<&str> = Vec::new();
+    Ok(())
+}
+
+fn proc_from_fzf_output(outputstr: &str) -> Result<proc::Proc, procinfo::ProcError> {
+    let pid = if let Some(p) = command::get_pid_from_fzf_output(outputstr) {
+        p
+    } else {
+        return Err(procinfo::ProcError::CustomError(
+            "Could not get pid from fzf output".to_owned(),
+        ));
+    };
+    proc::Proc::from_pid(pid)
 }

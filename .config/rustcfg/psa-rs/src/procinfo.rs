@@ -90,13 +90,10 @@ pub enum UserErrorType {
 pub enum ProcError {
     IoError(io::Error),
     ProcError(procfs::ProcError),
-    UserError(UserErrorType),
     SerdeJsonError(serde_json::Error),
     EnvironmentError(env::VarError),
     PathBinaryError(String),
     CustomError(String),
-    StatError,
-    StatusError,
     Unknown,
 }
 impl error::Error for ProcError {}
@@ -105,13 +102,10 @@ impl Display for ProcError {
         match self {
             Self::IoError(e) => write!(f, "IoError: {}", e),
             Self::ProcError(e) => write!(f, "ProcError: {}", e),
-            Self::UserError(e) => write!(f, "UserError: {:?}", e),
             Self::SerdeJsonError(e) => write!(f, "SerdeJsonError: {:?}", e),
             Self::EnvironmentError(e) => write!(f, "EnvironmentError: {}", e),
             Self::PathBinaryError(e) => write!(f, "Missing required commands: {}", e),
             Self::CustomError(e) => write!(f, "Error: {}", e),
-            Self::StatError => write!(f, "StatError"),
-            Self::StatusError => write!(f, "StatusError"), // unused
             Self::Unknown => write!(f, "Unknown"),
         }
     }
@@ -202,12 +196,17 @@ impl Default for UserList {
     }
 }
 impl UserList {
+    /// Get a UserList that only contains the current user
     pub fn just_me() -> Self {
+        let my_user = Rc::new(User::me());
+        let mut myhashmap = HashMap::new();
+        myhashmap.insert(my_user.uid, Rc::clone(&my_user));
         Self {
-            me: User::me(),
-            users: HashMap::new(),
+            me: my_user.as_ref().to_owned(),
+            users: myhashmap,
         }
     }
+    /// Get a UserList that contains all the users on the system
     pub fn all() -> Self {
         let mut userlist = HashMap::new();
         // first time I actually need to use an unsafe block lmao
