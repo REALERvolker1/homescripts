@@ -152,7 +152,7 @@
     "workbench.commandPalette.experimental.suggestCommands": true,
     "python.experiments.enabled": false,
     "python.experiments.optInto": [],
-    "window.zoomLevel": -3,
+    "window.zoomLevel": -1,
     "html.format.enable": false,
     "[html]": {
         "editor.defaultFormatter": "vscode.html-language-features"

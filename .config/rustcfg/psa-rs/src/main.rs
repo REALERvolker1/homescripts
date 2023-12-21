@@ -1,73 +1,148 @@
-use serde::{Deserialize, Serialize};
-use static_init::{self, dynamic};
-use std::{
-    collections::HashMap,
-    env, error, io,
-    path::{Path, PathBuf},
-    process,
-    rc::Rc,
-};
+use std::env;
 use users;
 
 mod command;
 mod proc;
+mod procinfo;
 mod style;
 
 const KERNEL_OR_INIT_PPIDS: [i32; 3] = [0, 1, 2];
 
-fn main() -> Result<(), Box<dyn error::Error>> {
-    let mut show_all = false;
-    for arg in env::args().skip(1) {
-        match arg.as_str() {
-            "--all" => show_all = true,
+fn main() -> Result<(), procinfo::ProcError> {
+    let mut args_iter = env::args().skip(1);
+    if let Some(first_arg) = args_iter.next() {
+        match first_arg.as_str() {
+            "--all" => main_process_screen(true)?,
+            "--internal-preview-window" => {
+                let args = args_iter.collect::<Vec<String>>().join(" ");
+                // show_preview_window(&args)?
+                show_preview_window_nocache(&args)?
+            }
             _ => {
-                println!("unknown arg: '{}'\nFlag --all will show all processes", arg);
+                println!(
+                    "unknown arg: '{}'\nFlag --all will show all processes",
+                    first_arg
+                );
             }
         }
-    }
-    let user_cache = if show_all {
-        proc::UserList::all()
     } else {
-        proc::UserList::just_me()
-    };
-    let preferred_width_base = command::terminal_width()? * 2;
+        // no args passed
+        main_process_screen(false)?;
+    }
+    Ok(())
+}
 
-    // let mut color_path_cache: HashMap<&str, Rc<String>> = HashMap::new();
+/// The preview window, with more up to date information, without a cachefile
+fn show_preview_window_nocache(fzf_output: &str) -> Result<(), procinfo::ProcError> {
+    if let Some(pid) = command::get_pid_from_fzf_output(fzf_output) {
+        if let Ok(process) = procfs::process::Process::new(pid) {
+            let mut style_cache = proc::StyleCache::default();
+            // let user_cache = procinfo::UserList::all();
+            let user = procinfo::User::from_uid(process.uid()?).unwrap();
+            let proc = proc::Proc::from_procfs_proc(process, true, &user, &mut style_cache, 0)?;
+            println!("{}", proc.info_style());
+            return Ok(());
+        }
+    }
+    Err(procinfo::ProcError::CustomError(
+        "Could not find process!".to_owned(),
+    ))
+}
+
+/// The preview window preview command, using a cachefile that shows a snapshot of the machine state
+///
+/// as it was when the program started running
+// fn show_preview_window(fzf_output: &str) -> Result<(), procinfo::ProcError> {
+//     let mut serde_reader = command::SerdeReader::new_empty()?;
+//     serde_reader.from_file()?;
+//     if let Some(pid) = command::get_pid_from_fzf_output(fzf_output) {
+//         if let Some(proc) = serde_reader.get_process_by_pid(pid) {
+//             println!("{}", proc.info_style());
+//             return Ok(());
+//         }
+//     }
+//     Err(procinfo::ProcError::CustomError(
+//         "Could not find process!".to_owned(),
+//     ))
+// }
+
+/// the real main() function
+fn main_process_screen(show_all: bool) -> Result<(), procinfo::ProcError> {
+    // make sure I have the required dependencies
+    command::check_dependencies(&["fzf", "tput"])?;
+
+    // do this first. If it fails, then I won't have to do more computation.
+    let preview_cmd = if let Some(exe) = env::current_exe()?.to_str() {
+        format!("--preview={} --internal-preview-window {{}}", exe)
+    } else {
+        "--preview=echo {}".to_owned()
+    };
+
+    let user_cache = if show_all {
+        procinfo::UserList::all()
+    } else {
+        procinfo::UserList::just_me()
+    };
+
+    // This is intended to make it so the args cut off at a somewhat reasonable width.
+    // It will not be the full width, but ehh idc
+    let preferred_width_base = command::terminal_width();
+
     let mut style_cache = proc::StyleCache::default();
     let my_uid = users::get_current_uid();
 
     let processes = procfs::process::all_processes()?
         .into_iter()
         .filter_map(|p| p.ok())
-        .filter(|p| {
-            if show_all {
-                true
+        .filter_map(|p| {
+            let uid = if let Ok(u) = p.uid() {
+                u
             } else {
-                if let Ok(uid) = p.uid() {
-                    !KERNEL_OR_INIT_PPIDS.contains(&p.pid()) && uid == my_uid
-                } else {
-                    false
-                }
+                return None;
+            };
+            if !show_all && (KERNEL_OR_INIT_PPIDS.contains(&p.pid()) || uid != my_uid) {
+                return None;
             }
-        })
-        .map(|p| {
-            proc::Proc::from_procfs_proc(
-                p,
-                show_all,
-                &user_cache,
-                &mut style_cache,
-                my_uid,
-                preferred_width_base,
-            )
+            if let Some(u) = user_cache.get_user(uid) {
+                let user = u.as_ref().to_owned();
+                Some(proc::Proc::from_procfs_proc(
+                    p,
+                    show_all,
+                    &user,
+                    &mut style_cache,
+                    preferred_width_base,
+                ))
+            } else {
+                None
+            }
         })
         .filter_map(|p| p.ok())
         .collect::<Vec<_>>();
 
-    // println!("Processes: {:#?}", processes);
+    // put the output strings here because the processes are moved into the SerdeReader
+    let console_output = processes
+        .iter()
+        .map(|p| p.console_style())
+        .collect::<Vec<_>>();
 
-    for p in processes {
-        println!("{}", p.console_style());
+    // println!("{}", console_output.join("\n"));
+
+    // Make a new SerdeReader with the processes
+    let serde_reader = command::SerdeReader::new_with_procs(processes)?;
+
+    // put everything into a file for this program to read
+    serde_reader.to_file()?;
+
+    // fzf_menu
+    if let Ok(selected) = command::fzf_menu(console_output.iter(), &preview_cmd) {
+        println!("Selected: {}", selected);
+    } else {
+        println!("No process selected");
     }
+
+    // remove the tmpfile
+    serde_reader.cleanup()?;
+    // serde_reader.
 
     Ok(())
 }

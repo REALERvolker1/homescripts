@@ -1,8 +1,3 @@
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
-
 use static_init::dynamic;
 
 // use lscolors::Color;
@@ -55,6 +50,8 @@ impl Default for ColorConfig {
 // }
 #[dynamic]
 pub static COLOR_CONFIG: ColorConfig = ColorConfig::default();
+
+pub const DELIM: &str = "\t";
 
 #[test]
 fn test_color_macro() {

@@ -146,30 +146,39 @@ _send_trash() {
         return
 
     elif ((confirm)) || _prompt "Trash filepath '$filepath'?"; then
-        if ((HAS_TRASH_CLI)); then
-            echo "Trashing --- $filepath"
-            trash -f "$filepath"
-        elif [[ -z ${DUMB_TRASH_DIR-} || ! -d ${DUMB_TRASH_DIR-} ]]; then
-            _panic "FATAL ERROR!!! \$DUMB_TRASH_DIR has either been moved, or lost its value!" \
-                'You should NEVER see this error. If you do, your computer is probably fucked'
-        else
-            echo "Moving to fallback trash --- $filepath"
-            mv -i "$filepath" "$DUMB_TRASH_DIR"
-        fi
+        "${trash_cmd[@]}" "$filepath"
+        # if ((HAS_TRASH_CLI)); then
+        #     echo "Trashing --- $filepath"
+        #     trash -f "$filepath"
+        # elif [[ -z ${DUMB_TRASH_DIR-} || ! -d ${DUMB_TRASH_DIR-} ]]; then
+        #     _panic "FATAL ERROR!!! \$DUMB_TRASH_DIR has either been moved, or lost its value!" \
+        #         'You should NEVER see this error. If you do, your computer is probably fucked'
+        # else
+        #     echo "Moving to fallback trash --- $filepath"
+        #     mv -i "$filepath" "$DUMB_TRASH_DIR"
+        # fi
 
     else
         echo "Skipping ---"
         return
     fi
 }
-declare -i HAS_TRASH_CLI=0
-if command -v trash &>/dev/null; then
-    HAS_TRASH_CLI=1
+declare -a trash_cmd=()
+# declare -i HAS_TRASH_CLI=0
+if command -v gio &>/dev/null; then
+    trash_cmd=(gio trash)
+elif command -v trash &>/dev/null; then
+    # HAS_TRASH_CLI=1
+    trash_cmd=(trash -f)
 else
     DUMB_TRASH_DIR="${XDG_CACHE_HOME:=$HOME/.cache}/dumb-trash-dir"
-    echo "Error, 'trash-cli' was not found! Falling back to dumb trash! ($DUMB_TRASH_DIR)"
+    echo "Error, neither 'gio' nor 'trash-cli' were found! Falling back to dumb trash! ($DUMB_TRASH_DIR)"
     mkdir -p "$DUMB_TRASH_DIR" || exit
-    HAS_TRASH_CLI=0
+    _trash_cli_fallback() {
+        mv -i "$1" "$DUMB_TRASH_DIR"
+    }
+    trash_cmd=(_trash_cli_fallback)
+    # HAS_TRASH_CLI=0
 fi
 if command -v lscolors &>/dev/null; then
     __colorize() {
