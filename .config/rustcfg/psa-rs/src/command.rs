@@ -1,82 +1,6 @@
-use crate::{proc, procinfo, style::DELIM};
+use crate::{procinfo, style::DELIM};
 use itertools::Itertools;
-use serde_json;
-use std::{
-    collections::HashSet,
-    env, fs,
-    io::{self, Write},
-    mem,
-    path::{Path, PathBuf},
-    process,
-    rc::Rc,
-};
-
-/// The way this program passes data to the fzf window is by serializing and deserializing data from a file.
-///
-/// This is the struct that does that.
-pub struct SerdeReader {
-    pub processes: Vec<proc::Proc>,
-    pub filepath: PathBuf,
-}
-impl SerdeReader {
-    /// Do this if in the window function.
-    pub fn new_empty() -> Result<Self, procinfo::ProcError> {
-        Self::new_with_procs(Vec::new())
-    }
-    /// Only do this in the main function when you have all the processes
-    pub fn new_with_procs(processes: Vec<proc::Proc>) -> Result<Self, procinfo::ProcError> {
-        let path_string = env::var("XDG_RUNTIME_DIR").unwrap_or("/tmp".to_string());
-        let dir_path = Path::new(&path_string);
-
-        // make sure it exists and I can write to it
-        if !dir_path.exists() {
-            fs::create_dir_all(dir_path)?;
-        }
-        if !dir_path.is_dir() || dir_path.metadata()?.permissions().readonly() {
-            return Err(procinfo::ProcError::CustomError(
-                "Invalid directory!".to_owned(),
-            ));
-        }
-        // join filepath, but don't do anything with that yet.
-        let filepath = dir_path.join("cache.json");
-
-        Ok(Self {
-            processes,
-            filepath: filepath,
-        })
-    }
-    /// Removes the cachefile because that's in tmpfs and wasting ram
-    pub fn cleanup(self) -> io::Result<()> {
-        if self.filepath.exists() {
-            fs::remove_file(&self.filepath)?;
-        }
-        Ok(())
-    }
-    /// serialize into a file so I can cache the output for the fzf view screen
-    pub fn to_file(&self) -> io::Result<()> {
-        // cleanup function was probably skipped.
-        if self.filepath.exists() {
-            fs::remove_file(&self.filepath)?;
-        }
-        let mut file = io::BufWriter::new(fs::File::create(&self.filepath)?);
-        serde_json::to_writer(&mut file, &self.processes)?;
-        Ok(())
-    }
-    /// reads processes from a file and mutates self. Please access results from self.processes
-    pub fn from_file(&mut self) -> Result<(), procinfo::ProcError> {
-        let reader = io::BufReader::new(fs::File::open(&self.filepath)?);
-        self.processes = serde_json::from_reader(reader)?;
-        Ok(())
-    }
-
-    pub fn get_process_by_pid(&self, pid: i32) -> Option<proc::Proc> {
-        if let Some(process) = self.processes.iter().find(|p| p.pid == pid) {
-            Some(process.to_owned())
-        } else {
-            None
-        }
-    }
-}
+use std::{collections::HashSet, env, io::Write, path::Path, process};
 
 pub fn get_pid_from_fzf_output(output: &str) -> Option<i32> {
     if !output.is_empty() {
@@ -92,12 +16,17 @@ pub fn get_pid_from_fzf_output(output: &str) -> Option<i32> {
 /// This is the menu function to show the processes as formatted strings and select them with fzf.
 pub fn fzf_menu<'a, I>(
     process_format_strings: I,
-    preview_cmd: &str,
+    preview_cmd: Option<&'a str>,
 ) -> Result<String, procinfo::ProcError>
 where
     I: Iterator<Item = &'a String>,
 {
-    let fzf_args = ["--ansi", "--preview-window=down,25%", preview_cmd];
+    let fzf_args = if let Some(p) = preview_cmd {
+        vec!["--ansi", "--preview-window=down,25%", p]
+    } else {
+        vec!["--ansi"]
+    };
+
     let mut fzf_process = process::Command::new("fzf")
         .args(fzf_args)
         .stdin(process::Stdio::piped())
@@ -119,22 +48,6 @@ where
     };
 
     Ok(sel_string)
-}
-
-/// A function to get the terminal width for the preferred width. If it cannot get the terminal width, then it will return usize::MAX, basically disabling it anyways.
-pub fn terminal_width() -> usize {
-    let size_cmd_output = process::Command::new("tput").arg("cols").output();
-
-    if let Ok(size_cmd) = size_cmd_output {
-        let stdout = String::from_utf8_lossy(&size_cmd.stdout);
-        if let Ok(cols) = stdout.trim().parse::<usize>() {
-            cols
-        } else {
-            usize::MAX
-        }
-    } else {
-        usize::MAX
-    }
 }
 
 /// Check the PATH for multiple binaries.
@@ -186,4 +99,14 @@ pub fn check_dependencies(binaries_list: &[&str]) -> Result<Vec<String>, procinf
                 .join(", "),
         ))
     }
+}
+
+/// Run the command 'pidstat' and return the output.
+pub fn pidstat(pid: i32) -> Result<(), procinfo::ProcError> {
+    let pidstat = process::Command::new("pidstat")
+        .args(&["-p", &pid.to_string()])
+        .env("S_COLORS", "always")
+        .output()?;
+    print!("{}", String::from_utf8_lossy(&pidstat.stdout));
+    Ok(())
 }

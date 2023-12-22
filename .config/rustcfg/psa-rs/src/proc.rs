@@ -1,18 +1,11 @@
 use crate::{
-    command,
     procinfo::{self, Painterly, Styler},
     style,
 };
 use lscolors::LsColors;
 
 use procfs;
-use serde::{Deserialize, Serialize};
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-    rc::Rc,
-    sync::Arc,
-};
+use std::{collections::HashMap, path::Path, rc::Rc};
 
 macro_rules! style_args_default {
     ($arg:expr) => {
@@ -137,9 +130,11 @@ impl StyleCache {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct Proc {
     pub name: String,
+    pub name_styled: String,
+    pub uid: u32,
     pub state: procinfo::RecognizedStates,
     // pub user: procinfo::User,
     pub user_fmt: String,
@@ -153,6 +148,8 @@ impl Default for Proc {
     fn default() -> Self {
         Self {
             name: "".to_owned(),
+            name_styled: "".to_owned(),
+            uid: 0,
             state: procinfo::RecognizedStates::Unknown,
             // user: procinfo::User::default(),
             user_fmt: "".to_owned(),
@@ -170,25 +167,36 @@ impl Proc {
         procfs_process: procfs::process::Process,
         user: Rc<procinfo::User>,
         style_cache: &mut StyleCache,
-        approximate_preferred_width: usize,
     ) -> Result<Proc, procinfo::ProcError> {
+        // If the args are empty, it is a kernel process, spawned without a binary.
+        let args = procfs_process.cmdline().unwrap_or_default();
+        if args.is_empty() {
+            return Err(procinfo::ProcError::Empty);
+        }
+
         let filter_type = user.filter_type;
+        let uid = user.uid;
 
         let my_pid = procfs_process.pid();
         let pid_string = my_pid.to_string();
 
-        let (parent_pid, name, state) = if let Ok(status) = procfs_process.status() {
+        let (parent_pid, name, name_styled, state) = if let Ok(status) = procfs_process.status() {
             let stat_state = status.state.as_str();
             let my_state = stat_state.split_at(stat_state.find(" ").unwrap_or(1)).0;
             let my_state_recognized = procinfo::RecognizedStates::from(my_state);
 
             let my_styled_name = style_cache.get_styled_name(&status.name, my_state_recognized);
-            (status.ppid, my_styled_name, my_state_recognized)
+            (
+                status.ppid,
+                status.name,
+                my_styled_name,
+                my_state_recognized,
+            )
         } else {
-            (-1, "".to_owned(), procinfo::RecognizedStates::Unknown)
+            // I probably didn't have perms for this anyways
+            return Err(procinfo::ProcError::Empty);
         };
 
-        let args = procfs_process.cmdline().unwrap_or_default();
         // Style the pid here because there's literally no way it could be cached.
         let (style_pid, styled_args) = if state == procinfo::RecognizedStates::Zombie {
             // if it's a zombie process, style with state
@@ -231,9 +239,10 @@ impl Proc {
                 }
             }
 
-            if mutable_args.is_empty() {
-                mutable_args.push("(-)".to_owned()); // to make it look a bit more like linux ps
-            }
+            // If the args are empty, it is a kernel process, spawned without a binary.
+            // if mutable_args.is_empty() {
+            //     mutable_args.push("(-)".to_owned()); // to make it look a bit more like linux ps
+            // }
 
             // Some electron apps and browsers have all the args as one giant arg. This is a hacky way to fix that.
             // If a filepath is unfortunate enough to have a space in it, then it will be split, but its parent dir might still be styled.
@@ -243,24 +252,14 @@ impl Proc {
                 .map(|a| style_cache.get_styled_arg(a))
                 .collect::<Vec<String>>();
 
-            // let mut args_style = Vec::new();
-            // // I am styling these all here just so there is less duplicated work and computation. I don't need the bare args.
-            // // Make sure I don't overflow the terminal with tons of args if I don't have to.
-            // let mut line_length = 0;
-            // for arg in args_iter {
-            //     if line_length < approximate_preferred_width {
-            //         // arg.chars.count() is a O(n) operation, but it works on unicode.
-            //         let arg_length = arg.chars().count();
-            //         args_style.push(style_cache.get_styled_arg(arg));
-            //         line_length = line_length + arg_length;
-            //     }
-            // }
             (pid_style, args_style)
         };
 
         Ok(Self {
             name,
+            name_styled,
             state,
+            uid,
             // user: unrc!(user),
             user_fmt: user.paint(),
             pid: my_pid,
@@ -276,7 +275,7 @@ impl Proc {
             "{}{}{}{}{}",
             self.pid_styled,
             style::DELIM,
-            self.name,
+            self.name_styled,
             style::DELIM,
             args_string
         )
@@ -287,7 +286,7 @@ impl Proc {
 USER: {}
 ARGS: {}",
             self.pid_styled,
-            self.name,
+            self.name_styled,
             self.state.paint(),
             // self.user.paint(),
             self.user_fmt,
@@ -306,6 +305,6 @@ ARGS: {}",
 
         let mut style_cache = StyleCache::default();
 
-        Self::from_procfs_proc(procfs_process, user, &mut style_cache, 0)
+        Self::from_procfs_proc(procfs_process, user, &mut style_cache)
     }
 }

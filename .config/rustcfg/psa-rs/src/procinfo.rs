@@ -1,11 +1,9 @@
 use crate::style;
 use nu_ansi_term::Style;
 use procfs;
-use serde::{Deserialize, Serialize};
-use serde_json;
 use static_init::dynamic;
 use std::{collections::HashMap, env, error, fmt::Display, io, rc::Rc, sync::Arc};
-use users::{self, Users};
+use users;
 ///! Future readers may wonder why I made this a separate module. This is because proc.rs is very long and I want it to
 ///! be as easy to read as possible despite its complexity.
 
@@ -16,7 +14,7 @@ pub trait Painterly {
     fn paint(&self) -> String;
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub enum RecognizedStates {
     Zombie,
     Running,
@@ -58,7 +56,7 @@ impl Styler for RecognizedStates {
     }
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub enum FilterType {
     Root,
     User,
@@ -79,22 +77,13 @@ impl Styler for FilterType {
 }
 
 #[derive(Debug)]
-pub enum UserErrorType {
-    NonExistent,
-    MatchFilter,
-    GetCurrentUserError,
-    Other,
-}
-
-#[derive(Debug)]
 pub enum ProcError {
     IoError(io::Error),
     ProcError(procfs::ProcError),
-    SerdeJsonError(serde_json::Error),
     EnvironmentError(env::VarError),
     PathBinaryError(String),
     CustomError(String),
-    Unknown,
+    Empty,
 }
 impl error::Error for ProcError {}
 impl Display for ProcError {
@@ -102,11 +91,10 @@ impl Display for ProcError {
         match self {
             Self::IoError(e) => write!(f, "IoError: {}", e),
             Self::ProcError(e) => write!(f, "ProcError: {}", e),
-            Self::SerdeJsonError(e) => write!(f, "SerdeJsonError: {:?}", e),
             Self::EnvironmentError(e) => write!(f, "EnvironmentError: {}", e),
             Self::PathBinaryError(e) => write!(f, "Missing required commands: {}", e),
             Self::CustomError(e) => write!(f, "Error: {}", e),
-            Self::Unknown => write!(f, "Unknown"),
+            Self::Empty => write!(f, "Unspecified (empty) error"),
         }
     }
 }
@@ -120,11 +108,6 @@ impl From<io::Error> for ProcError {
         Self::IoError(e)
     }
 }
-impl From<serde_json::Error> for ProcError {
-    fn from(e: serde_json::Error) -> Self {
-        Self::SerdeJsonError(e)
-    }
-}
 impl From<env::VarError> for ProcError {
     fn from(e: env::VarError) -> Self {
         Self::EnvironmentError(e)
@@ -135,7 +118,7 @@ impl From<env::VarError> for ProcError {
 pub static USER: Arc<User> = Arc::new(User::me());
 
 /// My serde-friendly version of user::User that has everything I need
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct User {
     pub name: String,
     pub uid: u32,
@@ -184,13 +167,12 @@ impl User {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct UserList {
-    pub me: User,
     pub users: HashMap<u32, Rc<User>>,
 }
 impl Default for UserList {
     fn default() -> Self {
         Self {
-            me: User::default(),
+            // me: User::default(),
             users: HashMap::new(),
         }
     }
@@ -202,7 +184,7 @@ impl UserList {
         let mut myhashmap = HashMap::new();
         myhashmap.insert(my_user.uid, Rc::clone(&my_user));
         Self {
-            me: my_user.as_ref().to_owned(),
+            // me: my_user.as_ref().to_owned(),
             users: myhashmap,
         }
     }
@@ -215,6 +197,8 @@ impl UserList {
                 let uid = user.uid();
                 let filter = if uid == 0 {
                     FilterType::Root
+                } else if uid == USER.uid {
+                    FilterType::User
                 } else {
                     FilterType::OtherUser
                 };
@@ -228,15 +212,21 @@ impl UserList {
             }
         }
         Self {
-            me: User::me(),
+            // me: User::me(),
             users: userlist,
         }
     }
-    pub fn get_user(&self, uid: u32) -> Option<Rc<User>> {
+    pub fn get_user(&mut self, uid: u32) -> Option<Rc<User>> {
         if let Some(user) = self.users.get(&uid) {
             Some(Rc::clone(user))
         } else {
-            None
+            if let Some(u) = User::from_uid(uid) {
+                let user_rc = Rc::new(u);
+                self.users.insert(uid, Rc::clone(&user_rc));
+                Some(user_rc)
+            } else {
+                None
+            }
         }
     }
 }

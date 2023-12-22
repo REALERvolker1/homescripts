@@ -1,14 +1,14 @@
-use crate::{command, proc, procinfo};
+use crate::{command, proc, procinfo, style};
+use nix::{sys::signal, unistd::Pid};
 use procfs;
-use std::{
-    collections::HashMap,
-    fmt::{Debug, Display},
-    os, process,
-    rc::Rc,
-};
+use std::rc::Rc;
+// macro_rules! capkill {
+//     ($map:ident) => {
+//         $map.insert("Kill this process", AvailableOptions::Kill)
+//     };
+// }
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum AvailableOptions {
-    KillSudo,
     Kill,
     ProcTree,
     PidStat,
@@ -26,107 +26,92 @@ impl AvailableOptions {
                 match self {
                     Self::FullStats => "Print verbose process details",
                     Self::PrettyPrint => "Pretty-print process",
-                    Self::PidStat => "Run the `pidstat` command on this process",
+                    Self::PidStat => "Run 'pidstat' on this process",
                     Self::ProcTree => "Print the process tree",
                     Self::Kill => "Kill this process",
-                    Self::KillSudo => "[sudo required] Kill this process with root permissions",
+                    Self::Undefined => unreachable!(),
                 }
                 .to_owned(),
             )
         }
     }
-    /// Get self from description (parsing input from fzf)
     pub fn from_description(description: &str) -> Self {
         match description {
             "Print verbose process details" => Self::FullStats,
             "Pretty-print process" => Self::PrettyPrint,
-            "Run the `pidstat` command on this process" => Self::PidStat,
+            "Run 'pidstat' on this process" => Self::PidStat,
             "Print the process tree" => Self::ProcTree,
             "Kill this process" => Self::Kill,
-            "[sudo required] Kill this process with root permissions" => Self::KillSudo,
             _ => Self::Undefined,
         }
     }
-    pub fn run_command(&self, process: proc::Proc) -> Result<(), procinfo::ProcError> {
-        Ok(())
-    }
-    pub fn get_capabilities() -> Vec<Self> {
-        let mut capabilities = Vec::new();
-        // These require external dependencies
-        if let Ok(cmds) = command::check_dependencies(&["pidstat", "sudo"]) {
-            for cmd in cmds {
-                let cap = match cmd.as_str() {
-                    "pidstat" => Self::PidStat,
-                    "sudo" => Self::KillSudo,
-                    _ => continue,
-                };
-                capabilities.push(cap);
-            }
+    /// Run the command associated with this option
+    pub fn run_command(&self, process: Rc<proc::Proc>) -> Result<(), procinfo::ProcError> {
+        match self {
+            Self::FullStats => print_pid_verbosely(process.pid),
+            Self::PrettyPrint => Ok(println!("{}", process.info_style())),
+            Self::PidStat => command::pidstat(process.pid),
+            Self::ProcTree => style::print_process_tree(process),
+            Self::Kill => KillOptions::kill_process(process),
+            Self::Undefined => Ok(()),
         }
+    }
+    /// Get all the actions that I can take
+    pub fn get_capabilities(process: &proc::Proc) -> Vec<Self> {
+        let mut capabilities = Vec::new();
+
+        capabilities.push(AvailableOptions::PrettyPrint);
+        capabilities.push(AvailableOptions::ProcTree);
+
+        // let mut depcheck_deps = vec!["pidstat"];
+        // don't have to use sudo to kill my own processes
+        if process.uid == procinfo::USER.uid {
+            capabilities.push(AvailableOptions::Kill);
+        }
+        // else {
+        // depcheck_deps.push("sudo")
+        // }
+
+        // These options require external dependencies
+        if let Ok(_cmds) = command::check_dependencies(&["pidstat"]) {
+            capabilities.push(AvailableOptions::PidStat);
+            // for cmd in cmds {
+            //     match cmd.as_str() {
+            //         "pidstat" => capabilities.push(AvailableOptions::PidStat),
+            //         // does not push twice, as depchecks only checks for sudo if it isn't mine
+            //         "sudo" => capabilities.push(AvailableOptions::Kill),
+            //         _ => continue,
+            //     };
+            // }
+        }
+        capabilities.push(AvailableOptions::FullStats);
 
         capabilities
     }
 }
 
-// #[derive(Debug, Clone, Copy)]
-// pub struct CapabilitySet {
-//     full_stats: AvailableOptions,
-//     pretty_print: AvailableOptions,
-//     pidstat: Option<AvailableOptions>,
-//     proc_tree: AvailableOptions,
-//     kill: AvailableOptions,
-//     kill_sudo: Option<AvailableOptions>,
-// }
-// impl Default for CapabilitySet {
-//     fn default() -> Self {
-//         Self {
-//             full_stats: None,
-//             pretty_print: None,
-//             pidstat: AvailableOptions::PidStat,
-//             proc_tree: AvailableOptions::PidStat,
-//             kill: AvailableOptions::PidStat,
-//             kill_sudo: AvailableOptions::PidStat,
-//         }
-//     }
-// }
-// impl CapabilitySet {
-//     pub fn get_capabilities() -> Self {
-//         let mut capabilities = Self::default();
-//         // These require external dependencies
-//         if let Ok(cmds) = command::check_dependencies(&["pidstat", "sudo"]) {
-//             for cmd in cmds {
-//                 let cap = match cmd.as_str() {
-//                     "pidstat" => capabilities.pidstat = Some(AvailableOptions::PidStat),
-//                     "sudo" => capabilities.kill_sudo = Some(AvailableOptions::KillSudo),
-//                 };
-//             }
-//         }
-
-//         capabilities
-//     }
-// }
-
 macro_rules! procpush {
     ($vector:ident, $p:ident, $operation:ident) => {
-        let op = $p.$operation().ok();
-        if op.is_some() {
+        let op = $p.$operation();
+        if op.is_ok() {
             $vector.push(format!(
-                "\n\n\x1b[1m=== {} ===\x1b[0m\n\n{:?}",
+                "\n\x1b[1m=== {} ===\x1b[0m\n\n{:#?}",
                 stringify!($operation),
-                op
+                op.unwrap()
             ));
         }
     };
 }
 
-pub fn print_pid_verbosely(pid: i32) -> Result<(), procfs::ProcError> {
+/// Prints the process information for a procfs::Process
+fn print_pid_verbosely(pid: i32) -> Result<(), procinfo::ProcError> {
     let tmp_process = procfs::process::Process::new(pid)?;
     let process = Rc::new(tmp_process);
     let mut printmap = Vec::new();
 
-    procpush!(printmap, process, arp);
+    // procpush!(printmap, process, arp);
     procpush!(printmap, process, autogroup);
-    procpush!(printmap, process, auxv);
+    // procpush!(printmap, process, auxv);
     procpush!(printmap, process, cgroups);
     procpush!(printmap, process, cmdline);
     procpush!(printmap, process, coredump_filter);
@@ -140,8 +125,9 @@ pub fn print_pid_verbosely(pid: i32) -> Result<(), procfs::ProcError> {
     // procpush!(printmap, process, is_alive);
     procpush!(printmap, process, limits);
     procpush!(printmap, process, loginuid);
-    procpush!(printmap, process, maps);
-    procpush!(printmap, process, mem);
+    // nerd shit
+    // procpush!(printmap, process, maps);
+    // procpush!(printmap, process, mem);
     // does not impl Debug
     // procpush!(printmap, process, mountinfo);
     procpush!(printmap, process, mountstats);
@@ -154,7 +140,8 @@ pub fn print_pid_verbosely(pid: i32) -> Result<(), procfs::ProcError> {
     procpush!(printmap, process, root);
     procpush!(printmap, process, route);
     procpush!(printmap, process, schedstat);
-    procpush!(printmap, process, smaps);
+    // nerd shit
+    // procpush!(printmap, process, smaps);
     procpush!(printmap, process, smaps_rollup);
     // buggy
     // procpush!(printmap, process, snmp);
@@ -164,15 +151,72 @@ pub fn print_pid_verbosely(pid: i32) -> Result<(), procfs::ProcError> {
     procpush!(printmap, process, statm);
     procpush!(printmap, process, status);
     procpush!(printmap, process, tasks);
-    procpush!(printmap, process, tcp);
-    procpush!(printmap, process, tcp6);
-    procpush!(printmap, process, udp);
-    procpush!(printmap, process, udp6);
+    // holy shit that's a lot of output garbage
+    // procpush!(printmap, process, tcp);
+    // procpush!(printmap, process, tcp6);
+    // procpush!(printmap, process, udp);
+    // procpush!(printmap, process, udp6);
     procpush!(printmap, process, uid);
-    procpush!(printmap, process, unix);
+    // lots of output
+    // procpush!(printmap, process, unix);
     procpush!(printmap, process, wchan);
 
     println!("{}", printmap.join("\n"));
 
     Ok(())
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+enum KillOptions {
+    Kill,
+    Terminate,
+    Interrupt,
+}
+impl KillOptions {
+    fn from_description(description: &str) -> Option<Self> {
+        match description {
+            "[SIGKILL] (DANGER) Forcibly kill this process" => Some(Self::Kill),
+            "[SIGTERM] Terminate this process" => Some(Self::Terminate),
+            "[SIGINT]  Interrupt this process (Basically Ctrl-C)" => Some(Self::Interrupt),
+            _ => None,
+        }
+    }
+    fn to_description(&self) -> String {
+        match self {
+            Self::Kill => "[SIGKILL] (DANGER) Forcibly kill this process",
+            Self::Terminate => "[SIGTERM] Terminate this process",
+            Self::Interrupt => "[SIGINT]  Interrupt this process (Basically Ctrl-C)",
+        }
+        .to_owned()
+    }
+    fn kill_process(proc: Rc<proc::Proc>) -> Result<(), procinfo::ProcError> {
+        let options = vec![
+            Self::to_description(&Self::Terminate),
+            Self::to_description(&Self::Interrupt),
+            Self::to_description(&Self::Kill),
+        ];
+        if let Ok(selected_description) = command::fzf_menu(options.iter(), None) {
+            if let Some(action) = Self::from_description(&selected_description) {
+                let signal = match action {
+                    Self::Terminate => signal::SIGTERM,
+                    Self::Interrupt => signal::SIGINT,
+                    Self::Kill => signal::SIGKILL,
+                };
+
+                if signal::kill(Pid::from_raw(proc.pid), signal).is_ok() {
+                    println!(
+                        "Sent signal [{:?}] to process: ({}) {}",
+                        &action, proc.pid_styled, proc.name_styled
+                    );
+                } else {
+                    return Err(procinfo::ProcError::CustomError(format!(
+                        "Failed to kill process: ({}) {}",
+                        proc.pid_styled, proc.name_styled
+                    )));
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
