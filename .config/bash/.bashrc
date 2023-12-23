@@ -7,6 +7,9 @@
 }
 # NO_BLE=true
 
+echo "I use zsh as my login shell now"
+return
+
 # shell options
 set +xeuo pipefail
 shopt -s autocd cdspell cdable_vars cmdhist checkwinsize histappend globstar

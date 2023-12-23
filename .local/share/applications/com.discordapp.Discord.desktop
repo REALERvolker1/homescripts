@@ -1,10 +1,10 @@
 [Desktop Entry]
-Name=Discord (Flatpak)
+Name=Discord
 StartupWMClass=discord
 Comment=All-in-one voice and text chat for gamers that's free, secure, and works on both your desktop and phone.
 GenericName=Internet Messenger
-TryExec=/var/lib/flatpak/exports/bin/com.discordapp.Discord
-Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=discord com.discordapp.Discord
+TryExec=discord
+Exec=discord
 Icon=com.discordapp.Discord
 Type=Application
 Categories=Network;InstantMessaging;

@@ -86,6 +86,8 @@ EXEC 01;38;5;46 # files with execute permission
 
 .txz 1;38;5;124 # xz-compressed tar, higher compression ratio than tar.gz
 .xz 1;38;5;124 # high-ratio compression alg based on LZMA
+.pxz 1;38;5;124 # xz but parallel. Recommended over regular xz if you don't have hours to burn
+.tpxz 1;38;5;124 # .tar.xz but parallel
 
 .tzo 1;38;5;124 # tar lzo
 .lzo 1;38;5;124 # Faster decompression than gzip
