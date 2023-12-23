@@ -7,6 +7,7 @@ for i in \
     dots="$HOMESCRIPTS" \
     loc="$HOME/.local" \
     data="$XDG_DATA_HOME" \
+    state="$XDG_STATE_HOME" \
     cache="$XDG_CACHE_HOME" \
     cfg="$XDG_CONFIG_HOME" \
     run="$XDG_RUNTIME_DIR" \
@@ -14,6 +15,7 @@ for i in \
     i3="$XDG_CONFIG_HOME/i3" \
     sway="$XDG_CONFIG_HOME/sway" \
     hypr="$XDG_CONFIG_HOME/hypr" \
+    nix="$VLK_NIX_HOME" \
     steam="$HOME/.var/app/com.valvesoftware.Steam/.local/share/Steam"; do
     hash -d $i
 done

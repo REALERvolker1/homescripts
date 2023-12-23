@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+
+BIN_NAMES="brave:brave-browser"
+FLATPAK_NAMES="com.brave.Browser"
+
+source flatpak-fallback.sh
+
+exec "${result_command[@]}" "$@"

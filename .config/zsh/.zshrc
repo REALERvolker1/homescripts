@@ -72,6 +72,7 @@ for i in "$ZDOTDIR/functions"/^*.zwc(.N)
 
 #eval "$(zoxide init zsh)"
 alias c=z
+alias cd=z
 
 if ((COLUMNS > 55)) {
     dumbfetch

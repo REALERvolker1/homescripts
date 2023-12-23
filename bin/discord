@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+
+if [[ ${1-} == '--flatpak' ]]; then
+    shift 1
+    PREFERS_FLATPAK=ye
+fi
+BIN_NAMES="discord-canary:discord:webcord"
+FLATPAK_NAMES="com.discordapp.Discord:io.github.spacingbat3.webcord"
+
+source flatpak-fallback.sh
+
+# Force wayland if it ever works
+# [[ -n ${WAYLAND_DISPLAY:-} ]] && result_command+=(--enable-features=UseOzonePlatform --ozone-platform=auto) # 'wayland'
+
+exec "${result_command[@]}" "$@"

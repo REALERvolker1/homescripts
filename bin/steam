@@ -1,0 +1,12 @@
+#!/usr/bin/bash
+
+if [[ ${1-} == '--flatpak' ]]; then
+    shift 1
+    PREFERS_FLATPAK=ye
+fi
+BIN_NAMES="steam"
+FLATPAK_NAMES="com.valvesoftware.Steam"
+
+source flatpak-fallback.sh
+
+exec "${result_command[@]}" "$@"

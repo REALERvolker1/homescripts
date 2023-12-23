@@ -226,6 +226,14 @@ export INPUTRC="$XDG_CONFIG_HOME/readline/inputrc"
 export OLLAMA_HOME="$XDG_DATA_HOME/ollama"
 export FCEUX_HOME="$XDG_CONFIG_HOME/fceux"
 
+# nix
+export VLK_NIX_HOME="$XDG_STATE_HOME/nix/profile"
+# fix nix XDG being trash
+if [[ ${NIX_PATH-} != *"$XDG_STATE_HOME/nix/channels"* ]]; then
+    NIX_PATH="${NIX_PATH:+$NIX_PATH:}$XDG_STATE_HOME/nix/channels"
+fi
+export NIX_PATH
+
 # old GTK versions
 export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
@@ -324,7 +332,7 @@ typeset -a dir_pref_{before,after}
 
 dir_pref_before=(
     "$HOME/"{,.local}/bin
-    {"$CARGO_HOME","$GOPATH","$BUN_INSTALL","$PYTHONUSERBASE"}/bin
+    {"$VLK_NIX_HOME","$CARGO_HOME","$GOPATH","$BUN_INSTALL","$PYTHONUSERBASE"}/bin
     "$PNPM_HOME"
     {"$XDG_DATA_HOME",/var/lib}/flatpak/exports/bin
 )
@@ -337,6 +345,7 @@ PATH="$(__pathmunge)"
 
 dir_pref_before=(
     "$XDG_DATA_HOME"
+    "$VLK_NIX_HOME/share"
     {"$XDG_DATA_HOME",/var/lib}/flatpak/exports/share
 )
 dir_pref_after=(
