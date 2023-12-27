@@ -171,6 +171,7 @@ alias diff=difft
 # alias extract='ouch decompress'
 
 alias unfuck-old-backup='tar --hole-detection=seek --keep-directory-symlink -xzf '
+alias rsync-archive='rsync -aHAX'
 
 for i in free df du; do
     alias "$i=$i -h"

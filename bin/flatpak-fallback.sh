@@ -37,9 +37,6 @@ _env_panic() {
 [[ -z ${FLATPAK_NAMES-} ]] && _env_panic FLATPAK_NAMES "Flatpak IDs"
 [[ -z ${BIN_NAMES-} ]] && _env_panic FLATPAK_NAMES "Flatpak IDs"
 
-# default: prefer binary.
-: "${PREFERS_FLATPAK:=false}"
-
 # Input: Flatpak names as array. Side affects: resets ${result_command[@]} array.
 _load_flatpak() {
     (($#)) || return
@@ -54,12 +51,9 @@ _load_flatpak() {
     matches=$(flatpak list --app --columns=application | grep -E "$grep_args" || :)
     [[ -z ${matches-} ]] && return
 
-    local selected_flatpak
     for arg in "$@"; do
         while read -r flatpak; do
             if [[ ${arg-} == "${flatpak-}" ]]; then
-                # We found the flatpak!
-                # echo "$flatpak"
                 result_command=(flatpak run "$flatpak")
                 return
             fi
@@ -101,6 +95,7 @@ declare -a result_command=()
 
 if cmd flatpak; then
     if [[ -n ${PREFERS_FLATPAK-} ]]; then
+        echo prefers flatpak
         _load_flatpak "${flatpak_names[@]}"
         ((${#result_command[@]})) || _load_binary "${bin_names[@]}"
     else

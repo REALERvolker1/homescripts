@@ -229,10 +229,13 @@ export FCEUX_HOME="$XDG_CONFIG_HOME/fceux"
 # nix
 export VLK_NIX_HOME="$XDG_STATE_HOME/nix/profile"
 # fix nix XDG being trash
-if [[ ${NIX_PATH-} != *"$XDG_STATE_HOME/nix/channels"* ]]; then
-    NIX_PATH="${NIX_PATH:+$NIX_PATH:}$XDG_STATE_HOME/nix/channels"
+#if [[ ${NIX_PATH-} != *"$XDG_STATE_HOME/nix/channels"* ]]; then
+#    NIX_PATH="${NIX_PATH:+$NIX_PATH:}$XDG_STATE_HOME/nix/channels"
+#fi
+if [[ ":${NIX_PATH-}:" != *":$XDG_STATE_HOME/nix/defexpr/channels:"* ]]; then
+    export NIX_PATH="${NIX_PATH:+$NIX_PATH:}$XDG_STATE_HOME/nix/defexpr/channels"
 fi
-export NIX_PATH
+export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
 
 # old GTK versions
 export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
@@ -342,6 +345,7 @@ dir_pref_after=(
 essentials='/usr/bin'
 INIT_PATH="${PATH-}"
 PATH="$(__pathmunge)"
+export PATH
 
 dir_pref_before=(
     "$XDG_DATA_HOME"
@@ -356,6 +360,7 @@ dir_pref_after=(
 essentials=/usr/share
 INIT_PATH="${XDG_DATA_DIRS-}"
 XDG_DATA_DIRS="$(__pathmunge)"
+export XDG_DATA_DIRS
 
 unset i ICON_TYPE dir_pref_{before,after} essentials INIT_PATH
 unset -f __pathmunge
