@@ -3,6 +3,8 @@ set -euo pipefail
 # IFS=$'\n\t'
 IFS=$' \n\t'
 
+# I am using a different psa right now -- psa-rs. This is still here because on some systems I might need it.
+
 for i in pidstat fzf realpath dircolors pstree; do
     if ! command -v "$i" &>/dev/null; then
         echo "Missing dependency command '$i'" >&2

@@ -1,0 +1,66 @@
+#!/usr/bin/dash
+# a startx implementation, by vlk
+# intended to replace Fedora's godawful startx
+# Many thanks to https://github.com/Earnestly/sx and the engineers at Red Hat for teaching me
+# Something of note: It does support passing custom client exec args, but does not support xserverrc
+# shellcheck disable=SC1091 disable=SC1090 disable=SC2064
+
+# forbid execution if in a graphical env
+# if [ "$TERM" != 'linux' ] || ! expr "$(tty)" : '/dev/tty*' >/dev/null; then
+# if pgrep -t "tty${XDG_VTNR}" Xorg >/dev/null; then
+if [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; then
+    echo "Error, detected a graphical environment on this VT." >&2
+    exit 1
+fi
+
+export XORG_RUN_AS_USER_OK=1 # Fedora-specific mod to make X run as non root
+
+# look for the xinitrc (if no X client command is given)
+if command -v "${1%% *}" >/dev/null || [ -x "${1%% *}" ]; then
+    xclient_cmd="$1"
+elif [ -x "${XINITRC:-$HOME/.xinitrc}" ]; then
+    xclient_cmd="${XINITRC:-$HOME/.xinitrc}"
+else
+    echo "Error, no X client specified! Please run '${0##*/} client-command' or make an xinitrc!" >&2
+    exit 2
+fi
+
+# determine unused display
+i='-1'
+while [ -z "${display:-}" ]; do
+    i=$((i + 1))
+    [ ! -S "/tmp/.X11-unix/X${i}" ] && display=":${i}"
+done
+
+_cleanup() {
+    # make sure the server is dead and buried!
+    if [ "$server" ] && kill -0 "$server" 2>/dev/null; then
+        kill "$server"
+        wait "$server"
+        xorg=$?
+    fi
+    # reset stuff ig lol
+    stty sane
+    xauth remove "$display"
+    deallocvt
+    printf "\nCleaned up X server\n" >&2
+}
+
+# add X authority
+export XAUTHORITY="${XDG_RUNTIME_DIR:-/tmp}/Xauthority-$display"
+touch -- "$XAUTHORITY" && xauth add "$display" 'MIT-MAGIC-COOKIE-1' "$(mcookie)"
+
+# on exit, run cleanup
+trap '_cleanup; exit "${xorg:-0}"' EXIT
+for signal in HUP INT QUIT TERM; do
+    trap "_cleanup; trap - $signal EXIT; kill -s $signal $$" "$signal"
+done
+
+# Xorg will return a USR1 signal to the parent process indicating it is ready to accept connections if it
+# inherited a USR1 signal with a SIG_IGN disposition.  Consequently a client may be started directly from
+# a USR1 signal handler and obviate the need to poll for server readiness.
+trap 'DISPLAY=$display $xclient_cmd & wait "$!"' USR1
+(trap '' USR1 && exec Xorg "$display" "vt${XDG_VTNR}" -keeptty -noreset -auth "$XAUTHORITY") &
+server="$!"
+echo "started X server '$server' on display $display"
+wait "$server"
