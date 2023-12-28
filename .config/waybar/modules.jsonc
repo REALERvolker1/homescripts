@@ -77,19 +77,20 @@
             "critical": 80
         }
     },
-    "battery": {
-        "states": {
-            // "good": 95,
-            "warning": 30,
-            "critical": 15
-        },
-        //"full-at": 79,
-        "format": "{icon} {capacity}%, {power:.1f}W",
-        "format-charging": " {capacity}%",
-        "format-plugged": "{icon}",
-        "format-alt": "{icon} {time} {power}",
-        "format-icons": ["", "", "", "", ""]
-    },
+    // battery uses inotify, and waybar doesn't kill it so you hit max inotify watches just by restarting
+    // "battery": {
+    //     "states": {
+    //         // "good": 95,
+    //         "warning": 30,
+    //         "critical": 15
+    //     },
+    //     //"full-at": 79,
+    //     "format": "{icon} {capacity}%, {power:.1f}W",
+    //     "format-charging": " {capacity}%",
+    //     "format-plugged": "{icon}",
+    //     "format-alt": "{icon} {time} {power}",
+    //     "format-icons": ["", "", "", "", ""]
+    // },
     "clock": {
         "timezone": "America/Chicago",
         "format": "{:%a, %m/%d @ %I:%M %p}",
@@ -100,12 +101,6 @@
         "return-type": "json",
         "interval": 300
     },
-    "custom/pointer": {
-        // for some reason it won't close the inotify process
-        "exec": "$XDG_CONFIG_HOME/bar-scripts/pointer-monitor/monitor.sh"
-        // "exec": "inotifywait -qme close_write $XDG_RUNTIME_DIR/touchpad-statusfile | while read -r line; do echo $(cat ${line%% *}); done"
-        // "exec": "pointer.sh -m"
-    },
     // "custom/supergfx_status": {
     //     "exec": "$XDG_CONFIG_HOME/bar-scripts/supergfx-status.sh"
     // },
@@ -114,6 +109,12 @@
         "exec": "$XDG_CONFIG_HOME/rustcfg/power-cli/target/release/power-cli --waybar",
         "return-type": "json"
     },
+    // upower module is useless
+    // "upower": {
+    //     "native-path": "/org/freedesktop/UPower/devices/battery_BAT1",
+    //     "hide-if-empty": true,
+    //     "format": "{percentage}%"
+    // },
     "keyboard-state": {
         "format": "{icon}",
         "numlock": true,
@@ -123,6 +124,16 @@
             "locked": "", //󰎼
             "unlocked": "󰎾"
         }
+    },
+    "gamemode": {
+        "format": "󰊗 {count}",
+        "tooltip": true,
+        "tooltip-format": "Games running: {count}",
+        "hide-not-running": true,
+        "use-icon": false,
+        "icon-size": 0,
+        "icon-spacing": 0
+        // "glyph": "󰊗"
     },
     "privacy": {
         // not configured, not in waybar release
@@ -144,6 +155,12 @@
                 "tooltip-icon-size": 24
             }
         ]
+    },
+    "custom/pointer": {
+        // for some reason it won't close the inotify process
+        "exec": "$XDG_CONFIG_HOME/bar-scripts/pointer-monitor/monitor.sh"
+        // "exec": "inotifywait -qme close_write $XDG_RUNTIME_DIR/touchpad-statusfile | while read -r line; do echo $(cat ${line%% *}); done"
+        // "exec": "pointer.sh -m"
     },
     "tray": {
         "icon-size": 21,

@@ -267,17 +267,13 @@ window#waybar.kitty .modules-right > * > * {
 
 #keyboard-state {
     padding: 0.1px;
-    /* background-color: transparent; */
 }
 #keyboard-state label.unlocked {
-    /* background-color: @shade_color; */
     padding: 10px 10px;
-    /*font-size: 13px;*/
 }
 
 #keyboard-state label {
     background-color: transparent;
-    /*font-size: 0;*/
     padding: 0px;
 }
 
