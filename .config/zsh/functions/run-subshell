@@ -1,0 +1,10 @@
+emulate -l zsh
+ttyctl -f
+local cmd="${1:-}"
+[[ ${cmd:-} =~ (|t)csh ]] && \builtin print 💀
+command -v "$cmd" >/dev/null || return
+shift 1
+HISTFILE="${SHELLHIST:-/dev/null}" $cmd "$@"
+local -i retval="$?"
+ttyctl -u
+return $retval

@@ -45,6 +45,7 @@ cd $oldcwd
 plugins+=(
     "$ZDOTDIR/rc.d/"*.zsh(.N) #"
     "$ZDOTDIR"/.z{sh{rc,env},profile}
+    "$ZDOTDIR"/environ.zsh
     # fzf tab plugin
     "$ZPLUGIN_DIR/fzf-tab/"fzf-tab.zsh
     "$ZPLUGIN_DIR/fzf-tab/lib/"^*.zwc(.N)

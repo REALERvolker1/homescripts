@@ -1,0 +1,17 @@
+local op="${1#touch}"
+shift 1
+
+local editor
+if [[ "$op" == *c ]]; then
+    editor=codium
+elif [[ "$op" == *v ]]; then
+    editor="${EDITOR:-vim}"
+else
+    editor=echo
+fi
+
+for file in "$@"; do
+    touch "$file"
+    [[ "$op" == x* ]] && chmod +x "$file"
+    $editor "$file"
+done

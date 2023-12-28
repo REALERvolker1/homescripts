@@ -1,0 +1,13 @@
+local venv="$PWD/venv"
+local venvb="$venv/bin/activate"
+if [[ -f "$venvb" ]]; then
+    \builtin source "$venvb"
+else
+    \builtin command python -m venv "$venv"
+    if [[ -f "$venvb" ]]; then
+        \builtin source "$venvb"
+    else
+        \builtin print "Error, failed to find python venv"
+        return 1
+    fi
+fi

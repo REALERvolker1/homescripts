@@ -7,6 +7,9 @@
 # FLATPAK_NAMES="com.vscodium.codium:com.visualstudio.code-oss:com.visualstudio.code"
 # BIN_NAMES="codium:code-oss:code"
 # PREFERS_FLATPAK=''
+# alternative home directory if you want to isolate stuff. Gets exported as $HOME.
+# If you use this, it is recommended to set `MAIN_HOMEDIR="$HOME"` to keep a reference to the original
+# ALT_HOMEDIR="$XDG_CACHE_HOME/codium-home"
 
 # Optional: Make it respond to --flatpak arg. disabled by default cuz compatibility
 # PREFERS_FLATPAK can be set to a non-empty string to prefer flatpak over binary.
@@ -55,6 +58,8 @@ _load_flatpak() {
         while read -r flatpak; do
             if [[ ${arg-} == "${flatpak-}" ]]; then
                 result_command=(flatpak run "$flatpak")
+                RESULT_NAME="$flatpak"
+                IS_BINARY=0
                 return
             fi
         done <<<"$matches"
@@ -73,12 +78,16 @@ _load_binary() {
             abs_bin_path=$(realpath "$bin_path")
             if [[ -x ${abs_bin_path-} && "${abs_bin_path-}" != "$source_file" ]]; then
                 result_command=("$bin_path")
+                RESULT_NAME="$bin_path"
+                IS_BINARY=1
                 return
             fi
         done < <(which -a "$bin" 2>/dev/null || :)
     done
     return
 }
+
+declare -i IS_BINARY
 
 OLDIFS="$IFS"
 IFS=":"
@@ -104,6 +113,16 @@ if cmd flatpak; then
     fi
 else
     _load_binary "${bin_names[@]}"
+fi
+
+if [[ -n ${ALT_HOMEDIR-} ]]; then
+    if cmd bwrap; then
+        [[ ! -d ${ALT_HOMEDIR-} ]] && mkdir -p "$ALT_HOMEDIR"
+        export HOME="$ALT_HOMEDIR"
+        result_command=(bwrap --dev-bind / / --setenv HOME "$ALT_HOMEDIR" "${result_command[@]}")
+    else
+        echo "bwrap not found, falling back to regular homedir"
+    fi
 fi
 
 ((${#result_command[@]})) || _panic "Failed to find a command or flatpak!"

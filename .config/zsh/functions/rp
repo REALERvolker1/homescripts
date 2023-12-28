@@ -1,0 +1,8 @@
+if [[ -z "${1:-}" ]]; then
+    realpath "$PWD"
+else
+    local i
+    for i in "$@"; do
+        realpath "$i"
+    done
+fi

@@ -1,0 +1,11 @@
+if [[ "$PWD" == "$HOME" ]]; then
+    print "Error: don't clone a git repo to '$PWD'!"
+    return 1
+fi
+
+local git_link="${1?:Error. Specify link to clone}"
+local git_dir="$PWD/${git_link##*/}"
+git_dir="${git_dir%.git}"
+echo -e "Cloning \033[4m$git_link\033[0m "
+git clone "$git_link" "$git_dir"
+builtin cd "$git_dir" || return 1

@@ -1,15 +1,14 @@
-[[ -n ${ZSH_VERSION-} && -o i ]] || {
+[[ -n ${ZSH_VERSION-} && -o i && -t 0 && -t 1 && -t 2 ]] || {
     echo "failed to load zshrc"
     return 1
     exit 1
 }
 unset ZSHRC_LOADED
 
-# use zsh emulation, don't do any weirdness with arrays and whatnot
-emulate -LR zsh
-
 # clear the screen, then reset all, including font.
 print -n '[0m[H[2J''(B)0\017[?5l7[0;0r8'
+
+. ${ZDOTDIR:-~}/environ.zsh
 
 ### shell session settings
 # VLKPROMPT_SKIP=1
@@ -29,27 +28,19 @@ setopt inc_append_history share_history \
     auto_cd auto_pushd cdable_vars pushd_ignore_dups multios extended_glob glob_dots \
     \
     glob_complete complete_in_word complete_aliases \
-    interactive_comments prompt_subst no_bg_nice bsd_echo correct
+    interactive_comments prompt_subst no_bg_nice correct
 
-unsetopt sh_glob sh_file_expansion sh_option_letters sh_word_split \
-    ksh_glob ksh_autoload ksh_glob ksh_option_print ksh_typeset \
-    hist_no_functions all_export global_export mark_dirs null_glob \
+unsetopt hist_no_functions all_export global_export mark_dirs null_glob \
     no_unset err_exit pipefail
 
 # load zsh modules
-zmodload zsh/pcre
+#zmodload zsh/pcre
 
 typeset -ig VLKZSH_SAFEMODE=0
-if [[ ${TERM-} == linux || ${TTY:=$(tty)} == /dev/tty* || ${COLORTERM-} != truecolor ]]; then
+if ((VLKZSH_SAFEMODE)) || [[ ${TERM-} == linux || ${TTY-} == /dev/tty* || ${COLORTERM-} != truecolor ]] {
     VLKZSH_SAFEMODE=1
     # make truecolors behave well in TTY
     zmodload zsh/nearcolor
-fi
-
-if [[ $IFS != $' \t\n\C-@' ]] {
-    declare IFS
-    echo 'Resetting non-default IFS'
-    IFS=$' \t\n\C-@'
 }
 
 # Idea: debug mode function. When run, it adds useful stuff like lines/cols
@@ -64,14 +55,14 @@ foreach i ("${ZDOTDIR:-~/.config/zsh}/rc.d"/*.zsh) {
         . "$i"
     }
 }
-# for i in "$ZDOTDIR/functions"/*.zwc(.N)
+
 for i in "$ZDOTDIR/functions"/^*.zwc(.N)
     autoload -Uz $i
 
 ((${+VLKZSH_RECOMPILE})) && echo "Recompiling..." && recompile >/dev/null
 
 #eval "$(zoxide init zsh)"
-alias c=z
+#alias c=z
 alias cd=z
 
 if ((COLUMNS > 55)) {

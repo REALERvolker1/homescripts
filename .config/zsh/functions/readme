@@ -1,0 +1,16 @@
+emulate -lR zsh
+
+local sel="${1-}"
+if [[ -z $sel ]]; then
+    local -a matches=((#i)./*readme*(.N))
+    ((${#matches[@]})) || return
+    sel=$(print -l $matches | fzf --select-1)
+fi
+
+if ((${+commands[glow]})); then
+    glow $sel
+elif ((${+commands[bat]})); then
+    bat $sel
+else
+    <$sel
+fi

@@ -1,0 +1,8 @@
+local projname="${1:?Error, please enter a project name!}"
+print -n "Press ENTER to create a new Rust program '$projname' in this directory"
+local ans
+read -r ans
+[[ -z ${ans-} ]] || return
+cargo new "$projname" || return
+builtin cd "$PWD/$projname" || return
+codium ./

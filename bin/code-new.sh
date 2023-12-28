@@ -12,11 +12,26 @@ else
     BIN_NAMES="codium:code-oss:code"
     FLATPAK_NAMES="com.vscodium.codium:com.visualstudio.code-oss:com.visualstudio.code"
 fi
+MAIN_HOMEDIR="$HOME"
+ALT_HOMEDIR="$XDG_CACHE_HOME/codium-home"
+[[ -n ${NIXOS_OZONE_WL-} ]] && export NIXOS_OZONE_WL=''
 
 source flatpak-fallback.sh
 
 # code-oss doesn't work with wayland
-[[ ${result_command[0]-} == *codium && -n ${WAYLAND_DISPLAY:-} ]] && result_command+=(--enable-features=UseOzonePlatform --ozone-platform=wayland)
+[[ ${RESULT_NAME-} == *codium* && -n ${WAYLAND_DISPLAY:-} ]] && result_command+=(--enable-features=UseOzonePlatform --ozone-platform=wayland)
 
+# A really naive way of making it not shit all over my home directory
+(
+    declare -a unshit_paths=(
+        "$MAIN_HOMEDIR/.codeium"
+    )
+    sleep 5
+    for i in "${unshit_paths[@]}"; do
+        [[ -d "$i" ]] && rm -rf "$i"
+    done
+) &
+
+disown
 echo "${result_command[@]}" "$@"
 exec "${result_command[@]}" "$@"

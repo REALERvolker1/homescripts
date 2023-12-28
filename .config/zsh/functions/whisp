@@ -1,0 +1,37 @@
+# designed for use with whisper.cpp
+# https://github.com/ggerganov/whisper.cpp
+local model="$HOME/random/whisper-cpp/ggml-medium.en.bin"
+local file="${1-}"
+file="$(realpath "$file" || :)"
+local file_base="${file%/*}"
+if [[ ! -f "$file" ]]; then
+    echo "Error, please input an audio file!"
+    return 1
+fi
+if [[ ! -f "${model-}" ]]; then
+    echo "Error, model '${model-}' does not seem to be installed!"
+    return 2
+fi
+if [[ ! -w "${file_base-}" ]]; then
+    echo "Error, file basepath '${file_base-}' is not writable!"
+    return 3
+fi
+# whisper.cpp is very picky about the wav format
+local mydir="${XDG_CACHE_HOME:=$HOME/.cache}/whisp"
+local myfile="$mydir/${file##*/}"
+local oldpwd="${PWD:=$(pwd)}"
+(
+    # make temporary cache dir
+    mkdir -p "$mydir"
+    builtin cd "$mydir"
+    # ffmpeg writes new file to temporary output myfile
+    command ffmpeg -i "$file" -acodec pcm_s16le -ar 16000 "$myfile"
+) || return
+local -a whispargs=(--output-txt --print-colors --print-progress --language en --model "$model" -f "$myfile")
+echo "starting whisper with args '${whispargs[*]} $*'"
+whisper.cpp "${whispargs[@]}"
+# remove temporary output file, move all other files
+command rm "$myfile"
+command mv -i "$mydir"/* "$file_base"
+builtin cd "$oldpwd" || return
+command rm -r "$mydir"

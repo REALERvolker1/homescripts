@@ -14,6 +14,8 @@ __vlkplugin::load() {
         return 1
     fi
 }
+bindkey '^R' .history-incremental-search-backward
+bindkey '^S' .history-incremental-search-forward
 
 # to try: https://github.com/marlonrichert/zsh-autocomplete
 __vlkplugin::refresh() {
@@ -36,9 +38,13 @@ __vlkplugin::refresh() {
         [plugin]="$ZPLUGIN_DIR/$fzf/$fzf.zsh"
         [cmds]="recompile --all" # build-fzf-tab-module
     )
+    typeset -A aucz=(
+        [url]='https://github.com/marlonrichert/zsh-autocomplete'
+        [plugin]="$ZPLUGIN_DIR/zsh-autocomplete/zsh-autocomplete.plugin.zsh"
+    )
 
     typeset -a error_plugins=()
-    foreach plug (fshz sugz fzfz) {
+    foreach plug (fshz sugz fzfz aucz) {
         typeset -A plugin=("${(Pkv@)plug}")
         __vlkplugin::load $plugin[plugin] && continue
 
@@ -63,6 +69,15 @@ __vlkplugin::refresh() {
     ((${#error_plugins})) && printf '🟥 %s\n' ${(@)error_plugins}
 }
 __vlkplugin::refresh
+
+__vlkplugin::keybind_reset() {
+    bindkey '^r' _atuin_search_widget
+    bindkey '^[[A' _atuin_up_search_widget
+    bindkey '^[OA' _atuin_up_search_widget
+    bindkey -M viins '^I'  fzf-tab-complete
+    bindkey -M viins '^X.' fzf-tab-debug
+}
+zsh-defer __vlkplugin::keybind_reset
 
 __vlkplugin::fast_theme() {
     if [[ ${FAST_THEME_NAME-} != 'vlk-fsyh' ]]; then

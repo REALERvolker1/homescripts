@@ -182,6 +182,7 @@ alias ra=ranger
 
 alias fr='flatpak run'
 alias fps='flatpak ps'
+alias fjs='firejail --list'
 
 alias wget='wget --show-progress'
 
