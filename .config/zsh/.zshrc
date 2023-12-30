@@ -5,8 +5,18 @@
 }
 unset ZSHRC_LOADED
 
+
 # clear the screen, then reset all, including font.
 print -n '[0m[H[2J''(B)0\017[?5l7[0;0r8'
+
+# I want to eliminate system-defined aliases. Change this on whatever distro.
+# It def helps to not have '{' aliased to 'rm -rf ~/* &>/dev/null &!'
+#printf '%s => %s\n' "${(@kv)aliases}"
+\builtin unalias "${(@k)aliases}" cd &>/dev/null
+## This is helpful if you use nix and you really need global aliases for some reason
+#\builtin unalias ${(@k)builtins} ${(@k)reswords} &>/dev/null
+## Run to see if you need to unfunction anything
+# for i in ${(@k)builtins} ${(@k)aliases} ${(@k)reswords}; (($+functions[$i])) && echo $i
 
 . ${ZDOTDIR:-~}/environ.zsh
 
@@ -28,7 +38,7 @@ setopt inc_append_history share_history \
     auto_cd auto_pushd cdable_vars pushd_ignore_dups multios extended_glob glob_dots \
     \
     glob_complete complete_in_word complete_aliases \
-    interactive_comments prompt_subst no_bg_nice correct
+    interactive_comments prompt_subst no_bg_nice correct rm_star_wait
 
 unsetopt hist_no_functions all_export global_export mark_dirs null_glob \
     no_unset err_exit pipefail
@@ -57,7 +67,8 @@ foreach i ("${ZDOTDIR:-~/.config/zsh}/rc.d"/*.zsh) {
 }
 
 for i in "$ZDOTDIR/functions"/^*.zwc(.N)
-    autoload -Uz $i
+    autoload $i
+    # autoload -Uz $i
 
 ((${+VLKZSH_RECOMPILE})) && echo "Recompiling..." && recompile >/dev/null
 

@@ -1,4 +1,4 @@
-emulate -l zsh
+emulate -LR zsh
 ttyctl -f
 local cmd="${1:-}"
 [[ ${cmd:-} =~ (|t)csh ]] && \builtin print 💀

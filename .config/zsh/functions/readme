@@ -1,4 +1,4 @@
-emulate -lR zsh
+emulate -LR zsh
 
 local sel="${1-}"
 if [[ -z $sel ]]; then

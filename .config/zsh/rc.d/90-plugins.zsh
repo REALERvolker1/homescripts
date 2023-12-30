@@ -1,5 +1,9 @@
 [[ ${VLKZSH_SAFEMODE:-1} -eq 1 || -n ${VLKPLUG_SKIP-} ]] && return
 
+# Some of these plugins can be pretty slow or heavy.
+# Avoid loading if my laptop is unplugged
+typeset __vlkplugin_battery=${$(</sys/class/power_supply/ACAD/online):-0}
+
 ZSH_AUTOSUGGEST_STRATEGY=(match_prev_cmd completion history)
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=30
 ZSH_AUTOSUGGEST_MANUAL_REBIND=1

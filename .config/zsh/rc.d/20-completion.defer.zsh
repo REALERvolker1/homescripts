@@ -4,6 +4,7 @@
 
 zstyle :compinstall filename "${ZDOTDIR:-$HOME}/.zshrc"
 autoload -Uz compinit
+[[ -d $XDG_CACHE_HOME/zsh ]] || \mkdir -p $XDG_CACHE_HOME/zsh
 compinit -d "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION"
 
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}

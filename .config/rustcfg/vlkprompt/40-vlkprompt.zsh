@@ -1,0 +1,1 @@
+/home/vlk/random/homescripts/.config/zsh/rc.d/40-vlkprompt.zsh

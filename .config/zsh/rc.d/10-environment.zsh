@@ -12,6 +12,8 @@ foreach k v (
     dots ${HOMESCRIPTS:=~/homescripts}
     loc ~/.local
     rnd ~/random
+    test ~/random/test
+    rs $XDG_CONFIG_HOME/rustcfg
     i3 $XDG_CONFIG_HOME/i3
     sway $XDG_CONFIG_HOME/sway
     hypr $XDG_CONFIG_HOME/hypr

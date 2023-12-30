@@ -22,15 +22,15 @@ if [[ ! -f ${FZF_TAB_HOME:-}/modules/Src/aloxaf/fzftab.so || ${1-} =~ --(all|lsc
 fi
 
 
-local rsmod rsmodpath
-local oldcwd=$PWD
-for rsmod in "$ZDOTDIR/modules"/*(@); do
-    rsmodpath=${${rsmod:A}%\/target\/*}
-    cd $rsmodpath || continue
-    rustup override set nightly # needed to build that one zsh module library
-    cargo build --release
-done
-cd $oldcwd
+#local rsmod rsmodpath
+#local oldcwd=$PWD
+#for rsmod in "$ZDOTDIR/modules"/*(@); do
+#    rsmodpath=${${rsmod:A}%\/target\/*}
+#    cd $rsmodpath || continue
+#    rustup override set nightly # needed to build that one zsh module library
+#    cargo build --release
+#done
+#cd $oldcwd
 
 # This overwrites my own mods
 # if ((${+commands[atuin]})); then

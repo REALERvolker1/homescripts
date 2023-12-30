@@ -1,0 +1,18 @@
+[package]
+name = "lsprint-nu"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+zsh-module = "0.3.0"
+lscolors = { git = "https://github.com/REALERvolker1/lscolors", default-features = false, features = [
+    "crossterm",
+] }
+lazy_static = "1.4.0"
+crossterm = "0.27.0"
+zsh-sys = "0.1.0"

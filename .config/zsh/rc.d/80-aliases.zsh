@@ -3,13 +3,16 @@
 # vim:foldmethod=marker:ft=sh
 ## shellcheck disable=2139,2317,2012,1090,1036,1088
 
-typeset -gA expand_aliases
+typeset -gUA expand_aliases
 
 [[ "$-" == *i* ]] || {
     echo "Error, you must source this file with interactive zsh or bash" >&2
     return 1
     exit 1
 }
+
+# global alias, `print hello @n` expands to `print hello &>/dev/null`
+alias -g @n='&>/dev/null'
 
 #alias getcargo='bash <(curl -sSf https://sh.rustup.rs) --default-toolchain stable --profile complete --no-modify-path'
 
@@ -123,6 +126,8 @@ alias wget='wget --show-progress'
 for i in ivm vi iv v
     expand_aliases[$i]=vim
 
+expand_aliases[c]=codium
+
 for i in {{b,d,}a,{,r}k,{,t}c,z}sh; do
     alias "$i=run-subshell $i"
 done
@@ -145,6 +150,7 @@ alias dotd="dotfiles.sh --git diff"
 alias dotadd="dotfiles.sh --dotadd"
 
 alias cr='cargo run -- '
+alias cb='cargo build'
 alias cbr='cargo build --release'
 
 alias cupl='cargo install-update -l'
@@ -236,6 +242,40 @@ alias aliases='printf "\e[1;93m%s\e[0m = \e[92m%s\e[0m\n" "${(@kv)aliases}"'
 alias printl='print -l'
 expand_aliases[printl]='print -l'
 expand_aliases[pl]='print -l'
+expand_aliases[p]='print'
+
+expand_aliases[printa]='printf "[%s] %s\n"'
+expand_aliases[pa]='printf "[%s] %s\n"'
+
+pkv() {
+    local i type type_print type_print_fmt type_print_header
+    for i in "$@"; do
+        type=${(Pt)${i}}
+        type_print="$i: $type"
+        type_print_fmt="$i: \e[1m$type"
+        type_print_header="─${(l:${#type_print}::─:)}─"
+
+        print -l \
+            "\e[0m╭${type_print_header}╮" \
+            "│ \e[0m${type_print_fmt}\e[0m │" \
+            "╰${type_print_header}╯"
+        case $type in
+        association*)
+            # print -RaC 2 "${(@Pkv)${i}}"
+            print -RaC 2 "${(@Pkv)${i}}"
+            ;;
+        array*)
+            print -Rl "${(@P)${i}}"
+            ;;
+        # scalar*)
+        #     print -R "${(P)${i}}"
+        #     ;;
+        *)
+            print -R "${(P)${i}}"
+            ;;
+        esac
+    done
+}
 
 alias whi{ch,hc}='__which__function'
 expand_aliases[whihc]=which

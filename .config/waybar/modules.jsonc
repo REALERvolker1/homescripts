@@ -40,6 +40,27 @@
             "stopped": "󰓛"
         }
     },
+    "privacy": {
+        // not configured, not in waybar release
+        "transition-duration": 250,
+        "modules": [
+            {
+                "type": "screenshare",
+                "tooltip": true,
+                "tooltip-icon-size": 24
+            },
+            {
+                "type": "audio-out",
+                "tooltip": true,
+                "tooltip-icon-size": 24
+            },
+            {
+                "type": "audio-in",
+                "tooltip": true,
+                "tooltip-icon-size": 24
+            }
+        ]
+    },
     "pulseaudio": {
         "format": "{icon} {volume}%",
         "format-bluetooth": "{icon} {volume}%",
@@ -109,11 +130,11 @@
         "exec": "$XDG_CONFIG_HOME/rustcfg/power-cli/target/release/power-cli --waybar",
         "return-type": "json"
     },
-    // upower module is useless
-    // "upower": {
-    //     "native-path": "/org/freedesktop/UPower/devices/battery_BAT1",
-    //     "hide-if-empty": true,
-    //     "format": "{percentage}%"
+    // "custom/battery": {
+    //     "exec": "$XDG_CONFIG_HOME/rustcfg/power-cli/statusline.sh --waybar",
+    //     "return-type": "json",
+    //     "interval": "once",
+    //     "signal": 8
     // },
     "keyboard-state": {
         "format": "{icon}",
@@ -134,27 +155,6 @@
         "icon-size": 0,
         "icon-spacing": 0
         // "glyph": "󰊗"
-    },
-    "privacy": {
-        // not configured, not in waybar release
-        "transition-duration": 250,
-        "modules": [
-            {
-                "type": "screenshare",
-                "tooltip": true,
-                "tooltip-icon-size": 24
-            },
-            {
-                "type": "audio-out",
-                "tooltip": true,
-                "tooltip-icon-size": 24
-            },
-            {
-                "type": "audio-in",
-                "tooltip": true,
-                "tooltip-icon-size": 24
-            }
-        ]
     },
     "custom/pointer": {
         // for some reason it won't close the inotify process

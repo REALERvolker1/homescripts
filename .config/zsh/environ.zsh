@@ -1,4 +1,5 @@
 # a script by vlk to load environment variables for zsh
+# vim:ft=zsh
 
 # use zsh emulation, don't do any weirdness with arrays and whatnot
 emulate -LR zsh
@@ -158,6 +159,8 @@ i=$XDG_CONFIG_HOME/X11
 export XINITRC="$i/xinitrc"
 export XSERVERRC="$i/xserverrc"
 export XRESOURCES="$i/Xresources"
+export XCOMPOSEFILE="$i/xcompose"
+export XCOMPOSECACHE="$XDG_CACHE_HOME/xcompose"
 
 # hists
 export HISTFILE="$XDG_CACHE_HOME/shellhist"
@@ -181,8 +184,18 @@ export RXVT_SOCKET="${XDG_RUNTIME_DIR:-$XDG_CACHE_HOME}/urxvtd"
 export W3M_DIR="$XDG_STATE_HOME/w3m"
 export MACHINE_STORAGE_PATH="$XDG_DATA_HOME/docker-machine"
 export INPUTRC="$XDG_CONFIG_HOME/readline/inputrc"
-export OLLAMA_HOME="$XDG_DATA_HOME/ollama"
 export FCEUX_HOME="$XDG_CONFIG_HOME/fceux"
+export PARALLEL_HOME="$XDG_CONFIG_HOME/parallel"
+export MOST_INITFILE="$XDG_CONFIG_HOME/mostrc"
+export KDEHOME="$XDG_CONFIG_HOME/kdehome"
+#export DISCORD_USER_DATA_DIR="$XDG_DATA_HOME"
+
+# starship (unused)
+# export STARSHIP_CONFIG="$XDG_CONFIG_HOME/starship/dashline.toml" STARSHIP_CACHE="$XDG_CACHE_HOME/starship"
+
+# ollama
+export OLLAMA_HOME="$XDG_DATA_HOME/ollama"
+export OLLAMA_MODELS="$OLLAMA_HOME/models"
 
 # nix
 export VLK_NIX_HOME="$XDG_STATE_HOME/nix/profile"
@@ -196,7 +209,7 @@ export VLK_NIX_HOME="$XDG_STATE_HOME/nix/profile"
 export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
 
 # old GTK versions
-# export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
+export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 
 # java
@@ -205,7 +218,7 @@ export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 # export JAVA_HOME=/usr/lib/jvm/default
 # [[ -n ${JAVA_HOME-} ]] && export INSTALL4J_JAVA_HOME=${JAVA_HOME-}
 
-# perl
+# perl, doesn't really do much at all
 export PERL_CPANM_HOME="$XDG_DATA_HOME/cpanm"
 
 # rust
@@ -225,6 +238,11 @@ export PYTHONPYCACHEPREFIX="$XDG_CACHE_HOME/python"
 export PYENV_ROOT="$XDG_DATA_HOME/pyenv"
 export PYTHON_EGG_CACHE="$XDG_CACHE_HOME/python-eggs"
 export WORKON_HOME="$XDG_DATA_HOME/virtualenvs"
+
+# R-lang
+export R_HOME_USER="$XDG_CONFIG_HOME/R"
+export R_PROFILE_USER="$R_HOME_USER/profile"
+export R_HISTFILE="$R_HOME_USER/history"
 
 # nodejs
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
