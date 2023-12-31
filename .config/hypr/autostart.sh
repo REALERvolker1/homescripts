@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && exit 69
 
@@ -37,3 +37,5 @@ pmgmt.sh --monitor &
 autostart-clipboard.sh &
 
 hyprland-plugins.sh --load &
+
+wait
