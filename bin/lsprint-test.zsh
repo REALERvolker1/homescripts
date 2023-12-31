@@ -2,7 +2,6 @@
 emulate -LR zsh -o glob_dots -o pipefail -o warncreateglobal -o err_exit
 # it works I'm so happy aaaaaa
 
-
 typeset -i MAX_HEIGHT=4
 typeset -i MAX_WIDTH=$((COLUMNS - 4))
 
@@ -12,11 +11,7 @@ typeset -a cwd_fmt=(${(@f)$(lscolors $cwd)})
 # typeset -i cwd_max_width=${${(OnN)cwd%%*}[1]}
 
 typeset -a fmt_contents
-
-# lscolors *(^.)
-
 typeset -a current_column current_column_fmt tmp_column
-
 typeset -i current_height current_max_width current_padded_width tmp_width accumulated_width entry_count
 
 tmparr_insert() {

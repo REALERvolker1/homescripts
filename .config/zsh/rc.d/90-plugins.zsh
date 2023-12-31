@@ -74,6 +74,7 @@ __vlkplugin::refresh() {
 }
 __vlkplugin::refresh
 
+# workaround for zsh-autocomplete and fzf-tab/atuin compatibility
 __vlkplugin::keybind_reset() {
     bindkey '^r' _atuin_search_widget
     bindkey '^[[A' _atuin_up_search_widget
@@ -92,3 +93,4 @@ __vlkplugin::fast_theme() {
     unset -f __vlkplugin::fast_theme
 }
 zsh-defer __vlkplugin::fast_theme
+

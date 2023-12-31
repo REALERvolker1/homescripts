@@ -211,6 +211,19 @@ alias printfn="printf '%s\n' "
 alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -'
 alias chars='perl -e "foreach(@ARGV){open(my \$f,\"<\",\"\$_\") or die \"\$!\";my \$c;while(read(\$f,\$c,1)){print \"\$c\n\";}close \$f;}" '
 
+discordify() {
+    local file="${1:-}"
+    [[ -f $file && -r $file ]] || {
+        print "Error, please select a video to format for uploading to Discord!"
+        return 1
+    }
+    if [[ -e ./out.mp4 ]]; then
+        print "Error, output file 'out.mp4' already exists! Exiting"
+        return 1
+    fi
+    ffmpeg -i "$file" -map 0 -c:v libx264 -crf 18 -vf format=yuv420p -c:a copy ./out.mp4
+}
+
 _vlkrc::dbx::distro() {
     local name="${1:?Error, please specify a distrobox container name!}"
     shift 1
