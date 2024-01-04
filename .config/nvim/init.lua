@@ -31,10 +31,6 @@ opt.list = true
 opt.foldmethod = "marker"
 --opt.foldmethod = "syntax"
 
---: Be very cautious about enabling system clipboard!
-opt.clipboard = ""
---opt.clipboard = 'unnamed,unnamedplus'
-
 --vim.api.nvim_set_keymap("n", "<c-c>", '"*y :let @+=@*<CR>', {noremap=true, silent=true})
 --vim.api.nvim_set_keymap("n", "<c-v>", '"+p', {noremap=true, silent=true})
 --https://stackoverflow.com/a/76880300
@@ -44,6 +40,10 @@ vim.keymap.set({ "n" }, "<C-x>", '"+d$')
 vim.keymap.set({ "v" }, "<C-x>", '"+d')
 vim.keymap.set({ "n" }, "<C-v>", '"+p$')
 vim.keymap.set({ "v" }, "<C-v>", '"+p')
+
+--: Be very cautious about enabling system clipboard!
+--opt.clipboard = 'unnamed,unnamedplus'
+opt.clipboard = ""
 
 opt.ignorecase = true
 opt.smartcase = true

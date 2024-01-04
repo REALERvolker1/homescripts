@@ -344,6 +344,9 @@ EXEC 01;38;5;46 # files with execute permission
 .rpmorig 38;5;242
 .rpmsave 38;5;242
 
+.pacnew 38;5;242 # Arch pacman -- new config
+.pacsave 38;5;242 # arch pacman -- backup config
+
 # git stuff
 .gitattributes 38;5;91
 .gitconfig 38;5;91

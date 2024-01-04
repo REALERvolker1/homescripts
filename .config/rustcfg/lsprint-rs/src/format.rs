@@ -128,13 +128,14 @@ impl Column {
 #[derive(Debug, Clone)]
 pub struct DirContent {
     pub columns: Vec<Column>,
+    pub surplus: usize,
     pub width: usize,
     pub max_width: usize,
     pub should_fill_width: bool,
     pub height: usize,
 }
 impl DirContent {
-    pub fn table_format(&self) -> String {
+    pub fn table_format(&self) -> Vec<String> {
         let mut display: AHashMap<usize, Vec<_>> = AHashMap::with_capacity(self.height);
 
         for column in self.columns.iter() {
@@ -210,7 +211,7 @@ impl DirContent {
                 .collect::<Vec<String>>()
         };
 
-        display_contents.join("\n")
+        display_contents
     }
 }
 
@@ -222,17 +223,20 @@ pub struct DisplayWindow {
     pub cwd: PathBuf,
 }
 impl DisplayWindow {}
+const FORMAT_WINDOW_SIDEPAD_WIDTH: usize = (constants::PAD_SPACES_WIDTH + 1) * 2;
 pub fn format_window(
     contents: &Vec<String>,
+    contents_width: usize,
     surplus: usize,
     cwd: &Path,
-    hashed_dirs: &AHashMap<&str, &Path>,
-) -> Option<String> {
-    let contents_width = contents.first()?.chars().count();
+    hashed_dirs: &Vec<bruh::HashedDirectory>,
+) -> String {
+    let horiz = String::from(constants::BOX_DRAWING_CURVED.horizontal);
 
     // +1 (for the ilog10 plus the length of the integer) + 1 (for the '+') + 4 (for the strings on either side)
-    let surplus_length_full =
-        surplus.checked_ilog10()? as usize + 2 + 2 + constants::PAD_SPACES_DOUBLED;
+    // let surplus_length_full =
+    //     surplus.checked_ilog10().unwrap() as usize + 2 + FORMAT_WINDOW_SIDEPAD_WIDTH;
+    let surplus_length_full = surplus.to_string().len() + 2 + FORMAT_WINDOW_SIDEPAD_WIDTH;
 
     // don't show the surplus if it's super tiny lmao
     let (surplus_length, surplus_fmt_string) = if surplus_length_full > contents_width {
@@ -248,17 +252,66 @@ pub fn format_window(
     } else {
         (0, "".to_owned())
     };
+    let bottom_fmt_string = format!(
+        "{}{}{}",
+        constants::BOX_DRAWING_CURVED.bottom_left,
+        &horiz.repeat(contents_width - surplus_length),
+        constants::BOX_DRAWING_CURVED.bottom_right
+    );
 
-    
-    // format!(
-    //     "{}{}{}\n{}{}{}\n{}{}{}",
+    // let mut current_path_display = "".to_owned();
+    // let mut current_path_length = 0;
+    // for dir in hashed_dirs.iter() {
+    //     if cwd.starts_with(&dir.directory) {
+    //         current_path_display = format!("~{}", &dir.key);
+    //         current_path_length = dir.key_length + 1;
+    //         break;
+    //     }
+    // }
 
-    //     " ",
-    //     " ",
-    //     constants::BOX_DRAWING_CURVED.vertical,
-    //     self.cwd.display(),
-    //     constants::BOX_DRAWING_LIGHT_VERTICAL,
-    //     " ",
-    //     " "
-    // )
+    let cwd_lstring = cwd.to_string_lossy();
+
+    // needs to be an owned value, the result from the vec is a reference
+    let (path_prefix_base, path_prefixed_length) = if let Some(hd) = hashed_dirs
+        .iter()
+        .filter(|dir| cwd.starts_with(&dir.directory_string))
+        .next()
+    {
+        let hd_fmt = format!("~{}", &hd.key);
+        let cwd_rest = cwd_lstring.replacen(&hd.directory_string, &hd_fmt, 1);
+        let width = cwd_rest.chars().count() + FORMAT_WINDOW_SIDEPAD_WIDTH;
+        (cwd_rest, width)
+    } else {
+        (
+            cwd_lstring.to_string(),
+            cwd_lstring.chars().count() + FORMAT_WINDOW_SIDEPAD_WIDTH,
+        )
+    };
+    let top_fmt_string = format!(
+        "{}{}{}{}{}{}{}{}",
+        constants::BOX_DRAWING_CURVED.top_left,
+        &horiz.repeat(contents_width - path_prefixed_length),
+        constants::BOX_DRAWING_CURVED.horizontal_intersection_right,
+        constants::PAD_SPACE,
+        &path_prefix_base,
+        constants::PAD_SPACE,
+        constants::BOX_DRAWING_CURVED.horizontal_intersection_left,
+        constants::BOX_DRAWING_CURVED.top_right
+    );
+
+    format!(
+        "{}\n{}\n{}",
+        &top_fmt_string,
+        contents
+            .iter()
+            .map(|i| format!(
+                "{}{}{}",
+                constants::BOX_DRAWING_CURVED.vertical,
+                &i,
+                constants::BOX_DRAWING_CURVED.vertical
+            ))
+            .collect::<Vec<_>>()
+            .join("\n"),
+        &bottom_fmt_string
+    )
 }

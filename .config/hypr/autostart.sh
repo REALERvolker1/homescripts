@@ -13,7 +13,6 @@ autostart-polkit.sh &
 ydotoold &
 #asusctl -c 80 &
 
-# "$XDG_CONFIG_HOME/hypr/scripts/pluginload.sh" &
 #vlkbg.sh &
 autostart-gammastep.sh &
 dunst &
@@ -36,6 +35,6 @@ pmgmt.sh --monitor &
 
 autostart-clipboard.sh &
 
-hyprland-plugins.sh --load &
+hyprpm reload &
 
 wait

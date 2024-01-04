@@ -2,7 +2,13 @@ use crate::format;
 use ahash::AHashMap;
 use lscolors;
 ///! Bureaucratic stuff required to make this cli not suck
-use std::{env, error, fmt, fs::DirEntry, io, path::*, rc::Rc};
+use std::{
+    env, error, fmt,
+    fs::DirEntry,
+    io::{self, prelude::*},
+    path::*,
+    rc::Rc,
+};
 use terminal_size;
 
 /// An error type I kinda quickly threw together.
@@ -66,6 +72,7 @@ Recommended to keep the height under 10 or something.
 // }
 
 pub struct Options {
+    pub read_stdin: bool,
     pub max_width: usize,
     pub fill_width: bool,
     /// The max height, and max length of each column
@@ -89,6 +96,8 @@ impl Options {
         let mut current_column_vec = Vec::new();
 
         // let mut display: AHashMap<usize, Vec<format::ColumnEntry>> = AHashMap::with_capacity(self.max_height);
+        let current_count_full = current_dirvec.len();
+        let mut current_count = 0;
 
         loop {
             let mut entries = Vec::new();
@@ -116,6 +125,7 @@ impl Options {
                 self.max_width,
             ) {
                 table_width += column.width;
+                current_count += entries_len;
                 current_column_vec.push(column);
             } else {
                 // if no column, we've run out of space
@@ -129,6 +139,7 @@ impl Options {
 
         let window = format::DirContent {
             columns: current_column_vec,
+            surplus: current_count_full - current_count,
             width: table_width,
             max_width: self.max_width,
             should_fill_width: self.fill_width,
@@ -140,6 +151,7 @@ impl Options {
     /// Parse the args to get the options
     pub fn from_args() -> Result<Self, PrintError> {
         let mut fill_width = false;
+        let mut read_stdin = false;
         let mut max_height = 4;
         let mut height_as_percent = false;
         let mut dirs = Vec::new();
@@ -158,6 +170,7 @@ impl Options {
                     }
                     return Err(help("Argument requires a number value", &arg));
                 }
+                "--hashed-stdin" => read_stdin = true,
                 "--percent-height" => {
                     if let Some(next_arg) = args.next() {
                         if let Ok(h) = next_arg.parse::<usize>() {
@@ -213,6 +226,7 @@ impl Options {
         };
 
         Ok(Self {
+            read_stdin,
             max_width,
             fill_width,
             max_height,
@@ -221,15 +235,73 @@ impl Options {
     }
 }
 
-/// zsh hashed directories
-#[derive(Debug, Clone)]
-pub struct HashedDirectories {
-    pub dirs: Vec<(String, PathBuf)>
+/// zsh hashed directories, sorted by length. This is meant to be used to get the formatting for the cwd display in the window
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct HashedDirectory {
+    pub key: String,
+    pub key_length: usize,
+    pub directory: PathBuf,
+    pub directory_string: String,
+    pub directory_length: usize,
 }
-impl HashedDirectories {
-    pub fn only_home() -> Self {
-        Self {
-            dirs: vec![("home".to_owned(), env::h)],
+// impl Default for HashedDirectory {
+//     fn default() -> Self {
+//         Self {
+//             key: "/".to_owned(),
+//             key_length: 1,
+//             directory: PathBuf::from("/"),
+//             directory_length: 1,
+//         }
+//     }
+// }
+impl HashedDirectory {
+    pub fn only_home() -> Vec<Self> {
+        let key_string = "".to_owned();
+        let home = env::var("HOME").unwrap();
+        let key_path = PathBuf::from(&home);
+        let path_length = key_path.to_string_lossy().chars().count();
+        vec![Self {
+            key: key_string,
+            key_length: 0,
+            directory: key_path,
+            directory_string: home,
+            directory_length: path_length,
+        }]
+    }
+    /// For use with the command `print ${(@kv)nameddirs} | lsprint`
+    pub fn from_stdin() -> io::Result<Vec<Self>> {
+        let stdin = io::stdin();
+        let mut stdin_lock = stdin.lock();
+        let mut buffer = String::new();
+        stdin_lock.read_to_string(&mut buffer)?;
+
+        let mut dirs = buffer.split(" ");
+        let mut dirs_result = Vec::new();
+
+        while let Some(key) = dirs.next() {
+            let val = if let Some(v) = dirs.next() {
+                v
+            } else {
+                continue;
+            };
+            // println!("dir {}: {}", key, val);
+            let key_string = key.to_owned();
+            let key_length = key.chars().count();
+            let key_path = PathBuf::from(val);
+            let key_path_length = key_path.to_string_lossy().chars().count();
+            dirs_result.push(Self {
+                key: key_string,
+                key_length,
+                directory: key_path,
+                directory_string: val.to_owned(),
+                directory_length: key_path_length,
+            })
         }
+
+        dirs_result.sort_by(|a, b| b.directory_length.cmp(&a.directory_length));
+        // b.1.len().cmp(&a.1.len())
+        // println!("{:?}", dirs);
+
+        Ok(dirs_result)
     }
 }

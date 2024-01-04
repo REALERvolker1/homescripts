@@ -1,0 +1,76 @@
+live_config_reload = false
+
+[bell]
+animation = "EaseOutExpo"
+duration = 0
+
+[colors.bright]
+black = "0x555555"
+blue = "0x5555ff"
+cyan = "0x00ffff"
+green = "0x55ff55"
+magenta = "0xff55ff"
+red = "0xff5555"
+white = "0xffffff"
+yellow = "0xffff55"
+
+[colors.normal]
+black = "0x000000"
+blue = "0x0000aa"
+cyan = "0x00aaaa"
+green = "0x00aa00"
+magenta = "0xaa00aa"
+red = "0xaa0000"
+white = "0xaaaaaa"
+yellow = "0xaaaa00"
+
+[colors.primary]
+background = "0x000000"
+foreground = "0xeaeaea"
+
+[cursor]
+cursor = "CellForeground"
+style = "Beam"
+text = "CellBackground"
+unfocused_hollow = true
+
+[env]
+ICON_TYPE = "powerline"
+
+[font]
+size = 11.0
+
+[font.bold]
+family = "monospace"
+style = "Bold"
+
+[font.glyph_offset]
+x = 0
+y = 0
+
+[font.italic]
+family = "monospace"
+style = "Italic"
+
+[font.normal]
+family = "monospace"
+style = "Regular"
+
+[font.offset]
+x = 0
+y = 0
+
+[scrolling]
+draw_bold_text_with_bright_colors = false
+history = 4000
+
+[shell]
+program = "/usr/bin/zsh"
+
+[window]
+dynamic_padding = true
+opacity = 0.75
+
+[window.padding]
+x = 4
+y = 4
