@@ -1,0 +1,14 @@
+[package]
+name = "term-utils"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+libc = "0.2.151"
+lscolors = { git = "https://github.com/REALERvolker1/lscolors", version = "0.16.0" }
+strip-ansi-escapes = "0.2.0"
+termion = "2.0.3"
+unicode-width = "0.1.11"
+uutils_term_grid = "0.3.0"

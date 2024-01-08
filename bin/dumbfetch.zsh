@@ -31,6 +31,36 @@ cachefile="$XDG_RUNTIME_DIR/zsh-dumbfetch-$XDG_SESSION_ID.cache"
         [[ $kern == *rt* ]] && karr+=('(RT)') # Realtime kernel -- deterministic scheduling
         # join kernel array with spaces
         print "${(j. .)karr}"
+
+        # get desktop env or wm env or whatever
+        case $XDG_CURRENT_DESKTOP:l in
+            *i3*) print  ;;
+            *hyprland*) print  ;;
+            *sway*) print  ;;
+            *bspwm*) print  ;;
+            *dwm*) print  ;;
+            *qtile*) print  ;;
+            *lxqt*) print  ;;
+            *mate*) print  ;;
+            *deepin*) print  ;;
+            *element*) print  ;;
+            *enlighten*) print  ;;
+            *fluxbox*) print  ;;
+            *xfce*) print  ;;
+            *plasma* | *kde*) print  ;;
+            *cinnamon* | *xapp*) print  ;;
+            *gnome*) print  ;;
+            *)
+                if [[ -n ${WAYLAND_DISPLAY-} ]]; then
+                    print 
+                elif [[ -n ${DISPLAY-} ]]; then
+                    print 
+                else
+                    print 
+                fi
+                ;;
+        esac
+        print "${XDG_CURRENT_DESKTOP:-Undefined}"
     ) >"$cachefile"
 
 # this is less computationally expensive and more cross-platform than running procps uptime
@@ -67,6 +97,7 @@ print -f "${boxcolor}│[0;92m%s${boxcolor}│[0;9%-11s   [1m%-${len}s ${boxc
     ' \ \ / / | |/ / ' '6m  Term'    "${props[3]}" \
     '  \ V /| |   <  ' '3m 󰋊 Disk'    "${props[4]}" \
     '   \_/ |_|_|\_\ ' '2m 󰾲 Nvidia'  "${props[5]}" \
-    '                ' '1m  Kernel'  "${props[6]}"
+    '                ' '1m  Kernel'  "${props[6]}" \
+    '                ' "1m ${props[7]} Desk  "  "${props[8]}"
 # replace every topside box character with the corresponding bottomside character
 print ${${${lenstr/╭/╰}/╮/╯}/┬/┴}

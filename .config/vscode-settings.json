@@ -104,7 +104,6 @@
     },
     "color-highlight.markerType": "outline",
     "color-highlight.markRuler": false,
-    "vscord.status.idle.enabled": false,
     "editor.formatOnPaste": true,
     // "python.formatting.provider": "none",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -171,5 +170,6 @@
         "properties",
         "spring-boot-properties",
         "azcli"
-    ]
+    ],
+    "vscord.status.idle.enabled": false
 }
