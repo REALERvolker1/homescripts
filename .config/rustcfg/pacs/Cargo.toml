@@ -1,0 +1,31 @@
+[package]
+name = "pacs"
+version = "0.1.0"
+description = "Pacman-Search: A better search tool for Arch Linux pacman and the AUR"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+alpm = "2.2.3"
+alpm-utils = "2.0.1"
+clap = { version = "4.4.14", features = ["derive", "cargo"] }
+crossbeam-channel = "0.5.11"
+env_logger = "0.10.1"
+eyre = "0.6.11"
+log = "0.4.20"
+nu-ansi-term = "0.49.0"
+pacmanconf = "2.0.0"
+raur = "7.0.0"
+skim = { version = "0.10.4", default-features = false }
+smart-default = "0.7.1"
+strum = "0.25.0"
+strum_macros = "0.25.3"
+termion = "3.0.0"
+tokio = { version = "1.35.1", default-features = false, features = [
+    "fs",
+    "macros",
+    "rt-multi-thread",
+    "process",
+] }
+tuikit = "0.5.0"

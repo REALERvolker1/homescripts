@@ -35,6 +35,6 @@ pmgmt.sh --monitor &
 
 autostart-clipboard.sh &
 
-#hyprpm reload &
+hyprpm reload &
 
 wait

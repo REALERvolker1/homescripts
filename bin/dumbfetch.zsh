@@ -26,9 +26,9 @@ cachefile="$XDG_RUNTIME_DIR/zsh-dumbfetch-$XDG_SESSION_ID.cache"
         # we will be left with the matched string.
         karr+=(${(M)${(M)${kern:u}%${~matchstr}*}##*${~matchstr}})
 
-        [[ $kern == *(g14|rog)* ]] && karr+=(ROG) # Kernel with Asus-Linux patches
-        [[ $kern == *lts* ]] && karr+=('(LTS)') # LTS kernel
-        [[ $kern == *rt* ]] && karr+=('(RT)') # Realtime kernel -- deterministic scheduling
+        [[ $kern:l == *(g14|rog)* ]] && karr+=(ROG) # Kernel with Asus-Linux patches
+        [[ $kern:l == *lts* ]] && karr+=('(LTS)') # LTS kernel
+        [[ $kern:l == *rt* ]] && karr+=('(RT)') # Realtime kernel -- deterministic scheduling
         # join kernel array with spaces
         print "${(j. .)karr}"
 
@@ -98,6 +98,6 @@ print -f "${boxcolor}│[0;92m%s${boxcolor}│[0;9%-11s   [1m%-${len}s ${boxc
     '  \ V /| |   <  ' '3m 󰋊 Disk'    "${props[4]}" \
     '   \_/ |_|_|\_\ ' '2m 󰾲 Nvidia'  "${props[5]}" \
     '                ' '1m  Kernel'  "${props[6]}" \
-    '                ' "1m ${props[7]} Desk  "  "${props[8]}"
+    '                ' "6m ${props[7]} Desk  "  "${props[8]}"
 # replace every topside box character with the corresponding bottomside character
 print ${${${lenstr/╭/╰}/╮/╯}/┬/┴}
