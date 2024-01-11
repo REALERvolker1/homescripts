@@ -1,76 +1,44 @@
-use crate::modules;
-use futures::StreamExt;
-mod xmlgen;
+use crate::{
+    modules::{Icon, ListenerType, ProxyType, StateType},
+    types::ModError,
+};
+use serde::{Deserialize, Serialize};
+use tracing::{debug, info, warn};
+use zbus::zvariant::{OwnedValue, Type};
+pub mod xmlgen;
 
-pub struct BatteryProxy<'a> {
-    pub proxy: xmlgen::DeviceProxy<'a>,
-    pub state_stream: zbus::PropertyStream<'a, u32>,
-    pub percent_stream: zbus::PropertyStream<'a, f64>,
-    pub rate_stream: zbus::PropertyStream<'a, f64>,
-}
-impl<'a> modules::Proxy<'a> for BatteryProxy<'a> {
-    async fn new(
-        connection: &'a zbus::Connection,
-    ) -> Option<(crate::modules::PropertyProxy, crate::modules::Property)> {
-        let proxy = if let Ok(p) = xmlgen::DeviceProxy::new(connection).await {
-            p
-        } else {
-            return None;
-        };
 
-        let (s, p, r, state_stream, percent_stream, rate_stream) = tokio::join!(
-            proxy.state(),
-            proxy.percentage(),
-            proxy.energy_rate(),
-            proxy.receive_state_changed(),
-            proxy.receive_percentage_changed(),
-            proxy.receive_energy_rate_changed()
-        );
-
-        // we don't have multiple `if let Ok()` yet
-        let status = if s.is_ok() && p.is_ok() && r.is_ok() {
-            modules::Property::Battery(
-                BatteryStatus::from_raw(s.unwrap(), p.unwrap(), r.unwrap()).unwrap_or_default(),
-            )
-        } else {
-            return None;
-        };
-
-        Some((
-            modules::PropertyProxy::Battery(Self {
-                proxy,
-                state_stream,
-                percent_stream,
-                rate_stream,
-            }),
-            status,
-        ))
-    }
-    fn name() -> String {
-        String::from("battery")
-    }
-}
-
-impl<'a> futures::Stream for BatteryProxy<'a> {
-    type Item = modules::WeakStateType<'a>;
-    fn poll_next(
-        mut self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Option<Self::Item>> {
-        if let std::task::Poll::Ready(Some(v)) = self.state_stream.poll_next_unpin(cx) {
-            return std::task::Poll::Ready(Some(modules::WeakStateType::BatteryState(v)));
-        }
-        if let std::task::Poll::Ready(Some(v)) = self.percent_stream.poll_next_unpin(cx) {
-            return std::task::Poll::Ready(Some(modules::WeakStateType::BatteryPercentage(v)));
-        }
-        if let std::task::Poll::Ready(Some(v)) = self.rate_stream.poll_next_unpin(cx) {
-            return std::task::Poll::Ready(Some(modules::WeakStateType::BatteryRate(v)));
-        }
-        std::task::Poll::Pending
-    }
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        (0, None)
-    }
+type Res<'a> = zbus::Result<(
+    ProxyType<'a>,
+    StateType,
+    StateType,
+    StateType,
+    ListenerType<'a>,
+    ListenerType<'a>,
+    ListenerType<'a>,
+)>;
+#[tracing::instrument(skip(connection))]
+pub async fn create_upower_module<'a>(connection: &zbus::Connection) -> Res<'a> {
+    debug!("Trying to create upower module");
+    let proxy = xmlgen::DeviceProxy::new(connection).await?;
+    let (s, p, r, state_stream, percent_stream, rate_stream) = tokio::join!(
+        proxy.state(),
+        proxy.percentage(),
+        proxy.energy_rate(),
+        proxy.receive_state_changed(),
+        proxy.receive_percentage_changed(),
+        proxy.receive_energy_rate_changed()
+    );
+    info!("Created UPower module");
+    Ok((
+        ProxyType::Upower(proxy),
+        StateType::BatteryState(s?),
+        StateType::BatteryPercentage(p?),
+        StateType::BatteryRate(r?),
+        ListenerType::BatteryState(state_stream),
+        ListenerType::BatteryPercentage(percent_stream),
+        ListenerType::BatteryRate(rate_stream),
+    ))
 }
 
 /// The current state of the battery, an enum based on its representation in upower
@@ -85,95 +53,152 @@ pub enum BatteryState {
     #[default]
     Unknown,
 }
-impl BatteryState {
-    #[inline]
-    pub fn from_u32(value: u32) -> Option<Self> {
+impl From<u32> for BatteryState {
+    fn from(value: u32) -> Self {
+        debug!("Converting from u32 '{}'", value);
         match value {
-            1 => Some(Self::Charging),
-            2 => Some(Self::Discharging),
-            3 => Some(Self::Empty),
-            4 => Some(Self::FullyCharged),
-            5 => Some(Self::PendingCharge),
-            6 => Some(Self::PendingDischarge),
-            _ => None,
-        }
-    }
-}
-
-pub type Percent = u8;
-
-#[derive(Debug, Copy, Clone, PartialEq, Default)]
-pub struct BatteryStatus {
-    pub state: BatteryState,
-    pub percent: Percent,
-    pub rate: f64,
-}
-impl BatteryStatus {
-    /// Create a new instance from the raw base types. If you have refined types, construct this manually.
-    pub fn from_raw(state_raw: u32, percent_raw: f64, rate_raw: f64) -> Option<Self> {
-        Some(Self {
-            state: BatteryState::from_u32(state_raw)?,
-            percent: percent_raw as Percent,
-            rate: rate_raw,
-        })
-    }
-    /// Get the status
-    pub fn status_string(&self) -> String {
-        match self.state {
-            BatteryState::FullyCharged
-            | BatteryState::PendingCharge
-            | BatteryState::PendingDischarge => format!("{} {}%", self.icon(), self.percent),
+            1 => Self::Charging,
+            2 => Self::Discharging,
+            3 => Self::Empty,
+            4 => Self::FullyCharged,
+            5 => Self::PendingCharge,
+            6 => Self::PendingDischarge,
             _ => {
-                // TODO: Remove charge_control_end, that's supposed to be part of the css class
-                format!("{} {}% {:.2}W", self.icon(), self.percent, self.rate,)
+                warn!("Could not match u32 '{}' to a known BatteryState", value);
+                Self::default()
             }
         }
     }
-    pub fn update_state(&mut self, state: modules::StateType) {
-        match state {
-            modules::StateType::BatteryPercentage(p) => self.percent = p,
-            modules::StateType::BatteryRate(p) => self.rate = p,
-            modules::StateType::BatteryState(p) => self.state = p,
-            _ => (),
+}
+impl TryFrom<OwnedValue> for BatteryState {
+    type Error = ModError;
+    fn try_from(value: OwnedValue) -> Result<Self, Self::Error> {
+        debug!("Trying to convert OwnedValue '{:?}' to a known type", value);
+        Ok(if let Some(v) = value.downcast_ref::<u32>() {
+            Self::from(*v)
+        } else {
+            Self::default()
+        })
+    }
+}
+
+// pub type Percent = u8;
+#[derive(
+    Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Type, Serialize, Deserialize,
+)]
+pub struct Percent {
+    v: u8,
+}
+impl Percent {
+    /// Get the inner value
+    pub fn u(&self) -> u8 {
+        self.v
+    }
+    /// Get the max value
+    pub fn max() -> Self {
+        Self { v: 100 }
+    }
+    /// Create a new Percentage, without checking if the value is in range. Useful for hardcoded values.
+    pub fn from_u8_unchecked(u: u8) -> Self {
+        warn!(
+            "Converting u8 '{}' to Percentage type without checking bounds",
+            u
+        );
+        Self { v: u }
+    }
+    /// Try to convert a str into a percentage.
+    /// I literally only made this method for argparsing, but it should just work in other places.
+    pub fn try_from_str<S>(value: S) -> Result<Self, ModError>
+    where
+        S: AsRef<str>,
+    {
+        let v = value.as_ref();
+        debug!("Trying to convert from AsRef<str> '{:?}'", v);
+        if let Ok(v) = v.trim().parse::<u8>() {
+            Self::try_from(v)
+        } else {
+            Err(ModError::Conversion(format!(
+                "Failed to parse percentage from string! {}",
+                v
+            )))
         }
     }
-    /// Retrieve the hardcoded icon for this type
-    #[inline]
-    fn icon(&self) -> modules::Icon {
-        match self.state {
-            BatteryState::Charging => match self.percent {
-                101.. => "󰂏?",
-                95.. => "󰂅",
-                91.. => "󰂋",
-                81.. => "󰂊",
-                71.. => "󰢞",
-                61.. => "󰂉",
-                51.. => "󰢝",
-                41.. => "󰂈",
-                31.. => "󰂇",
-                21.. => "󰂆",
-                11.. => "󰢜",
-                _ => "󰢟",
-            },
-            BatteryState::Discharging => match self.percent {
-                101.. => "󰂌?",
-                95.. => "󰁹",
-                91.. => "󰂂",
-                81.. => "󰂁",
-                71.. => "󰂀",
-                61.. => "󰁿",
-                51.. => "󰁾",
-                41.. => "󰁽",
-                31.. => "󰁼",
-                21.. => "󰁻",
-                11.. => "󰁺",
-                _ => "󰂎",
-            },
-            BatteryState::Empty => "󱟩",
-            BatteryState::FullyCharged => "󰂄",
-            BatteryState::PendingCharge => "󰂏",
-            BatteryState::PendingDischarge => "󰂌",
-            BatteryState::Unknown => "󱉞?",
+}
+impl std::fmt::Display for Percent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}%", self.v)
+    }
+}
+impl TryFrom<u8> for Percent {
+    type Error = ModError;
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        debug!("Trying to convert u8 '{}' to Percentage", value);
+        if value > 100 {
+            Err(ModError::Conversion(format!("Value too high! {}", value)))
+        } else {
+            Ok(Self { v: value })
         }
+    }
+}
+impl TryFrom<f64> for Percent {
+    type Error = ModError;
+    fn try_from(value: f64) -> Result<Self, Self::Error> {
+        debug!("Trying to convert f64 '{}' to Percentage", value);
+        let uval = value as u8;
+        Self::try_from(uval)
+    }
+}
+impl TryFrom<OwnedValue> for Percent {
+    type Error = ModError;
+    fn try_from(value: OwnedValue) -> Result<Self, Self::Error> {
+        debug!("Trying to convert from OwnedValue '{:?}' to Percent", value);
+        if let Some(v) = value.downcast_ref::<f64>() {
+            Self::try_from(v.floor())
+        } else if let Some(v) = value.downcast_ref::<u8>() {
+            Self::try_from(*v)
+        } else {
+            Err(ModError::Conversion(format!(
+                "Failed to parse percentage from value! {:?}",
+                value
+            )))
+        }
+    }
+}
+
+pub fn battery_icon<'a>(percent: Percent, state: BatteryState) -> Icon<'a> {
+    match state {
+        BatteryState::Charging => match percent.u() {
+            101.. => "󰂏?",
+            95.. => "󰂅",
+            91.. => "󰂋",
+            81.. => "󰂊",
+            71.. => "󰢞",
+            61.. => "󰂉",
+            51.. => "󰢝",
+            41.. => "󰂈",
+            31.. => "󰂇",
+            21.. => "󰂆",
+            11.. => "󰢜",
+            _ => "󰢟",
+        },
+        BatteryState::Discharging => match percent.u() {
+            101.. => "󰂌?",
+            95.. => "󰁹",
+            91.. => "󰂂",
+            81.. => "󰂁",
+            71.. => "󰂀",
+            61.. => "󰁿",
+            51.. => "󰁾",
+            41.. => "󰁽",
+            31.. => "󰁼",
+            21.. => "󰁻",
+            11.. => "󰁺",
+            _ => "󰂎",
+        },
+        BatteryState::Empty => "󱟩",
+        BatteryState::FullyCharged => "󰂄",
+        BatteryState::PendingCharge => "󰂏",
+        BatteryState::PendingDischarge => "󰂌",
+        BatteryState::Unknown => "󱉞?",
     }
 }

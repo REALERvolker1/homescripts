@@ -19,6 +19,7 @@
 //!
 //! …consequently `zbus-xmlgen` did not generate code for the above interfaces.
 
+use crate::modules::upower;
 use zbus::dbus_proxy;
 
 #[dbus_proxy(
@@ -111,7 +112,7 @@ trait Device {
 
     /// Percentage property
     #[dbus_proxy(property)]
-    fn percentage(&self) -> zbus::Result<f64>;
+    fn percentage(&self) -> zbus::Result<upower::Percent>;
 
     /// PowerSupply property
     #[dbus_proxy(property)]
@@ -123,7 +124,7 @@ trait Device {
 
     /// State property
     #[dbus_proxy(property)]
-    fn state(&self) -> zbus::Result<u32>;
+    fn state(&self) -> zbus::Result<upower::BatteryState>;
 
     /// Technology property
     #[dbus_proxy(property)]

@@ -19,6 +19,7 @@
 //!
 //! …consequently `zbus-xmlgen` did not generate code for the above interfaces.
 
+use crate::modules::upower;
 use zbus::dbus_proxy;
 
 #[dbus_proxy(
@@ -38,8 +39,8 @@ trait Daemon {
 
     /// ChargeControlEndThreshold property
     #[dbus_proxy(property)]
-    fn charge_control_end_threshold(&self) -> zbus::Result<u8>;
-    fn set_charge_control_end_threshold(&self, value: u8) -> zbus::Result<()>;
+    fn charge_control_end_threshold(&self) -> zbus::Result<upower::Percent>;
+    fn set_charge_control_end_threshold(&self, value: upower::Percent) -> zbus::Result<()>;
 
     /// DgpuDisable property
     #[dbus_proxy(property)]

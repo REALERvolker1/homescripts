@@ -2,6 +2,10 @@
 # The script to generate dbus code
 set -euo pipefail
 
+echo "WARNING: I have made custom changes to the generated code! Use this with caution!!!
+Script will now exit"
+exit 1
+
 XMLGEN_DIR="$PWD/src/modules"
 
 # A function to print an error message and exit

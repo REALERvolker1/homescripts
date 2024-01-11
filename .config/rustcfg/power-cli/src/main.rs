@@ -179,7 +179,8 @@ impl Default for State {
     }
 }
 
-#[tokio::main]
+// #[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn Error>> {
     let conn = zbus::Connection::system().await?;
 

@@ -1,5 +1,5 @@
 //! The module that gets the config
-use crate::modules::upower;
+use crate::modules::upower::Percent;
 
 /// What kind of output is requested
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
@@ -14,19 +14,19 @@ pub enum OutputType {
 #[derive(Debug, Clone)]
 pub struct Config {
     pub display_type: OutputType,
-    pub charge_end_threshold: upower::Percent,
+    pub charge_end_threshold: Percent,
     pub ac_high_draw_threshold: f64,
     pub bat_high_draw_threshold: f64,
-    pub low_power: upower::Percent,
+    pub low_power: Percent,
 }
 impl Default for Config {
     fn default() -> Self {
         Config {
             display_type: OutputType::default(),
-            charge_end_threshold: u8::MAX,
+            charge_end_threshold: Percent::max(),
             ac_high_draw_threshold: 70.0,
             bat_high_draw_threshold: 20.0,
-            low_power: 10,
+            low_power: Percent::from_u8_unchecked(10),
         }
     }
 }
@@ -42,18 +42,19 @@ pub async fn get_config() -> Config {
             "--stdout" => config.display_type = OutputType::Stdout,
             "--charge-end-threshold" => {
                 if let Some(cc) = args.next() {
-                    if let Ok(c) = cc.trim().parse::<upower::Percent>() {
-                        if c <= 100 {
-                            config.charge_end_threshold = c;
-                        } else {
-                            print_help(
-                                &c.to_string(),
-                                Some("Invalid percentage for --charge-end-threshold"),
-                            );
-                        }
-                    } else {
-                        print_help(&cc, Some("Invalid percentage for --charge-end-threshold"));
-                    }
+                    // if let Ok(c) = cc.trim().parse::<u8>() {
+                    //     if c <= 100 {
+                    //         config.charge_end_threshold = c;
+                    //     } else {
+                    //         print_help(
+                    //             &c.to_string(),
+                    //             Some("Invalid percentage for --charge-end-threshold"),
+                    //         );
+                    //     }
+                    // } else {
+                    //     print_help(&cc, Some("Invalid percentage for --charge-end-threshold"));
+                    // }
+                    config.charge_end_threshold = Percent::try_from_str(&cc).unwrap();
                 } else {
                     print_help(
                         "<int 0-100>",

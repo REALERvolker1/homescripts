@@ -19,6 +19,7 @@
 //!
 //! …consequently `zbus-xmlgen` did not generate code for the above interfaces.
 
+use crate::modules::power_profiles;
 use zbus::dbus_proxy;
 
 #[dbus_proxy(
@@ -43,7 +44,7 @@ trait PowerProfiles {
 
     /// ActiveProfile property
     #[dbus_proxy(property)]
-    fn active_profile(&self) -> zbus::Result<String>;
+    fn active_profile(&self) -> zbus::Result<power_profiles::PowerProfileState>;
     fn set_active_profile(&self, value: &str) -> zbus::Result<()>;
 
     /// ActiveProfileHolds property
