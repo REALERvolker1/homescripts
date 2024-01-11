@@ -39,17 +39,12 @@ pub async fn run() -> Result<(), types::ModError> {
 
     warn!("Starting up");
 
-    let init = tokio::join!(
-        config::get_config(),
-        zbus::ConnectionBuilder::system()?.build()
-    );
-    let config = init.0;
-    let connection = init.1?;
+    let connection = zbus::ConnectionBuilder::system()?.build().await?;
     info!("Config loaded, connected to dbus");
 
     // load modules
     let (mut global_state, _proxies, listeners, sgfx_proxy) =
-        modules::store::load_modules(&connection, config).await?;
+        modules::store::load_modules(&connection).await?;
     info!("Loaded modules");
 
     if listeners.len() == 0 {
@@ -72,6 +67,7 @@ pub async fn run() -> Result<(), types::ModError> {
                 global_state.update(state);
             }
             let state_string = global_state.string();
+            // TODO: Use named pipes or a dbus propertychanged event
             println!("{}", state_string);
 
             debug!("{:?}", global_state);

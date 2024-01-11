@@ -57,6 +57,7 @@ impl StateType {
     }
 }
 
+/// Basically a list of all the different types of listeners
 #[derive(strum_macros::EnumDiscriminants, strum_macros::EnumIs)]
 pub enum ListenerType<'a> {
     BatteryState(zbus::PropertyStream<'a, upower::BatteryState>),
@@ -121,24 +122,3 @@ pub enum ProxyType<'a> {
 }
 /// The type for an icon
 pub type Icon<'a> = &'a str;
-
-// #[derive(Debug, Default, Clone, Hash)]
-// pub struct Icon<'a> {
-//     v: Cow<'a, str>,
-// }
-// impl<'a> Icon<'a> {
-//     pub fn new(v: &'a str) -> Self {
-//         Self {
-//             v: Cow::Borrowed(v),
-//         }
-//     }
-//     pub fn to_string_lossy(&self) -> Cow<'a, str> {
-//         self.v
-//     }
-//     // pub fn to_string(&self)
-// }
-// impl<'a> std::fmt::Display for Icon<'a> {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         write!(f, "{}", self.v)
-//     }
-// }

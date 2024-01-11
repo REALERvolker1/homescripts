@@ -10,6 +10,7 @@ pub enum OutputType {
     // TODO: Add more output types
 }
 
+
 /// The main config
 #[derive(Debug, Clone)]
 pub struct Config {

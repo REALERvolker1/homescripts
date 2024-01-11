@@ -1,5 +1,5 @@
 //! To add properties to listen to, edit this file! Also check out mod.rs
-use crate::{config, modules::*};
+use crate::modules::*;
 // Good logging is always good to have
 use tracing::{debug, info, warn};
 
@@ -11,10 +11,10 @@ pub type ModuleLoaderType<'a> = (
 );
 
 /// A complement to main(). Edit this function to add more modules.
-#[tracing::instrument(level = "debug", skip(connection, config))]
+#[tracing::instrument(level = "debug", skip(connection))]
 pub async fn load_modules<'a>(
     connection: &zbus::Connection,
-    config: config::Config,
+    // config: config::Config,
 ) -> Result<ModuleLoaderType<'a>, ModError> {
     info!("Loading modules");
     let mut global_state = store::PropertyStore::default();
@@ -40,9 +40,10 @@ pub async fn load_modules<'a>(
             global_state.insert(asus.1)?;
             listeners.push(asus.2);
             info!("Loaded advanced charge limit monitoring");
-        } else {
-            global_state.insert(StateType::ChargeControl(config.charge_end_threshold))?;
         }
+        // } else {
+        //     global_state.insert(StateType::ChargeControl(config.charge_end_threshold))?;
+        // }
     }
     if let Ok(power) = maybe_power_profile {
         proxies.push(power.0);
@@ -75,7 +76,7 @@ type BS = upower::BatteryState;
 /// The global state. There should only be one of this at any given time.
 #[derive(Debug, Default)]
 pub struct PropertyStore {
-    pub config: crate::config::Config,
+    // pub config: crate::config::Config,
     pub battery_state: Option<upower::BatteryState>,
     pub battery_percentage: Option<upower::Percent>,
     pub battery_rate: Option<f64>,
@@ -187,14 +188,15 @@ impl PropertyStore {
 
         let is_charging = state == upower::BatteryState::Charging;
         let is_above_threshold = percent > self.charge_control_end;
-        let is_low_power = percent <= self.config.low_power;
+        let is_low_power = percent.u() <= 10; //self.config.low_power
 
         self.class = if is_charging {
             if is_above_threshold {
                 Class::ChargingAboveThreshold
             } else if is_low_power {
                 Class::ChargingLowPower
-            } else if rate > self.config.ac_high_draw_threshold {
+            } else if rate > 80.0 {
+                //self.config.ac_high_draw_threshold
                 Class::ChargingHighDraw
             } else {
                 Class::Charging
@@ -204,7 +206,8 @@ impl PropertyStore {
                 Class::DischargingAboveThreshold
             } else if is_low_power {
                 Class::DischargingLowPower
-            } else if rate > self.config.ac_high_draw_threshold {
+            } else if rate > 80.0 {
+                // self.config.ac_high_draw_threshold
                 Class::DischargingHighDraw
             } else {
                 Class::Discharging

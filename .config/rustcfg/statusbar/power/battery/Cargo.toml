@@ -9,6 +9,7 @@ lto = true
 
 [dependencies]
 cfg-if = "1.0.0"
+clap = { version = "4.4.15", features = ["cargo", "derive", "env", "string"] }
 futures = "0.3.30"
 serde = "1.0.195"
 strum = { version = "0.25.0" }
