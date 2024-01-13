@@ -1,5 +1,4 @@
 use crate::{
-    experimental::*,
     modules::{Icon, ListenerType, ProxyType, StateType},
     types::ModError,
 };
@@ -7,45 +6,10 @@ use tracing::{debug, warn};
 use zbus::zvariant::OwnedValue;
 pub mod xmlgen;
 
-pub struct PowerProfilesModule<'a> {
-    state: PowerProfileState,
-    proxy: xmlgen::PowerProfilesProxy<'a>,
-    stream: zbus::PropertyStream<'a, PowerProfileState>,
-}
-impl<'a> Module for PowerProfilesModule<'a> {
-    #[tracing::instrument(skip(connection))]
-    async fn init(connection: &zbus::Connection) -> Result<Option<Self>, ModError> {
-        let proxy = xmlgen::PowerProfilesProxy::new(connection).await?;
-        let (state, stream) = tokio::join!(
-            proxy.active_profile(),
-            proxy.receive_active_profile_changed()
-        );
-        Ok(Some(Self {
-            state: state?,
-            proxy,
-            stream,
-        }))
-    }
-    fn name(&self) -> &str {
-        "Power Profiles Daemon"
-    }
-    async fn update(&mut self, payload: RecvType) -> Result<(), ModError> {
-        if let RecvType::PowerProfile(s) = payload {
-            self.state = s;
-            Ok(())
-        } else {
-            Err(ModError::UpdateError(format!(
-                "Power Profiles module received an invalid payload: {:?}",
-                payload
-            )))
-        }
-    }
-}
+type Res<'a> = zbus::Result<(ProxyType<'a>, StateType, ListenerType<'a>)>;
 
 #[tracing::instrument(skip(connection))]
-pub async fn create_power_profiles_module<'a>(
-    connection: &zbus::Connection,
-) -> zbus::Result<(ProxyType<'a>, StateType, ListenerType<'a>)> {
+pub async fn create_power_profiles_module<'a>(connection: &zbus::Connection) -> Res<'a> {
     debug!("Trying to create power-profiles-daemon module");
     let proxy = xmlgen::PowerProfilesProxy::new(connection).await?;
     let (state, state_stream) = tokio::join!(

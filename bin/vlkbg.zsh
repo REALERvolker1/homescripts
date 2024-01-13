@@ -1,3 +1,5 @@
- 1  ~bin  echo $bgs[$((1 + (RANDOM % ($#bgs - 1))))]
-/home/vlk/.local/share/backgrounds/bloom-blue.png
- ~bin  bgs=("$XDG_DATA_HOME/backgrounds"/**/*(.))
+#!/usr/bin/env zsh
+emulate -LR zsh -euo pipefail || exit 3
+
+bgs=("$XDG_DATA_HOME/backgrounds"/**/*(.))
+hsetroot -cover $bgs[$((1 + (RANDOM % ($#bgs - 1))))]

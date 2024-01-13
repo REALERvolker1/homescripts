@@ -7,12 +7,7 @@ use tracing::{debug, info, warn};
 use zbus::zvariant::{OwnedValue, Type};
 pub mod xmlgen;
 
-
-
-#[tracing::instrument(skip(connection))]
-pub async fn create_upower_module<'a>(
-    connection: &zbus::Connection,
-) -> zbus::Result<(
+type Res<'a> = zbus::Result<(
     ProxyType<'a>,
     StateType,
     StateType,
@@ -20,7 +15,9 @@ pub async fn create_upower_module<'a>(
     ListenerType<'a>,
     ListenerType<'a>,
     ListenerType<'a>,
-)> {
+)>;
+#[tracing::instrument(skip(connection))]
+pub async fn create_upower_module<'a>(connection: &zbus::Connection) -> Res<'a> {
     debug!("Trying to create upower module");
     let proxy = xmlgen::DeviceProxy::new(connection).await?;
     let (s, p, r, state_stream, percent_stream, rate_stream) = tokio::join!(

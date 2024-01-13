@@ -1,5 +1,6 @@
 use clap::Parser;
 use serde::{Deserialize, Serialize};
+use smart_default::SmartDefault;
 
 /// A boolean, but allows for automatic stuff
 #[derive(Debug, Default, strum_macros::Display)]
@@ -10,19 +11,27 @@ pub enum AutoBool {
     Auto,
 }
 
-#[derive(Debug, Default, strum_macros::EnumDiscriminants)]
+#[derive(Debug, SmartDefault, strum_macros::EnumDiscriminants, strum_macros::Display)]
 pub enum ModuleConfig {
+    General {
+        /// Set the tempdir preference
+        tempdir: Option<String>,
+    },
     Upower {
         /// Enable the module
+        #[default(AutoBool::default())]
         enable: AutoBool,
-        /// Use this if you are using a charge limit
-        charge_limit: bool,
-        // TODO: Add support for more backends
-        /// Automatically determine the charge limit from asusd, if it exists
-        charge_limit_asusd: bool,
+        /// Experimental -- alternative upower path
+        #[default(Some("/org/freedesktop/UPower/devices/DisplayDevice"))]
+        upower_path: Option<String>,
+    },
+    SuperGfxCtl {
+        /// Enable the module
+        #[default(AutoBool::default())]
+        enable: AutoBool,
     },
     #[default]
-    Default
+    Default,
 }
 
 // /// The args for the CLI or binary
