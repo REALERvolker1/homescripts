@@ -1,7 +1,6 @@
 #![forbid(unsafe_code)]
-// mod config;
-mod cli;
-mod experimental;
+
+mod config;
 mod ipc;
 mod modules;
 mod runtime;

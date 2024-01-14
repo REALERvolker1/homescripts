@@ -1,88 +1,138 @@
-use crate::modules::*;
+use super::*;
+use crate::{ipc::*, types::*};
+use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use tracing::{debug, info, warn};
+use tracing::{debug, error, warn};
 use zbus::zvariant::Type;
 // https://gitlab.com/asus-linux/supergfxctl/-/blob/main/src/pci_device.rs?ref_type=heads
 pub mod xmlgen;
 
-/// This is a stupid hack to work around Luke's asinine API.
-/// He decided to implement types differently in the supergfxd dbus interface, so this is a workaround for that.
-///
-/// In some cases, the module does not have to update, since the GPU is either always on or always off.
-/// In other cases, the module must update as usual.
-pub struct SuperGfxPowerStream<'a> {
-    inner: xmlgen::NotifyGfxStatusStream<'a>,
+pub struct SuperGfxModule<'a> {
+    pub proxy: xmlgen::DaemonProxy<'a>,
+    pub is_updating: bool,
+    pub mode: GfxMode,
+    pub power: GfxPower,
+    pub status_stream: xmlgen::NotifyGfxStatusStream<'a>,
 }
-impl<'a> SuperGfxPowerStream<'a> {
-    pub fn new(status_stream: xmlgen::NotifyGfxStatusStream<'a>) -> Self {
-        Self {
-            inner: status_stream,
+impl<'a> SuperGfxModule<'a> {
+    fn icon(&self) -> Option<Icon> {
+        match self.mode {
+            GfxMode::Hybrid => match self.power {
+                GfxPower::Active => Some('󰒇'),
+                GfxPower::Suspended => Some('󰒆'),
+                GfxPower::Off => Some('󰒅'),
+                GfxPower::AsusDisabled => Some('󰒈'),
+                GfxPower::AsusMuxDiscreet => Some('󰾂'),
+                GfxPower::Unknown => None,
+            },
+            GfxMode::Integrated => Some('󰰃'),
+            GfxMode::NvidiaNoModeset => Some('󰰒'),
+            GfxMode::Vfio => Some('󰰪'),
+            GfxMode::AsusEgpu => Some('󰯷'),
+            GfxMode::AsusMuxDgpu => Some('󰰏'),
+            GfxMode::None => Some('󰳤'),
         }
     }
 }
-impl<'a> futures::Stream for SuperGfxPowerStream<'a> {
-    type Item = WeakStateType<'a>;
-    fn poll_next(
-        self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Option<Self::Item>> {
-        if let std::task::Poll::Ready(Some(_)) = self.get_mut().inner.poll_next_unpin(cx) {
-            std::task::Poll::Ready(Some(WeakStateType::SuperGFXPower))
+impl FmtModule for SuperGfxModule<'_> {
+    fn stdout(&self) -> String {
+        if let Some(i) = self.icon() {
+            i.to_string()
         } else {
-            std::task::Poll::Pending
+            String::new()
         }
     }
-}
-#[tracing::instrument(skip(connection))]
-pub async fn create_supergfxd_module<'a>(
-    connection: &zbus::Connection,
-) -> zbus::Result<(
-    Option<xmlgen::DaemonProxy<'a>>,
-    Option<SuperGfxPowerStream<'a>>,
-    Icon<'a>,
-)> {
-    debug!("Trying to create supergfxd module");
-    let daemon_connection = xmlgen::DaemonProxy::new(connection).await;
-    let proxy = if let Ok(p) = daemon_connection {
-        p
-    } else {
-        let e = daemon_connection.unwrap_err();
-        warn!("Failed to connect to supergfxd: {}", e);
-        return Err(e);
-    };
-    let (mode, status, status_stream) = tokio::try_join!(
-        proxy.mode(),
-        proxy.power(),
-        proxy.receive_notify_gfx_status()
-    )?;
-
-    let precomputed_icon = match mode {
-        GfxMode::Hybrid => None,
-        GfxMode::Integrated => Some("󰰃"),
-        GfxMode::NvidiaNoModeset => Some("󰰒"),
-        GfxMode::Vfio => Some("󰰪"),
-        GfxMode::AsusEgpu => Some("󰯷"),
-        GfxMode::AsusMuxDgpu => Some("󰰏"),
-        GfxMode::None => Some("󰳤"),
-    };
-
-    if let Some(i) = precomputed_icon {
-        // It shouldn't be listening if it won't turn off and on
-        info!("Supergfxd mode is {}, skipping listener", mode);
-        Ok((None, None, i))
-    } else {
-        Ok((
-            Some(proxy),
-            Some(SuperGfxPowerStream::new(status_stream)),
-            status.icon(),
-        ))
+    fn waybar(&self) -> String {
+        let text = self.stdout();
+        let power = self.power.to_string();
+        let mode = self.mode.to_string();
+        let class = if self.mode.is_watcher() {
+            &power
+        } else {
+            &mode
+        };
+        let tooltip = format!("Mode: {}, Power: {}", &mode, &power);
+        waybar_fmt(&text, &text, &tooltip, class, None)
     }
 }
-
-pub async fn get_icon<'a>(proxy: &xmlgen::DaemonProxy<'a>) -> Icon<'a> {
-    proxy.power().await.unwrap_or_default().icon()
+impl<'a> StaticModule for SuperGfxModule<'a> {
+    #[inline]
+    fn name(&self) -> &str {
+        "SuperGFX"
+    }
+    fn mod_type(&self) -> ModuleType {
+        if self.is_updating {
+            ModuleType::DbusGetter
+        } else {
+            ModuleType::Static
+        }
+    }
+    #[tracing::instrument(skip(self, server))]
+    async fn update_server(&self, server: &dbus_server::ServerType) {
+        let mut lock = server.lock().await;
+        lock.supergfx(self).await;
+        // lock.supergfxd_icon = self.icon();
+    }
 }
+impl<'a> Module for SuperGfxModule<'a> {
+    #[tracing::instrument(skip(connection))]
+    async fn new(connection: &zbus::Connection) -> Result<Self, ModError> {
+        let proxy = xmlgen::DaemonProxy::new(connection).await?;
+        // I have to get the status stream anyways to satisfy the borrow checker
+        let (mode, power, status_stream) = tokio::try_join!(
+            proxy.mode(),
+            proxy.power(),
+            proxy.receive_notify_gfx_status()
+        )?;
+        let is_updating = mode.is_watcher();
+        Ok(Self {
+            proxy,
+            is_updating,
+            mode,
+            power,
+            status_stream,
+        })
+    }
+    #[tracing::instrument(skip(self))]
+    async fn update(&mut self, payload: RecvType) -> Result<(), ModError> {
+        if payload.is_notify_status() {
+            self.power = self.proxy.power().await?;
+            Ok(())
+        } else {
+            let out = format!("SuperGFX Received unknown payload: '{:?}'", payload);
+            warn!("{}", &out);
+            Err(ModError::UpdateError(out))
+        }
+    }
+    #[tracing::instrument(skip(self, server))]
+    async fn run(&mut self, server: &dbus_server::ServerType) -> () {
+        while self.status_stream.next().await.is_some() {
+            // let _ = self.update(RecvType::NotifyStatus).await;
+            if self.update(RecvType::NotifyStatus).await.is_ok() {
+                self.update_server(server).await;
+            }
+        }
+    }
+    fn should_run(&self) -> bool {
+        self.is_updating
+    }
+}
+// impl ipc::IpcModule for SuperGfxModule<'_> {
+//     async fn send_state(
+//         &self,
+//         interface: ipc::IpcType,
+//         output_type: OutputType,
+//     ) -> Result<(), ModError> {
+//         let msg = match output_type {
+//             OutputType::Waybar => self.waybar(),
+//             OutputType::Stdout => self.stdout(),
+//         };
+//         let lock = interface.lock().await;
+//         lock.send(&msg).await?;
+//         Ok(())
+//     }
+// }
 
 #[derive(
     Debug, Default, PartialEq, Eq, Copy, Clone, strum_macros::Display, Type, Serialize, Deserialize,
@@ -97,6 +147,12 @@ pub enum GfxMode {
     #[default]
     None,
 }
+impl GfxMode {
+    fn is_watcher(&self) -> bool {
+        matches!(self, GfxMode::Hybrid)
+    }
+}
+
 #[derive(
     Debug, Default, PartialEq, Eq, Copy, Clone, strum_macros::Display, Type, Serialize, Deserialize,
 )]
@@ -109,18 +165,7 @@ pub enum GfxPower {
     #[default]
     Unknown,
 }
-impl GfxPower {
-    pub fn icon<'a>(&self) -> Icon<'a> {
-        match self {
-            GfxPower::Active => "󰒇",
-            GfxPower::Suspended => "󰒆",
-            GfxPower::Off => "󰒅",
-            GfxPower::AsusDisabled => "󰒈",
-            GfxPower::AsusMuxDiscreet => "󰾂",
-            GfxPower::Unknown => "󰾂 ?",
-        }
-    }
-}
+
 impl FromStr for GfxPower {
     type Err = ModError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -153,4 +198,13 @@ impl TryFrom<zbus::zvariant::OwnedValue> for GfxPower {
             Ok(Self::default())
         }
     }
+}
+
+/// Preferences for the supergfxctl status module (basically just nvidia optimus but better)
+/// https://gitlab.com/asus-linux/supergfxctl
+#[derive(Debug, SmartDefault, Serialize, Deserialize)]
+pub struct SuperGfxConfig {
+    /// Enable the module
+    #[default(AutoBool::default())]
+    enable: AutoBool,
 }

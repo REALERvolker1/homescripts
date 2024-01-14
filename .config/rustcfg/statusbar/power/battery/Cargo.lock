@@ -293,7 +293,6 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "blocking",
- "cfg-if",
  "clap",
  "color-eyre",
  "futures",
@@ -301,7 +300,6 @@ dependencies = [
  "nix 0.27.1",
  "parking_lot",
  "serde",
- "small_vec",
  "smart-default",
  "strum",
  "strum_macros",
@@ -898,12 +896,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c4cd1a83af159aa67994778be9070f0ae1bd732942279cabb14f86f986a21456"
 
 [[package]]
-name = "local_vec"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b6677a1e13eee160fa59f3a6bef9ad1335fd4f318269b38d64a910f887b6cfc"
-
-[[package]]
 name = "lock_api"
 version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1368,15 +1360,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f92a496fb766b417c996b9c5e57daf2f7ad3b0bebe1ccfca4856390e3d3bb67"
 dependencies = [
  "autocfg",
-]
-
-[[package]]
-name = "small_vec"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "373f6d461a970dd3178e712d5c262ccd453e2840751683bf3878b04535bea785"
-dependencies = [
- "local_vec",
 ]
 
 [[package]]

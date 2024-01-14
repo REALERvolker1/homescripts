@@ -1,90 +1,85 @@
 //! TODO: Add named pipe output
 //! TODO: Add clap argparsing
 //! TODO: Add logfile output
-use crate::{modules::*, *};
-use futures::StreamExt;
+use crate::{modules::*, types::*, *};
+use futures::{FutureExt, StreamExt};
 use tracing::{debug, info, warn};
+
+pub const TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
 
 #[inline]
 pub async fn run_experimental() -> color_eyre::Result<()> {
+    #[cfg(debug_assertions)]
     log_init();
-    Ok(())
-}
 
-/// The main runtime entry point
-///
-/// It is single-threaded to use less system resources, as raw speed is not as important in this program.
-#[inline]
-pub async fn run() -> Result<(), types::ModError> {
-    log_init();
-    warn!("Starting up");
+    // let config = config::ModuleConfig::default();
 
-    let connection = zbus::ConnectionBuilder::system()?.build().await?;
-    info!("Config loaded, connected to dbus");
+    info!("Starting up");
 
-    // load modules
-    let (mut global_state, _proxies, listeners, sgfx_proxy) =
-        modules::store::load_modules(&connection).await?;
-    info!("Loaded modules");
+    let (connection, ipc_interface) =
+        tokio::join!(zbus::Connection::system(), ipc::IpcInterface::new(2));
+    info!("connected to dbus, loaded IPC interface");
 
-    if listeners.len() == 0 {
-        return Err(types::ModError::Other(
-            "No modules to listen to!".to_owned(),
-        ));
-    }
+    let output_type = ipc::OutputType::Stdout;
 
-    let mut futes = futures::stream::select_all(listeners);
-    info!("Starting main loop");
+    let server = std::sync::Arc::new(tokio::sync::Mutex::new(
+        dbus_server::Server::new(ipc_interface?, output_type).await,
+    ));
 
-    while let Some(v) = futes.next().await {
-        if let Ok(state) = modules::StateType::from_weak(v).await {
-            if state.is_super_gfx_power() {
-                if let Some(p) = &sgfx_proxy {
-                    global_state.update_sgfx_icon(p).await;
-                }
-            } else {
-                // it should log a success internally
-                global_state.update(state);
-            }
-            let state_string = global_state.string();
-            // TODO: Use named pipes or a dbus propertychanged event
-            println!("{}", state_string);
+    let mods = modules::load_modules(&connection?, &server).await?;
 
-            debug!("{:?}", global_state);
-        }
+    info!("Loaded {} modules", mods.len());
+
+    // mods.iter().for_each(|m| {
+    //     if m.is_finished() {
+    //         if let Err(e) = r {
+    //                 warn!("Error in module: {}", e)
+    //             }
+    //     }
+    //     tokio::time::sleep(TIMEOUT).await;
+    // });
+    loop {
+        std::future::pending::<()>().await
     }
 
     Ok(())
 }
 
-#[inline]
+#[cfg(debug_assertions)]
 pub fn log_init() {
-    eprintln!("Initializing logging");
+    eprintln!("Initializing logging for debug build");
     // let env_logging = EnvFilter::from_default_env();
-    if cfg!(debug_assertions) {
-        tracing_subscriber::fmt()
-            .with_ansi(true)
-            .with_file(true)
-            .with_level(true)
-            .with_line_number(true)
-            .with_span_events(tracing_subscriber::fmt::format::FmtSpan::NEW)
-            .with_target(true)
-            .with_writer(std::io::stderr)
-            .with_thread_ids(true)
-            .init();
-    }
+    tracing_subscriber::fmt()
+        .with_ansi(true)
+        .with_file(true)
+        .with_level(true)
+        .with_line_number(true)
+        .with_span_events(tracing_subscriber::fmt::format::FmtSpan::NEW)
+        .with_target(true)
+        .with_writer(std::io::stderr)
+        .with_thread_ids(true)
+        .init();
     info!("Logging initialized");
 }
 
-pub async fn test_supergfxd() -> zbus::Result<()> {
-    log_init();
-    let conn = zbus::Connection::system().await?;
-    let proxy = modules::supergfxd::xmlgen::DaemonProxy::new(&conn).await?;
-
-    let mut sig = proxy.receive_notify_gfx_status().await?;
-    while let Some(s) = sig.next().await {
-        println!("power {:?}", proxy.power().await?);
-    }
-
-    Ok(())
-}
+// let ipc = Arc::new(ipc::IpcInterface::new(2).await?);
+//     println!("yo");
+//     let mut tasks = tokio::task::JoinSet::new();
+//     for i in 1..6 {
+//         tasks.spawn(task_test(
+//             i,
+//             format!("test message {}", i),
+//             Arc::clone(&ipc),
+//         ));
+//     }
+//     while let Some(t) = tasks.join_next().await {
+//         println!("task done: {:?}", t);
+//     }
+// #[tracing::instrument]
+// async fn task_test(thread_id: u8, message: String, ipc_interface: Arc<ipc::IpcInterface>) {
+//     loop {
+//         println!("Sending message from thread {thread_id}");
+//         ipc_interface.send(&message).await.unwrap();
+//         tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+//     }
+// }

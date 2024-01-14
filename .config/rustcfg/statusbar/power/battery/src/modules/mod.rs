@@ -1,113 +1,140 @@
-//! To add properties to listen to, edit this file! Also check out store.rs
-use crate::types::ModError;
-use futures::{Stream, StreamExt};
-use std::task::Poll;
-
+use crate::{ipc, types::*};
+use serde::{Deserialize, Serialize};
+use smart_default::SmartDefault;
+pub mod dbus_server;
+pub mod mpris;
 pub mod power_profiles;
-pub mod store;
 pub mod supergfxd;
 pub mod upower;
 
-/// The weak owned state type, used to return from a module's futures::Stream
-#[derive(Default, strum_macros::EnumDiscriminants)]
-pub enum WeakStateType<'a> {
-    BatteryState(zbus::PropertyChanged<'a, upower::BatteryState>),
-    BatteryPercentage(zbus::PropertyChanged<'a, upower::Percent>),
-    BatteryRate(zbus::PropertyChanged<'a, f64>),
-    PowerProfile(zbus::PropertyChanged<'a, power_profiles::PowerProfileState>),
-    /// supergfxpower is void here because it does everything differently
-    SuperGFXPower,
-    #[default]
-    None,
-}
-
-/// The strong owned state type, used to update the global state
-#[derive(
-    Debug,
-    Default,
-    Clone,
-    strum_macros::EnumDiscriminants,
-    strum_macros::EnumIs,
-    strum_macros::Display,
-)]
-pub enum StateType {
-    BatteryState(upower::BatteryState),
-    BatteryPercentage(upower::Percent),
-    BatteryRate(f64),
-    PowerProfile(power_profiles::PowerProfileState),
-    SuperGFXPower,
-    #[default]
-    None,
-}
-impl StateType {
-    pub async fn from_weak(weak_state: WeakStateType<'_>) -> zbus::Result<Self> {
-        let state = match weak_state {
-            WeakStateType::BatteryState(s) => Self::BatteryState(s.get().await?),
-            WeakStateType::BatteryPercentage(s) => Self::BatteryPercentage(s.get().await?),
-            WeakStateType::BatteryRate(s) => Self::BatteryRate(s.get().await?),
-            WeakStateType::PowerProfile(s) => Self::PowerProfile(s.get().await?),
-            WeakStateType::SuperGFXPower => Self::SuperGFXPower,
-            _ => Self::default(),
-        };
-        Ok(state)
-    }
-}
-
-/// Basically a list of all the different types of listeners
-#[derive(strum_macros::EnumDiscriminants, strum_macros::EnumIs)]
-pub enum ListenerType<'a> {
-    BatteryState(zbus::PropertyStream<'a, upower::BatteryState>),
-    BatteryPercentage(zbus::PropertyStream<'a, upower::Percent>),
-    BatteryRate(zbus::PropertyStream<'a, f64>),
-    PowerProfile(zbus::PropertyStream<'a, power_profiles::PowerProfileState>),
-    SuperGFXPower(supergfxd::SuperGfxPowerStream<'a>),
-}
-impl<'a> Stream for ListenerType<'a> {
-    type Item = WeakStateType<'a>;
-    fn poll_next(
-        self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> Poll<Option<Self::Item>> {
-        match self.get_mut() {
-            ListenerType::BatteryState(s) => {
-                if let Poll::Ready(Some(s)) = s.poll_next_unpin(cx) {
-                    return Poll::Ready(Some(WeakStateType::BatteryState(s)));
-                }
-            }
-            ListenerType::BatteryPercentage(s) => {
-                if let Poll::Ready(Some(s)) = s.poll_next_unpin(cx) {
-                    return Poll::Ready(Some(WeakStateType::BatteryPercentage(s)));
-                }
-            }
-            ListenerType::BatteryRate(s) => {
-                if let Poll::Ready(Some(s)) = s.poll_next_unpin(cx) {
-                    return Poll::Ready(Some(WeakStateType::BatteryRate(s)));
-                }
-            }
-            ListenerType::PowerProfile(s) => {
-                if let Poll::Ready(Some(s)) = s.poll_next_unpin(cx) {
-                    return Poll::Ready(Some(WeakStateType::PowerProfile(s)));
-                }
-            }
-            ListenerType::SuperGFXPower(s) => {
-                if let Poll::Ready(Some(_)) = s.poll_next_unpin(cx) {
-                    return Poll::Ready(Some(WeakStateType::SuperGFXPower));
-                }
+macro_rules! run_module {
+    ($modarr:expr, $srv: expr, $mod:expr) => {
+        if let Ok(mut m) = $mod {
+            if m.should_run() {
+                let arc = std::sync::Arc::clone($srv);
+                $modarr.push(tokio::spawn(async move {
+                    let my_arc = arc;
+                    m.run(&my_arc).await
+                }))
             }
         }
-        std::task::Poll::Pending
-    }
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        (0, None)
+    };
+}
+
+/// Load all the modules -- for use at like runtime or something
+#[tracing::instrument(skip(connection))]
+pub async fn load_modules(
+    connection: &zbus::Connection,
+    server: &dbus_server::ServerType,
+) -> Result<Vec<tokio::task::JoinHandle<()>>, ModError> {
+    let mut modules = Vec::new();
+
+    run_module!(
+        modules,
+        server,
+        supergfxd::SuperGfxModule::new(connection).await
+    );
+    run_module!(
+        modules,
+        server,
+        power_profiles::PowerProfilesModule::new(connection).await
+    );
+    run_module!(modules, server, upower::UpowerModule::new(connection).await);
+
+    Ok(modules)
+}
+
+/// All the types of modules
+#[derive(Debug, Default, Clone, Copy, Serialize, Deserialize)]
+pub enum ModuleType {
+    Dbus,
+    DbusGetter,
+    Command,
+    #[default]
+    Static,
+}
+
+/// The base trait for all modules that are dynamic and updating
+pub trait Module: Sized + StaticModule {
+    async fn update(&mut self, payload: RecvType) -> Result<(), ModError>;
+    /// Create a new instance of the module
+    async fn new(connection: &zbus::Connection) -> Result<Self, ModError>;
+    /// The runtime function, This is run in a background task.
+    async fn run(&mut self, server: &dbus_server::ServerType);
+    /// Call this to determine if the module should be run
+    fn should_run(&self) -> bool;
+}
+
+/// A module that doesn't have to be updated ever
+pub trait StaticModule: Sized {
+    /// The name of the module
+    fn name(&self) -> &str;
+    /// The type of the module
+    fn mod_type(&self) -> ModuleType;
+    /// The current status of the module.
+    /// Should not have anything computationally intensive in it, that's for the update or init function
+    async fn update_server(&self, server: &dbus_server::ServerType);
+}
+
+/// This is the trait for modules that can output their data
+pub trait FmtModule: Sized {
+    fn stdout(&self) -> String;
+    fn waybar(&self) -> String;
+    fn with_output_type(&self, output_type: ipc::OutputType) -> String {
+        match output_type {
+            ipc::OutputType::Waybar => self.waybar(),
+            ipc::OutputType::Stdout => self.stdout(),
+        }
     }
 }
 
-/// The type for a zbus proxy
-#[derive(strum_macros::EnumDiscriminants, strum_macros::Display)]
-pub enum ProxyType<'a> {
-    Upower(upower::xmlgen::DeviceProxy<'a>),
-    PowerProfile(power_profiles::xmlgen::PowerProfilesProxy<'a>),
-    // SuperGFX(supergfxd::SuperGfxProxyOptions<'a>),
+#[derive(Debug, SmartDefault, Serialize, Deserialize)]
+pub struct ModuleConfig {
+    pub upower: upower::UPowerConfig,
+    pub power_profiles: power_profiles::PowerProfilesConfig,
+    pub supergfxd: supergfxd::SuperGfxConfig,
 }
-/// The type for an icon
-pub type Icon<'a> = &'a str;
+
+#[derive(Debug, Clone, strum_macros::EnumIs, strum_macros::Display, Serialize, Deserialize)]
+pub enum ModuleName {
+    Upower,
+    PowerProfiles,
+    SuperGfxd,
+}
+
+/// The types of data that can be sent and received by modules
+///
+/// Each type must be serializable and deserializable, and it must be able to be cast `Into<RecvType>`
+#[derive(Debug, Default, Clone, strum_macros::EnumIs, Serialize, Deserialize)]
+pub enum RecvType {
+    String(String),
+    Percent(Percent),
+    Float(f64),
+    Multi(Vec<RecvType>),
+    /// Custom type for the Power Profiles Daemon module
+    PowerProfile(power_profiles::PowerProfileState),
+    /// Custom type for the upower module
+    BatteryState(upower::BatteryState),
+    /// These NotifyStatus types are returned from modules that don't support
+    /// property stream watchers, and is used to prompt the module to manually request a refresh.
+    NotifyStatus,
+    #[default]
+    Null,
+}
+
+pub fn waybar_fmt(
+    text: &str,
+    alt_text: &str,
+    tooltip: &str,
+    class: &str,
+    percentage: Option<Percent>,
+) -> String {
+    format!(
+        r#"{{"text": "{}", "alt": "{}", "tooltip": "{}", "class": "{}", "percentage": {}}}"#,
+        text,
+        alt_text,
+        tooltip,
+        class,
+        percentage.unwrap_or_default().u()
+    )
+}

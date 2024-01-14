@@ -1,4 +1,4 @@
-use crate::modules::*;
+use crate::*;
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
 use strum::EnumMessage;
@@ -14,10 +14,6 @@ pub enum ModError {
     Io(tokio::io::Error),
     #[strum(message = "Failed to update state")]
     UpdateError(String),
-    #[strum(message = "Failed to bind property to global state")]
-    StateAssignmentError(StateType),
-    #[strum(message = "Failed to update class")]
-    ClassUpdateError(store::ClassUpdateErrorType),
     #[strum(message = "Conversion error")]
     Conversion(String),
     #[strum(message = "Nix system ERRNO")]
@@ -34,18 +30,18 @@ impl std::error::Error for ModError {}
 impl std::fmt::Display for ModError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let message = self.get_message().unwrap_or("Error");
-        match self {
-            Self::Zbus(e) => write!(f, "{}: {}", message, e),
-            Self::Io(e) => write!(f, "{}: {}", message, e),
-            Self::UpdateError(e) => write!(f, "{}: {}", message, e),
-            Self::Conversion(e) => write!(f, "{}: {}", message, e),
-            Self::StateAssignmentError(e) => write!(f, "{}: {}", message, e),
-            Self::ClassUpdateError(e) => write!(f, "{}: {}", message, e),
-            Self::Infallible(e) => write!(f, "{}: {}", message, e),
-            Self::Errno(e) => write!(f, "{}: {}", message, e),
-            Self::Other(e) => write!(f, "{}: {}", message, e),
-            _ => write!(f, "{}: {:?}", message, self),
-        }
+        // match self {
+        //     Self::Zbus(e) => write!(f, "{}: {}", message, e),
+        //     Self::Io(e) => write!(f, "{}: {}", message, e),
+        //     Self::Errno(e) => write!(f, "{}: {}", message, e),
+        //     Self::Infallible(e) => write!(f, "{}: {}", message, e),
+        //     // Self::UpdateError(e) => write!(f, "{}: {}", message, e),
+        //     // Self::Conversion(e) => write!(f, "{}: {}", message, e),
+        //     // Self::ClassUpdateError(e) => write!(f, "{}: {}", message, e),
+        //     Self::Other(e) => write!(f, "{}: {}", message, e),
+        //     _ => write!(f, "{}: {:?}", message, self),
+        // }
+        write!(f, "{message}: {:?}", self)
     }
 }
 impl From<zbus::Error> for ModError {
@@ -68,11 +64,6 @@ impl From<nix::errno::Errno> for ModError {
         Self::Errno(value)
     }
 }
-// impl From<std::io::Error> for ModError {
-//     fn from(e: std::io::Error) -> Self {
-//         Self::StdIo(e)
-//     }
-// }
 impl Into<zbus::Error> for ModError {
     fn into(self) -> zbus::Error {
         match self {
@@ -82,6 +73,32 @@ impl Into<zbus::Error> for ModError {
     }
 }
 
+/// The main type for icons
+pub type Icon = char;
+
+/// A boolean, but allows for the Auto value instead of just true or false.
+///
+/// useful for configuration
+#[derive(
+    Debug, Default, Clone, Copy, PartialEq, Eq, strum_macros::Display, Serialize, Deserialize,
+)]
+pub enum AutoBool {
+    True,
+    False,
+    #[default]
+    Auto,
+}
+impl From<bool> for AutoBool {
+    fn from(b: bool) -> Self {
+        if b {
+            Self::True
+        } else {
+            Self::False
+        }
+    }
+}
+
+/// A percentage, a checked u8 between 0 and 100
 #[derive(
     Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Type, Serialize, Deserialize,
 )]

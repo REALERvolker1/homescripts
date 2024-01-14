@@ -1,50 +1,247 @@
-use crate::{
-    modules::{Icon, ListenerType, ProxyType, StateType},
-    types::ModError,
-};
+use super::*;
+use crate::{ipc::*, types::*};
+use futures::StreamExt;
 use serde::{Deserialize, Serialize};
-use tracing::{debug, info, warn};
-use zbus::zvariant::{OwnedValue, Type};
+use smart_default::SmartDefault;
+use tracing::{debug, error, warn};
+use zbus::zvariant;
 pub mod xmlgen;
 
+pub struct UpowerModule<'a> {
+    pub proxy: xmlgen::DeviceProxy<'a>,
+    pub state: BatteryState,
+    pub percent: Percent,
+    pub rate: f64,
+    pub state_listener: zbus::PropertyStream<'a, BatteryState>,
+    pub percent_listener: zbus::PropertyStream<'a, Percent>,
+    pub rate_listener: zbus::PropertyStream<'a, f64>,
+}
+impl<'a> StaticModule for UpowerModule<'a> {
+    #[inline]
+    fn name(&self) -> &str {
+        "UPower"
+    }
+    #[inline]
+    fn mod_type(&self) -> ModuleType {
+        ModuleType::Dbus
+    }
+    #[tracing::instrument(skip(self, server))]
+    async fn update_server(&self, server: &dbus_server::ServerType) {
+        let data = UPowerStatus::new(self.state, self.percent, self.rate);
+        let mut lock = server.lock().await;
+        lock.update_upower(data).await;
+    }
+}
+impl<'a> Module for UpowerModule<'a> {
+    #[tracing::instrument(skip(connection))]
+    async fn new(connection: &zbus::Connection) -> Result<Self, ModError> {
+        let proxy = xmlgen::DeviceProxy::new(connection).await?;
+        let (state, percent, rate, state_listener, percent_listener, rate_listener) = tokio::join!(
+            proxy.state(),
+            proxy.percentage(),
+            proxy.energy_rate(),
+            proxy.receive_state_changed(),
+            proxy.receive_percentage_changed(),
+            proxy.receive_energy_rate_changed()
+        );
+        Ok(Self {
+            proxy,
+            state: state?,
+            percent: percent?,
+            rate: rate?,
+            state_listener,
+            percent_listener,
+            rate_listener,
+        })
+    }
+    #[tracing::instrument(skip(self))]
+    async fn update(&mut self, payload: RecvType) -> Result<(), ModError> {
+        match payload {
+            RecvType::BatteryState(state) => {
+                self.state = state;
+            }
+            RecvType::Percent(percent) => {
+                self.percent = percent;
+            }
+            RecvType::Float(rate) => {
+                self.rate = rate;
+            }
+            _ => {
+                let out = format!("Received unknown payload: '{:?}'", payload);
+                error!("{}", &out);
+                return Err(ModError::UpdateError(out));
+            }
+        }
+        Ok(())
+    }
+    #[tracing::instrument(skip(self, server))]
+    async fn run(&mut self, server: &dbus_server::ServerType) -> () {
+        loop {
+            tokio::select! {
+                Some(s) = self.state_listener.next() => {
+                    if let Ok(p) = s.get().await {
+                        if self.update(RecvType::BatteryState(p)).await.is_ok() {
+                            self.update_server(server).await;
+                        }
+                    }
+                }
+                Some(s) = self.percent_listener.next() => {
+                    if let Ok(p) = s.get().await {
+                        if self.update(RecvType::Percent(p)).await.is_ok() {
+                            self.update_server(server).await;
+                        }
+                    }
+                }
+                Some(s) = self.rate_listener.next() => {
+                    if let Ok(p) = s.get().await {
+                        if self.update(RecvType::Float(p)).await.is_ok() {
+                            self.update_server(server).await;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    fn should_run(&self) -> bool {
+        true
+    }
+}
+// impl ipc::IpcModule for UpowerModule<'_> {
+//     async fn send_state(
+//         &self,
+//         interface: ipc::IpcType,
+//         output_type: OutputType,
+//     ) -> Result<(), ModError> {
+//         let me = UPowerStatus::new(self.state, self.percent, self.rate);
+//         let msg = match output_type {
+//             OutputType::Waybar => me.waybar(),
+//             OutputType::Stdout => me.stdout(),
+//         };
+//         let lock = interface.lock().await;
+//         lock.send(&msg).await?;
+//         Ok(())
+//     }
+// }
 
+/// A function to format the battery rate as a string in one single way
+#[inline]
+pub fn rate_fmt(rate: f64) -> String {
+    format!("{:.1}W", rate)
+}
 
-#[tracing::instrument(skip(connection))]
-pub async fn create_upower_module<'a>(
-    connection: &zbus::Connection,
-) -> zbus::Result<(
-    ProxyType<'a>,
-    StateType,
-    StateType,
-    StateType,
-    ListenerType<'a>,
-    ListenerType<'a>,
-    ListenerType<'a>,
-)> {
-    debug!("Trying to create upower module");
-    let proxy = xmlgen::DeviceProxy::new(connection).await?;
-    let (s, p, r, state_stream, percent_stream, rate_stream) = tokio::join!(
-        proxy.state(),
-        proxy.percentage(),
-        proxy.energy_rate(),
-        proxy.receive_state_changed(),
-        proxy.receive_percentage_changed(),
-        proxy.receive_energy_rate_changed()
-    );
-    info!("Created UPower module");
-    Ok((
-        ProxyType::Upower(proxy),
-        StateType::BatteryState(s?),
-        StateType::BatteryPercentage(p?),
-        StateType::BatteryRate(r?),
-        ListenerType::BatteryState(state_stream),
-        ListenerType::BatteryPercentage(percent_stream),
-        ListenerType::BatteryRate(rate_stream),
-    ))
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+pub struct UPowerStatus {
+    icon: Icon,
+    percentage: Percent,
+    state: upower::BatteryState,
+    rate: f64,
+    show_rate: bool,
+}
+impl FmtModule for UPowerStatus {
+    fn stdout(&self) -> String {
+        self.to_string()
+    }
+    fn waybar(&self) -> String {
+        let myself = self.to_string();
+        let my_state = self.state.to_string();
+        let tooltip = format!(
+            "Percentage: {}, State: {}, Power drawn: {}",
+            self.percentage, &my_state, self.rate
+        );
+        waybar_fmt(&myself, &myself, &tooltip, &my_state, Some(self.percentage))
+    }
+}
+impl UPowerStatus {
+    pub fn get_icon(&self) -> Icon {
+        self.icon
+    }
+    pub fn get_percentage(&self) -> Percent {
+        self.percentage
+    }
+    pub fn get_state(&self) -> upower::BatteryState {
+        self.state
+    }
+    pub fn get_rate(&self) -> Option<String> {
+        if self.show_rate {
+            Some(rate_fmt(self.rate))
+        } else {
+            None
+        }
+    }
+    pub fn new(state: BatteryState, percentage: Percent, rate: f64) -> Self {
+        let (icon, do_rate) = match state {
+            BatteryState::Charging => (
+                match percentage.u() {
+                    95.. => '󰂅',
+                    91.. => '󰂋',
+                    81.. => '󰂊',
+                    71.. => '󰢞',
+                    61.. => '󰂉',
+                    51.. => '󰢝',
+                    41.. => '󰂈',
+                    31.. => '󰂇',
+                    21.. => '󰂆',
+                    11.. => '󰢜',
+                    0.. => '󰢟',
+                },
+                true,
+            ),
+            BatteryState::Discharging => (
+                match percentage.u() {
+                    95.. => '󰁹',
+                    91.. => '󰂂',
+                    81.. => '󰂁',
+                    71.. => '󰂀',
+                    61.. => '󰁿',
+                    51.. => '󰁾',
+                    41.. => '󰁽',
+                    31.. => '󰁼',
+                    21.. => '󰁻',
+                    11.. => '󰁺',
+                    00.. => '󰂎',
+                },
+                true,
+            ),
+            BatteryState::Empty => ('󱟩', true),
+            BatteryState::FullyCharged => ('󰂄', false),
+            BatteryState::PendingCharge => ('󰂏', true),
+            BatteryState::PendingDischarge => ('󰂌', true),
+            BatteryState::Unknown => ('󰂑', true),
+        };
+        Self {
+            icon,
+            percentage,
+            state,
+            rate,
+            show_rate: do_rate && rate != 0.0,
+        }
+    }
+}
+impl std::fmt::Display for UPowerStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        {
+            if let Some(r) = self.get_rate() {
+                write!(f, "{} {} {}", self.icon, self.percentage, r)
+            } else {
+                write!(f, "{} {}", self.icon, self.percentage)
+            }
+        }
+    }
 }
 
 /// The current state of the battery, an enum based on its representation in upower
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Default, strum_macros::Display)]
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    strum_macros::Display,
+    zvariant::Type,
+    Deserialize,
+    Serialize,
+)]
 pub enum BatteryState {
     Charging,
     Discharging,
@@ -55,7 +252,6 @@ pub enum BatteryState {
     #[default]
     Unknown,
 }
-
 impl From<u32> for BatteryState {
     fn from(value: u32) -> Self {
         debug!("Converting from u32 '{}'", value);
@@ -73,9 +269,9 @@ impl From<u32> for BatteryState {
         }
     }
 }
-impl TryFrom<OwnedValue> for BatteryState {
+impl TryFrom<zvariant::OwnedValue> for BatteryState {
     type Error = ModError;
-    fn try_from(value: OwnedValue) -> Result<Self, Self::Error> {
+    fn try_from(value: zvariant::OwnedValue) -> Result<Self, Self::Error> {
         debug!("Trying to convert OwnedValue '{:?}' to a known type", value);
         Ok(if let Some(v) = value.downcast_ref::<u32>() {
             Self::from(*v)
@@ -85,123 +281,13 @@ impl TryFrom<OwnedValue> for BatteryState {
     }
 }
 
-// pub type Percent = u8;
-#[derive(
-    Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Type, Serialize, Deserialize,
-)]
-pub struct Percent {
-    v: u8,
-}
-impl Percent {
-    /// Get the inner value
-    pub fn u(&self) -> u8 {
-        self.v
-    }
-    /// Get the max value
-    pub fn max() -> Self {
-        Self { v: 100 }
-    }
-    /// Create a new Percentage, without checking if the value is in range. Useful for hardcoded values.
-    pub fn from_u8_unchecked(u: u8) -> Self {
-        warn!(
-            "Converting u8 '{}' to Percentage type without checking bounds",
-            u
-        );
-        Self { v: u }
-    }
-    /// Try to convert a str into a percentage.
-    /// I literally only made this method for argparsing, but it should just work in other places.
-    pub fn try_from_str<S>(value: S) -> Result<Self, ModError>
-    where
-        S: AsRef<str>,
-    {
-        let v = value.as_ref();
-        debug!("Trying to convert from AsRef<str> '{:?}'", v);
-        if let Ok(v) = v.trim().parse::<u8>() {
-            Self::try_from(v)
-        } else {
-            Err(ModError::Conversion(format!(
-                "Failed to parse percentage from string! {}",
-                v
-            )))
-        }
-    }
-}
-impl std::fmt::Display for Percent {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}%", self.v)
-    }
-}
-impl TryFrom<u8> for Percent {
-    type Error = ModError;
-    fn try_from(value: u8) -> Result<Self, Self::Error> {
-        debug!("Trying to convert u8 '{}' to Percentage", value);
-        if value > 100 {
-            Err(ModError::Conversion(format!("Value too high! {}", value)))
-        } else {
-            Ok(Self { v: value })
-        }
-    }
-}
-impl TryFrom<f64> for Percent {
-    type Error = ModError;
-    fn try_from(value: f64) -> Result<Self, Self::Error> {
-        debug!("Trying to convert f64 '{}' to Percentage", value);
-        let uval = value as u8;
-        Self::try_from(uval)
-    }
-}
-impl TryFrom<OwnedValue> for Percent {
-    type Error = ModError;
-    fn try_from(value: OwnedValue) -> Result<Self, Self::Error> {
-        debug!("Trying to convert from OwnedValue '{:?}' to Percent", value);
-        if let Some(v) = value.downcast_ref::<f64>() {
-            Self::try_from(v.floor())
-        } else if let Some(v) = value.downcast_ref::<u8>() {
-            Self::try_from(*v)
-        } else {
-            Err(ModError::Conversion(format!(
-                "Failed to parse percentage from value! {:?}",
-                value
-            )))
-        }
-    }
-}
-
-pub fn battery_icon<'a>(percent: Percent, state: BatteryState) -> Icon<'a> {
-    match state {
-        BatteryState::Charging => match percent.u() {
-            101.. => "󰂏?",
-            95.. => "󰂅",
-            91.. => "󰂋",
-            81.. => "󰂊",
-            71.. => "󰢞",
-            61.. => "󰂉",
-            51.. => "󰢝",
-            41.. => "󰂈",
-            31.. => "󰂇",
-            21.. => "󰂆",
-            11.. => "󰢜",
-            _ => "󰢟",
-        },
-        BatteryState::Discharging => match percent.u() {
-            101.. => "󰂌?",
-            95.. => "󰁹",
-            91.. => "󰂂",
-            81.. => "󰂁",
-            71.. => "󰂀",
-            61.. => "󰁿",
-            51.. => "󰁾",
-            41.. => "󰁽",
-            31.. => "󰁼",
-            21.. => "󰁻",
-            11.. => "󰁺",
-            _ => "󰂎",
-        },
-        BatteryState::Empty => "󱟩",
-        BatteryState::FullyCharged => "󰂄",
-        BatteryState::PendingCharge => "󰂏",
-        BatteryState::PendingDischarge => "󰂌",
-        BatteryState::Unknown => "󱉞?",
-    }
+/// The config for the UPower module
+#[derive(Debug, SmartDefault, Serialize, Deserialize)]
+pub struct UPowerConfig {
+    /// Enable the module
+    #[default(AutoBool::default())]
+    enable: AutoBool,
+    /// Experimental -- alternative upower path
+    #[default("/org/freedesktop/UPower/devices/DisplayDevice")]
+    upower_path: String,
 }
