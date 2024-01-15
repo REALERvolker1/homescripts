@@ -1,5 +1,5 @@
 use super::*;
-use crate::{ipc::*, types::*};
+use crate::{types::*};
 use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -15,47 +15,6 @@ pub struct SuperGfxModule<'a> {
     pub power: GfxPower,
     pub status_stream: xmlgen::NotifyGfxStatusStream<'a>,
 }
-impl<'a> SuperGfxModule<'a> {
-    fn icon(&self) -> Option<Icon> {
-        match self.mode {
-            GfxMode::Hybrid => match self.power {
-                GfxPower::Active => Some('󰒇'),
-                GfxPower::Suspended => Some('󰒆'),
-                GfxPower::Off => Some('󰒅'),
-                GfxPower::AsusDisabled => Some('󰒈'),
-                GfxPower::AsusMuxDiscreet => Some('󰾂'),
-                GfxPower::Unknown => None,
-            },
-            GfxMode::Integrated => Some('󰰃'),
-            GfxMode::NvidiaNoModeset => Some('󰰒'),
-            GfxMode::Vfio => Some('󰰪'),
-            GfxMode::AsusEgpu => Some('󰯷'),
-            GfxMode::AsusMuxDgpu => Some('󰰏'),
-            GfxMode::None => Some('󰳤'),
-        }
-    }
-}
-impl FmtModule for SuperGfxModule<'_> {
-    fn stdout(&self) -> String {
-        if let Some(i) = self.icon() {
-            i.to_string()
-        } else {
-            String::new()
-        }
-    }
-    fn waybar(&self) -> String {
-        let text = self.stdout();
-        let power = self.power.to_string();
-        let mode = self.mode.to_string();
-        let class = if self.mode.is_watcher() {
-            &power
-        } else {
-            &mode
-        };
-        let tooltip = format!("Mode: {}, Power: {}", &mode, &power);
-        waybar_fmt(&text, &text, &tooltip, class, None)
-    }
-}
 impl<'a> StaticModule for SuperGfxModule<'a> {
     #[inline]
     fn name(&self) -> &str {
@@ -68,10 +27,14 @@ impl<'a> StaticModule for SuperGfxModule<'a> {
             ModuleType::Static
         }
     }
-    #[tracing::instrument(skip(self, server))]
-    async fn update_server(&self, server: &dbus_server::ServerType) {
-        let mut lock = server.lock().await;
-        lock.supergfx(self).await;
+    #[tracing::instrument(skip(self, ipc))]
+    async fn update_server(&self, ipc: &IpcCh) {
+        let state = GfxState {
+            mode: self.mode,
+            power: self.power,
+        };
+        // let mut lock = ipc.lock();
+        ipc.send(StateType::SuperGfxd(state)).await;
         // lock.supergfxd_icon = self.icon();
     }
 }
@@ -105,12 +68,12 @@ impl<'a> Module for SuperGfxModule<'a> {
             Err(ModError::UpdateError(out))
         }
     }
-    #[tracing::instrument(skip(self, server))]
-    async fn run(&mut self, server: &dbus_server::ServerType) -> () {
+    #[tracing::instrument(skip(self, ipc))]
+    async fn run(&mut self, ipc: IpcCh) -> () {
         while self.status_stream.next().await.is_some() {
             // let _ = self.update(RecvType::NotifyStatus).await;
             if self.update(RecvType::NotifyStatus).await.is_ok() {
-                self.update_server(server).await;
+                self.update_server(&ipc).await;
             }
         }
     }
@@ -118,21 +81,53 @@ impl<'a> Module for SuperGfxModule<'a> {
         self.is_updating
     }
 }
-// impl ipc::IpcModule for SuperGfxModule<'_> {
-//     async fn send_state(
-//         &self,
-//         interface: ipc::IpcType,
-//         output_type: OutputType,
-//     ) -> Result<(), ModError> {
-//         let msg = match output_type {
-//             OutputType::Waybar => self.waybar(),
-//             OutputType::Stdout => self.stdout(),
-//         };
-//         let lock = interface.lock().await;
-//         lock.send(&msg).await?;
-//         Ok(())
-//     }
-// }
+
+#[derive(Debug, Default, PartialEq, Eq, Copy, Clone, Serialize, Deserialize)]
+pub struct GfxState {
+    pub mode: GfxMode,
+    pub power: GfxPower,
+}
+impl GfxState {
+    fn icon(&self) -> Option<Icon> {
+        match self.mode {
+            GfxMode::Hybrid => match self.power {
+                GfxPower::Active => Some('󰒇'),
+                GfxPower::Suspended => Some('󰒆'),
+                GfxPower::Off => Some('󰒅'),
+                GfxPower::AsusDisabled => Some('󰒈'),
+                GfxPower::AsusMuxDiscreet => Some('󰾂'),
+                GfxPower::Unknown => None,
+            },
+            GfxMode::Integrated => Some('󰰃'),
+            GfxMode::NvidiaNoModeset => Some('󰰒'),
+            GfxMode::Vfio => Some('󰰪'),
+            GfxMode::AsusEgpu => Some('󰯷'),
+            GfxMode::AsusMuxDgpu => Some('󰰏'),
+            GfxMode::None => Some('󰳤'),
+        }
+    }
+}
+impl FmtModule for GfxState {
+    fn stdout(&self) -> String {
+        if let Some(i) = self.icon() {
+            i.to_string()
+        } else {
+            String::new()
+        }
+    }
+    fn waybar(&self) -> String {
+        let text = self.stdout();
+        let power = self.power.to_string();
+        let mode = self.mode.to_string();
+        let class = if self.mode.is_watcher() {
+            &power
+        } else {
+            &mode
+        };
+        let tooltip = format!("Mode: {}, Power: {}", &mode, &power);
+        waybar_fmt(&text, &text, &tooltip, class, None)
+    }
+}
 
 #[derive(
     Debug, Default, PartialEq, Eq, Copy, Clone, strum_macros::Display, Type, Serialize, Deserialize,

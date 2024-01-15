@@ -1,5 +1,7 @@
+use std::sync::Arc;
+
 use super::*;
-use crate::{ipc::*, types::*};
+use crate::{types::*};
 use futures::StreamExt;
 use tracing::{debug, error, warn};
 use zbus::zvariant::OwnedValue;
@@ -20,11 +22,10 @@ impl<'a> StaticModule for PowerProfilesModule<'a> {
     fn mod_type(&self) -> ModuleType {
         ModuleType::Dbus
     }
-    #[tracing::instrument(skip(self, server))]
-    async fn update_server(&self, server: &dbus_server::ServerType) {
-        let mut guard = server.lock().await;
-        guard.power_profile(self.state).await;
-        // guard.power_profile_icon = icon;
+    #[tracing::instrument(skip(self, ipc))]
+    async fn update_server(&self, ipc: &IpcCh) {
+        // let mut guard = ipc.lock();
+        ipc.send(StateType::PowerProfiles(self.state)).await;
     }
 }
 impl<'a> Module for PowerProfilesModule<'a> {
@@ -55,12 +56,12 @@ impl<'a> Module for PowerProfilesModule<'a> {
             Err(ModError::UpdateError(out))
         }
     }
-    #[tracing::instrument(skip(self, server))]
-    async fn run(&mut self, server: &dbus_server::ServerType) -> () {
+    #[tracing::instrument(skip(self, ipc))]
+    async fn run(&mut self, ipc: IpcCh) -> () {
         while let Some(s) = self.stream.next().await {
             if let Ok(p) = s.get().await {
                 if self.update(RecvType::PowerProfile(p)).await.is_ok() {
-                    self.update_server(server).await;
+                    self.update_server(&ipc).await;
                 }
             }
         }
@@ -70,21 +71,6 @@ impl<'a> Module for PowerProfilesModule<'a> {
         true
     }
 }
-// impl ipc::IpcModule for PowerProfilesModule<'_> {
-//     async fn send_state(
-//         &self,
-//         interface: ipc::IpcType,
-//         output_type: OutputType,
-//     ) -> Result<(), ModError> {
-//         let msg = match output_type {
-//             OutputType::Waybar => self.state.waybar(),
-//             OutputType::Stdout => self.state.stdout(),
-//         };
-//         let lock = interface.lock().await;
-//         lock.send(&msg).await?;
-//         Ok(())
-//     }
-// }
 
 #[derive(
     Debug, Default, strum_macros::Display, PartialEq, Eq, Copy, Clone, Serialize, Deserialize,

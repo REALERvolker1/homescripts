@@ -1,5 +1,5 @@
 use super::*;
-use crate::{ipc::*, types::*};
+use crate::types::*;
 use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
@@ -25,11 +25,11 @@ impl<'a> StaticModule for UpowerModule<'a> {
     fn mod_type(&self) -> ModuleType {
         ModuleType::Dbus
     }
-    #[tracing::instrument(skip(self, server))]
-    async fn update_server(&self, server: &dbus_server::ServerType) {
+    #[tracing::instrument(skip(self, ipc))]
+    async fn update_server(&self, ipc: &IpcCh) {
         let data = UPowerStatus::new(self.state, self.percent, self.rate);
-        let mut lock = server.lock().await;
-        lock.update_upower(data).await;
+        // let mut lock = ipc.lock();
+        ipc.send(StateType::UPower(data)).await;
     }
 }
 impl<'a> Module for UpowerModule<'a> {
@@ -74,28 +74,28 @@ impl<'a> Module for UpowerModule<'a> {
         }
         Ok(())
     }
-    #[tracing::instrument(skip(self, server))]
-    async fn run(&mut self, server: &dbus_server::ServerType) -> () {
+    #[tracing::instrument(skip(self, ipc))]
+    async fn run(&mut self, ipc: IpcCh) -> () {
         loop {
             tokio::select! {
                 Some(s) = self.state_listener.next() => {
                     if let Ok(p) = s.get().await {
                         if self.update(RecvType::BatteryState(p)).await.is_ok() {
-                            self.update_server(server).await;
+                            self.update_server(&ipc).await;
                         }
                     }
                 }
                 Some(s) = self.percent_listener.next() => {
                     if let Ok(p) = s.get().await {
                         if self.update(RecvType::Percent(p)).await.is_ok() {
-                            self.update_server(server).await;
+                            self.update_server(&ipc).await;
                         }
                     }
                 }
                 Some(s) = self.rate_listener.next() => {
                     if let Ok(p) = s.get().await {
                         if self.update(RecvType::Float(p)).await.is_ok() {
-                            self.update_server(server).await;
+                            self.update_server(&ipc).await;
                         }
                     }
                 }

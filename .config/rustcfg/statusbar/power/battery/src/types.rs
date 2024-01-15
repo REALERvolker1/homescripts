@@ -12,6 +12,8 @@ pub enum ModError {
     Zbus(zbus::Error),
     #[strum(message = "Tokio io Error")]
     Io(tokio::io::Error),
+    #[strum(message = "Failed to send signal")]
+    SendError(String),
     #[strum(message = "Failed to update state")]
     UpdateError(String),
     #[strum(message = "Conversion error")]
@@ -30,17 +32,6 @@ impl std::error::Error for ModError {}
 impl std::fmt::Display for ModError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let message = self.get_message().unwrap_or("Error");
-        // match self {
-        //     Self::Zbus(e) => write!(f, "{}: {}", message, e),
-        //     Self::Io(e) => write!(f, "{}: {}", message, e),
-        //     Self::Errno(e) => write!(f, "{}: {}", message, e),
-        //     Self::Infallible(e) => write!(f, "{}: {}", message, e),
-        //     // Self::UpdateError(e) => write!(f, "{}: {}", message, e),
-        //     // Self::Conversion(e) => write!(f, "{}: {}", message, e),
-        //     // Self::ClassUpdateError(e) => write!(f, "{}: {}", message, e),
-        //     Self::Other(e) => write!(f, "{}: {}", message, e),
-        //     _ => write!(f, "{}: {:?}", message, self),
-        // }
         write!(f, "{message}: {:?}", self)
     }
 }
@@ -64,6 +55,14 @@ impl From<nix::errno::Errno> for ModError {
         Self::Errno(value)
     }
 }
+impl<T> From<tokio::sync::mpsc::error::SendError<T>> for ModError
+where
+    T: std::fmt::Debug,
+{
+    fn from(value: tokio::sync::mpsc::error::SendError<T>) -> Self {
+        Self::SendError(format!("{:?}", value))
+    }
+}
 impl Into<zbus::Error> for ModError {
     fn into(self) -> zbus::Error {
         match self {
@@ -71,6 +70,17 @@ impl Into<zbus::Error> for ModError {
             _ => zbus::Error::Failure(self.to_string()),
         }
     }
+}
+
+/// The type of output to send
+#[derive(
+    Debug, Clone, Copy, Default, strum_macros::Display, clap::ValueEnum, Serialize, Deserialize,
+)]
+#[strum(serialize_all = "kebab-case")]
+pub enum OutputType {
+    Waybar,
+    #[default]
+    Stdout,
 }
 
 /// The main type for icons
@@ -87,15 +97,6 @@ pub enum AutoBool {
     False,
     #[default]
     Auto,
-}
-impl From<bool> for AutoBool {
-    fn from(b: bool) -> Self {
-        if b {
-            Self::True
-        } else {
-            Self::False
-        }
-    }
 }
 
 /// A percentage, a checked u8 between 0 and 100

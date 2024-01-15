@@ -22,7 +22,7 @@ pub struct Server {
     pub output_type: ipc::OutputType,
     pub upower: Option<upower::UPowerStatus>,
     pub power_profile: Option<power_profiles::PowerProfileState>,
-    pub supergfxd_state: Option<String>,
+    pub supergfxd_state: Option<supergfxd::GfxState>,
     // pub power_profile_icon: Option<Icon>,
     // pub supergfxd_icon: Option<Icon>,
 }
@@ -50,12 +50,12 @@ impl Server {
             tracing::error!("[Server] Failed to send message: {}", e);
         }
     }
-    pub async fn supergfx(&mut self, state: &supergfxd::SuperGfxModule<'_>) {
+    pub async fn supergfx(&mut self, state: supergfxd::GfxState) {
         let message = state.with_output_type(self.output_type);
         if let Err(e) = self.ipc.send(&message).await {
             tracing::error!("[Server] Failed to send message: {}", e);
         } else {
-            self.supergfxd_state = Some(message);
+            self.supergfxd_state = Some(state);
         }
     }
 }

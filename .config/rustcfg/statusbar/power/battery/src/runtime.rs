@@ -1,45 +1,31 @@
-//! TODO: Add named pipe output
-//! TODO: Add clap argparsing
-//! TODO: Add logfile output
 use crate::{modules::*, types::*, *};
-use futures::{FutureExt, StreamExt};
+use std::sync::Arc;
 use tracing::{debug, info, warn};
 
+/// The default timeout for asyncs
 pub const TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
 
+/// The max amount of messages that can be queued before they are dropped
+pub const BUFFER_SIZE: usize = 10;
+
 #[inline]
-pub async fn run_experimental() -> color_eyre::Result<()> {
+pub async fn run() -> eyre::Result<()> {
     #[cfg(debug_assertions)]
     log_init();
 
-    // let config = config::ModuleConfig::default();
-
     info!("Starting up");
 
-    let (connection, ipc_interface) =
-        tokio::join!(zbus::Connection::system(), ipc::IpcInterface::new(2));
+    let connection = zbus::Connection::system().await?;
+    let (tx, mut rx) = tokio::sync::mpsc::channel(5);
+    let sender = Arc::new(tx);
     info!("connected to dbus, loaded IPC interface");
 
-    let output_type = ipc::OutputType::Stdout;
-
-    let server = std::sync::Arc::new(tokio::sync::Mutex::new(
-        dbus_server::Server::new(ipc_interface?, output_type).await,
-    ));
-
-    let mods = modules::load_modules(&connection?, &server).await?;
+    let mods = modules::load_modules(&connection, &sender).await?;
 
     info!("Loaded {} modules", mods.len());
 
-    // mods.iter().for_each(|m| {
-    //     if m.is_finished() {
-    //         if let Err(e) = r {
-    //                 warn!("Error in module: {}", e)
-    //             }
-    //     }
-    //     tokio::time::sleep(TIMEOUT).await;
-    // });
-    loop {
-        std::future::pending::<()>().await
+    while let Some(r) = rx.recv().await {
+        println!("{}", r.with_output_type(config::ARGS.output_type));
     }
 
     Ok(())

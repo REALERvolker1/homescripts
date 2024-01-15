@@ -1,6 +1,7 @@
-use crate::{types::ModError, *};
+use crate::{types::*, *};
 use lazy_static::lazy_static;
 use nix::{sys::stat::Mode, unistd};
+use serde::{Deserialize, Serialize};
 use std::{env, path::*, sync::Arc};
 use tokio::io::AsyncWriteExt;
 use tracing::{error, warn};
@@ -9,23 +10,11 @@ lazy_static! {
     pub static ref TEMP_DIR: PathBuf = get_tmpdir().join(env!("CARGO_PKG_NAME"));
 }
 
-/// A trait for modules that send their state to the IPC handler
-pub trait IpcModule {
-    /// Send the state of the module to a suitable handler
-    async fn send_state(&self, interface: IpcType, output_type: OutputType)
-        -> Result<(), ModError>;
-}
+// pub type IpcType = std::sync::Arc<tokio::sync::Mutex<IpcInterface>>;
 
-pub type IpcType = std::sync::Arc<tokio::sync::Mutex<IpcInterface>>;
-
-/// The type of output to send
-#[derive(Debug, Clone, Copy, Default)]
-pub enum OutputType {
-    Waybar,
-    #[default]
-    Stdout,
-}
-
+/// TODO: This is a piece of shit that doesn't work. Completely rewrite the ipc to use files similar to sysfs
+///
+///
 /// The IPC interface for this. It is intended as a temporary measure while I
 /// transition and test these modules on waybar before building the gtk app
 #[derive(Debug, Default)]
@@ -129,6 +118,7 @@ impl IpcInterface {
     }
 }
 
+#[inline]
 fn get_tmpdir() -> PathBuf {
     if let Ok(rt) = env::var("XDG_RUNTIME_DIR") {
         let env_path = Path::new(&rt);
