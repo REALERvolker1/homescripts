@@ -4,7 +4,8 @@
 # config
 UPOWER_AC_DEVICE='/org/freedesktop/UPower/devices/line_power_ACAD'
 SYSFS_AC_DEVICE='/sys/class/power_supply/ACAD/online'
-KEYBOARD_PATH='sysfs/leds/asus::kbd_backlight'
+#KEYBOARD_PATH='sysfs/leds/asus::kbd_backlight'
+buscmd=(busctl call org.freedesktop.UPower /org/freedesktop/UPower/KbdBacklight org.freedesktop.UPower.KbdBacklight SetBrightness i)
 me="${0##*/}"
 pidfile="$XDG_RUNTIME_DIR/${me}.pid"
 
@@ -12,8 +13,8 @@ ac_command_center() {
     killall nvidia-smi
     echo "$1"
     if [ "$1" = true ]; then
-        light -Srs "$KEYBOARD_PATH" 3
-        #light -S 80
+        #light -Srs "$KEYBOARD_PATH" 3
+        "${buscmd[@]}" 3 &
         brightnessctl s '80%'
         powerprofilesctl set performance
         asusctl bios -O true
@@ -24,8 +25,8 @@ ac_command_center() {
         fi
 
     elif [ "$1" = false ]; then
-        light -Srs "$KEYBOARD_PATH" 1
-        #light -S 40
+        #light -Srs "$KEYBOARD_PATH" 1
+        "${buscmd[@]}" 1 &
         brightnessctl s '40%'
         powerprofilesctl set balanced
         asusctl bios -O false
