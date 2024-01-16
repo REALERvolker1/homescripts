@@ -137,7 +137,8 @@
     "python.autoComplete.extraPaths": [
         "/home/vlk/.vscode-oss/extensions/continue.continue-0.2.0-linux-x64",
         "/home/vlk/.vscode-oss/extensions/continue.continue-0.5.0-linux-x64",
-        "/home/vlk/.vscode-oss/extensions/continue.continue-0.6.0-linux-x64"
+        "/home/vlk/.vscode-oss/extensions/continue.continue-0.6.0-linux-x64",
+        "/home/vlk/.vscode-oss/extensions/continue.continue-0.8.1-linux-x64"
     ],
     "diffEditor.codeLens": true,
     "continue.telemetryEnabled": false,
@@ -171,5 +172,8 @@
         "spring-boot-properties",
         "azcli"
     ],
-    "vscord.status.idle.enabled": false
+    "vscord.status.idle.enabled": false,
+    "python.analysis.extraPaths": [
+        "/home/vlk/.vscode-oss/extensions/continue.continue-0.8.1-linux-x64"
+    ]
 }

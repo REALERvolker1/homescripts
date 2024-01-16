@@ -89,7 +89,7 @@ if cmd pacman; then
 fi
 
 (
-    if cmd rustup; then
+    if cmd rustup && [[ $(date +'%A') == 'Tuesday' ]]; then
         _head '󱘗 rustup' '38;5;166'
         unsafe rustup update
     fi
@@ -106,7 +106,7 @@ fi
 
 if cmd distrobox; then
     _head '󰡨 Distrobox' '38;5;95'
-    distrobox upgrade --all
+    unsafe distrobox upgrade --all
 fi
 if (($(jobs -r | wc -l))); then
     echo "Waiting for background jobs to finish"
@@ -114,4 +114,4 @@ if (($(jobs -r | wc -l))); then
 fi
 wait
 echo "Done with updates!"
-((${SHUTDOWN:-0})) && systemctl poweroff || :
+#((${SHUTDOWN:-0})) && systemctl poweroff || :

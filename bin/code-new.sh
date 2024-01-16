@@ -32,6 +32,6 @@ source flatpak-fallback.sh
 #    done
 #) &
 
-disown
+#disown
 echo "${result_command[@]}" "$@"
 exec "${result_command[@]}" "$@"

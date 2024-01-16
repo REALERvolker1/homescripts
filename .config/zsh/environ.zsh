@@ -198,13 +198,10 @@ export OLLAMA_HOME="$XDG_DATA_HOME/ollama"
 export OLLAMA_MODELS="$OLLAMA_HOME/models"
 
 # nix
-export VLK_NIX_HOME="$XDG_STATE_HOME/nix/profile"
+#export VLK_NIX_HOME="$XDG_STATE_HOME/nix/profile"
 # fix nix XDG being trash
-#if [[ ${NIX_PATH-} != *"$XDG_STATE_HOME/nix/channels"* ]]; then
-#    NIX_PATH="${NIX_PATH:+$NIX_PATH:}$XDG_STATE_HOME/nix/channels"
-#fi
-[[ ":${NIX_PATH-}:" != *":$XDG_STATE_HOME/nix/defexpr/channels:"* ]] &&
-    export NIX_PATH="${NIX_PATH:+$NIX_PATH:}$XDG_STATE_HOME/nix/defexpr/channels"
+#[[ ":${NIX_PATH-}:" != *":$XDG_STATE_HOME/nix/defexpr/channels:"* ]] &&
+#    export NIX_PATH="${NIX_PATH:+$NIX_PATH:}$XDG_STATE_HOME/nix/defexpr/channels"
 
 export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
 
@@ -216,6 +213,7 @@ export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=\"$XDG_STATE_HOME/java\"" # doesn't do jack shit
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 # export JAVA_HOME=/usr/lib/jvm/default
+[[ -o i ]] && export JAVA_HOME="/usr/lib/jvm/java-8-openjdk" # for school
 # [[ -n ${JAVA_HOME-} ]] && export INSTALL4J_JAVA_HOME=${JAVA_HOME-}
 
 # perl, doesn't really do much at all
@@ -276,6 +274,13 @@ __pathmunge() {
     print "$hpath"
 }
 
+#export LD_LIBRARY_PATH="/opt/cuda/targets/x86_64-linux/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH=$(
+    dir_pref_before=(/opt/cuda/targets/x86_64-linux/lib)
+    dir_pref_after=()
+    INIT_PATH="$LD_LIBRARY_PATH"
+    __pathmunge
+)
 export PATH="$(
     dir_pref_before=(
         {$HOME/{,.local},$VLK_NIX_HOME,$CARGO_HOME,$GOPATH,$BUN_INSTALL,$PYTHONUSERBASE}/bin

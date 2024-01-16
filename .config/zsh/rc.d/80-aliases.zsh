@@ -183,6 +183,7 @@ if ((${+commands[pacman]})); then
     alias pacr='sudo pacman -Rcs'
     alias pacl='pacman -Q | fzf'
     alias pacb='pacman -Fl | grep -E "\s+(${PATH//:\//|})" | fzf'
+    alias reflect='sudo reflector "@/etc/xdg/reflector/reflector.conf" --save /etc/pacman.d/mirrorlist'
     # alias pacs='pacman -Sl | fzf'
 fi
 
