@@ -10,6 +10,7 @@ lto = true
 [dependencies]
 async-trait = "0.1.77"
 blocking = "1.5.1"
+chrono = { version = "0.4.31", default-features = false, features = ["serde", "std", "pure-rust-locales"] }
 clap = { version = "4.4.15", features = ["cargo", "derive", "env", "string"] }
 eyre = "0.6.11"
 futures = "0.3.30"
@@ -22,22 +23,12 @@ nix = { version = "0.27.1", default-features = false, features = [
 ] }
 parking_lot = { version = "0.12.1", features = ["serde"] }
 serde = "1.0.195"
+size = "0.4.1"
 smart-default = "0.7.1"
 strum = { version = "0.25.0" }
 strum_macros = "0.25.3"
-tokio = { version = "1.35.1", default-features = false, features = [
-    "tokio-macros",
-    "macros",
-    "rt",
-    "io-std",
-    "io-util",
-    "signal",
-    "fs",
-    "sync",
-    "process",
-    "parking_lot",
-    "tracing",
-] }
+sysinfo = { version = "0.30.5", default-features = false, features = ["serde", "linux-netdevs"] }
+tokio = { version = "1.35.1", default-features = false, features = ["tokio-macros", "macros", "rt", "io-std", "io-util", "signal", "fs", "sync", "process", "parking_lot", "tracing", "rt-multi-thread"] }
 tracing = { version = "0.1.40", features = [
     "async-await",
     "valuable",
@@ -50,4 +41,3 @@ tracing-subscriber = { version = "0.3.18", features = [
     "json",
 ] }
 zbus = { version = "3.14.1", default-features = false, features = ["tokio"] }
-zbus-lockstep = "0.3.1"

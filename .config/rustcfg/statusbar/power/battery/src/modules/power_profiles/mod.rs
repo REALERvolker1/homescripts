@@ -1,17 +1,15 @@
-use std::sync::Arc;
-
 use super::*;
-use crate::{types::*};
+// use crate::types::*;
 use futures::StreamExt;
 use tracing::{debug, error, warn};
 use zbus::zvariant::OwnedValue;
-pub mod xmlgen;
+mod xmlgen;
 use serde::{Deserialize, Serialize};
 
 pub struct PowerProfilesModule<'a> {
-    pub state: PowerProfileState,
-    pub proxy: xmlgen::PowerProfilesProxy<'a>,
-    pub stream: zbus::PropertyStream<'a, PowerProfileState>,
+    state: PowerProfileState,
+    proxy: xmlgen::PowerProfilesProxy<'a>,
+    stream: zbus::PropertyStream<'a, PowerProfileState>,
 }
 impl<'a> StaticModule for PowerProfilesModule<'a> {
     #[inline]
@@ -23,14 +21,15 @@ impl<'a> StaticModule for PowerProfilesModule<'a> {
         ModuleType::Dbus
     }
     #[tracing::instrument(skip(self, ipc))]
-    async fn update_server(&self, ipc: &IpcCh) {
+    async fn update_server(&self, ipc: &IpcCh) -> ModResult<()> {
         // let mut guard = ipc.lock();
-        ipc.send(StateType::PowerProfiles(self.state)).await;
+        ipc.send(StateType::PowerProfiles(self.state)).await?;
+        Ok(())
     }
 }
-impl<'a> Module for PowerProfilesModule<'a> {
+impl<'a> DbusModule<'a> for PowerProfilesModule<'a> {
     #[tracing::instrument(skip(connection))]
-    async fn new(connection: &zbus::Connection) -> Result<Self, ModError> {
+    async fn new(connection: &zbus::Connection) -> ModResult<Self> {
         let proxy = xmlgen::PowerProfilesProxy::new(connection).await?;
         let (state, stream) = tokio::join!(
             proxy.active_profile(),
@@ -42,8 +41,10 @@ impl<'a> Module for PowerProfilesModule<'a> {
             stream,
         })
     }
+}
+impl<'a> Module for PowerProfilesModule<'a> {
     #[tracing::instrument(skip(self))]
-    async fn update(&mut self, payload: RecvType) -> Result<(), ModError> {
+    async fn update(&mut self, payload: RecvType) -> ModResult<()> {
         if let RecvType::PowerProfile(s) = payload {
             self.state = s;
             Ok(())
@@ -52,19 +53,21 @@ impl<'a> Module for PowerProfilesModule<'a> {
                 "Power Profiles module received an invalid payload: {:?}",
                 payload
             );
-            error!("{}", out);
+            error!("{out}");
             Err(ModError::UpdateError(out))
         }
     }
     #[tracing::instrument(skip(self, ipc))]
-    async fn run(&mut self, ipc: IpcCh) -> () {
+    async fn run(&mut self, ipc: IpcCh) -> ModResult<()> {
+        self.update_server(&ipc).await?;
         while let Some(s) = self.stream.next().await {
             if let Ok(p) = s.get().await {
                 if self.update(RecvType::PowerProfile(p)).await.is_ok() {
-                    self.update_server(&ipc).await;
+                    self.update_server(&ipc).await?;
                 }
             }
         }
+        Ok(())
     }
     #[inline]
     fn should_run(&self) -> bool {
@@ -72,9 +75,8 @@ impl<'a> Module for PowerProfilesModule<'a> {
     }
 }
 
-#[derive(
-    Debug, Default, strum_macros::Display, PartialEq, Eq, Copy, Clone, Serialize, Deserialize,
-)]
+#[derive(Debug, Default, strum_macros::Display, Copy, Clone, Serialize, Deserialize)]
+#[strum(serialize_all = "kebab-case")]
 pub enum PowerProfileState {
     PowerSaver,
     Balanced,

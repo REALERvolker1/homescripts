@@ -71,6 +71,7 @@ impl Into<zbus::Error> for ModError {
         }
     }
 }
+pub type ModResult<T> = Result<T, ModError>;
 
 /// The type of output to send
 #[derive(
@@ -99,7 +100,27 @@ pub enum AutoBool {
     Auto,
 }
 
+/// An enum to represent the state of something. Useful for classes.
+#[derive(
+    Debug,
+    Default,
+    strum_macros::Display,
+    strum_macros::EnumIter,
+    Copy,
+    Clone,
+    Serialize,
+    Deserialize,
+)]
+pub enum State {
+    #[default]
+    Good,
+    Warn,
+    Critical,
+}
+
 /// A percentage, a checked u8 between 0 and 100
+///
+/// This implements Display. It will automatically append a percentage sign like `"50%"`.
 #[derive(
     Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Type, Serialize, Deserialize,
 )]
@@ -107,20 +128,36 @@ pub struct Percent {
     v: u8,
 }
 impl Percent {
+    /// Calculate a new percentage -- `(value * 100) / max`
+    ///
+    /// Will return None if `value * 100` is out of u64 bounds or if conversion fails.
+    pub fn new<U>(max: U, value: U) -> Option<Self>
+    where
+        U: TryInto<u64>,
+    {
+        if let (Ok(max), Ok(value)) = (max.try_into(), value.try_into()) {
+            let mult: u64 = value * 100;
+            // if mult == u64::MAX {
+            //     None
+            // } else {
+            //     Some(Self {
+            //         v: (mult / max) as u8,
+            //     })
+            // }
+            Some(Self {
+                v: (mult / max) as u8,
+            })
+        } else {
+            None
+        }
+    }
     /// Get the inner value
     pub fn u(&self) -> u8 {
         self.v
     }
-    /// Get the max value
-    pub fn max() -> Self {
-        Self { v: 100 }
-    }
     /// Create a new Percentage, without checking if the value is in range. Useful for hardcoded values.
     pub fn from_u8_unchecked(u: u8) -> Self {
-        warn!(
-            "Converting u8 '{}' to Percentage type without checking bounds",
-            u
-        );
+        warn!("Converting u8 '{u}' to Percentage type without checking bounds");
         Self { v: u }
     }
     /// Try to convert a str into a percentage.

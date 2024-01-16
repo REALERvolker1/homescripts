@@ -2,7 +2,6 @@ use crate::{types::*, *};
 use clap::Parser;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
-use smart_default::SmartDefault;
 
 lazy_static! {
     /// Parse the args as soon as we need them

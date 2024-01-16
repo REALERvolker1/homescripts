@@ -16,7 +16,7 @@ pub async fn run() -> eyre::Result<()> {
     info!("Starting up");
 
     let connection = zbus::Connection::system().await?;
-    let (tx, mut rx) = tokio::sync::mpsc::channel(5);
+    let (tx, mut rx) = tokio::sync::mpsc::channel(BUFFER_SIZE);
     let sender = Arc::new(tx);
     info!("connected to dbus, loaded IPC interface");
 
@@ -24,13 +24,26 @@ pub async fn run() -> eyre::Result<()> {
 
     info!("Loaded {} modules", mods.len());
 
+    let output_type = config::ARGS.output_type;
     while let Some(r) = rx.recv().await {
-        println!("{}", r.with_output_type(config::ARGS.output_type));
+        let stype = StateTypeDiscriminants::from(&r);
+        let message = match r {
+            StateType::UPower(s) => s.with_output_type(output_type),
+            StateType::PowerProfiles(s) => s.with_output_type(output_type),
+            StateType::SuperGfxd(s) => s.with_output_type(output_type),
+            StateType::Memory(s) => s,
+            StateType::Anonymous(s) => s,
+        };
+
+        println!("{:?} {}", stype, message);
     }
 
     Ok(())
 }
 
+/// Initialize a global logger
+///
+/// This should only be used in debug builds
 #[cfg(debug_assertions)]
 pub fn log_init() {
     eprintln!("Initializing logging for debug build");
@@ -47,25 +60,3 @@ pub fn log_init() {
         .init();
     info!("Logging initialized");
 }
-
-// let ipc = Arc::new(ipc::IpcInterface::new(2).await?);
-//     println!("yo");
-//     let mut tasks = tokio::task::JoinSet::new();
-//     for i in 1..6 {
-//         tasks.spawn(task_test(
-//             i,
-//             format!("test message {}", i),
-//             Arc::clone(&ipc),
-//         ));
-//     }
-//     while let Some(t) = tasks.join_next().await {
-//         println!("task done: {:?}", t);
-//     }
-// #[tracing::instrument]
-// async fn task_test(thread_id: u8, message: String, ipc_interface: Arc<ipc::IpcInterface>) {
-//     loop {
-//         println!("Sending message from thread {thread_id}");
-//         ipc_interface.send(&message).await.unwrap();
-//         tokio::time::sleep(std::time::Duration::from_secs(5)).await;
-//     }
-// }

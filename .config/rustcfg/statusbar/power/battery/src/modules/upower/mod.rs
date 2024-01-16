@@ -1,5 +1,4 @@
 use super::*;
-use crate::types::*;
 use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
@@ -26,15 +25,15 @@ impl<'a> StaticModule for UpowerModule<'a> {
         ModuleType::Dbus
     }
     #[tracing::instrument(skip(self, ipc))]
-    async fn update_server(&self, ipc: &IpcCh) {
+    async fn update_server(&self, ipc: &IpcCh) -> ModResult<()> {
         let data = UPowerStatus::new(self.state, self.percent, self.rate);
-        // let mut lock = ipc.lock();
-        ipc.send(StateType::UPower(data)).await;
+        ipc.send(StateType::UPower(data)).await?;
+        Ok(())
     }
 }
-impl<'a> Module for UpowerModule<'a> {
+impl<'a> DbusModule<'a> for UpowerModule<'a> {
     #[tracing::instrument(skip(connection))]
-    async fn new(connection: &zbus::Connection) -> Result<Self, ModError> {
+    async fn new(connection: &zbus::Connection) -> ModResult<Self> {
         let proxy = xmlgen::DeviceProxy::new(connection).await?;
         let (state, percent, rate, state_listener, percent_listener, rate_listener) = tokio::join!(
             proxy.state(),
@@ -54,8 +53,10 @@ impl<'a> Module for UpowerModule<'a> {
             rate_listener,
         })
     }
+}
+impl<'a> Module for UpowerModule<'a> {
     #[tracing::instrument(skip(self))]
-    async fn update(&mut self, payload: RecvType) -> Result<(), ModError> {
+    async fn update(&mut self, payload: RecvType) -> ModResult<()> {
         match payload {
             RecvType::BatteryState(state) => {
                 self.state = state;
@@ -75,27 +76,28 @@ impl<'a> Module for UpowerModule<'a> {
         Ok(())
     }
     #[tracing::instrument(skip(self, ipc))]
-    async fn run(&mut self, ipc: IpcCh) -> () {
+    async fn run(&mut self, ipc: IpcCh) -> ModResult<()> {
+        self.update_server(&ipc).await?;
         loop {
             tokio::select! {
                 Some(s) = self.state_listener.next() => {
                     if let Ok(p) = s.get().await {
                         if self.update(RecvType::BatteryState(p)).await.is_ok() {
-                            self.update_server(&ipc).await;
+                            self.update_server(&ipc).await?;
                         }
                     }
                 }
                 Some(s) = self.percent_listener.next() => {
                     if let Ok(p) = s.get().await {
                         if self.update(RecvType::Percent(p)).await.is_ok() {
-                            self.update_server(&ipc).await;
+                            self.update_server(&ipc).await?;
                         }
                     }
                 }
                 Some(s) = self.rate_listener.next() => {
                     if let Ok(p) = s.get().await {
                         if self.update(RecvType::Float(p)).await.is_ok() {
-                            self.update_server(&ipc).await;
+                            self.update_server(&ipc).await?;
                         }
                     }
                 }
@@ -106,22 +108,6 @@ impl<'a> Module for UpowerModule<'a> {
         true
     }
 }
-// impl ipc::IpcModule for UpowerModule<'_> {
-//     async fn send_state(
-//         &self,
-//         interface: ipc::IpcType,
-//         output_type: OutputType,
-//     ) -> Result<(), ModError> {
-//         let me = UPowerStatus::new(self.state, self.percent, self.rate);
-//         let msg = match output_type {
-//             OutputType::Waybar => me.waybar(),
-//             OutputType::Stdout => me.stdout(),
-//         };
-//         let lock = interface.lock().await;
-//         lock.send(&msg).await?;
-//         Ok(())
-//     }
-// }
 
 /// A function to format the battery rate as a string in one single way
 #[inline]
@@ -129,7 +115,7 @@ pub fn rate_fmt(rate: f64) -> String {
     format!("{:.1}W", rate)
 }
 
-#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Copy, Deserialize, Serialize)]
 pub struct UPowerStatus {
     icon: Icon,
     percentage: Percent,

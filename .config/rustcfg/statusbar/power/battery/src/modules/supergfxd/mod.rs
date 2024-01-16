@@ -1,9 +1,9 @@
 use super::*;
-use crate::{types::*};
+// use crate::types::*;
 use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use tracing::{debug, error, warn};
+use tracing::{debug, warn};
 use zbus::zvariant::Type;
 // https://gitlab.com/asus-linux/supergfxctl/-/blob/main/src/pci_device.rs?ref_type=heads
 pub mod xmlgen;
@@ -28,19 +28,18 @@ impl<'a> StaticModule for SuperGfxModule<'a> {
         }
     }
     #[tracing::instrument(skip(self, ipc))]
-    async fn update_server(&self, ipc: &IpcCh) {
+    async fn update_server(&self, ipc: &IpcCh) -> ModResult<()> {
         let state = GfxState {
             mode: self.mode,
             power: self.power,
         };
-        // let mut lock = ipc.lock();
-        ipc.send(StateType::SuperGfxd(state)).await;
-        // lock.supergfxd_icon = self.icon();
+        ipc.send(StateType::SuperGfxd(state)).await?;
+        Ok(())
     }
 }
-impl<'a> Module for SuperGfxModule<'a> {
+impl<'a> DbusModule<'a> for SuperGfxModule<'a> {
     #[tracing::instrument(skip(connection))]
-    async fn new(connection: &zbus::Connection) -> Result<Self, ModError> {
+    async fn new(connection: &zbus::Connection) -> ModResult<Self> {
         let proxy = xmlgen::DaemonProxy::new(connection).await?;
         // I have to get the status stream anyways to satisfy the borrow checker
         let (mode, power, status_stream) = tokio::try_join!(
@@ -57,8 +56,10 @@ impl<'a> Module for SuperGfxModule<'a> {
             status_stream,
         })
     }
+}
+impl<'a> Module for SuperGfxModule<'a> {
     #[tracing::instrument(skip(self))]
-    async fn update(&mut self, payload: RecvType) -> Result<(), ModError> {
+    async fn update(&mut self, payload: RecvType) -> ModResult<()> {
         if payload.is_notify_status() {
             self.power = self.proxy.power().await?;
             Ok(())
@@ -69,20 +70,22 @@ impl<'a> Module for SuperGfxModule<'a> {
         }
     }
     #[tracing::instrument(skip(self, ipc))]
-    async fn run(&mut self, ipc: IpcCh) -> () {
+    async fn run(&mut self, ipc: IpcCh) -> ModResult<()> {
+        self.update_server(&ipc).await?;
         while self.status_stream.next().await.is_some() {
             // let _ = self.update(RecvType::NotifyStatus).await;
             if self.update(RecvType::NotifyStatus).await.is_ok() {
-                self.update_server(&ipc).await;
+                self.update_server(&ipc).await?;
             }
         }
+        Ok(())
     }
     fn should_run(&self) -> bool {
         self.is_updating
     }
 }
 
-#[derive(Debug, Default, PartialEq, Eq, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Copy, Clone, Serialize, Deserialize)]
 pub struct GfxState {
     pub mode: GfxMode,
     pub power: GfxPower,

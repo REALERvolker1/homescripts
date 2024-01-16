@@ -6,9 +6,12 @@ mod modules;
 mod runtime;
 mod types;
 
-#[tokio::main(flavor = "current_thread")]
+/// The main function
+///
+/// Like any good asynchronous program, it basically implements a poorly written half of an OS scheduler.
+// #[tokio::main(flavor = "current_thread")]
+#[tokio::main]
 async fn main() -> eyre::Result<()> {
     runtime::run().await?;
-    // runtime::test_supergfxd().await.unwrap();
     Ok(())
 }
