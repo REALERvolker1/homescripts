@@ -15,7 +15,8 @@ ydotoold &
 
 #vlkbg.sh &
 autostart-gammastep.sh &
-dunst &
+#dunst &
+mako &
 hyprpaper &
 
 # barcfg

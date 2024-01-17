@@ -35,7 +35,7 @@ if ((${+VIRTUAL_ENV})) {
 
 # set paramters that are important for my shell setup
 # export CURRENT_DISTRO="${CURRENT_DISTRO:-$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)}"
-CURRENT_HOSTNAME='undefined'
+CURRENT_HOSTNAME='iphone'
 # export CURRENT_DISTRO CURRENT_HOSTNAME
 
 : ${HOSTNAME::=${HOST:=${HOSTNAME:=$(
@@ -288,7 +288,7 @@ export PATH="$(
         {"$XDG_DATA_HOME",/var/lib}/flatpak/exports/bin
     )
     dir_pref_after=(
-        /usr{/local,}/bin
+        /usr/local/bin /opt/cuda/bin /usr/bin
     )
     essentials='/usr/bin'
     INIT_PATH="${PATH-}"
