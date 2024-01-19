@@ -56,7 +56,6 @@
     // },
 
     "security.workspace.trust.enabled": false,
-    "oneDarkPro.bold": true,
     "oneDarkPro.vivid": true,
     "vscord.app.name": "VSCodium",
     "vscord.status.problems.text": "{problems_count} skill issues",
@@ -152,7 +151,6 @@
     "workbench.commandPalette.experimental.suggestCommands": true,
     "python.experiments.enabled": false,
     "python.experiments.optInto": [],
-    "window.zoomLevel": -1,
     "html.format.enable": false,
     "[html]": {
         "editor.defaultFormatter": "vscode.html-language-features"
@@ -175,5 +173,7 @@
     "vscord.status.idle.enabled": false,
     "python.analysis.extraPaths": [
         "/home/vlk/.vscode-oss/extensions/continue.continue-0.8.1-linux-x64"
-    ]
+    ],
+    "window.zoomLevel": -1,
+    "oneDarkPro.bold": true
 }

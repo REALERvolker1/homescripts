@@ -60,7 +60,6 @@ cachefile="$XDG_RUNTIME_DIR/zsh-dumbfetch-$XDG_SESSION_ID.cache"
                 fi
                 ;;
         esac
-        print "${XDG_CURRENT_DESKTOP:-Undefined}"
     ) >"$cachefile"
 
 # this is less computationally expensive and more cross-platform than running procps uptime
@@ -98,6 +97,6 @@ print -f "${boxcolor}│[0;92m%s${boxcolor}│[0;9%-11s   [1m%-${len}s ${boxc
     '  \ V /| |   <  ' '3m 󰋊 Disk'    "${props[4]}" \
     '   \_/ |_|_|\_\ ' '2m 󰾲 Nvidia'  "${props[5]}" \
     '                ' '1m  Kernel'  "${props[6]}" \
-    '                ' "6m ${props[7]} Desk  "  "${props[8]}"
+    '                ' "6m ${props[7]} Desk  "  "${XDG_CURRENT_DESKTOP:-Undefined}"
 # replace every topside box character with the corresponding bottomside character
 print ${${${lenstr/╭/╰}/╮/╯}/┬/┴}
