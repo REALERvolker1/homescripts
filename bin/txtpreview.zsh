@@ -25,6 +25,8 @@ fi
 typeset -a lscolorcmd
 if ((${+commands[lscolors]})); then
     lscolorcmd=(lscolors)
+elif ((${+commands[ls-colors]})); then
+    lscolorcmd=(ls-colors)
 else
     print "'lscolors' not found, falling back to 'ls'"
     lscolorcmd=(ls --color=always -d)

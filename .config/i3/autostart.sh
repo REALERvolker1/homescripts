@@ -48,7 +48,7 @@ nm-applet &
 
 picom &
 #flashfocus &
-#vlkbg.sh &
+vlkbg.zsh &
 
 #(
 # crashes all the time, doesn't like me very much but will bend to my will eventually

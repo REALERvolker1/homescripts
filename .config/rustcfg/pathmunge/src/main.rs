@@ -1,42 +1,27 @@
-/*
-vlk PATHMUNGE function for making deduplicating and validating $PATHlike (example: /path/dir:/usr/bin:/usr/share) variables are alright
-*/
-use std::{env, error, io, path::Path};
+//! A path-validation program I don't use in my shell
 
-fn main() -> Result<(), Box<dyn error::Error>> {
-    let mut path_vec = Vec::new();
-    for arg in env::args().skip(1) {
-        if arg.starts_with("--pathlike=") {
-            let pathlikevar = arg.replacen("--pathlike=", "", 1);
-            let mut pthvc = pathlikevar
-                .split(":")
-                .filter_map(|i| check_legit(i, &path_vec).ok())
-                .collect::<Vec<String>>();
-            path_vec.append(&mut pthvc);
-        } else if let Ok(tmppth) = check_legit(&arg, &path_vec) {
-            path_vec.push(tmppth)
-        }
-    }
-    println!("{}", path_vec.join(":"));
-    Ok(())
-}
+use std::{env, path::Path};
+fn main() {
+    let mut uvec = Vec::with_capacity(8);
 
-fn check_legit(dirpathstr: &str, pathvec: &Vec<String>) -> io::Result<String> {
-    let dirpath = Path::new(dirpathstr);
-    if dirpath.read_dir()?.next().is_none() {
-        Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "Could not add to path",
-        ))
-    } else {
-        let cpath = dirpath.canonicalize()?.to_string_lossy().to_string();
-        if let Some(_) = pathvec.contains(&cpath).then_some("") {
-            Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                "Could not add to path",
-            ))
-        } else {
-            Ok(cpath)
-        }
-    }
+    let paths = env::args()
+        .skip(1)
+        .filter_map(|i| {
+            let i_path = Path::new(&i);
+            if let Ok(c) = i_path.canonicalize() {
+                if c.is_dir() {
+                    // return the realpath if it is a directory
+                    return Some(i);
+                }
+            }
+
+            return None;
+        })
+        .for_each(|p| {
+            if !uvec.contains(&p) {
+                uvec.push(p)
+            }
+        });
+
+    println!("{}", uvec.join(":"))
 }

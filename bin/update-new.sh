@@ -69,16 +69,19 @@ if cmd pacman; then
     else
         echo "Please install 'informant' to be notified of breaking Arch changes!"
     fi
-    if cmd yay; then
+    if cmd paru; then
+        _head ' paru'
+        unsafe paru -Syu
+    elif cmd yay; then
         _head ' yay'
         unsafe yay -Syyu --devel
     else
         _head ' pacman'
         unsafe sudo pacman -Syyu
     fi
-    if cmd reflector; then
-        unsafe sudo reflector '@/etc/xdg/reflector/reflector.conf' --save '/etc/pacman.d/mirrorlist' &
-    fi
+    # if cmd reflector; then
+    # unsafe sudo reflector '@/etc/xdg/reflector/reflector.conf' --save '/etc/pacman.d/mirrorlist' &
+    # fi
     if cmd pkgfile; then
         _head "Backgrounding pkgfile" 95
         [ ! -d /var/cache/pkgfile ] && sudo mkdir -p /var/cache/pkgfile
