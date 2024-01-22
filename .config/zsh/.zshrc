@@ -5,7 +5,6 @@
 }
 unset ZSHRC_LOADED
 
-
 # clear the screen, then reset all, including font.
 print -n '[0m[H[2J''(B)0\017[?5l7[0;0r8'
 
@@ -51,6 +50,11 @@ if ((VLKZSH_SAFEMODE)) || [[ ${TERM-} == linux || ${TTY-} == /dev/tty* || ${COLO
     VLKZSH_SAFEMODE=1
     # make truecolors behave well in TTY
     zmodload zsh/nearcolor
+
+    # if we're in a VTTY, start tmux
+    if [[ ${TERM-} == linux || ${TTY:-$(tty)} == /dev/tty* ]] && (($+commands[tmux])); then
+        exec tmux
+    fi
 }
 
 # Idea: debug mode function. When run, it adds useful stuff like lines/cols

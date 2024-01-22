@@ -1,0 +1,47 @@
+# vim:ft=toml
+
+on-button-left=invoke-default-action
+on-button-right=invoke-default-action
+on-touch=invoke-default-action
+on-button-middle=dismiss
+# use if you want sound
+#on-notify=mpv /usr/share/sounds/freedesktop/stereo/message.oga
+
+font=monospace 11
+background-color=#48229975
+text-color=#FFFFFF
+border-color=#7857ff
+progress-color=#af99ff
+
+# Should be all the icon themes I want to use. This is very naive, I hope they change it
+icon-path=/usr/share/icons/Newaita-reborn-deep-purple-dark:/usr/share/icons/Newaita-reborn-deep-purple:/usr/share/icons/Newaita-reborn-dark:/usr/share/icons/Newaita-reborn:/usr/share/icons/Adwaita
+
+# apparently having appname here breaks grouping. so sad!
+format=<i>%a</i>\n<b>%s</b>\n%b
+group-by=app-name,app-icon,summary,body
+
+width=300
+height=100
+# between screen edges and notif
+outer-margin=10
+# between notifs
+margin=10
+# between border and content
+padding=5
+
+border-size=2
+border-radius=8
+
+max-icon-size=64
+
+# 0 disables timeout
+default-timeout=0
+
+#layer=overlay shows notifications on top of fullscreen apps
+layer=top
+
+[grouped]
+format=(%g) <i>%a</i>\n<b>%s</b>\n%b
+
+[mode=do-not-disturb]
+invisible=1

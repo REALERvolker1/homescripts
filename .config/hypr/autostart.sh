@@ -1,37 +1,42 @@
 #!/usr/bin/bash
-
+# I have migrated a lot of this stuff to a systemd user target.
 [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && exit 69
 
 # [ -f "$HOME/.xsession-errors" ] && rm "$HOME/.xsession-errors" &
 autostart-remove.sh &
 
-autostart-dbus-activation-env.sh &
-xhost +local: &
-autostart-keyring.sh &
-autostart-polkit.sh &
+(
+    autostart-dbus-activation-env.sh
+    systemctl --user start user-graphical-session.target
+    systemctl --user start wayland.target
+) &
 
-ydotoold &
+xhost +local: &
+#autostart-keyring.sh &
+#autostart-polkit.sh &
+
+#ydotoold &
 #asusctl -c 80 &
 
 #vlkbg.sh &
-autostart-gammastep.sh &
+#autostart-gammastep.sh &
 #dunst &
-mako &
+#mako &
 hyprpaper &
 
 # barcfg
 waybar &
-nm-applet &
-(
-    sleep 5
-    firewall-applet
-) &
+#nm-applet &
+#(
+#    sleep 5
+#    firewall-applet
+#) &
 
 set-cursor-theme.sh --session &
-steam-symlink-unfucker.sh &
+#steam-symlink-unfucker.sh &
 pointer.sh -n &
 #pointer.sh -um &
-pmgmt.sh --monitor &
+#pmgmt.sh --monitor &
 #scratchpad_terminal.sh &
 
 autostart-clipboard.sh &

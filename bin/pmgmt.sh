@@ -7,7 +7,9 @@ SYSFS_AC_DEVICE='/sys/class/power_supply/ACAD/online'
 #KEYBOARD_PATH='sysfs/leds/asus::kbd_backlight'
 buscmd=(busctl call org.freedesktop.UPower /org/freedesktop/UPower/KbdBacklight org.freedesktop.UPower.KbdBacklight SetBrightness i)
 me="${0##*/}"
-pidfile="$XDG_RUNTIME_DIR/${me}.pid"
+my_pid="$$"
+#pidfile="$XDG_RUNTIME_DIR/${me}.pid"
+pidfile="/tmp/${me}.pid"
 
 ac_command_center() {
     killall nvidia-smi
@@ -41,6 +43,14 @@ auto_check() {
     fi
 }
 
+pid_check() {
+    if [[ -e "$pidfile" ]] && pgrep -F "$pidfile" >&2; then
+        echo "Error, $me already seems to be running!" >&2
+        exit 2
+    fi
+    echo "$my_pid" >"$pidfile"
+}
+
 case "${1:-}" in
 --ac | -a)
     ac_command_center true
@@ -51,13 +61,11 @@ case "${1:-}" in
 --oneshot | -o)
     auto_check
     ;;
+#--env-command | -e)
+#    ac_command_center "$PMGMT_ACTION"
+#    ;;
 --monitor | -m)
-    if [[ -e "$pidfile" ]] && pgrep -F "$pidfile" >&2; then
-        echo "Error, $me already seems to be running!" >&2
-        exit 2
-    fi
-    echo "$$" >"$pidfile"
-
+    pid_check
     auto_check
     echo "Monitoring $UPOWER_AC_DEVICE" >&2
     dbus-monitor --system "type='signal',sender='org.freedesktop.UPower',path='$UPOWER_AC_DEVICE',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'" | grep --line-buffered -oP 'boolean \K(true|false)' | while read -r line; do
