@@ -1,0 +1,4 @@
+[Unit]
+Description=Wayland session target
+Requires=user-graphical-session.target
+Conflicts=xorg.target

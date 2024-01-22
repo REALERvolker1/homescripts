@@ -1,0 +1,10 @@
+[Unit]
+Description=Start required systray icons
+After=user-graphical-session.target
+
+[Service]
+ExecStart=/home/vlk/.local/autostart/tray-icons.sh
+Restart=on-failure
+
+[Install]
+WantedBy=user-graphical-session.target

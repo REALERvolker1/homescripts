@@ -1,0 +1,9 @@
+[Unit]
+Description=Start xhost to allow Wayland sessions to do cool polkit xwayland stuff idk
+After=wayland.target
+
+[Service]
+ExecStart=/usr/bin/xhost +local:
+
+[Install]
+WantedBy=wayland.target

@@ -1,0 +1,4 @@
+[Unit]
+Description=x11-xorg user session target
+Requires=user-graphical-session.target
+Conflicts=wayland.target

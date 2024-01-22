@@ -1,0 +1,9 @@
+[Unit]
+Description=Start gammastep (Wayland mode)
+After=wayland.target
+
+[Service]
+ExecStart=/usr/bin/gammastep -P -m wayland
+
+[Install]
+WantedBy=wayland.target

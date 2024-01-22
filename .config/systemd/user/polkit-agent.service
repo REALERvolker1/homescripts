@@ -1,0 +1,12 @@
+[Unit]
+Description=A service to start just a single polkit agent when I need it.
+After=user-graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/home/vlk/.local/autostart/polkit.sh
+Restart=on-failure
+
+[Install]
+WantedBy=user-graphical-session.target
+

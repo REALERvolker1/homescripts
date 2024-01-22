@@ -1,0 +1,10 @@
+[Unit]
+Description=Start networkmanager-applet for bars
+After=user-graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/nm-applet
+Restart=on-failure
+
+[Install]
+WantedBy=user-graphical-session.target

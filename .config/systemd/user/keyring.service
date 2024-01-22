@@ -1,0 +1,11 @@
+[Unit]
+Description=Start GNOME keyring daemon login component
+After=user-graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/gnome-keyring-daemon --start --components=secrets
+Restart=on-failure
+
+[Install]
+WantedBy=user-graphical-session.target

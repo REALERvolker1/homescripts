@@ -1,0 +1,15 @@
+[Unit]
+Description=A testing service for my systemd-user init
+After=default.target
+
+[Service]
+Type=oneshot
+ExecStart=printf '(systemd)=(envvar)\n'
+ExecStart=printf '%%s=%%s\n' %C "${XDG_CACHE_HOME}"
+ExecStart=printf '%%s=%%s\n' %E "${XDG_CONFIG_HOME}"
+ExecStart=printf '%%s=%%s\n' %L "${XDG_STATE_HOME}"/log
+ExecStart=printf '%%s=%%s\n' %S "${XDG_STATE_HOME}"
+ExecStart=printf '%%s=%%s\n' %t "${XDG_RUNTIME_DIR}"
+
+[Install]
+WantedBy=default.target

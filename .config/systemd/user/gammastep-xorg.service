@@ -1,0 +1,9 @@
+[Unit]
+Description=Start gammastep (Xorg-x11 randr mode)
+After=xorg.target
+
+[Service]
+ExecStart=/usr/bin/gammastep -P -m randr
+
+[Install]
+WantedBy=xorg.target
