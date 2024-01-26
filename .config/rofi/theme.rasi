@@ -2,7 +2,6 @@
     remember:
     ${BG} to read env var BG, or env(BG, default)
     element {visible modifier}.{state} for element colors
-    vim:ft=css
 */
 
 * {

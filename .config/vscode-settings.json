@@ -177,5 +177,7 @@
     "oneDarkPro.bold": true,
     "[lua]": {
         "editor.defaultFormatter": "JohnnyMorganz.stylua"
-    }
+    },
+    "stylua.configPath": "~/.config/stylua/stylua.toml",
+    "stylua.styluaPath": "/usr/bin/stylua"
 }
