@@ -1,9 +1,9 @@
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
-opt = vim.opt
+local opt = vim.opt
 
-vlk_tab_width = 4
+local vlk_tab_width = 4
 
 opt.tabstop = vlk_tab_width
 opt.expandtab = true
@@ -29,23 +29,24 @@ opt.list = true
 --vim.opt.listchars:append "space:⋅"
 --vim.opt.listchars:append "eol:↴"
 opt.foldmethod = "marker"
+--opt.foldmethod = "syntax"
 opt.foldcolumn = "1"
 -- opt.foldlevel = 99
 opt.foldenable = true
---opt.foldmethod = "syntax"
 
---https://stackoverflow.com/a/76880300
-vim.keymap.set("n", "<C-c>", '"+y$')
-vim.keymap.set("v", "<C-c>", '"+y')
-vim.keymap.set("n", "<C-x>", '"+d$')
-vim.keymap.set("v", "<C-x>", '"+d')
-vim.keymap.set("n", "<C-v>", '"+p$')
-vim.keymap.set("v", "<C-v>", '"+p')
+-- I have it so my nvim slicing/dicing clipboard works normally.
+-- These are system clipboard shortcuts that are entirely isolated from the nvim clipboard.
+-- These make neovim usable for text editing. I don't understand why they aren't the default.
+-- Huge thanks to https://stackoverflow.com/a/76880300
+vim.keymap.set({ "n", "v" }, "<C-c>", '"+y', { desc = "Ctrl-C copy to system clipboard" })
+vim.keymap.set({ "n", "v" }, "<C-x>", '"+d', { desc = "Ctrl-X cut to system clipboard" })
+vim.keymap.set({ "n", "v" }, "<C-v>", '"+p', { desc = "Ctrl-V paste into buffer" })
+
+vim.keymap.set("i", "<C-v>", '<Esc>"+p', { desc = "Ctrl-V paste (from insert mode)" })
 
 --: Be very cautious about enabling system clipboard!
 --opt.clipboard = 'unnamed,unnamedplus'
 opt.clipboard = ""
-
 opt.ignorecase = true
 opt.smartcase = true
 opt.hlsearch = true
@@ -58,6 +59,10 @@ vim.filetype.add({
         rasi = "rasi",
     },
 })
+
+-- try to detect filetype again
+vim.keymap.set("n", "<leader>d", "<Cmd>filetype detect<CR>", { desc = "Try to autodetect the filetype again" })
+
 -- Fixes alacritty
 vim.cmd([[
     augroup change_cursor
@@ -66,8 +71,10 @@ vim.cmd([[
     augroup END
 ]])
 
+-- speedy loading
 vim.loader.enable()
 
+-- funny rainbow stuff I need for a few plugins
 local rainbow_hl_config = {
     { key = "RainbowDelimiterRed", fg = "#E06C75" },
     { key = "RainbowDelimiterYellow", fg = "#E5C07B" },
@@ -77,13 +84,26 @@ local rainbow_hl_config = {
     { key = "RainbowDelimiterViolet", fg = "#C678DD" },
     { key = "RainbowDelimiterCyan", fg = "#56B6C2" },
 }
-
 local delim_highlight = {}
-for i, v in pairs(rainbow_hl_config) do
+for _, v in pairs(rainbow_hl_config) do
     table.insert(delim_highlight, v.key)
 end
 
+-- workaround for nvimtree showing up instead of alpha when invoked with no args
 local nvim_tree_loaded = false
+
+-- some plugins are very resource-intensive. I don't want them eating my battery up
+
+local battery_status_path = "/sys/class/power_supply/BAT1/status"
+
+local is_plugged = true
+local fh = io.open(battery_status_path, "r")
+if fh ~= nil then
+    local content = fh:read("l")
+    if content:lower() == "discharging" then
+        is_plugged = false
+    end
+end
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -97,6 +117,7 @@ if not vim.loop.fs_stat(lazypath) then
     })
 end
 vim.opt.rtp:prepend(lazypath)
+local capabilities = nil
 
 require("lazy").setup({
     {
@@ -170,11 +191,7 @@ require("lazy").setup({
             opt.timeout = true
             opt.timeoutlen = 300
         end,
-        opts = {
-            -- your configuration comes here
-            -- or leave it empty to use the default settings
-            -- refer to the configuration section below
-        },
+        opts = {},
     },
     {
         "kevinhwang91/nvim-hlslens",
@@ -197,15 +214,67 @@ require("lazy").setup({
         config = true,
     },
     {
+        "chrisgrieser/nvim-spider",
+        keys = {
+            {
+                "w",
+                "<cmd>lua require('spider').motion('w')<CR>",
+                mode = { "n", "o", "x" },
+            },
+            {
+                "e",
+                "<cmd>lua require('spider').motion('e')<CR>",
+                mode = { "n", "o", "x" },
+            },
+            {
+                "b",
+                "<cmd>lua require('spider').motion('b')<CR>",
+                mode = { "n", "o", "x" },
+            },
+        },
+    },
+    {
+        "brenton-leighton/multiple-cursors.nvim",
+        version = "*",
+        opts = {},
+        keys = {
+            { "<M-Down>", "<Cmd>MultipleCursorsAddDown<CR>", mode = { "n", "i" }, desc = "Add multiple cursors down" },
+            { "<M-j>", "<Cmd>MultipleCursorsAddDown<CR>", desc = "Add multiple cursors down" },
+            { "<M-Up>", "<Cmd>MultipleCursorsAddUp<CR>", mode = { "n", "i" }, desc = "Add multiple cursors up" },
+            { "<M-k>", "<Cmd>MultipleCursorsAddUp<CR>", desc = "Add multiple cursors up" },
+            {
+                "<M-LeftMouse>",
+                "<Cmd>MultipleCursorsMouseAddDelete<CR>",
+                mode = { "n", "i" },
+                desc = "Add multiple cursors using the mouse",
+            },
+            {
+                "<Leader>ca",
+                "<Cmd>MultipleCursorsAddBySearch<CR>",
+                mode = { "n", "x" },
+                desc = "Add multiple cursors by search",
+            },
+            {
+                "<Leader>cA",
+                "<Cmd>MultipleCursorsAddBySearchV<CR>",
+                mode = { "n", "x" },
+                desc = "Add multiple cursors by searchV",
+            },
+        },
+    },
+    {
         "nvim-telescope/telescope.nvim",
         lazy = true,
         init = function()
             -- default leader: \
             local builtin = require("telescope.builtin")
-            vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
-            vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
-            vim.keymap.set("n", "<leader>fb", builtin.buffers, {})
-            vim.keymap.set("n", "<leader>fh", builtin.help_tags, {})
+            vim.keymap.set("n", "<leader>fF", builtin.find_files, { desc = "Fuzzy-find files" })
+            vim.keymap.set("n", "<leader>ff", builtin.current_buffer_fuzzy_find, { desc = "search for text" })
+            vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "telescope buffers" })
+            vim.keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "Keymaps" })
+            vim.keymap.set("n", "<leader>fc", builtin.commands, { desc = "Search for a command" })
+            vim.keymap.set("n", "<leader>fp", builtin.pickers, { desc = "All Telescope pickers" })
+            vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Search for help" })
         end,
     },
     {
@@ -215,28 +284,156 @@ require("lazy").setup({
             nvim_tree_loaded = true
         end,
     },
+    -- {
+    -- "mrcjkb/rustaceanvim",
+    -- version = "^4",
+    -- priority = 45,
+    -- ft = { "rust" },
+    -- },
+    -- { "folke/neodev.nvim", priority = 45, opts = {} },
+    {
+        "hrsh7th/nvim-cmp",
+        -- lazy = true,
+        dependencies = {
+            "hrsh7th/cmp-nvim-lua",
+            "FelipeLema/cmp-async-path",
+            "hrsh7th/cmp-nvim-lsp",
+            "hrsh7th/cmp-buffer",
+            "hrsh7th/cmp-cmdline",
+            {
+                "L3MON4D3/LuaSnip",
+                dependencies = {
+                    "rafamadriz/friendly-snippets",
+                    "saadparwaiz1/cmp_luasnip",
+                },
+                init = function()
+                    require("luasnip.loaders.from_vscode").lazy_load()
+                end,
+                -- build = "make install_jsregexp",
+            },
+        },
+        priority = 44,
+        enabled = is_plugged,
+        config = function()
+            local cmp = require("cmp")
+            cmp.setup({
+                snippet = {
+                    expand = function(args)
+                        require("luasnip").lsp_expand(args.body)
+                    end,
+                },
+                sources = {
+                    { name = "async_path" },
+                    {
+                        name = "buffer",
+                        option = {
+                            keyword_pattern = [[\k\+]],
+                        },
+                    },
+                    { name = "nvim_lua" },
+                    { name = "luasnip" },
+                },
+                mapping = cmp.mapping.preset.insert({
+                    ["<C-p>"] = cmp.mapping.select_prev_item(),
+                    ["<Tab>"] = cmp.mapping.select_next_item(),
+                    ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+                    ["<C-u>"] = cmp.mapping.scroll_docs(4),
+                    ["<C-Tab>"] = cmp.mapping.complete(),
+                    ["<C-e>"] = cmp.mapping.abort(),
+                    ["<S-CR>"] = cmp.mapping.abort(),
+                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+                    ["<S-Tab>"] = cmp.mapping.confirm({ select = false }),
+                }),
+                enabled = function()
+                    -- disable completion in comments
+                    local context = require("cmp.config.context")
+                    -- keep command mode completion enabled when cursor is in a comment
+                    if vim.api.nvim_get_mode().mode == "c" then
+                        return true
+                    else
+                        return not context.in_treesitter_capture("comment") and not context.in_syntax_group("Comment")
+                    end
+                end,
+            })
+            cmp.setup.cmdline("/", {
+                mapping = cmp.mapping.preset.cmdline(),
+                sources = {
+                    { name = "buffer" },
+                },
+            })
+            cmp.setup.cmdline(":", {
+                mapping = cmp.mapping.preset.cmdline(),
+                sources = cmp.config.sources({
+                    { name = "path" },
+                }, {
+                    {
+                        name = "cmdline",
+                        option = {
+                            ignore_cmds = { "Man", "!" },
+                        },
+                    },
+                }),
+            })
+            capabilities = require("cmp_nvim_lsp").default_capabilities()
+        end,
+    },
     {
         "mrcjkb/rustaceanvim",
         version = "^4",
+        dependencies = {
+            -- "mfussenegger/nvim-dap",
+            {
+                -- not required after vim 0.10
+                "lvimuser/lsp-inlayhints.nvim",
+                opts = {},
+            },
+        },
+        enabled = is_plugged,
         ft = { "rust" },
+        priority = 45,
+        config = function()
+            vim.g.rustaceanvim = {
+                inlay_hints = {
+                    highlight = "NonText",
+                },
+                tools = {
+                    hover_actions = {
+                        auto_focus = true,
+                    },
+                },
+                server = {
+                    on_attach = function(client, bufnr)
+                        require("lsp-inlayhints").on_attach(client, bufnr)
+                    end,
+                },
+            }
+        end,
     },
     {
         "neovim/nvim-lspconfig",
+        dependencies = {
+            "b0o/SchemaStore.nvim",
+        },
+        enabled = is_plugged,
+        priority = 40,
         config = function()
             local lspconfig = require("lspconfig")
 
-            lspconfig.bashls.setup({})
-            lspconfig.pyright.setup({})
-            lspconfig.tsserver.setup({})
+            lspconfig.bashls.setup({
+                capabilities = capabilities,
+            })
+            lspconfig.pyright.setup({ capabilities = capabilities })
+            lspconfig.tsserver.setup({ capabilities = capabilities })
             -- lspconfig.rust_analyzer.setup({})
-            lspconfig.perlls.setup({})
-            lspconfig.autotools_ls.setup({})
-            lspconfig.nixd.setup({})
+            lspconfig.perlls.setup({ capabilities = capabilities })
+            lspconfig.autotools_ls.setup({ capabilities = capabilities })
+            lspconfig.nixd.setup({ capabilities = capabilities })
             lspconfig.jsonls.setup({
+                capabilities = capabilities,
 
                 settings = {
                     json = {
-                        -- schemas = require('schemastore').json.schemas(),
+                        schemas = require("schemastore").json.schemas(),
                         provideFormatter = true,
                         validate = { enable = true },
                     },
@@ -251,24 +448,16 @@ require("lazy").setup({
                         client.config.settings = vim.tbl_deep_extend("force", client.config.settings, {
                             Lua = {
                                 runtime = {
-                                    -- Tell the language server which version of Lua you're using
-                                    -- (most likely LuaJIT in the case of Neovim)
                                     version = "LuaJIT",
                                 },
-                                -- Make the server aware of Neovim runtime files
                                 workspace = {
                                     checkThirdParty = false,
                                     library = {
                                         vim.env.VIMRUNTIME,
-                                        -- "${3rd}/luv/library"
-                                        -- "${3rd}/busted/library",
                                     },
-                                    -- or pull in all of 'runtimepath'. NOTE: this is a lot slower
-                                    -- library = vim.api.nvim_get_runtime_file("", true)
                                 },
                             },
                         })
-
                         client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
                     end
                     return true
@@ -281,7 +470,8 @@ require("lazy").setup({
         dependencies = {
             {
                 "luckasRanarison/tree-sitter-hyprlang",
-                lazy = false,
+                ft = { "hyprlang" },
+                -- lazy = false,
             },
         },
         build = function()
@@ -316,7 +506,7 @@ require("lazy").setup({
         config = function()
             local hooks = require("ibl.hooks")
             hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
-                for i, v in pairs(rainbow_hl_config) do
+                for _, v in pairs(rainbow_hl_config) do
                     vim.api.nvim_set_hl(0, v.key, { fg = v.fg })
                 end
             end)
@@ -389,6 +579,7 @@ require("lazy").setup({
         dependencies = {
             "kevinhwang91/promise-async",
         },
+        enabled = is_plugged,
         opts = {
             preview = {
                 win_config = {
@@ -435,9 +626,9 @@ require("lazy").setup({
                 return { "treesitter", "indent" }
             end,
         },
-        init = function()
-            -- bruh
-        end,
+        -- init = function()
+        -- bruh
+        -- end,
     },
     {
         "nvim-lualine/lualine.nvim",
