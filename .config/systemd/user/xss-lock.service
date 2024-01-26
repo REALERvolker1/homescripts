@@ -1,0 +1,10 @@
+[Unit]
+Description=Start xss-lock autolocker for i3
+After=xorg.target
+
+[Service]
+ExecStart=/usr/bin/xss-lock -l /home/vlk/bin/vlklock.sh
+Restart=on-failure
+
+[Install]
+WantedBy=xorg.target

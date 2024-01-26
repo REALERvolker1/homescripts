@@ -5,6 +5,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+const BRUH: bool = false;
+
 pub fn argparse(args: Vec<String>) -> io::Result<Vec<File>> {
     // disable argparsing, just add to files vec
     let mut disable_optparse = false;

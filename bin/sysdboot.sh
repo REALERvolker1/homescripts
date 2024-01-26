@@ -6,6 +6,7 @@
 declare -a sdb_options=(
     'root=UUID=bf65b923-b2b3-4e64-9f41-46faf46361ea' rw zswap.enabled=0 nowatchdog nvme_load=yes
     rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
+    modprobe.blacklist=iTCO_wdt
 )
 
 # set this option to 1 if you are using mkinitcpio to generate stuff, 0 to disable

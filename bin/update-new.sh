@@ -90,7 +90,9 @@ if cmd pacman; then
     _head "Backgrounding pacman -Fy" 35
     unsafe sudo pacman -Fy &>/dev/null &
 fi
-
+if cmd sysdboot.sh; then
+    unsafe sysdboot.sh update --no-mkinitcpio
+fi
 (
     if cmd rustup && [[ $(date +'%A') == 'Tuesday' ]]; then
         _head '󱘗 rustup' '38;5;166'
@@ -111,6 +113,7 @@ if cmd distrobox; then
     _head '󰡨 Distrobox' '38;5;95'
     unsafe distrobox upgrade --all
 fi
+
 if (($(jobs -r | wc -l))); then
     echo "Waiting for background jobs to finish"
     jobs

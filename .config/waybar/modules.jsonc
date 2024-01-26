@@ -158,7 +158,8 @@
     },
     "custom/pointer": {
         // for some reason it won't close the inotify process
-        "exec": "$XDG_CONFIG_HOME/bar-scripts/pointer-monitor/monitor.sh"
+        // "exec": "$XDG_CONFIG_HOME/bar-scripts/pointer-monitor/monitor.sh"
+        "exec": "$XDG_CONFIG_HOME/rustcfg/hyprpointer/hyprpointer monitor-icon"
         // "exec": "inotifywait -qme close_write $XDG_RUNTIME_DIR/touchpad-statusfile | while read -r line; do echo $(cat ${line%% *}); done"
         // "exec": "pointer.sh -m"
     },

@@ -1,0 +1,10 @@
+[Unit]
+Description=Start xsettingsd ig lol
+After=xorg.target
+
+[Service]
+ExecStart=/usr/bin/xsettingsd
+Restart=on-failure
+
+[Install]
+WantedBy=xorg.target

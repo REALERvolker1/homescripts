@@ -18,6 +18,8 @@ else
     touch -- "$UDEV_FILE" "$TOUCHPAD_STATUS"
 
     if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+        notify-send "Deprecated" "Hyprland session is deprecated, please use hyprpointer-rs instead."
+        exit 99
         platform='hyprland'
         touchpad_name='asup1205:00-093a:2003-touchpad'
         wireless_name='glorious-model-o-wireless'

@@ -457,10 +457,13 @@ EXEC 01;38;5;46 # files with execute permission
 .srm 38;5;237 # Nintendo SNES save
 .dem 38;5;241 # Game demo file
 .save 38;5;237 # generic save file
+.rom 38;5;241 # generic rom file (like for TI-84 roms)
 
 .8xp 38;5;130 # TI-84+ file
 .8xv 38;5;130 # TI-84+ Variable file
+.8Xv 38;5;130 # TI-84+ Variable file
 .8xg 38;5;130 # TI-84+ Group file
+.tig 1;38;5;130 # TI-84+ Group file
 .8ck 38;5;130 # TI-84 Silver application
 
 .wad 38;5;130 # Doom map

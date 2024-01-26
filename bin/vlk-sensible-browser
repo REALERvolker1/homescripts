@@ -24,7 +24,8 @@ case "$1" in
 1)
     shift 1
     #exec $fr 'io.gitlab.librewolf-community' "$@"
-    exec thorium-browser "$@"
+    # exec thorium-browser "$@"
+    exec floorp "$@"
     ;;
 2)
     shift 1

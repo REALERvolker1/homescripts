@@ -2,27 +2,36 @@
 
 [ -z "${I3SOCK:-}" ] && exit 69
 
-autostart-dbus-activation-env.sh &
+(
+    autostart-dbus-activation-env.sh
+    systemctl --user start user-graphical-session.target
+    systemctl --user start xorg.target
+) &
 xrdb -merge "$XRESOURCES" &
 # vlk-xrandr.sh --monitor &
 vlk-xrandr.sh &
 [ -f "$XDG_CONFIG_HOME/nvidia/settings" ] && nvidia-settings --config="$XDG_CONFIG_HOME/nvidia/settings" &
 
-autostart-polkit.sh &
-autostart-keyring.sh &
-autostart-clipboard.sh &
+# autostart-polkit.sh &
+# autostart-keyring.sh &
+# autostart-clipboard.sh &
 
-dunst &
-xsettingsd &
+(
+    pkill -ef 'xfce4-clipman'
+    xfce4-clipman
+) &
+
+#dunst &
+#xsettingsd &
 # run sudo chown "$USER" /dev/uinput
-ydotoold &
-steam-symlink-unfucker.sh &
-autostart-gammastep.sh &
+# ydotoold &
+# steam-symlink-unfucker.sh &
+# autostart-gammastep.sh &
 # volbright.sh --brightness --volume --keyboard
 
 xset -dpms &
-xss-lock -l "vlklock.sh" &
-pmgmt.sh --monitor &
+# xss-lock -l "vlklock.sh" &
+# pmgmt.sh --monitor &
 # (
 #     killall xplugd
 #     xplugd
@@ -42,12 +51,12 @@ pointer.sh -n &
     xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 ) &
 
-nm-applet &
+# nm-applet &
 #firewall-applet &
 #flameshot &
 
 picom &
-#flashfocus &
+# flashfocus &
 vlkbg.zsh &
 
 #(
@@ -58,3 +67,4 @@ vlkbg.zsh &
 #) &
 autotiling-rs &
 #scratchpad_terminal.sh &
+wait

@@ -111,7 +111,6 @@
         "editor.defaultFormatter": "foxundermoon.shell-format"
     },
     "shellformat.flag": "-i 4",
-    "rust-analyzer.diagnostics.enable": false,
     "[properties]": {
         "editor.defaultFormatter": null
     },
@@ -175,5 +174,8 @@
         "/home/vlk/.vscode-oss/extensions/continue.continue-0.8.1-linux-x64"
     ],
     "window.zoomLevel": -1,
-    "oneDarkPro.bold": true
+    "oneDarkPro.bold": true,
+    "[lua]": {
+        "editor.defaultFormatter": "JohnnyMorganz.stylua"
+    }
 }

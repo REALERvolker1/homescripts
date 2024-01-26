@@ -1,0 +1,9 @@
+[Unit]
+Description=Start hyprpointer daemon to set touchpad status
+After=wayland.target
+
+[Service]
+ExecStart=/home/vlk/.config/rustcfg/hyprpointer/hyprpointer status-monitor
+
+[Install]
+WantedBy=wayland.target
