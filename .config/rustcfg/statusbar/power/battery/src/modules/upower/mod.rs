@@ -6,6 +6,9 @@ use tracing::{debug, error, warn};
 use zbus::zvariant;
 pub mod xmlgen;
 
+/// The main module for upower-based battery monitoring
+///
+/// Requires an active dbus connection to work properly
 pub struct UpowerModule<'a> {
     pub proxy: xmlgen::DeviceProxy<'a>,
     pub state: BatteryState,

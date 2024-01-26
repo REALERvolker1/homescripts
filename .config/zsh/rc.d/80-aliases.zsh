@@ -1,6 +1,5 @@
-#!/usr/bin/bash
-# shellcheck shell=bash
-# vim:foldmethod=marker:ft=sh
+#!/usr/bin/zsh
+# vim:foldmethod=marker:ft=zsh
 ## shellcheck disable=2139,2317,2012,1090,1036,1088
 
 typeset -gUA expand_aliases
@@ -126,7 +125,7 @@ alias wget='wget --show-progress'
 for i in ivm vi iv v
     expand_aliases[$i]=vim
 
-expand_aliases[c]=codium
+alias c=codium
 
 for i in {{b,d,}a,{,r}k,{,t}c,z}sh; do
     alias "$i=run-subshell $i"
@@ -187,6 +186,7 @@ if ((${+commands[pacman]})); then
     # alias pacs='pacman -Sl | fzf'
 fi
 
+[[ $TERM == *kitty* ]] && alias ssh='kitten ssh'
 # TODO: make this nicer for wayland too
 alias xclassget='xprop | grep WM_CLASS'
 alias xkeyget="xev -event keyboard | grep -Eo 'keycode.*\)'"

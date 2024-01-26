@@ -63,13 +63,21 @@ vim.filetype.add({
 -- try to detect filetype again
 vim.keymap.set("n", "<leader>d", "<Cmd>filetype detect<CR>", { desc = "Try to autodetect the filetype again" })
 
--- Fixes alacritty
-vim.cmd([[
-    augroup change_cursor
-        au!
-        au ExitPre * :set guicursor=a:ver90
-    augroup END
-]])
+-- set terminal-specific settings
+local term = string.lower(vim.env.TERM or "")
+local is_kitty = false
+
+if term:match("kitty") then
+    is_kitty = true
+elseif term:match("alacritty") then
+    -- Fixes alacritty
+    vim.cmd([[
+        augroup change_cursor
+            au!
+            au ExitPre * :set guicursor=a:ver90
+        augroup END
+    ]])
+end
 
 -- speedy loading
 vim.loader.enable()
@@ -170,6 +178,16 @@ require("lazy").setup({
         init = function()
             -- vim.cmd("colorscheme onedark")
             vim.cmd("colorscheme onedark_vivid")
+        end,
+    },
+    {
+        "mikesmithgh/kitty-scrollback.nvim",
+        enabled = is_kitty,
+        lazy = true,
+        cmd = { "KittyScrollbackGenerateKittens", "KittyScrollbackCheckHealth" },
+        event = { "User KittyScrollbackLaunch" },
+        config = function()
+            require("kitty-scrollback").setup()
         end,
     },
     {
@@ -301,6 +319,19 @@ require("lazy").setup({
             "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-cmdline",
             {
+                "garyhurtz/cmp_kitty",
+                init = function()
+                    require("cmp_kitty"):setup()
+                end,
+            },
+            {
+                "tamago324/cmp-zsh",
+                opts = {
+                    zshrc = false,
+                    filetypes = { "deoledit", "zsh" },
+                },
+            },
+            {
                 "L3MON4D3/LuaSnip",
                 dependencies = {
                     "rafamadriz/friendly-snippets",
@@ -332,6 +363,8 @@ require("lazy").setup({
                     },
                     { name = "nvim_lua" },
                     { name = "luasnip" },
+                    { name = "zsh" },
+                    { name = "kitty" },
                 },
                 mapping = cmp.mapping.preset.insert({
                     ["<C-p>"] = cmp.mapping.select_prev_item(),

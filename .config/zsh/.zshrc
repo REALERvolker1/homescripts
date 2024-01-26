@@ -82,7 +82,9 @@ alias cd=z
 
 if ((COLUMNS > 55)) {
     dumbfetch
+    print -n '\e[0;3m'
     fortune -a -s | lolcat
+    print -n '\e[0m'
     [[ -z ${DISTROBOX_ENTER_PATH-} ]] && lsdiff
 }
 unset i
