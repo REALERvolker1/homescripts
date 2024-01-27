@@ -7,19 +7,30 @@ emulate -LR zsh
 # add /bin to path just in case
 PATH="${PATH:+$PATH:}/usr/bin"
 
+# Don't check my mail every 60 minutes
 unset MAILCHECK
+# unfuck my locale
 [[ ${LANG:-C} == C ]] && export LANG='en_US.UTF-8'
-echo -n '[0m'
+# reset colors
+echo -en '\e[0m'
 
+# reset the internal field separators
 if [[ $IFS != $' \t\n\C-@' ]] {
     echo 'Resetting non-default IFS'
     IFS=$' \t\n\C-@'
 }
 
+# Set the current va-api driver used
+# export LIBVA_DRIVER_NAME='iHD'       # integrated gpu
+# export LIBVA_DRIVER_NAME='nvidia'    # dedicated gpu
+
+# Check if we are in an interactive session
 i=${TTY:-$(tty)}
-# we are in an interactive session
 if [[ -o i && -t 0 && -t 1 && -t 2 && -e $i ]] {
+    # Make sure other programs know I'm in an interactive session
     export TTY=$i
+    # The shell is royally fucked up if I don't set a TERM.
+    # This will make sure that I have a TERM set, even if it is the wrong kind.
     (($+TERM)) || export TERM=${$([[ $TTY =~ pts ]] && print xterm-256color):-linux}
 }
 
@@ -33,27 +44,25 @@ if ((${+VIRTUAL_ENV})) {
     deactivate
 }
 
-# set paramters that are important for my shell setup
-# export CURRENT_DISTRO="${CURRENT_DISTRO:-$(grep -oP '^NAME="\K[^ ]*' /etc/os-release)}"
-CURRENT_HOSTNAME='iphone'
-# export CURRENT_DISTRO CURRENT_HOSTNAME
-
+# Make damn sure I have a hostname
 : ${HOSTNAME::=${HOST:=${HOSTNAME:=$(
-    if [[ -f /etc/hostname ]] {
+    if [[ -r /etc/hostname ]] {
         </etc/hostname
-    } elif ((${+commands[hostname]})) {
-        =hostname
-    } elif ((${+commands[hostnamectl]})) {
-        =hostnamectl hostname
+    } elif (($+commands[hostname])) {
+        \hostname
+    } elif (($+commands[hostnamectl])) {
+        \hostnamectl hostname
     }
 )}}}
 
 export HOST{,NAME}
 
+# DO YOU EVEN KNOW WHO I AM?!? >:(
 [[ -n ${USER:=$(=whoami)} ]] && export USER
 [[ -d ${HOME:=~} ]] && export HOME
 [[ -n ${UID:=$(=id -u $USER)} ]] && export UID
 
+# Set up XDG variables
 for i j in \
     XDG_CONFIG_HOME ${XDG_CONFIG_HOME:-$HOME/.config} \
     XDG_DATA_HOME ${XDG_DATA_HOME:-$HOME/.local/share} \
@@ -67,6 +76,7 @@ for i j in \
 #         "Error, \$XDG_RUNTIME_DIR has invalid permissions! ($runtimedirstat)" \
 #         "https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html"
 # }
+# These variables depend on XDG_RUNTIME_DIR
 if [[ -d ${XDG_RUNTIME_DIR-} ]] {
     export XDG_RUNTIME_DIR
     export GNOME_KEYRING_CONTROL="${GNOME_KEYRING_CONTROL:-$XDG_RUNTIME_DIR/keyring}"
@@ -77,9 +87,7 @@ if [[ -d ${XDG_RUNTIME_DIR-} ]] {
     __dircolor_cache=/dev/null
 }
 
-# LIBVA_DRIVER_NAME='iHD'
-# LIBVA_DRIVER_NAME='nvidia'
-
+# I might not have dircolors installed in the environment. Better to be safe than sorry lmao
 __dircolors_default="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:\
 or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:\
 *.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:\
@@ -96,46 +104,55 @@ or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.
 *.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:\
 *.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.old=00;90:*.orig=00;90:\
 *.part=00;90:*.rej=00;90:*.swp=00;90:*.tmp=00;90:"
+
+# I am caching my dircolors so that I don't have to run dircolors every time
 [[ -w ${__dircolor_cache:h} && ! -f $__dircolor_cache ]] &&
     echo 'Making dircolor cache!' &&
-    COLORTERM=truecolor =dircolors --sh "$XDG_CONFIG_HOME/dir_colors" >"$__dircolor_cache" &&
+    COLORTERM=truecolor \dircolors --sh "$XDG_CONFIG_HOME/dir_colors" >$__dircolor_cache &&
         zcompile "$__dircolor_cache"
 
-[[ -r "$__dircolor_cache" ]] &&
-    . "$__dircolor_cache" &&
+[[ -r $__dircolor_cache ]] &&
+    . $__dircolor_cache &&
         [[ -e /etc/profile.d/colorls.sh ]] &&
             export USER_LS_COLORS=true
 # I don't want to eval Fedora's entire colorls script with tons of grep and whatnot, no thank you!
+# setting USER_LS_COLORS will prevent that.
 
 export LS_COLORS="${LS_COLORS:-$__dircolors_default}"
 
 unset __dircolor_cache
 
 if [[ ${EDITOR-} != nvim ]] {
-    # unset EDITOR
-    if ((${+commands[nvim]})) {
+    if (($+commands[nvim])) {
         export EDITOR=nvim
         export MANPAGER='nvim +Man\!'
     } else {
         for EDITOR in vim hx micro vi nano ''
-            ((${+commands[$EDITOR]})) && break
+            (($+commands[$EDITOR])) && break
+
+        # I don't want my EDITOR command to just be an empty string, that breaks other programs
         ((${#EDITOR})) || unset EDITOR
     }
 }
 ((${+EDITOR})) && export VISUAL="$EDITOR"
 export PAGER=less
 
-if ((${+commands[batpipe]})) {
+if (($+commands[batpipe])) {
+    # I have bat-extras installed
     export LESSOPEN="|${commands[batpipe]} %s"
     unset LESSCLOSE
     export LESS="${LESS-} -R"
     export BATPIPE=color
-} elif ((${+commands[lesspipe.sh]})) {
+} elif (($+commands[lesspipe.sh])) {
+    # Fedora's default LESSOPEN
     export LESSOPEN="|${commands[lesspipe.sh]} %s"
 }
 
+# Both of these scripts are in ~/bin
 export TERMINAL='vlk-sensible-terminal 1'
 export BROWSER='vlk-sensible-browser --choose'
+
+# My dotfiles
 export HOMESCRIPTS="$HOME/random/homescripts"
 
 # shell rcfiles
@@ -146,15 +163,10 @@ export BDOTDIR="$XDG_CONFIG_HOME/bash"
 
 export GREP_COLORS="mt=01;91:fn=03;32:ln=33:bn=36:se=35"
 export JQ_COLORS="0;31:0;36:1;36:0;33:1;32:0;37:1;37"
-# VLK_COLOR_REFERENCE="accent=#7a5dfc:accent_l=#af99ff:err=#FF5050:bg=#272B33:"
-export SUDO_PROMPT="[0;1m[[31mSUDO[0;1m][0m "
+
+export SUDO_PROMPT="[0;1m[[31mSUDO[0;1m][0m " # I need to set raw escape codes in here because sudo doesn't parse C escape codes
 export FZF_DEFAULT_OPTS="--prompt=' ' --pointer=' ' --marker=' ' --tabstop=4 --no-mouse --ansi \
 --color=fg:#ccccdc,hl:#df6b75,fg+:#fcfcff,bg+:#2c323d,hl+:#d682f0,info:#f2ce97,prompt:#d7005f,pointer:#65b6f8,marker:#56b5c2,spinner:#d682f0,header:#e6e6e6 "
-
-# rofi
-# export ROFI_ICON_NORMAL='#e2e4e9'
-# export ROFI_ICON_URGENT='#16181d'
-# export ROFI_ICON_ACTIVE='#16181d'
 
 # x11
 i=$XDG_CONFIG_HOME/X11
@@ -190,16 +202,16 @@ export FCEUX_HOME="$XDG_CONFIG_HOME/fceux"
 export PARALLEL_HOME="$XDG_CONFIG_HOME/parallel"
 export MOST_INITFILE="$XDG_CONFIG_HOME/mostrc"
 export KDEHOME="$XDG_CONFIG_HOME/kdehome"
-#export DISCORD_USER_DATA_DIR="$XDG_DATA_HOME"
+#export DISCORD_USER_DATA_DIR="$XDG_DATA_HOME"  # Probably not needed
 
 # starship (unused)
 # export STARSHIP_CONFIG="$XDG_CONFIG_HOME/starship/dashline.toml" STARSHIP_CACHE="$XDG_CACHE_HOME/starship"
 
-# ollama
+# ollama (It's a piece of shit that still puts stuff in ~/.ollama)
 export OLLAMA_HOME="$XDG_DATA_HOME/ollama"
 export OLLAMA_MODELS="$OLLAMA_HOME/models"
 
-# nix
+# nixpkg is fundamentally broken on both Arch and Fedora. I don't know why they claim they are a cross-distro package manager, because that's just straight-up wrong.
 #export VLK_NIX_HOME="$XDG_STATE_HOME/nix/profile"
 # fix nix XDG being trash
 #[[ ":${NIX_PATH-}:" != *":$XDG_STATE_HOME/nix/defexpr/channels:"* ]] &&
@@ -214,11 +226,16 @@ export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 # java
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=\"$XDG_STATE_HOME/java\"" # doesn't do jack shit
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
-# export JAVA_HOME=/usr/lib/jvm/default
-[[ -o i ]] && export JAVA_HOME="/usr/lib/jvm/java-8-openjdk" # for school
+# Choose between old java and normal java
+if [[ -o i ]] {
+    # export JAVA_HOME=/usr/lib/jvm/default
+    export JAVA_HOME="/usr/lib/jvm/java-8-openjdk"
+}
+
+# fix Supcom FAF
 # [[ -n ${JAVA_HOME-} ]] && export INSTALL4J_JAVA_HOME=${JAVA_HOME-}
 
-# perl, doesn't really do much at all
+# perl, this doesn't really do much at all
 export PERL_CPANM_HOME="$XDG_DATA_HOME/cpanm"
 
 # rust
@@ -230,7 +247,7 @@ export GOPATH="$XDG_DATA_HOME/go"
 export GOCACHE="$XDG_CACHE_HOME/go-build"
 export GOMODCACHE="$GOPATH/pkg/mod"
 
-# python
+# python -- with toggleable userbase
 export PYTHONUSERBASE="$XDG_DATA_HOME/python"
 #export PYTHONUSERBASE="$XDG_DATA_HOME/pythonuserbase"
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc"
@@ -257,7 +274,7 @@ export DENO_INSTALL="$XDG_DATA_HOME/deno"
 
 # keyring
 export GNUPGHOME="$XDG_DATA_HOME/gnupg"
-export GPG_TTY="$TTY"
+[[ -n ${TTY-} ]] && export GPG_TTY=$TTY
 
 if [[ -S "$XDG_RUNTIME_DIR/.ydotool_socket" ]]; then
     export YDOTOOL_SOCKET="$XDG_RUNTIME_DIR/.ydotool_socket"
@@ -265,6 +282,7 @@ elif [[ -S /tmp/.ydotool_socket ]]; then
     export YDOTOOL_SOCKET='/tmp/.ydotool_socket'
 fi
 
+# TODO: Rewrite it in rust
 __pathmunge() {
     local -aU __path=(${dir_pref_before:A} ${${(s.:.)INIT_PATH}:A})
     local -aU __zshpath
@@ -276,13 +294,13 @@ __pathmunge() {
     print "$hpath"
 }
 
-#export LD_LIBRARY_PATH="/opt/cuda/targets/x86_64-linux/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-export LD_LIBRARY_PATH=$(
+# unfuck cuda for jan AI to use my GPU properly
+export LD_LIBRARY_PATH="$(
     dir_pref_before=(/opt/cuda/targets/x86_64-linux/lib)
     dir_pref_after=()
     INIT_PATH="$LD_LIBRARY_PATH"
     __pathmunge
-)
+)"
 export PATH="$(
     dir_pref_before=(
         {$HOME/{,.local},$VLK_NIX_HOME,$CARGO_HOME,$GOPATH,$BUN_INSTALL,$PYTHONUSERBASE}/bin
@@ -313,15 +331,17 @@ export XDG_DATA_DIRS="$(
 unset -f __pathmunge
 unset ICON_TYPE i j
 
+# I use the ICON_TYPE variable so I can have good icons and colors in terminals that support them,
+# and fallbacks in case I am running this in a VTTY or something
 if [[ -n ${VTE_VERSION-} || $TERM =~ (kitty|alacritty|foot) ]] {
     export ICON_TYPE=dashline
 } else {
     export ICON_TYPE=fallback
 }
 
-fpath=("$ZDOTDIR/site-functions" $fpath)
-export -U PATH path FPATH fpath
-export -U XDG_DATA_DIRS
-typeset -Ug chpwd_functions
-typeset -Ug precmd_functions
-typeset -Ug module_path
+# typeset -Ugx => typeset unique global exported
+typeset -Ugx PATH path FPATH fpath XDG_DATA_DIRS
+typeset -aUg chpwd_functions precmd_functions fpath module_path
+
+fpath=("$ZDOTDIR/site-functions" $fpath)    # autoload functions
+module_path+=("$ZDOTDIR/modules")          # zshmodules

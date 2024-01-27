@@ -179,5 +179,6 @@
         "editor.defaultFormatter": "JohnnyMorganz.stylua"
     },
     "stylua.configPath": "~/.config/stylua/stylua.toml",
-    "stylua.styluaPath": "/usr/bin/stylua"
+    "stylua.styluaPath": "/usr/bin/stylua",
+    "editor.copyWithSyntaxHighlighting": false
 }

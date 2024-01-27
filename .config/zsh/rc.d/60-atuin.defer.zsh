@@ -1,4 +1,6 @@
 [[ ${VLKZSH_SAFEMODE:-1} -eq 0 && $+commands[atuin] -eq 1 && -z ${VLKATUIN_SKIP-} ]] || return
+
+# This is my edited and abridged version of Atuin's init script
 export ATUIN_SESSION="$(atuin uuid)"
 __atuin::preexec() {
     local id

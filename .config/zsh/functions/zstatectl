@@ -1,0 +1,107 @@
+# vim:ft=zsh
+# A zsh command by vlk to ensure the terminal state remains relatively sane between prompts
+
+emulate -LR zsh
+# set -euo pipefail
+
+zmodload zsh/terminfo || {
+    print "Could not load zsh/terminfo"
+    return 1
+}
+command -v stty &>/dev/null || {
+    print "Could not find stty in PATH"
+    return 1
+}
+
+# Try to find difftastic, fallback to gnu diff
+if command -v difft &>/dev/null; then
+    zstatectl_diff() {
+        DFT_COLOR=always DFT_SYNTAX_HIGHLIGHT=off \difft "$@"
+    }
+elif command -v diff &>/dev/null; then
+    zstatectl_diff() {
+        \diff --color=always "$@"
+    }
+else
+    print No GNU grep found!
+    return 1
+fi
+
+typeset -g __zstatectl_state __zstatectl_state_display
+
+local action="${1:-}"
+
+zstatectl_load() {
+    local __zstatectl_current_state_stty=$(\stty --save)
+
+    # If the stty settings haven't changed, don't bother
+    [[ $__zstatectl_current_state_stty == $__zstatectl_state_stty ]] && return
+
+    # Get around stty complaining about being a file
+    local mystty=$(\stty)
+
+    local __zstatectl_current_state_display=$(zstatectl_diff <(print $__zstatectl_state_display) <(print $mystty))
+
+    # Reset the font to normal characters
+    print -R -en '\e[0m\e(B\e)0\017\e[?5l\e7\e[0;0r\e8'
+
+    # Temporarily set the terminal state to something usable enough to ask a question
+    \stty sane
+
+    print -ln \
+        "Your STTY settings have changed!" \
+        '' \
+        $__zstatectl_current_state_display \
+        '' \
+        'Would you like to keep these changes?' \
+        '[y/N] > '
+
+    # The statements here are reversed in order, because if you wanted to
+    # keep the changes, you would have probably preferred the newline settings
+    # of your changed stty. If you wanted to discard the changes, then they
+    # must have broken something.
+    if read -q; then
+        \stty $__zstatectl_current_state_stty
+        print $'\n'"Keeping changes"
+    else
+        print $'\n'"Discarding changes"
+        \stty $__zstatectl_state_stty
+    fi
+}
+
+zstatectl_save() {
+    __zstatectl_state_stty=$(\stty --save)   # store in a stty-readable format
+    __zstatectl_state_display=$(\stty)      # store in a human-readable format
+}
+
+case $action in
+--save)
+    zstatectl_save
+    ;;
+--load)
+    if [[ -z ${__zstatectl_state_stty-} ]]; then
+        print "Saving state first"
+        zstatectl_save
+    else
+        zstatectl_load
+    fi
+    ;;
+--track)
+    __zstatectl_tracking=1
+    precmd_functions+=(zstatectl_load)
+    preexec_functions+=(zstatectl_save)
+    zstatectl_save
+    ;;
+*)
+    # Pretty-print message with colors and whatnot
+    print -P "\e[0m%B$0%b --save|--load|--track
+
+%B--save%b:     \e[3mSave the current stty state\e[0m
+%B--load%b:     \e[3mLoad the saved stty state\e[0m
+%B--track%b:    \e[3mTrack the current stty state\e[0m
+
+Remember to add this command hook to your prompt:
+    %B%F{2}autoload%f%b %F{10}-Uz%f zstatectl  %F{8}# Load the function%f
+    %B%F{14}zstatectl%f%b %F{10}--track%f       %F{8}# Initialize the prompt hook%f"
+    ;;
+esac

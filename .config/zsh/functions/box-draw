@@ -1,0 +1,37 @@
+# ╭───────────────────────────────────────────────────╮
+# │ box_draw -- draw an array in a pretty box         │
+# │                                                   │
+# │ takes an input array variable name and prints its │
+# │ contents in a box, along with an optional header. │
+# │                                                   │
+# │ typeset -a array=(hello world)                    │
+# │ box_draw array [header]                           │
+# │                                                   │
+# │ Does not support ansi escapes                     │
+# ╰───────────────────────────────────────────────────╯
+emulate -LR zsh
+
+# get the array by name
+local -a input_lines=("${(@)${(P)1}}")
+
+# get the header if it exists
+local header="${2:-}"
+
+# determine the max width to justify it to
+local -i max_width=${${(On)${(N)input_lines##*}}[1]}
+
+# format the top and bottom of the box.
+local null=''
+local bottom_string="─${(l:max_width::─:)null}─"
+
+local top_string
+# The top is the header
+if (( ${#header} && ${#header} < max_width)); then
+    header="┤ ${header} ├"
+    top_string="─${(l:max_width::─:)header}─"
+else
+    top_string=$bottom_string
+fi
+
+# draw the lines
+print -l "╭${top_string}╮" ${${${(r:max_width:: :)input_lines}/#/│ }/%/ │} "╰${bottom_string}╯"

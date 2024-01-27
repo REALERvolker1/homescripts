@@ -1,22 +1,18 @@
 # keybinds for zsh
 
 bindkey -v
+# if it can't finish a keybind command in 1 second of me typing a key, I probably didn't want it anyway
 export KEYTIMEOUT=1
 
-__vlk::zle::new_tab() {
-    case ${TERM-} in
-    xterm-kitty)
-        kitty @ launch --cwd=current --type=tab
-        ;;
-    *)
-        print "Error, your terminal cannot automatically open new tabs!"
-        ;;
-    esac
-}
-zle -N __vlk::zle::new_tab
+# kitty-only new tab
+if [[ ${TERM-} == xterm-kitty ]]; then
+    __vlk::zle::kitty_new_tab() {
+        kitty @ launch --cwd=current --type=tab >/dev/null
+    }
+    zle -N __vlk::zle::kitty_new_tab
+fi
 
 typeset -A keymap=(
-    [Ca]="^A"
     [home]="^[[H"
     [Chome]="^[[1;5H"
     [end]="^[[F"
@@ -45,7 +41,7 @@ for i in main vicmd; do
     bindkey -M $i $keymap[backspace_two] backward-delete-char
     bindkey -M $i $keymap[Cz] undo
     bindkey -M $i $keymap[Cy] redo
-    bindkey -M $i $keymap[Ct] __vlk::zle::new_tab
+    [[ ${TERM-} == xterm-kitty ]] && bindkey -M $i $keymap[Ct] __vlk::zle::kitty_new_tab
 done
 
 autoload -Uz edit-command-line
@@ -75,7 +71,9 @@ __vlk::zle::multidot_replace() {
 zle -N __vlk::zle::multidot_replace
 bindkey -M main '.' __vlk::zle::multidot_replace
 
-# a little more than just aliases
+# don't you hate it when you run `command --hlep` and then it says "OpTiOn HlEp NoT fOuNd PlEaSe RuN 'command --help'?"
+# It's so useless. You know I passed an invalid flag, just show me the help text! Don't just tell me to do it and then exit!
+# Fucking morons...
 __vlk::zle::hlep() {
     [[ ${LBUFFER:=} =~ (\'|\") || $LBUFFER != *'-hle' ]] || LBUFFER="${LBUFFER:: -3}hel"
     zle self-insert
@@ -83,19 +81,22 @@ __vlk::zle::hlep() {
 zle -N __vlk::zle::hlep
 bindkey -M main 'p' __vlk::zle::hlep
 
-# __vlk::zle::vim() {
-#     [[ ${LBUFFER-} == ivm || ${LBUFFER-} == vim ]] && LBUFFER="nvi"
-#     zle self-insert
-# }
-# zle -N __vlk::zle::vim
-# bindkey -M main 'm' __vlk::zle::vim
+# expand aliases when I hit ctrl-A
+__vlk::zle::expand_alias() {
+    zle _expand_alias
+    zle self-insert
+    zle backward-delete-char
+}
+zle -N __vlk::zle::expand_alias
+bindkey -M main "^A" __vlk::zle::expand_alias
 
+# a bunch of stuff I might want to run when I hit spacebar
 __vlk::zle::space() {
     if [[ -z ${LBUFFER// } ]]; then
         # disable prefix with space
         return
     elif ((${+expand_aliases[${LBUFFER// }]} && ! ${+commands[${LBUFFER// }]})); then
-        # expand configured aliases
+        # expand configured aliases. Please see 80-aliases.zsh or ~/bin/vlkrc to see how this works
         LBUFFER="${expand_aliases[${LBUFFER// }]}"
     # If there are just numbers in there, it is a shortcut for a loop
     elif [[ ${LBUFFER-} =~ ^[0-9]*$ ]]; then
@@ -120,26 +121,8 @@ __vlk::zle::quit() {
 zle -N __vlk::zle::quit
 bindkey -M main 'q' __vlk::zle::quit
 
-# __vlk::zle::line() {
-#     # [[ $CONTEXT == start ]] || return 0
-#     # ((${+zle_bracketed_paste})) && print -r -n - "${zle_bracketed_paste[1]}"
-#     # zle recursive-edit
-#     # local -i ret=$?
-#     # ((${+zle_bracketed_paste})) && print -r -n - "${zle_bracketed_paste[2]}"
-#     # if [[ $ret == 0 && $KEYS == $'\4' ]]; then
-#     #     zle reset-prompt
-#     #     exit
-#     # fi
-#     emulate -L zsh
-#     echo ye
-#     zle reset-prompt
-#     zle accept-line
-# }
-# bindkey -M main '
-# ' __vlk::zle::line
-# zle -N accept-line __vlk::zle::line
-# preexec_functions+=('__vlk::zle::line')
-
+# I forget where I found this or why it's useful,
+# but from what I can see, it probably makes sure to unfuck some stty stuff
 if ((${+terminfo[smkx]} && ${+terminfo[rmkx]})) {
     zle-line-init () {
         echoti smkx
@@ -148,10 +131,4 @@ if ((${+terminfo[smkx]} && ${+terminfo[rmkx]})) {
         echoti rmkx
     }
 }
-__vlk::zle::expand_alias() {
-    zle _expand_alias
-    zle self-insert
-    zle backward-delete-char
-}
-zle -N __vlk::zle::expand_alias
-bindkey -M main $keymap[Ca] __vlk::zle::expand_alias
+
