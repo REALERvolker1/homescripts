@@ -51,7 +51,7 @@ opt.ignorecase = true
 opt.smartcase = true
 opt.hlsearch = true
 opt.incsearch = true
-opt.lazyredraw = true
+-- opt.lazyredraw = true
 
 opt.showmode = true
 vim.filetype.add({
@@ -69,15 +69,15 @@ local is_kitty = false
 
 if term:match("kitty") then
     is_kitty = true
-elseif term:match("alacritty") then
-    -- Fixes alacritty
-    vim.cmd([[
-        augroup change_cursor
-            au!
-            au ExitPre * :set guicursor=a:ver90
-        augroup END
-    ]])
 end
+-- elseif term:match("alacritty") then
+-- Fixes alacritty
+vim.cmd([[
+    augroup change_cursor
+        au!
+        au ExitPre * :set guicursor=a:ver90
+    augroup END
+]])
 
 -- speedy loading
 vim.loader.enable()
@@ -104,6 +104,7 @@ local nvim_tree_loaded = false
 
 local battery_status_path = "/sys/class/power_supply/BAT1/status"
 
+-- TODO: Make this use the nvim-std api for this
 local is_plugged = true
 local fh = io.open(battery_status_path, "r")
 if fh ~= nil then
@@ -129,16 +130,9 @@ local capabilities = nil
 
 require("lazy").setup({
     {
-        "nvim-lua/plenary.nvim",
-        lazy = true,
-    },
-    {
-        "nvim-tree/nvim-web-devicons",
-        lazy = true,
-    },
-    {
         "numToStr/Comment.nvim",
-        lazy = false,
+        -- lazy = false,
+        event = "BufEnter",
         opts = {
             padding = true,
             sticky = true,
@@ -152,8 +146,50 @@ require("lazy").setup({
         end,
     },
     {
-        "m00qek/baleia.nvim",
-        lazy = true,
+        "folke/noice.nvim",
+        event = "VeryLazy",
+        opts = {
+            lsp = {
+                progress = {
+                    enabled = false,
+                },
+                -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+                override = {
+                    ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+                    ["vim.lsp.util.stylize_markdown"] = true,
+                    -- ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
+                },
+            },
+            health = {
+                checker = true,
+            },
+            presets = {
+                bottom_search = true,
+            },
+        },
+        dependencies = {
+            "MunifTanjim/nui.nvim",
+            {
+                "rcarriga/nvim-notify",
+                opts = {
+                    background_colour = "#000000",
+                },
+            },
+        },
+        init = function()
+            vim.keymap.set("n", "<leader>nl", function()
+                require("noice").cmd("last")
+            end)
+
+            vim.keymap.set("n", "<leader>nh", function()
+                require("noice").cmd("history")
+            end)
+        end,
+    },
+    {
+        "windwp/nvim-autopairs",
+        event = "InsertEnter",
+        config = true,
     },
     {
         "olimorris/onedarkpro.nvim",
@@ -176,7 +212,6 @@ require("lazy").setup({
             },
         },
         init = function()
-            -- vim.cmd("colorscheme onedark")
             vim.cmd("colorscheme onedark_vivid")
         end,
     },
@@ -192,6 +227,12 @@ require("lazy").setup({
     },
     {
         "NvChad/nvim-colorizer.lua",
+        dependencies = {
+            {
+                "m00qek/baleia.nvim",
+                event = "VeryLazy",
+            },
+        },
         -- lazy = true,
         event = "VeryLazy",
         opts = {
@@ -213,6 +254,7 @@ require("lazy").setup({
     },
     {
         "kevinhwang91/nvim-hlslens",
+        event = "BufEnter",
         opts = {
             -- clear highlight on cursor move
             calm_down = false,
@@ -221,14 +263,16 @@ require("lazy").setup({
     },
     {
         "karb94/neoscroll.nvim",
-        lazy = false,
+        -- lazy = false,
+        event = "BufEnter",
         opts = {
             easing_function = "quadratic",
         },
     },
     {
         "petertriho/nvim-scrollbar",
-        lazy = false,
+        event = "BufEnter",
+        -- lazy = false,
         config = true,
     },
     {
@@ -281,6 +325,9 @@ require("lazy").setup({
         },
     },
     {
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+        },
         "nvim-telescope/telescope.nvim",
         lazy = true,
         init = function()
@@ -302,13 +349,6 @@ require("lazy").setup({
             nvim_tree_loaded = true
         end,
     },
-    -- {
-    -- "mrcjkb/rustaceanvim",
-    -- version = "^4",
-    -- priority = 45,
-    -- ft = { "rust" },
-    -- },
-    -- { "folke/neodev.nvim", priority = 45, opts = {} },
     {
         "hrsh7th/nvim-cmp",
         -- lazy = true,
@@ -666,6 +706,7 @@ require("lazy").setup({
     {
         "nvim-lualine/lualine.nvim",
         dependencies = {
+            "nvim-tree/nvim-web-devicons",
             "arkav/lualine-lsp-progress",
         },
         opts = {
@@ -710,6 +751,22 @@ require("lazy").setup({
                     -- 'encoding',
                     -- 'fileformat',
                     -- 'filesize',
+                    -- {
+                    -- require("noice").api.status.message.get_hl,
+                    -- cond = require("noice").api.status.message.has,
+                    -- },
+                    -- {
+                    -- require("noice").api.status.command.get,
+                    -- cond = require("noice").api.status.command.has,
+                    -- },
+                    -- {
+                    -- require("noice").api.status.mode.get,
+                    -- cond = require("noice").api.status.mode.has,
+                    -- },
+                    -- {
+                    -- require("noice").api.status.search.get,
+                    -- cond = require("noice").api.status.search.has,
+                    -- },
                     {
                         "fileformat",
                         symbols = {
@@ -760,10 +817,6 @@ require("lazy").setup({
             },
         },
     },
-    -- profiling = {
-    -- loader = true,
-    -- require = true,
-    -- }
 })
 
 if nvim_tree_loaded then
