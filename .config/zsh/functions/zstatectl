@@ -1,5 +1,6 @@
 # vim:ft=zsh
 # A zsh command by vlk to ensure the terminal state remains relatively sane between prompts
+# Special thanks to 
 
 emulate -LR zsh
 # set -euo pipefail
@@ -91,6 +92,9 @@ case $action in
     precmd_functions+=(zstatectl_load)
     preexec_functions+=(zstatectl_save)
     zstatectl_save
+    # Try to fix a bug where when I Ctrl-C on the first prompt, it doesn't think I had any stty to begin with
+    # It did not fix the bug. Bug persists. I am sad.
+    #zstatectl_load
     ;;
 *)
     # Pretty-print message with colors and whatnot

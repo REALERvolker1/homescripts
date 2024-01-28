@@ -25,8 +25,24 @@ zstyle ':completion:*' completer _complete _match _approximate
 # three strikes before it gives up
 zstyle ':completion:*:approximate:*' max-errors 3 numeric
 
+# offer indexes before parameters in subscripts
+zstyle ':completion:*:*:-subscript-:*' tag-order indexes parameters
+
 # case-insensitive, dash-insensitive
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+# ignore completion functions (until the _ignored completer)
+# doesn't do jack shit on my config
+zstyle ':completion:*:functions' ignored-patterns '_*'
+
+# formatting and messages
+# copied over from zsh-git example zshrc with no testing whatsoever. Will configure later
+# zstyle ':completion:*' verbose yes
+# zstyle ':completion:*:descriptions' format '%B%d%b'
+# zstyle ':completion:*:messages' format '%d'
+# zstyle ':completion:*:warnings' format 'No matches for: %d'
+# zstyle ':completion:*:corrections' format '%B%d (errors: %e)%b'
+# zstyle ':completion:*' group-name ''
 
 # zstyle ':completion:*' matcher-list 'r:[[:ascii:]]||[[:ascii:]]=** r:|=* m:{a-z\-}={A-Z\_}'
 

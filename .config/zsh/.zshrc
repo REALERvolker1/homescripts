@@ -3,10 +3,7 @@
     return 1
     exit 1
 }
-unset ZSHRC_LOADED
-
-# clear the screen, then reset all, including font.
-print -n '\e[0m\e[H\e[2J''\e(B\e)0\017\e[?5l\e7\e[0;0r\e8'
+\builtin unset ZSHRC_LOADED
 
 # I want to eliminate system-defined aliases. Change this on whatever distro.
 # It def helps to not have '{' aliased to 'rm -rf ~/* &>/dev/null &!'
@@ -14,8 +11,11 @@ print -n '\e[0m\e[H\e[2J''\e(B\e)0\017\e[?5l\e7\e[0;0r\e8'
 \builtin unalias "${(@k)aliases}" cd &>/dev/null
 ## This is helpful if you use nix and you really need global aliases for some reason
 #\builtin unalias ${(@k)builtins} ${(@k)reswords} &>/dev/null
-## Run to see if you need to unfunction anything
-# for i in ${(@k)builtins} ${(@k)aliases} ${(@k)reswords}; (($+functions[$i])) && echo $i
+
+# reset all, including font. Also reset the cursor
+alias unfuck="print -n '\e[0m''\e(B\e)0\017\e[?5l\e7\e[0;0r\e8''\e[0 q'"
+# run the reset command and then clear the screen
+unfuck && print -n '\e[H\e[2J'
 
 # Load environment variables and other shell unfucking
 . ${ZDOTDIR:-~}/environ.zsh
@@ -49,8 +49,10 @@ unsetopt hist_no_functions all_export global_export mark_dirs null_glob \
 # use if I ever decide to try zsh from emacs
 # [[ $EMACS = t ]] && unsetopt zle
 
-# load zsh modules
-#zmodload zsh/pcre
+# load zsh modules -- the -a flag means 'autoload', but is temperamental with stuff like zsh/pcre
+zmodload zsh/pcre
+# only load the zstat component, because I have stat already
+zmodload -aF zsh/stat b:zstat
 
 # in safe mode, several things are disabled to improve compatibility with weird environments.
 typeset -ig VLKZSH_SAFEMODE=0
@@ -100,6 +102,9 @@ print -n '\e[0;3m'
 fortune -a -s | lolcat
 print -n '\e[0m'
 
+# Run to see if you need to unfunction anything
+for i in ${(@k)builtins} ${(@k)aliases} ${(@k)reswords}; (($+functions[$i])) && echo $i
+
 # Execute lsdiff unless I don't need to
 [[ -z ${DISTROBOX_ENTER_PATH-} ]] && lsdiff
 
@@ -107,5 +112,4 @@ print -n '\e[0m'
 unset i
 # Keep track of if zsh was loaded, don't re-source my zshrc if so
 typeset -i ZSHRC_LOADED=1
-
 

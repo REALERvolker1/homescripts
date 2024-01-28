@@ -1,7 +1,7 @@
 {
   "Comment.nvim": { "branch": "master", "commit": "0236521ea582747b58869cb72f70ccfa967d2e89" },
   "LuaSnip": { "branch": "master", "commit": "2dbef19461198630b3d7c39f414d09fb07d1fdd2" },
-  "SchemaStore.nvim": { "branch": "main", "commit": "2579aef95ffa497314ce871626a6145bc70da51d" },
+  "SchemaStore.nvim": { "branch": "main", "commit": "85009f1efcea501d40fb7f575319516d5f93feaf" },
   "alpha-nvim": { "branch": "main", "commit": "4b36c1ca9ea475bdc006896657cf1ccc486aeffa" },
   "baleia.nvim": { "branch": "main", "commit": "6d9cbdaca3a428bc7296f838fdfce3ad01ee7495" },
   "cmp-async-path": { "branch": "main", "commit": "d8229a93d7b71f22c66ca35ac9e6c6cd850ec61d" },
@@ -33,15 +33,15 @@
   "nvim-scrollbar": { "branch": "main", "commit": "35f99d559041c7c0eff3a41f9093581ceea534e8" },
   "nvim-spider": { "branch": "main", "commit": "dc371a116041c49ae6d3813f6e1722c2dcdabdcf" },
   "nvim-tree.lua": { "branch": "master", "commit": "7bdb220d0fe604a77361e92cdbc7af1b8a412126" },
-  "nvim-treesitter": { "branch": "master", "commit": "e0edcbb1d27b679a0f48f2557db655855ba5434c" },
+  "nvim-treesitter": { "branch": "master", "commit": "458ce4d16c1771fc601ec10a87820acae9981f6d" },
   "nvim-ufo": { "branch": "main", "commit": "b0741a647efd98d9abb6cb653e056d24a07e4581" },
   "nvim-web-devicons": { "branch": "master", "commit": "b427ac5f9dff494f839e81441fb3f04a58cbcfbc" },
   "onedarkpro.nvim": { "branch": "main", "commit": "734ac0315d1c7b9cb7f3b0dbf0eae525dcab47f0" },
   "plenary.nvim": { "branch": "master", "commit": "663246936325062427597964d81d30eaa42ab1e4" },
   "promise-async": { "branch": "main", "commit": "94f6f03c6c1e2aab551aacdf0c1e597a7269abb6" },
   "rainbow-delimiters.nvim": { "branch": "master", "commit": "35530b4ad48f01bdaa852da34e4de9930fb54c89" },
-  "rustaceanvim": { "branch": "master", "commit": "d13e9ceeae2145f87906c9b194829520cd8f8ea2" },
-  "telescope.nvim": { "branch": "master", "commit": "1bfbb1fb5c56d2dbe33216fcb2ebe82e499aa06c" },
+  "rustaceanvim": { "branch": "master", "commit": "29cc0dc24f4409fad079e2dd669ecfc347e923f6" },
+  "telescope.nvim": { "branch": "master", "commit": "2f3857c25bbd00ed7ac593c9d4071906369e4d20" },
   "tree-sitter-hyprlang": { "branch": "master", "commit": "e60fc858e6327a15c0b26f99ec96945fecd1e4ee" },
   "which-key.nvim": { "branch": "main", "commit": "4433e5ec9a507e5097571ed55c02ea9658fb268a" }
 }

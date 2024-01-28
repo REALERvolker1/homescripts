@@ -14,48 +14,57 @@ fi
 
 typeset -A keymap=(
     [home]="^[[H"
-    [Chome]="^[[1;5H"
+    [ctrl_home]="^[[1;5H"
     [end]="^[[F"
-    [Cend]="^[[1;5F"
+    [ctrl_end]="^[[1;5F"
+
     [delete]="^[[3~"
-    [backspace]="^H"
-    [backspace_two]="^?"
-    [Cright]="^[[1;5C"
-    [Cleft]="^[[1;5D"
-    [As]='^[s'
-    [AshiftS]='^[S'
-    [Cz]="^Z"
-    [Cy]="^Y"
-    [Ce]="^E"
-    [Ct]="^T"
+    [shift_backspace_or_ctrl_h]="^H"
+    [backspace]="^?"
+
+    [ctrl_right]="^[[1;5C"
+    [ctrl_left]="^[[1;5D"
+
+    [alt_s]='^[s'
+    [alt_shift_s]='^[S'
+
+    [ctrl_z]="^Z"
+    [ctrl_y]="^Y"
+
+    [ctrl_a]="^A"
+    [ctrl_e]="^E"
+    [ctrl_t]="^T"
 )
 for i in main vicmd; do
     bindkey -M $i $keymap[home] beginning-of-line
-    bindkey -M $i $keymap[Chome] beginning-of-line
+    bindkey -M $i $keymap[ctrl_home] beginning-of-line
     bindkey -M $i $keymap[end] end-of-line
-    bindkey -M $i $keymap[Cend] end-of-line
+    bindkey -M $i $keymap[ctrl_end] end-of-line
+
     bindkey -M $i $keymap[delete] delete-char
-    bindkey -M $i $keymap[Cright] forward-word
-    bindkey -M $i $keymap[Cleft] backward-word
+    bindkey -M $i $keymap[shift_backspace_or_ctrl_h] backward-delete-char
     bindkey -M $i $keymap[backspace] backward-delete-char
-    bindkey -M $i $keymap[backspace_two] backward-delete-char
-    bindkey -M $i $keymap[Cz] undo
-    bindkey -M $i $keymap[Cy] redo
+
+    bindkey -M $i $keymap[ctrl_right] forward-word
+    bindkey -M $i $keymap[ctrl_left] backward-word
+
+    bindkey -M $i $keymap[ctrl_z] undo
+    bindkey -M $i $keymap[ctrl_y] redo
     [[ ${TERM-} == xterm-kitty ]] && bindkey -M $i $keymap[Ct] __vlk::zle::kitty_new_tab
 done
 
 autoload -Uz edit-command-line
 zle -N edit-command-line
-bindkey $keymap[Ce] edit-command-line
+bindkey $keymap[ctrl_e] edit-command-line
 
-bindkey -M main $keymap[As] expand-cmd-path
+bindkey -M main $keymap[alt_s] expand-cmd-path
 
 __vlk::zle::sudo_prefix() {
     [[ ${BUFFER-} == [[:space:]]# ]] && zle .up-history
     LBUFFER="sudo $LBUFFER"
 }
 zle -N __vlk::zle::sudo_prefix
-bindkey -M main $keymap[AshiftS] __vlk::zle::sudo_prefix
+bindkey -M main $keymap[alt_shift_s] __vlk::zle::sudo_prefix
 
 # replace ... with ../..
 __vlk::zle::multidot_replace() {
@@ -88,7 +97,7 @@ __vlk::zle::expand_alias() {
     zle backward-delete-char
 }
 zle -N __vlk::zle::expand_alias
-bindkey -M main "^A" __vlk::zle::expand_alias
+bindkey -M main $keymap[ctrl_a] __vlk::zle::expand_alias
 
 # a bunch of stuff I might want to run when I hit spacebar
 __vlk::zle::space() {
