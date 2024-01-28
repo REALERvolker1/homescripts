@@ -27,7 +27,7 @@ __vlkplugin::refresh() {
     [[ ${1-} == '--refresh' ]] && command rm -rf "$ZPLUGIN_DIR"
     [[ ! -d ${ZPLUGIN_DIR-} ]] && command mkdir -p "$ZPLUGIN_DIR"
 
-    typeset plug='' fsh='fast-syntax-highlighting' sug='zsh-autosuggestions' fzf='fzf-tab'
+    typeset plug='' fsh='fast-syntax-highlighting' sug='zsh-autosuggestions' fzf='fzf-tab' vim='zsh-vi-mode'
     typeset -a vlkplugins=()
 
     # fast-syntax-highlighting
@@ -44,6 +44,13 @@ __vlkplugin::refresh() {
         [branch]=develop
     )
     vlkplugins+=(sugz)
+
+    # zsh better vi mode plugin. Very slow. Candidate to rewrite in rust
+    # typeset -A zviz=(
+        # [url]='https://github.com/jeffreytse/zsh-vi-mode.git'
+        # [plugin]="$ZPLUGIN_DIR/$vim/$vim.zsh"
+    # )
+    # vlkplugins+=(zviz)
 
     # fzf-tab!! I like I like
     typeset -A fzfz=(

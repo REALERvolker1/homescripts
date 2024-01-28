@@ -36,10 +36,14 @@ zstatectl_load() {
     local __zstatectl_current_state_stty=$(\stty --save)
 
     # If the stty settings haven't changed, don't bother
-    [[ $__zstatectl_current_state_stty == $__zstatectl_state_stty ]] && return
+    # The second condition fixes a bug where when I Ctrl-C on the first prompt, it didn't think I had any stty to begin with
+    [[ $__zstatectl_current_state_stty == $__zstatectl_state_stty || -z $__zstatectl_state_stty ]] && return
 
     # Get around stty complaining about being a file
     local mystty=$(\stty)
+
+
+    # [[ -z ${mystty-} ]] && return
 
     local __zstatectl_current_state_display=$(zstatectl_diff <(print $__zstatectl_state_display) <(print $mystty))
 
@@ -92,9 +96,6 @@ case $action in
     precmd_functions+=(zstatectl_load)
     preexec_functions+=(zstatectl_save)
     zstatectl_save
-    # Try to fix a bug where when I Ctrl-C on the first prompt, it doesn't think I had any stty to begin with
-    # It did not fix the bug. Bug persists. I am sad.
-    #zstatectl_load
     ;;
 *)
     # Pretty-print message with colors and whatnot
