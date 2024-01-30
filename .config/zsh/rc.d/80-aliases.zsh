@@ -25,6 +25,8 @@ typeset -gUA expand_aliases
 
 # global alias, `print hello @n` expands to `print hello &>/dev/null`
 alias -g @n='&>/dev/null'
+alias -g @t='| tee'
+alias -g @p="| ${PAGER:-less}"
 
 #alias getcargo='bash <(curl -sSf https://sh.rustup.rs) --default-toolchain stable --profile complete --no-modify-path'
 

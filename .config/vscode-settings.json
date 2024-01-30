@@ -180,5 +180,6 @@
     },
     "stylua.configPath": "~/.config/stylua/stylua.toml",
     "stylua.styluaPath": "/usr/bin/stylua",
-    "editor.copyWithSyntaxHighlighting": false
+    "editor.copyWithSyntaxHighlighting": false,
+    "rust-analyzer.showUnlinkedFileNotification": false
 }
