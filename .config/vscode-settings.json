@@ -181,5 +181,6 @@
     "stylua.configPath": "~/.config/stylua/stylua.toml",
     "stylua.styluaPath": "/usr/bin/stylua",
     "editor.copyWithSyntaxHighlighting": false,
-    "rust-analyzer.showUnlinkedFileNotification": false
+    "rust-analyzer.showUnlinkedFileNotification": false,
+    "rust-analyzer.hover.actions.references.enable": true
 }

@@ -25,7 +25,7 @@ unfuck && print -n '\e[H\e[2J'
 CURRENT_HOSTNAME='iphone'
 
 ### shell session settings
-VLKPROMPT_SKIP=1  # Skip custom prompt, use the fallback
+# VLKPROMPT_SKIP=1  # Skip custom prompt, use the fallback
 # VLKPLUG_SKIP=1    # Skip all plugin init
 # VLKATUIN_SKIP=1   # Skip atuin, it is broken on linux vtty
 

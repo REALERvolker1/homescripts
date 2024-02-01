@@ -33,10 +33,10 @@ waybar &
 #    firewall-applet
 #) &
 
-(
-    sleep 3
-    hyprshade auto
-) &
+# (
+# sleep 3
+# hyprshade auto
+# ) &
 
 set-cursor-theme.sh --session &
 #steam-symlink-unfucker.sh &

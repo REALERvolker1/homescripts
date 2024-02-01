@@ -181,8 +181,9 @@ alias npml='npm list --global | fzf'
 alias tc='tsc && node .'
 
 # TODO: Make dotfiles script the main source of git commands
-alias gitm='git add -A && git commit -am "$(date +"Commit from shell alias at %D %r")" '
-alias gitp='git pull '
+# alias gitm='git add -A && git commit -am "$(date +"Commit from shell alias at %D %r")" '
+alias gitm='git add -A && git commit -a'
+alias gitp='git pull'
 alias tit='echo 😜 && git '
 alias gitd='git fetch && git diff "origin/$(git branch | grep -oP "\*[[:space:]]*\K.*\$")"'
 alias uncommit='git reset --soft HEAD~'
