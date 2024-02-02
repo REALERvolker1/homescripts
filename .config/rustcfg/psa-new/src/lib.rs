@@ -3,11 +3,14 @@
 pub use crate::{processes::ProcessInfo, runtime::*, types::*};
 pub use ahash::{HashMap, HashMapExt, HashSet, HashSetExt};
 pub use cached::proc_macro::cached;
+pub use crossterm::style::{self, Color, ContentStyle, Stylize};
+pub use if_chain::if_chain;
 pub use itertools::Itertools;
 pub use lazy_static::lazy_static;
 pub use lscolors::LsColors;
-pub use nix::unistd::{self, Pid, Uid, User};
-pub use nu_ansi_term::{Color, Style};
+pub use nix::unistd::{self, User};
+
+// pub use nu_ansi_term::{Color, Style};
 pub use simple_eyre::eyre::Context;
 pub use std::{env, error, fmt, io, path::*, sync::Arc};
 
@@ -18,3 +21,5 @@ pub mod runtime;
 pub mod terminal;
 pub mod types;
 pub mod users;
+
+pub type Style = crossterm::style::ContentStyle;

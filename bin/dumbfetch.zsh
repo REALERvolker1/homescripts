@@ -87,9 +87,9 @@ typeset -a props=(
 typeset -i len=${${(OnN)props%%*}[1]}
 # the sizes of my 'figlet' and my labels are known. However, the length of the props is dynamic.
 # The (l:::) thingy pads an empty scalar variable on the left with a "$len" amount of box edge characters.
-lenstr="${boxcolor}╭────────────────┬─────────────${(l:$len::─:)}╮[0m"
+lenstr="────────────────┬─────────────${(l:$len::─:)}"
 
-print $lenstr
+print "${boxcolor}╭${lenstr}╮[0m"
 print -f "${boxcolor}│[0;92m%s${boxcolor}│[0;9%-11s   [1m%-${len}s ${boxcolor}│[0m\n" \
     '        _ _     ' '4m  SHLVL'   "${props[1]}" \
     ' __   _| | | __ ' '5m 󰅐 Uptime'  "${props[2]}" \
@@ -99,4 +99,4 @@ print -f "${boxcolor}│[0;92m%s${boxcolor}│[0;9%-11s   [1m%-${len}s ${boxc
     '                ' '1m  Kernel'  "${props[6]}" \
     '                ' "6m ${props[7]} Desk  "  "${XDG_CURRENT_DESKTOP:-Undefined}"
 # replace every topside box character with the corresponding bottomside character
-print ${${${lenstr/╭/╰}/╮/╯}/┬/┴}
+print "${boxcolor}╰${lenstr/┬/┴}╯[0m"

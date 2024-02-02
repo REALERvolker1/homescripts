@@ -1,13 +1,61 @@
 use ahash::HashSetExt;
-use nu_ansi_term::AnsiGenericString;
 
 use crate::*;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, strum_macros::Display)]
-pub enum Action {
-    Print,
-    Pidstat,
-}
+// #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+// pub enum UserGroup {
+//     Real(Uid),
+//     /// The Real UID and Effective UID, in order.
+//     RealEffective(Uid, Uid),
+// }
+// impl UserGroup {
+//     pub fn get<'a>(&'a self) -> (Uid, Option<Uid>) {
+//         match *self {
+//             Self::Real(u) => (u, None),
+//             Self::RealEffective(u, e) => (u, Some(e)),
+//         }
+//     }
+//     pub fn format_uid(&self, user_cache: users::UserCache) -> String {
+//         match *self {
+//             Self::Real(u) => {
+//                 if let Some(user) = user_cache.get_user(u) {
+//                     user.format_self().to_string()
+//                 } else {
+//                     Color::LightRed
+//                         .bold()
+//                         .paint(format!("Unable to find user: {u}"))
+//                         .to_string()
+//                 }
+//             }
+//             Self::RealEffective(u, e) => match (user_cache.get_user(u), user_cache.get_user(e)) {
+//                 (Some(real_user), Some(effective_user)) => {
+//                     format!(
+//                         "Real user: {}, effective user: {}",
+//                         real_user.format_self(),
+//                         effective_user.format_self()
+//                     )
+//                 }
+//                 (Some(real_user), None) => {
+//                     format!(
+//                         "Real user: {}, EUID not found: {e}",
+//                         real_user.format_self(),
+//                     )
+//                 }
+//                 (None, Some(effective_user)) => {
+//                     format!(
+//                         "Effective user: {}, RUID not found: {u}",
+//                         effective_user.format_self(),
+//                     )
+//                 }
+//                 (None, None) => Color::LightRed
+//                     .bold()
+//                     .paint(format!("RUID ({u}) and EUID ({e}) not found"))
+//                     .to_string(),
+//             },
+//         }
+//     }
+// }
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, strum_macros::Display)]
 pub enum UserType {
     Myself,
@@ -22,30 +70,33 @@ pub struct TrackedUser {
     pub style: Style,
 }
 impl TrackedUser {
-    pub fn from_uid(uid: Uid, my_uid: Uid) -> Bruh<Option<Self>> {
-        let user = if let Some(u) = User::from_uid(uid)? {
-            u
-        } else {
-            return Ok(None);
+    pub fn from_uid(uid: Uid) -> Bruh<Self> {
+        let user = match User::from_uid(uid.into()) {
+            Ok(Some(u)) => u,
+            _ => return Err(BruhMoment::InvalidUser(uid)),
         };
 
         let base_style = Style::new().bold();
-        let (user_type, style) = match uid {
-            my_uid => (UserType::Myself, base_style.fg(Color::LightGreen)),
-            unistd::ROOT => (UserType::Root, base_style.fg(Color::LightRed)),
-            _ => (UserType::Other, base_style.fg(Color::LightCyan)),
+
+        // the bastards wouldn't let me use a match statement
+        let (user_type, style) = if uid == *MY_UID {
+            (UserType::Myself, base_style)
+        } else if uid == ROOT_UID {
+            (UserType::Root, base_style)
+        } else {
+            (UserType::Other, base_style)
         };
 
-        Ok(Some(Self {
+        Ok(Self {
             user,
             user_type,
             style,
-        }))
+        })
     }
     /// Returns a string like `username (UID)`
-    pub fn format_self<'a>(&'a self) -> AnsiGenericString<'a, str> {
+    pub fn format_self<'a>(&'a self) -> style::StyledContent<String> {
         self.style
-            .paint(format!("{} ({})", self.user.name, self.user.uid))
+            .apply(format!("{} ({})", self.user.name, self.user.uid))
     }
 }
 impl fmt::Display for TrackedUser {
@@ -99,7 +150,7 @@ impl UserCache {
         self.inner.get(&uid).cloned()
     }
     pub fn insert_user_uid(&mut self, uid: Uid) {
-        if let Ok(Some(u)) = TrackedUser::from_uid(uid, *MY_UID) {
+        if let Ok(u) = TrackedUser::from_uid(uid) {
             self.inner.insert(uid, Arc::new(u));
         } else {
             self.nonexistent.insert(uid);

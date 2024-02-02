@@ -19,18 +19,14 @@ impl GodObject {
     pub fn new() -> Bruh<Self> {
         let mut me = Self::default();
         me.update()?;
-        debug!("{me}");
+        // debug!("{me}");
         Ok(me)
     }
     pub fn update(&mut self) -> Bruh<()> {
         debug!("Updating process cache...");
         let procs = processes::ProcInfoCache::get_procs()?;
 
-        let unique_uids = procs
-            .iter()
-            .map(|p| p.users().get().into_vec())
-            .flatten()
-            .unique();
+        let unique_uids = procs.iter().flat_map(|p| p.users()).unique();
 
         self.user_cache.insert_uids(unique_uids);
         self.process_cache.refresh_with_procs(procs.into_iter());

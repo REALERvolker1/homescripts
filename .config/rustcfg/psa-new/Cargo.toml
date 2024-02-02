@@ -13,12 +13,15 @@ ahash = { version = "0.8.7", default-features = false, features = [
     "compile-time-rng",
 ] }
 cached = "0.48.1"
+crossterm = "0.27.0"
 derive_more = "0.99.17"
+if_chain = "1.0.2"
 itertools = "0.12.1"
 lazy_static = "1.4.0"
-lscolors = "0.17.0"
+lscolors = { version = "0.17.0", default-features = false, features = [
+    "crossterm",
+] }
 nix = { version = "0.27.1", features = ["signal", "user", "term", "ioctl"] }
-nu-ansi-term = "0.50.0"
 procfs = { version = "0.16.0", default-features = false }
 simple-eyre = "0.3.1"
 strum = { version = "0.26.1", features = ["strum_macros", "derive", "phf"] }

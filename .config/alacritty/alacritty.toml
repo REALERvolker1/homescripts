@@ -28,11 +28,11 @@ yellow = "0xaaaa00"
 background = "0x000000"
 foreground = "0xeaeaea"
 
-[cursor]
-cursor = "CellForeground"
-style = "Beam"
-text = "CellBackground"
-unfocused_hollow = true
+# [cursor]
+# cursor = "CellForeground"
+# style = "Beam"
+# text = "CellBackground"
+# unfocused_hollow = true
 
 [env]
 ICON_TYPE = "powerline"
@@ -61,7 +61,7 @@ x = 0
 y = 0
 
 [scrolling]
-draw_bold_text_with_bright_colors = false
+# draw_bold_text_with_bright_colors = false
 history = 4000
 
 [shell]

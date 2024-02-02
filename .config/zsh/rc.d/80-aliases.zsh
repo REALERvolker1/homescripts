@@ -166,7 +166,14 @@ for i in ivm vi iv v
     expand_aliases[$i]=vim
 
 # vscodium
-alias c=codium
+c() {
+    if (($#)); then
+        codium $@
+    else
+        codium ./
+    fi
+}
+
 
 # bash dash ash ksh rksh csh tcsh zsh
 # I want to set up the environment for them
