@@ -10,7 +10,7 @@ lazy_static! {
 }
 
 pub struct ColorCache<'a> {
-    inner: HashMap<&'a str, Style>,
+    inner: HashMap<&'a str, style::StyledContent<String>>,
     // the Crossterm ppl forgot to implement Hash for Style
     // seen: HashSet<Style>,
 }
@@ -119,7 +119,8 @@ pub fn proc_tree(current_pid: Pid, process_cache: &ProcInfoCache) -> String {
     process_tree.join("\n")
 }
 
-pub fn format_uid(ruid: Uid, euid: Option<Uid>, user_cache: &users::UserCache) -> String {
+/// Format the user of a process into a string
+pub fn format_user(ruid: Uid, euid: Option<Uid>, user_cache: &users::UserCache) -> String {
     if let Some(u) = user_cache.get_user(ruid) {
         let real_uid_fmt = format!("User: {}", u.format_self());
         if_chain! {

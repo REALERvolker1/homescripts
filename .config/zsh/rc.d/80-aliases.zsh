@@ -207,6 +207,7 @@ alias cr='cargo run'
 expand_aliases[cr]='cr --'
 alias cb='cargo build'
 alias cbr='cargo build --release'
+alias nightly='rustup override set nightly'
 
 # alias cupl='cargo install-update -l'
 

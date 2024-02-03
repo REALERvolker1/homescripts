@@ -1,0 +1,13 @@
+[package]
+name = "commit-test"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+zsh-module = { git = "https://github.com/Diegovsky/zsh-module-rs.git", version = "0.3.0" }
+zsh-sys = { git = "https://github.com/Diegovsky/zsh-module-rs.git", version = "0.1.1" }

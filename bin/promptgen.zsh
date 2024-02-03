@@ -280,8 +280,6 @@ declare -A __vlkprompt_internal=( \
 [timer_str]= \
 [venv_str]= \
 [conda_str]= \
-[stty]="\$(stty --save)" \
-[stty_fmt]="\$(stty)" \
 )
 
 if [[ -n \${CONTAINER_ID-} || \${HOSTNAME:=\$(</etc/hostname)} != \${CURRENT_HOSTNAME-} || -o l ]]; then
@@ -387,35 +385,6 @@ __vlkprompt::precmd::timer() {
     fi
 }
 
-# __vlkprompt::precmd::stty() {
-#     print -n '\\e[0m\\e(B\\e)0\\017\\e[?5l\\e7\\e[0;0r\\e8'
-#     # todo: use ttyctl
-#     local retval=\$?
-#     local current_stty="\$(stty --save)"
-#     if [[ \${current_stty:=} != \${__vlkprompt_internal[stty]:=} ]]; then
-#         local UPDATE_OLD_STTY=1
-#         local current_stty_fmt="\$(stty)"
-#         if [[ -n \${__vlkprompt_internal[stty_fmt]-} && -t 0 && -t 1 && -t 2 ]]; then
-#             # print -Pl '=== %BSTTY changed!%b ===' '' '%BOld STTY%b' \$__vlkprompt_internal[stty_fmt] '' '%BCurrent STTY%b' \$current_stty_fmt ''
-#             printf '\r\e[1m%s\e[0m\n\n\r%s\n\n' '=== STTY changed ===' "${(l:5::-:)}" 'Old STTY' \$__vlkprompt_internal[stty_fmt] 'Current STTY' \$current_stty_fmt
-
-#             print -Pn '%BKEEP%b these STTY changes? %B[y/N]%b > '
-#             if ! read -rq; then
-#                 stty \$__vlkprompt_internal[stty]
-#                 print -l '' "resetting stty" \$__vlkprompt_internal[stty_fmt]
-#                 UPDATE_OLD_STTY=0
-#             else
-#                 print -l '' "Keeping new STTY settings"
-#             fi
-#         fi
-#         if ((UPDATE_OLD_STTY)); then
-#             __vlkprompt_internal[stty]="\$current_stty"
-#             __vlkprompt_internal[stty_fmt]="\$current_stty_fmt"
-#         fi
-#     fi
-#     return \$retval
-# }
-
 __vlkprompt::precmd::cwd() {
     if [[ \$PWD == \${__vlkprompt_internal[pwd]} ]]; then
         psvar[${index[writable]}]="\${__vlkprompt_internal[pwd_writable]}"
@@ -441,7 +410,6 @@ ${venvfunc:-}
 ${condafunc:-}
 typeset -aU precmd_functions
 typeset -aU preexec_functions
-# '__vlkprompt::precmd::stty'
 precmd_functions+=( \
 '__vlkprompt::precmd::timer' \
 '__vlkprompt::precmd::cwd' \
