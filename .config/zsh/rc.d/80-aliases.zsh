@@ -284,15 +284,23 @@ chars() {
 # formats a video with ffmpeg so it is compatible with discord's video upload bs
 discordify() {
     local file="${1:-}"
+    local filename='discordified.mp4'
     [[ -f $file && -r $file ]] || {
         echo "Error, please select a video to format for uploading to Discord!"
         return 1
     }
     if [[ -e ./out.mp4 ]]; then
-        echo "Error, output file 'out.mp4' already exists! Exiting"
-        return 1
+        echo "Output file '$filename' already exists! Want to remove it?"
+        echo -n '[y/N]'
+        if read -q; then
+            rm $filename
+        else
+            return 1
+        fi
     fi
-    ffmpeg -i "$file" -map 0 -c:v libx264 -crf 18 -vf format=yuv420p -c:a copy ./out.mp4
+    # ffmpeg -i "$file" -map 0 -c:v libx264 -crf 18 -vf format=yuv420p -c:a copy ./out.mp4
+    # ffmpeg -i $file -map 0 -c:v h264_nvenc -vf format=yuv420p ./$filename
+    ffmpeg -i $file -c:v h264_nvenc ./$filename
 }
 
 # internal function to choose a distrobox container to enter
