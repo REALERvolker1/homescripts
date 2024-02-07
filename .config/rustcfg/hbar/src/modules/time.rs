@@ -15,20 +15,28 @@ pub struct Time {
     /// The polling rate in milliseconds. Avoid setting this manually,
     /// unless you're really hurting for performance.
     ///
-    /// Set this under 1000 if you want to see seconds.
-    #[default(Duration::from_millis(1000))]
-    pub poll_rate: Duration,
+    /// Set this under 1000 if you don't want to skip seconds.
+    #[default = 500]
+    pub poll_rate_ms: u64,
+    /// Durations are ugly when serialized. I keep this private and skip it.
+    #[serde(skip)]
+    polling_rate_internal: Duration,
 }
 // I want to use async module so I don't have to wait for the sender to send
 impl Module for Time {
     type StartupData = Self;
     async fn new(data: Self::StartupData) -> ModResult<(Self, modules::ModuleData)> {
-        let time = data.get().into();
-        Ok((data, time))
+        let mut me = data;
+        me.polling_rate_internal = Duration::from_millis(me.poll_rate_ms);
+        let time = me.get().into();
+        Ok((me, time))
     }
     async fn run(&mut self, sender: modules::ModuleSender) -> ModResult<()> {
         loop {
-            let send_res = join!(sender.send(self.get().into()), sleep!(self.poll_rate));
+            let send_res = join!(
+                sender.send(self.get().into()),
+                sleep!(self.polling_rate_internal)
+            );
             send_res.0?;
         }
     }

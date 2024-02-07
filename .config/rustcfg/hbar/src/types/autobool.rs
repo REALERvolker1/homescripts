@@ -18,6 +18,7 @@ use crate::*;
     strum_macros::VariantArray,
 )]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase")]
 pub enum AutoBool {
     True,
     False,

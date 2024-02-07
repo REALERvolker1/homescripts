@@ -1,5 +1,13 @@
 use super::*;
-use modules::*;
+use size::Size;
+use sysinfo::Disks;
+
+#[derive(Debug, Clone, Copy, SmartDefault, Deserialize, Serialize)]
+pub struct DiskConfig {
+    /// The poll rate, in seconds
+    #[default = 120]
+    pub poll_rate: u64,
+}
 
 #[derive(Debug)]
 pub struct DiskModule {
@@ -7,18 +15,14 @@ pub struct DiskModule {
     disks: Disks,
 }
 impl Module for DiskModule {
-    type StartupData = SystemInfoConfig;
+    type StartupData = DiskConfig;
     async fn new(data: Self::StartupData) -> ModResult<(Self, ModuleData)> {
-        if data.show_disks {
-            let mut me = Self {
-                poll_rate: data.disks_poll_rate,
-                disks: Disks::new(),
-            };
-            let my_data = me.update();
-            Ok((me, my_data))
-        } else {
-            Err(ModError::ModuleSkip("Disk module not enabled. Skipping"))
-        }
+        let mut me = Self {
+            poll_rate: Duration::from_secs(data.poll_rate),
+            disks: Disks::new(),
+        };
+        let my_data = me.update();
+        Ok((me, my_data))
     }
 
     async fn run(&mut self, sender: ModuleSender) -> ModResult<()> {

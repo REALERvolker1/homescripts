@@ -50,7 +50,7 @@ for i in main vicmd; do
 
     bindkey -M $i $keymap[ctrl_z] undo
     bindkey -M $i $keymap[ctrl_y] redo
-    [[ ${TERM-} == xterm-kitty ]] && bindkey -M $i $keymap[Ct] __vlk::zle::kitty_new_tab
+    [[ ${TERM-} == xterm-kitty ]] && bindkey -M $i $keymap[ctrl_t] __vlk::zle::kitty_new_tab
 done
 
 autoload -Uz edit-command-line

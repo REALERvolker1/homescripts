@@ -1,23 +1,23 @@
 use hbar::*;
-use tokio::runtime::Builder as Rt;
 
-fn main() -> simple_eyre::Result<()> {
+#[tokio::main]
+async fn main() -> simple_eyre::Result<()> {
     simple_eyre::install()?;
-    let current_runtime = Rt::new_multi_thread().enable_all().build()?;
-    current_runtime.block_on(async move { run().await })?;
+    println!("{}", config::Config::default().get_example_config().await?);
+    // module_event_loop().await?;
     Ok(())
 }
 
-/// The actual main function
-async fn run() -> simple_eyre::Result<()> {
-    // the main channel
+/// The backend event loop for all the modules. This will "block" the async task thread it is run on.
+async fn module_event_loop() -> simple_eyre::Result<()> {
     let (tx, mut rx) = mpsc::channel(128);
     let sender = Arc::new(tx);
 
     let modules = modules::Modules::new(Arc::clone(&sender)).await?;
 
+    // TODO: Validation and stuff, set up gtk settings, etc.
+
     modules.run(Arc::clone(&sender)).await?;
-    // println!("{:#?}", modules);
 
     while let Some(m) = rx.recv().await {
         println!("{:?}", m);

@@ -1,3 +1,4 @@
+pub mod bar;
 pub mod config;
 pub mod modules;
 pub mod types;
@@ -7,7 +8,9 @@ pub use types::error::ErrorExt;
 pub use types::*;
 
 pub use ahash::{HashMap, HashMapExt, HashSet, HashSetExt};
+pub use const_format::concatcp;
 pub use futures_util::{Stream, StreamExt};
+pub use gtk4::{self, gio, glib};
 pub use if_chain::if_chain;
 pub use itertools::Itertools;
 pub use lazy_static::lazy_static;
@@ -29,10 +32,10 @@ pub const NAME: &str = env!("CARGO_PKG_NAME");
 /// The name of the program, but uppercase
 pub const NAME_CAPS: &str = const_format::map_ascii_case!(const_format::Case::UpperSnake, NAME);
 /// The application ID for use in gtk and dbus
-pub const APP_ID: &str = const_format::concatcp!("com.github.REALERvolker1.", NAME);
+pub const APP_ID: &str = concatcp!("com.github.REALERvolker1.", NAME);
 
 /// The environment variable used to override the config directory
-pub const CONFIG_OVERRIDE: &str = const_format::concatcp!(NAME_CAPS, "_HOME");
+pub const CONFIG_OVERRIDE: &str = concatcp!(NAME_CAPS, "_HOME");
 
 /// Five seconds as a Duration
 pub const FIVE_SECONDS: Duration = Duration::from_secs(5);
@@ -42,13 +45,6 @@ pub const FIVE_SECONDS: Duration = Duration::from_secs(5);
 macro_rules! sleep {
     ($time:expr) => {
         tokio::time::sleep($time)
-    };
-}
-/// Sync sleep using [`std::thread::sleep`]
-#[macro_export]
-macro_rules! sleep_sync {
-    ($time:expr) => {
-        std::thread::sleep($time)
     };
 }
 

@@ -1,6 +1,5 @@
 pub mod cpu;
 pub mod disks;
-pub mod memory;
 
 use crate::*;
 use size::Size;

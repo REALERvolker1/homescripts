@@ -18,16 +18,17 @@ chrono = { version = "0.4.33", default-features = false, features = [
 ] }
 const_format = { version = "0.2.32", features = ["rust_1_64"] }
 derive_more = "0.99.17"
+dirs = "5.0.1"
 futures-util = { version = "0.3.30", features = ["tokio-io"] }
+gtk4 = { version = "0.8.0", features = ["v4_12"] }
 if_chain = "1.0.2"
 inotify = "0.10.2"
 itertools = "0.12.1"
 lazy_static = "1.4.0"
-nix = { version = "0.27.1", features = ["signal", "user", "fs", "ioctl"] }
+nix = { version = "0.27.1", features = ["signal"] }
 parking_lot = { version = "0.12.1", features = ["serde"] }
 reqwest = { version = "0.11.24", features = ["json", "stream"] }
 serde = { version = "1.0.196", features = ["derive"] }
-serde_json = "1.0.113"
 simple-eyre = "0.3.1"
 size = "0.4.1"
 smart-default = "0.7.1"
@@ -36,7 +37,6 @@ strum_macros = "0.26.1"
 sysinfo = { version = "0.30.5", features = ["serde"], default-features = false }
 thiserror = "1.0.56"
 tokio = { version = "1.36.0", default-features = false, features = [
-    "rt",
     "macros",
     "parking_lot",
     "time",
@@ -47,8 +47,9 @@ tokio = { version = "1.36.0", default-features = false, features = [
     "fs",
     "rt-multi-thread",
     "io-util",
-    "net",
 ] }
+toml = "0.8.10"
+wayland-protocols-wlr = "0.2.0"
 zbus = { version = "3.15.0", default-features = false, features = [
     "tokio",
     "chrono",

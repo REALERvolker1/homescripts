@@ -1,6 +1,13 @@
 use super::*;
-use modules::*;
-// use crate::*;
+
+use sysinfo::System;
+
+#[derive(Debug, Clone, Copy, SmartDefault, Deserialize, Serialize)]
+pub struct MemoryConfig {
+    /// The poll rate, in seconds
+    #[default = 5]
+    pub poll_rate: u64,
+}
 
 #[derive(Debug)]
 pub struct MemoryModule {
@@ -8,18 +15,14 @@ pub struct MemoryModule {
     system: System,
 }
 impl Module for MemoryModule {
-    type StartupData = SystemInfoConfig;
+    type StartupData = MemoryConfig;
     async fn new(data: Self::StartupData) -> ModResult<(Self, ModuleData)> {
-        if data.show_memory {
-            let mut me = Self {
-                poll_rate: data.memory_poll_rate,
-                system: System::new(),
-            };
-            let my_data = me.get_data();
-            Ok((me, my_data.into()))
-        } else {
-            Err(ModError::ModuleSkip("Memory module not enabled. Skipping"))
-        }
+        let mut me = Self {
+            poll_rate: Duration::from_secs(data.poll_rate),
+            system: System::new(),
+        };
+        let my_data = me.get_data();
+        Ok((me, my_data.into()))
     }
     async fn run(&mut self, sender: ModuleSender) -> ModResult<()> {
         loop {

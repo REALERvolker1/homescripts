@@ -27,14 +27,20 @@ pub enum ModError {
     SyncSendError(#[from] std::sync::mpsc::SendError<modules::ModuleData>),
     #[error("HTTP Request error: {0}")]
     Reqwest(#[from] reqwest::Error),
-    #[error("Skipping module: {0}")]
-    ModuleSkip(&'static str),
-    #[error("File not found: {}", .0.display())]
-    FileNotFound(PathBuf),
-    #[error("Conversion error: {0}")]
-    Conversion(String),
+    #[error("Invalid integer value: {0}")]
+    InvalidInt(isize),
+    #[error("Error formatting toml: {0}")]
+    TomlSerialize(#[from] toml::ser::Error),
+    #[error("Error reading toml: {0}")]
+    TomlDeSerialize(#[from] toml::de::Error),
+    // #[error("File not found: {}", .0.display())]
+    // FileNotFound(PathBuf),
+    /// An error type for hardcoded errors. This is why it is a static str
     #[error("Error: {0}")]
-    Other(String),
+    KnownError(&'static str),
+    /// An error type for errors that require string formatting. Try not to use this.
+    #[error("Error: {0}")]
+    Fmt(String),
     #[error("Unknown error occured")]
     Unknown,
 }
@@ -43,16 +49,16 @@ impl From<()> for ModError {
         Self::Unknown
     }
 }
-impl From<&str> for ModError {
-    fn from(value: &str) -> Self {
-        Self::Other(value.to_owned())
+impl From<&'static str> for ModError {
+    fn from(value: &'static str) -> Self {
+        Self::KnownError(value)
     }
 }
-impl From<String> for ModError {
-    fn from(value: String) -> Self {
-        Self::Other(value)
-    }
-}
+// impl From<String> for ModError {
+//     fn from(value: String) -> Self {
+//         Self::Other(value)
+//     }
+// }
 impl Into<zbus::Error> for ModError {
     fn into(self) -> zbus::Error {
         zbus::Error::Unsupported
@@ -83,5 +89,17 @@ where
                 None
             }
         }
+    }
+}
+
+/// Determine if a gtk app exit should count as an error or not
+pub fn glib_exit_code_to_mod_result(exit_code: glib::ExitCode) -> ModResult<()> {
+    match exit_code {
+        glib::ExitCode::SUCCESS => Ok(()),
+        glib::ExitCode::FAILURE => Err(ModError::Fmt(format!(
+            "glib error: return code {}",
+            exit_code.value()
+        ))),
+        _ => Err(ModError::Fmt(format!("Unknown glib error: {exit_code:?}"))),
     }
 }

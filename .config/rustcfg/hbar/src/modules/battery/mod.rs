@@ -13,8 +13,8 @@ pub struct BatteryConfig {
     #[default(BatteryRunTypeDiscriminants::Auto)]
     pub backend: BatteryRunTypeDiscriminants,
     /// The rate at which to poll the battery when using the naive sysfs backend.
-    #[default(FIVE_SECONDS)]
-    pub sysfs_poll_rate: Duration,
+    #[default(5)]
+    pub sysfs_poll_rate: u64,
     /// The battery number to use. For example, if you have two batteries, `BAT1` and `BAT2`, you
     /// can specify which one you choose to poll by setting this to `2`, for example to poll `BAT2`.
     pub sysfs_battery_number: Option<usize>,
@@ -34,18 +34,6 @@ impl<'a> BatteryRunType<'a> {
             Self::Sysfs(s) => (Some(s), None),
             Self::Upower(s) => (None, Some(s)),
             _ => (None, None),
-        }
-    }
-    pub fn unwrap_sysfs(self) -> Option<sysfs::SysFs> {
-        match self {
-            BatteryRunType::Sysfs(s) => Some(s),
-            _ => None,
-        }
-    }
-    pub fn unwrap_upower(self) -> Option<upower::UPowerModule<'a>> {
-        match self {
-            BatteryRunType::Upower(s) => Some(s),
-            _ => None,
         }
     }
     pub async fn new(
@@ -88,15 +76,6 @@ impl<'a> BatteryRunType<'a> {
         }
     }
 }
-// impl Module for BatteryRunType<'_> {
-//     type StartupData = BatteryConfig;
-//     async fn new(data: Self::StartupData) -> ModResult<Self> {
-//         match data.backend {
-//             BatteryRunTypeDiscriminants::Sysfs => Ok(sysfs::SysFs::new(data).await?.into()),
-//             BatteryRunTypeDiscriminants::Upower => Ok(upower::UPowerModule::new(data).await?.into()),
-//         }
-//     }
-// }
 
 /// The current status of the battery, mainly used for display formatting and saving state.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]

@@ -10,6 +10,18 @@ async fn read_file_to_please_borrow_checker(path: &Path) -> ModResult<String> {
     Ok(fs::read_to_string(path).await?)
 }
 
+macro_rules! ensure_files {
+    ($($file:ident),+) => {
+        $(
+            let $file = if let Some(f) = $file {
+                f
+            } else {
+                return Err(concat!("Sysfs is missing required file: ", stringify!($file)).into());
+            };
+        )+
+    };
+}
+
 #[derive(Debug, Serialize, Deserialize, derive_more::Display)]
 #[display(
     fmt = "path:\t{}\ncapacity:\t{}\nstatus:\t{}\n{}",
@@ -24,7 +36,7 @@ pub struct SysFs {
     status: PathBuf,
     rate: PowerRate,
     battery_status: BatteryStatus,
-    config: super::BatteryConfig,
+    poll_rate: Duration,
 }
 impl SysFs {
     /// Read all the files at once, getting a snapshot of the battery status
@@ -48,10 +60,7 @@ impl Module for SysFs {
     async fn run(&mut self, sender: modules::ModuleSender) -> ModResult<()> {
         loop {
             let data = self.poll_all_once().await?;
-            let (send_res, _) = join!(
-                sender.send(data.into()),
-                sleep!(self.config.sysfs_poll_rate)
-            );
+            let (send_res, _) = join!(sender.send(data.into()), sleep!(self.poll_rate));
             if let Err(e) = send_res {
                 return Err(e.into());
             }
@@ -107,40 +116,29 @@ impl Module for SysFs {
             }
         }
 
+        ensure_files!(capacity, status);
+
         let rate = if let Some(power_now) = power_now {
             PowerRate::Easy(power_now)
-        } else if let (Some(voltage_now), Some(current_now)) = (voltage_now, current_now) {
+        } else {
+            ensure_files!(voltage_now, current_now);
             PowerRate::Calculate {
                 voltage: voltage_now,
                 current: current_now,
             }
-        } else {
-            return Err(format!(
-                "Sysfs power dir '{}' is missing required files for measuring power draw!",
-                power_dir.display()
-            )
-            .into());
         };
 
-        if let (Some(capacity), Some(status)) = (capacity, status) {
-            let mut inner = Self {
-                path: power_dir,
-                capacity,
-                status,
-                rate,
-                battery_status: BatteryStatus::default(),
-                config: conf,
-            };
-            let polled = inner.poll_all_once().await?;
-            inner.battery_status = polled;
-            Ok((inner, polled.into()))
-        } else {
-            Err(format!(
-                "Sysfs power dir '{}' is missing required files!",
-                power_dir.display()
-            )
-            .into())
-        }
+        let mut inner = Self {
+            path: power_dir,
+            capacity,
+            status,
+            rate,
+            battery_status: BatteryStatus::default(),
+            poll_rate: Duration::from_secs(conf.sysfs_poll_rate),
+        };
+        let polled = inner.poll_all_once().await?;
+        inner.battery_status = polled;
+        Ok((inner, polled.into()))
     }
 }
 

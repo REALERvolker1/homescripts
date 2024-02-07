@@ -1,5 +1,12 @@
 use super::*;
-use modules::*;
+use sysinfo::System;
+
+#[derive(Debug, Clone, Copy, SmartDefault, Deserialize, Serialize)]
+pub struct CpuConfig {
+    /// The poll rate, in seconds
+    #[default = 5]
+    pub poll_rate: u64,
+}
 
 #[derive(Debug)]
 pub struct CpuModule {
@@ -7,20 +14,16 @@ pub struct CpuModule {
     system: System,
 }
 impl Module for CpuModule {
-    type StartupData = SystemInfoConfig;
+    type StartupData = CpuConfig;
     async fn new(data: Self::StartupData) -> ModResult<(Self, ModuleData)> {
-        if data.show_cpu {
-            let mut me = Self {
-                poll_rate: data.cpu_poll_rate,
-                system: System::new(),
-            };
-            me.system.refresh_cpu();
-            sleep!(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL).await;
-            let my_data = me.get_data();
-            Ok((me, my_data.into()))
-        } else {
-            Err(ModError::ModuleSkip("CPU module not enabled. Skipping"))
-        }
+        let mut me = Self {
+            poll_rate: Duration::from_secs(data.poll_rate),
+            system: System::new(),
+        };
+        me.system.refresh_cpu();
+        sleep!(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL).await;
+        let my_data = me.get_data();
+        Ok((me, my_data.into()))
     }
     async fn run(&mut self, sender: ModuleSender) -> ModResult<()> {
         loop {

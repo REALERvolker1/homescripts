@@ -27,9 +27,7 @@ impl Percent {
     /// Create a new Percentage. This function will return an error if the value is greater than 100.
     pub fn new(u: u8) -> ModResult<Self> {
         if u > 100 {
-            Err(ModError::Conversion(format!(
-                "percent value '{u}' out of range"
-            )))
+            Err(ModError::InvalidInt(u as isize))
         } else {
             Ok(Self(u))
         }
@@ -58,17 +56,17 @@ macro_rules! tryfrm {
         )+
     };
 }
-impl FromStr for Percent {
-    type Err = ModError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::new(s.parse()?)
-    }
-}
 tryfrm!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize);
 impl TryFrom<f64> for Percent {
     type Error = ModError;
     fn try_from(value: f64) -> Result<Self, Self::Error> {
         Self::new(value.round() as u8)
+    }
+}
+impl FromStr for Percent {
+    type Err = ModError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::new(s.parse()?)
     }
 }
 impl TryFrom<zvariant::OwnedValue> for Percent {
@@ -79,7 +77,7 @@ impl TryFrom<zvariant::OwnedValue> for Percent {
         } else if let Some(v) = value.downcast_ref::<u8>() {
             Self::try_from(*v)
         } else {
-            Err(ModError::Conversion(format!(
+            Err(ModError::Fmt(format!(
                 "Failed to parse percentage from value! {:?}",
                 value
             )))
@@ -88,8 +86,10 @@ impl TryFrom<zvariant::OwnedValue> for Percent {
         // convert it into an error compatible with zbus-xmlgen stuff
         match operation_result {
             Ok(v) => Ok(v),
-            Err(ModError::FromInt(_)) => Err(zbus::Error::Variant(zvariant::Error::OutOfBounds)),
-            Err(ModError::Conversion(e)) => Err(zbus::Error::Failure(e)),
+            Err(ModError::FromInt(_)) | Err(ModError::InvalidInt(_)) => {
+                Err(zbus::Error::Variant(zvariant::Error::OutOfBounds))
+            }
+            Err(ModError::Fmt(e)) => Err(zbus::Error::Failure(e)),
             _ => unreachable!(),
         }
     }
