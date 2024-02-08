@@ -2,11 +2,13 @@ use super::*;
 
 use sysinfo::System;
 
-#[derive(Debug, Clone, Copy, SmartDefault, Deserialize, Serialize)]
+const DEFAULT_MEMORY_POLL_RATE: u64 = 5;
+
+#[derive(Debug, Clone, Copy, Parser, SmartDefault, Deserialize, Serialize)]
 pub struct MemoryConfig {
-    /// The poll rate, in seconds
-    #[default = 5]
-    pub poll_rate: u64,
+    #[default(DEFAULT_MEMORY_POLL_RATE)]
+    #[arg(long, default_value_t = DEFAULT_MEMORY_POLL_RATE, help = "The memory poll rate, in seconds")]
+    pub memory_poll_rate: u64,
 }
 
 #[derive(Debug)]
@@ -16,14 +18,16 @@ pub struct MemoryModule {
 }
 impl Module for MemoryModule {
     type StartupData = MemoryConfig;
+    #[tracing::instrument(skip(data))]
     async fn new(data: Self::StartupData) -> ModResult<(Self, ModuleData)> {
         let mut me = Self {
-            poll_rate: Duration::from_secs(data.poll_rate),
+            poll_rate: Duration::from_secs(data.memory_poll_rate),
             system: System::new(),
         };
         let my_data = me.get_data();
         Ok((me, my_data.into()))
     }
+    #[tracing::instrument(skip(self, sender))]
     async fn run(&mut self, sender: ModuleSender) -> ModResult<()> {
         loop {
             let poll = join!(sleep!(self.poll_rate), sender.send(self.get_data().into()));

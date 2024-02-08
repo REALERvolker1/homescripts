@@ -8,6 +8,8 @@ pub use types::error::ErrorExt;
 pub use types::*;
 
 pub use ahash::{HashMap, HashMapExt, HashSet, HashSetExt};
+pub use clap::{Parser, ValueEnum};
+pub use clap_verbosity_flag::{Verbosity, WarnLevel};
 pub use const_format::concatcp;
 pub use futures_util::{Stream, StreamExt};
 pub use gtk4::{self, gio, glib};
@@ -19,12 +21,14 @@ pub use parking_lot::{Mutex, RwLock};
 pub use serde::{Deserialize, Serialize};
 pub use smart_default::SmartDefault;
 pub use std::{env, fmt, path::*, rc::Rc, str::FromStr, sync::Arc, time::Duration};
+pub use strum::IntoEnumIterator;
 pub use tokio::{
     fs, io, join, select,
     sync::mpsc::{self, Receiver, Sender},
     task::JoinHandle,
     try_join,
 };
+pub use tracing::{debug, error, info, trace, warn};
 pub use zbus::{zvariant, Connection, PropertyStream};
 
 /// The name of the program

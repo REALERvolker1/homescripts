@@ -16,6 +16,8 @@ chrono = { version = "0.4.33", default-features = false, features = [
     "std",
     "clock",
 ] }
+clap = { version = "4.4.18", features = ["derive", "cargo", "env", "unicode"] }
+clap-verbosity-flag = "2.1.2"
 const_format = { version = "0.2.32", features = ["rust_1_64"] }
 derive_more = "0.99.17"
 dirs = "5.0.1"
@@ -47,9 +49,29 @@ tokio = { version = "1.36.0", default-features = false, features = [
     "fs",
     "rt-multi-thread",
     "io-util",
+    "tracing",
 ] }
 toml = "0.8.10"
-wayland-protocols-wlr = "0.2.0"
+tracing = { version = "0.1.40", features = ["async-await"] }
+tracing-log = { version = "0.2.0", features = ["ahash", "lru"] }
+tracing-subscriber = { version = "0.3.18", features = [
+    "env-filter",
+    "chrono",
+    "parking_lot",
+    "serde",
+    "tracing-serde",
+] }
+wayland-client = { version = "0.31.2", features = ["log"] }
+wayland-protocols = { version = "0.31.2", features = [
+    "client",
+    "staging",
+    "unstable",
+    "wayland-client",
+] }
+wayland-protocols-wlr = { version = "0.2.0", features = [
+    "wayland-client",
+    "client",
+] }
 zbus = { version = "3.15.0", default-features = false, features = [
     "tokio",
     "chrono",

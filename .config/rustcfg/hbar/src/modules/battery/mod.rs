@@ -6,26 +6,41 @@ use crate::*;
 
 use super::ModuleData;
 
-/// Configuration for the battery module
-#[derive(Debug, Clone, Serialize, Deserialize, SmartDefault)]
+const DEFAULT_TYPE: BatteryRunTypeDiscriminants = BatteryRunTypeDiscriminants::Auto;
+const DEFAULT_SYSFS_POLL_RATE: u64 = 5;
+
+#[derive(Debug, SmartDefault, Parser, Clone, Serialize, Deserialize)]
 pub struct BatteryConfig {
-    /// Your chosen backend
-    #[default(BatteryRunTypeDiscriminants::Auto)]
+    #[default(DEFAULT_TYPE)]
+    #[arg(long = "battery-backend", default_value_t = DEFAULT_TYPE, help = "Override the battery module backend")]
     pub backend: BatteryRunTypeDiscriminants,
-    /// The rate at which to poll the battery when using the naive sysfs backend.
-    #[default(5)]
+    #[default(DEFAULT_SYSFS_POLL_RATE)]
+    #[arg(
+        long,
+        default_value_t = DEFAULT_SYSFS_POLL_RATE,
+        help = "Sysfs battery polling rate",
+        long_help = "The rate at which to poll the battery when using the naive sysfs backend"
+    )]
     pub sysfs_poll_rate: u64,
-    /// The battery number to use. For example, if you have two batteries, `BAT1` and `BAT2`, you
-    /// can specify which one you choose to poll by setting this to `2`, for example to poll `BAT2`.
+
+    #[arg(
+        long,
+        help = "The battery number in sysfs to use",
+        long_help = "The battery number to use. For example, if you have two batteries, `BAT1` and `BAT2`, you can specify which one you choose to poll by setting this to `2`, for example to poll `BAT2`."
+    )]
     pub sysfs_battery_number: Option<usize>,
 }
 
 #[derive(derive_more::From, Default, strum_macros::EnumDiscriminants)]
-#[strum_discriminants(derive(Deserialize, Serialize))]
+#[strum_discriminants(derive(Deserialize, Serialize, ValueEnum, strum_macros::Display, Default))]
+#[strum_discriminants(serde(rename_all = "lowercase"))]
+#[strum_discriminants(strum(serialize_all = "lowercase"))]
+#[strum_discriminants(clap(rename_all = "lowercase"))]
 pub enum BatteryRunType<'a> {
     Sysfs(sysfs::SysFs),
     Upower(upower::UPowerModule<'a>),
     #[default]
+    #[strum_discriminants(default)]
     Auto,
 }
 impl<'a> BatteryRunType<'a> {
@@ -36,6 +51,7 @@ impl<'a> BatteryRunType<'a> {
             _ => (None, None),
         }
     }
+    #[tracing::instrument(skip(config, dbus_connection))]
     pub async fn new(
         config: BatteryConfig,
         dbus_connection: Arc<Connection>,

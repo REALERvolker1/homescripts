@@ -25,3 +25,10 @@ impl fmt::Display for WorkspaceData {
         )
     }
 }
+// TODO: Complain about lack of documentation about wayland_protocols
+// #[tracing::instrument(skip(data))]
+// #[tracing::instrument(skip(self, sender))]
+// fn b() {
+//     // let e = wayland_protocols_wlr::output_management::v1::client::zwlr_output_configuration_v1::ZwlrOutputConfigurationV1::
+//     let e = wayland_protocols::ext::foreign_toplevel_list::v1::client::ext_foreign_toplevel_list_v1::Event::
+// }

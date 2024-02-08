@@ -9,6 +9,7 @@ pub struct PowerProfiles<'a> {
 }
 impl Module for PowerProfiles<'_> {
     type StartupData = Arc<Connection>;
+    #[tracing::instrument(skip(data))]
     async fn new(data: Self::StartupData) -> ModResult<(Self, modules::ModuleData)> {
         let proxy = xmlgen::PowerProfilesProxy::new(&data).await?;
         let (prof, listener) = join!(
@@ -17,6 +18,7 @@ impl Module for PowerProfiles<'_> {
         );
         Ok((Self { proxy, listener }, prof?.into()))
     }
+    #[tracing::instrument(skip(self, sender))]
     async fn run(&mut self, sender: modules::ModuleSender) -> ModResult<()> {
         while let Some(p) = self.listener.next().await {
             sender.send(p.get().await?.into()).await?;

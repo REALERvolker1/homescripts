@@ -2,11 +2,17 @@ use super::*;
 use size::Size;
 use sysinfo::Disks;
 
-#[derive(Debug, Clone, Copy, SmartDefault, Deserialize, Serialize)]
+const DEFAULT_POLL_RATE: u64 = 120;
+
+#[derive(Debug, Parser, Clone, Copy, SmartDefault, Deserialize, Serialize)]
 pub struct DiskConfig {
-    /// The poll rate, in seconds
-    #[default = 120]
-    pub poll_rate: u64,
+    #[default(DEFAULT_POLL_RATE)]
+    #[arg(
+        long,
+        default_value_t = DEFAULT_POLL_RATE,
+        help = "The disk info poll rate, in seconds"
+    )]
+    pub disk_poll_rate: u64,
 }
 
 #[derive(Debug)]
@@ -16,15 +22,16 @@ pub struct DiskModule {
 }
 impl Module for DiskModule {
     type StartupData = DiskConfig;
+    #[tracing::instrument(skip(data))]
     async fn new(data: Self::StartupData) -> ModResult<(Self, ModuleData)> {
         let mut me = Self {
-            poll_rate: Duration::from_secs(data.poll_rate),
+            poll_rate: Duration::from_secs(data.disk_poll_rate),
             disks: Disks::new(),
         };
         let my_data = me.update();
         Ok((me, my_data))
     }
-
+    #[tracing::instrument(skip(self, sender))]
     async fn run(&mut self, sender: ModuleSender) -> ModResult<()> {
         loop {
             let poll = join!(sleep!(self.poll_rate), sender.send(self.update()));

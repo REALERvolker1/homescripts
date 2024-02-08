@@ -31,8 +31,12 @@ pub enum ModError {
     InvalidInt(isize),
     #[error("Error formatting toml: {0}")]
     TomlSerialize(#[from] toml::ser::Error),
+    // #[error("Error editing/serializing toml: {0}")]
+    // TomlEditSerialize(#[from] toml_edit::ser::Error),
     #[error("Error reading toml: {0}")]
     TomlDeSerialize(#[from] toml::de::Error),
+    // #[error("Error editing/deserializing toml: {0}")]
+    // TomlEditDeSerialize(#[from] toml_edit::de::Error),
     // #[error("File not found: {}", .0.display())]
     // FileNotFound(PathBuf),
     /// An error type for hardcoded errors. This is why it is a static str

@@ -32,14 +32,13 @@ pub struct Modules {
     pub disks: Option<disks::DiskModule>,
 }
 impl Modules {
-    pub async fn new(sender: ModuleSender) -> ModResult<Self> {
+    #[tracing::instrument(skip(sender, cfg))]
+    pub async fn new(sender: ModuleSender, cfg: config::Config) -> ModResult<Self> {
         // there was already an instance of this. If there wasn't,
         // then we already swapped the value to true so it's safe
         if MODULES_INITIALIZED.swap(true, Ordering::SeqCst) {
             return Err(ModError::KnownError("modules already initialized"));
         }
-
-        let cfg = config::Config::new().await?;
 
         // I'm pretty sure this will drop if it isn't required by anything.
         let system_connection = Arc::new(Connection::system().await?);
@@ -96,6 +95,7 @@ impl Modules {
         })
     }
     /// Runs all the modules, consumes self.
+    #[tracing::instrument(skip(self))]
     pub async fn run(self, sender: ModuleSender) -> ModResult<()> {
         let sender = Arc::clone(&sender);
         macro_rules! run {
@@ -138,11 +138,14 @@ impl Modules {
 #[strum_discriminants(derive(
     Serialize,
     Deserialize,
+    ValueEnum,
     strum_macros::Display,
     strum_macros::VariantArray,
     Hash
 ))]
 #[strum_discriminants(serde(rename_all = "lowercase"))]
+#[strum_discriminants(strum(serialize_all = "lowercase"))]
+#[strum_discriminants(clap(rename_all = "lowercase"))]
 pub enum ModuleData {
     Workspaces(workspaces::WorkspaceData),
     Battery(battery::BatteryStatus),
@@ -156,33 +159,35 @@ pub enum ModuleData {
     Uninitialized(&'static str),
 }
 
-/// The configuration for which modules you want to see where
-///
-/// TODO: Update default when more modules are added
-#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Parser, SmartDefault, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ModuleConfig {
-    pub left: Vec<ModuleDataDiscriminants>,
-    pub center: Vec<ModuleDataDiscriminants>,
-    pub right: Vec<ModuleDataDiscriminants>,
+    #[default(Self::LEFT_DEFAULT.to_vec())]
+    // #[arg(long, default_values_t = Self::LEFT_DEFAULT, help = "Modules on the left")]
+    pub left_modules: Vec<ModuleDataDiscriminants>,
+
+    #[default(Self::CENTER_DEFAULT.to_vec())]
+    // #[arg(long, default_values_t = Self::CENTER_DEFAULT, help = "Modules in the center")]
+    pub center_modules: Vec<ModuleDataDiscriminants>,
+
+    #[default(Self::RIGHT_DEFAULT.to_vec())]
+    // #[arg(long, default_values_t = Self::RIGHT_DEFAULT, help = "Modules on the right")]
+    pub right_modules: Vec<ModuleDataDiscriminants>,
 }
-impl Default for ModuleConfig {
-    fn default() -> Self {
-        Self {
-            left: vec![ModuleDataDiscriminants::Workspaces],
-            center: vec![ModuleDataDiscriminants::Time],
-            right: vec![
-                ModuleDataDiscriminants::Battery,
-                ModuleDataDiscriminants::Memory,
-                ModuleDataDiscriminants::Cpu,
-                ModuleDataDiscriminants::Disks,
-                ModuleDataDiscriminants::PowerProfile,
-                ModuleDataDiscriminants::Supergfxd,
-                ModuleDataDiscriminants::Weather,
-                ModuleDataDiscriminants::Time,
-            ],
-        }
-    }
+impl ModuleConfig {
+    pub const LEFT_DEFAULT: &'static [ModuleDataDiscriminants] =
+        &[ModuleDataDiscriminants::Workspaces];
+    pub const CENTER_DEFAULT: &'static [ModuleDataDiscriminants] = &[ModuleDataDiscriminants::Time];
+    pub const RIGHT_DEFAULT: &'static [ModuleDataDiscriminants] = &[
+        ModuleDataDiscriminants::Battery,
+        ModuleDataDiscriminants::Memory,
+        ModuleDataDiscriminants::Cpu,
+        ModuleDataDiscriminants::Disks,
+        ModuleDataDiscriminants::PowerProfile,
+        ModuleDataDiscriminants::Supergfxd,
+        ModuleDataDiscriminants::Weather,
+    ];
 }
+
 pub type ModuleSender = Arc<Sender<ModuleData>>;
 pub type SyncModuleSender = Arc<std::sync::mpsc::Sender<ModuleData>>;
 

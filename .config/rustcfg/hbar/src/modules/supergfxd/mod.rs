@@ -14,6 +14,7 @@ pub struct GfxModule<'a> {
 }
 impl<'a> Module for GfxModule<'a> {
     type StartupData = Arc<Connection>;
+    #[tracing::instrument(skip(data))]
     async fn new(data: Self::StartupData) -> ModResult<(Self, modules::ModuleData)> {
         let proxy = xmlgen::DaemonProxy::new(&data).await?;
 
@@ -35,6 +36,7 @@ impl<'a> Module for GfxModule<'a> {
             current_state.into(),
         ))
     }
+    #[tracing::instrument(skip(self, sender))]
     async fn run(&mut self, sender: modules::ModuleSender) -> ModResult<()> {
         sender.send(self.current_state.into()).await?;
         loop {

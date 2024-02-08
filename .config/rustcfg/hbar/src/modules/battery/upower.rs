@@ -12,6 +12,7 @@ pub struct UPowerModule<'a> {
 }
 impl<'a> Module for UPowerModule<'a> {
     type StartupData = Arc<Connection>;
+    #[tracing::instrument(skip(data))]
     async fn new(data: Self::StartupData) -> ModResult<(Self, ModuleData)> {
         let proxy = xmlgen::DeviceProxy::new(&data).await?;
         let (init_state, state_stream, percent_stream, rate_stream) = join!(
@@ -30,6 +31,7 @@ impl<'a> Module for UPowerModule<'a> {
         };
         Ok((me, state.into()))
     }
+    #[tracing::instrument(skip(self, sender))]
     async fn run(&mut self, sender: modules::ModuleSender) -> ModResult<()> {
         loop {
             select! {

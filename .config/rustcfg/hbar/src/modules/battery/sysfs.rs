@@ -1,14 +1,10 @@
+use futures_util::TryFutureExt;
+
 use super::BatteryStatus;
 use crate::*;
 
 /// convert from µW to W
 const POWER_DRAW_DIVISOR: f64 = 1_000_000_000_000.0;
-
-/// This is here because [`tokio::fs::read_to_string`] returns a different error type than [`PowerRate::get_power_draw`]
-#[inline]
-async fn read_file_to_please_borrow_checker(path: &Path) -> ModResult<String> {
-    Ok(fs::read_to_string(path).await?)
-}
 
 macro_rules! ensure_files {
     ($($file:ident),+) => {
@@ -40,10 +36,11 @@ pub struct SysFs {
 }
 impl SysFs {
     /// Read all the files at once, getting a snapshot of the battery status
+    #[tracing::instrument(skip(self))]
     pub async fn poll_all_once(&self) -> ModResult<BatteryStatus> {
         let (capacity_str, status_str, rate) = try_join!(
-            read_file_to_please_borrow_checker(&self.capacity),
-            read_file_to_please_borrow_checker(&self.status),
+            fs::read_to_string(&self.capacity).map_err(|e| e.into()),
+            fs::read_to_string(&self.status).map_err(|e| e.into()),
             self.rate.get_power_draw()
         )?;
         let capacity = Percent::from_str(&capacity_str)?;
@@ -57,6 +54,7 @@ impl SysFs {
 }
 impl Module for SysFs {
     type StartupData = super::BatteryConfig;
+    #[tracing::instrument(skip(self, sender))]
     async fn run(&mut self, sender: modules::ModuleSender) -> ModResult<()> {
         loop {
             let data = self.poll_all_once().await?;
@@ -66,7 +64,8 @@ impl Module for SysFs {
             }
         }
     }
-    async fn new(conf: Self::StartupData) -> ModResult<(Self, modules::ModuleData)> {
+    #[tracing::instrument(skip(data))]
+    async fn new(data: Self::StartupData) -> ModResult<(Self, modules::ModuleData)> {
         let power_supply = Path::new("/sys/class/power_supply");
 
         let power_supplies = power_supply
@@ -82,7 +81,7 @@ impl Module for SysFs {
 
         // let the user choice reign supreme, but fall back.
         let power_dir = if_chain! {
-            if let Some(battery_number) = conf.sysfs_battery_number.map(|i| i.to_string());
+            if let Some(battery_number) = data.sysfs_battery_number.map(|i| i.to_string());
             if let Some(d) = power_supplies.iter().find_or_first(|e| e.file_name().to_string_lossy().ends_with(&battery_number));
             then {
                 d.path()
@@ -96,32 +95,45 @@ impl Module for SysFs {
             }
         };
 
-        let power_dir_list = power_dir.read_dir()?.filter_map(|e| e.ok());
-
-        let mut capacity = None;
-        let mut status = None;
-        let mut voltage_now = None;
-        let mut current_now = None;
-        let mut power_now = None;
-
-        // search through them in one big loop
-        for file in power_dir_list {
-            match file.file_name().to_string_lossy().as_ref() {
-                "capacity" => capacity = Some(file.path()),
-                "status" => status = Some(file.path()),
-                "voltage_now" => voltage_now = Some(file.path()),
-                "current_now" => current_now = Some(file.path()),
-                "power_now" => power_now = Some(file.path()),
-                _ => {}
-            }
+        macro_rules! ensure_power_files {
+            ($($varname:ident = $file:expr);+$(;)?) => {
+                $(
+                    ensure_power_files!(f = nounwrap $file);
+                    let $varname = match f {
+                        Ok(f) => f,
+                        Err(e) => {
+                            return Err(e);
+                        }
+                    };
+                )+
+            };
+            ($($varname:ident = nounwrap $file:expr);+$(;)?) => {
+                $(
+                    let filepath = power_dir.join($file);
+                    let $varname = if filepath.exists() {
+                        Ok(filepath)
+                    } else {
+                        Err(ModError::from(concat!("Sysfs is missing required file: ", stringify!($file))))
+                    };
+                )+
+            };
         }
 
-        ensure_files!(capacity, status);
+        ensure_power_files! {
+            capacity = "capacity";
+            status = "status";
+            voltage_now = "voltage_now";
+            current_now = "current_now";
+        }
+        ensure_power_files! {
+            power_now = nounwrap "power_now";
+        }
 
-        let rate = if let Some(power_now) = power_now {
+        // ensure_files!(capacity, status);
+
+        let rate = if let Ok(power_now) = power_now {
             PowerRate::Easy(power_now)
         } else {
-            ensure_files!(voltage_now, current_now);
             PowerRate::Calculate {
                 voltage: voltage_now,
                 current: current_now,
@@ -134,7 +146,7 @@ impl Module for SysFs {
             status,
             rate,
             battery_status: BatteryStatus::default(),
-            poll_rate: Duration::from_secs(conf.sysfs_poll_rate),
+            poll_rate: Duration::from_secs(data.sysfs_poll_rate),
         };
         let polled = inner.poll_all_once().await?;
         inner.battery_status = polled;
