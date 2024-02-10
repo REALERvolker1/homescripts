@@ -91,7 +91,7 @@ if cmd pacman; then
     unsafe sudo pacman -Fy &>/dev/null &
 fi
 if cmd sysdboot.sh; then
-    unsafe sysdboot.sh update --no-mkinitcpio
+    unsafe sysdboot.sh update --no-mkinitcpio --no-interactive
 fi
 (
     if cmd rustup && [[ $(date +'%A') == 'Tuesday' ]]; then

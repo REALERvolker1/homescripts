@@ -11,6 +11,15 @@ my_pid="$$"
 #pidfile="$XDG_RUNTIME_DIR/${me}.pid"
 pidfile="/tmp/${me}.pid"
 
+# According to DJ Ware on Youtube, balanced mode is just as good as (or better than)
+# performance mode on kernel 6.7+ in benchmark performance, on hybrid architecture
+# Intel CPUs. I have an i7 12650H, hopefully this helps
+if [[ $(uname -r | grep -oP '^[0-9]+\.\K[0-9]+') -gt 6 ]]; then
+    ac_power_profile=balanced
+else
+    ac_power_profile=performance
+fi
+
 ac_command_center() {
     killall nvidia-smi
     echo "$1"
@@ -18,7 +27,7 @@ ac_command_center() {
         #light -Srs "$KEYBOARD_PATH" 3
         "${buscmd[@]}" 3 &
         brightnessctl s '80%'
-        powerprofilesctl set performance
+        powerprofilesctl set "$ac_power_profile"
         asusctl bios -O true
         #nvidia-smi dmon -d 5 &>/dev/null &
         if [[ "$(supergfxctl -g)" == 'Hybrid' ]]; then
@@ -36,7 +45,7 @@ ac_command_center() {
 }
 
 auto_check() {
-    if [ "$(cat "$SYSFS_AC_DEVICE")" -eq 1 ]; then
+    if [[ "$(cat "$SYSFS_AC_DEVICE")" -eq 1 ]]; then
         ac_command_center true
     else
         ac_command_center false

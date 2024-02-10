@@ -387,6 +387,7 @@ EXEC 01;38;5;46 # files with execute permission
 .chk 38;5;238
 .mask 38;5;238
 *shadow 38;5;238
+.pulse-cookie 38;5;238 # home dir file from steam
 
 #.trashinfo 38;5;238 # trash information file
 .zcompdump 38;5;238 # zsh completion
@@ -584,6 +585,7 @@ EXEC 01;38;5;46 # files with execute permission
 .gnu 38;5;147 # GNU plot
 .gnuplot 38;5;147
 .plot 38;5;147
+.usage 38;5;147 # complgen completion usage generator file
 
 .desktop 38;5;99 # Freedesktop Desktop Entry
 .theme 38;5;99 # Freedesktop theme

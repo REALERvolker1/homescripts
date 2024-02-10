@@ -9,13 +9,18 @@
     "include": [
         "$XDG_CONFIG_HOME/waybar/modules.jsonc"
     ],
-    "modules-left": ["hyprland/workspaces", "wlr/taskbar"],
-    "modules-center": ["hyprland/window"],
+    "modules-left": [
+        "hyprland/workspaces",
+        "wlr/taskbar"
+    ],
+    "modules-center": [
+        "hyprland/window"
+    ],
     "modules-right": [
         // "privacy",
         "pulseaudio",
-        "mpris",
         "privacy",
+        "mpris",
         "bluetooth",
         "memory",
         // "battery",

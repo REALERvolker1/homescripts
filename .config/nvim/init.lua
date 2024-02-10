@@ -145,7 +145,7 @@ require("lazy").setup({
             require("alpha").setup(require("alpha.themes.dashboard").config)
         end,
     },
-    {
+    --[[{
         "folke/noice.nvim",
         event = "VeryLazy",
         opts = {
@@ -185,12 +185,12 @@ require("lazy").setup({
                 require("noice").cmd("history")
             end)
         end,
-    },
-    {
-        "windwp/nvim-autopairs",
-        event = "InsertEnter",
-        config = true,
-    },
+    },]]
+    -- {
+    -- "windwp/nvim-autopairs",
+    -- event = "InsertEnter",
+    -- config = true,
+    -- },
     {
         "olimorris/onedarkpro.nvim",
         lazy = false,
@@ -275,7 +275,7 @@ require("lazy").setup({
         -- lazy = false,
         config = true,
     },
-    {
+    --[[{
         "chrisgrieser/nvim-spider",
         keys = {
             {
@@ -294,7 +294,7 @@ require("lazy").setup({
                 mode = { "n", "o", "x" },
             },
         },
-    },
+    }, ]]
     {
         "brenton-leighton/multiple-cursors.nvim",
         version = "*",

@@ -1,0 +1,17 @@
+[package]
+name = "pmgmt-rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+futures-util = "0.3.30"
+serde = { version = "1.0.196", features = ["derive"] }
+tokio = { version = "1.36.0", default-features = false, features = [
+    "macros",
+    "process",
+    "rt",
+    "io-std",
+] }
+zbus = { version = "3.15.0", default-features = false, features = ["tokio"] }

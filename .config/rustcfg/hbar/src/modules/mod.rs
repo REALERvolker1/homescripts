@@ -19,6 +19,9 @@ lazy_static! {
 ///
 /// Some stuff has static lifetimes, I trust myself not to break it, because this is meant
 /// to be a singleton.
+///
+/// To add modules, add all their types into the required fields in this file,
+/// then add the config to config.rs to receive configurations.
 #[derive(Debug)]
 pub struct Modules {
     pub battery_sysfs: Option<battery::sysfs::SysFs>,
@@ -189,7 +192,6 @@ impl ModuleConfig {
 }
 
 pub type ModuleSender = Arc<Sender<ModuleData>>;
-pub type SyncModuleSender = Arc<std::sync::mpsc::Sender<ModuleData>>;
 
 /// The shared trait for all modules.
 ///
