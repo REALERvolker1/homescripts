@@ -24,7 +24,7 @@ for_window [window_role="GtkFileChooserDialog"] resize set 1100 800, move positi
 # }}}
 # Workspaces {{{
 
-assign [class="VSCodium"] workspace $ws1
+assign [class="(?i)VSCodium"] workspace $ws1
 assign [class="Code - OSS"] workspace $ws1
 assign [class="(?i)firefox"] workspace $ws4
 assign [class="LibreWolf"] workspace $ws2

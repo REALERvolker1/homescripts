@@ -1,13 +1,13 @@
 use super::*;
 use sysinfo::System;
 
-const DEFAULT_POLL_RATE: u64 = 5;
+config_struct! {
+    CpuConfig, CpuConfigOptions,
 
-#[derive(Debug, Clone, Copy, Parser, SmartDefault, Deserialize, Serialize)]
-pub struct CpuConfig {
-    #[default(DEFAULT_POLL_RATE)]
-    #[arg(long, default_value_t = DEFAULT_POLL_RATE, help = "The cpu poll rate, in seconds")]
-    pub cpu_poll_rate: u64,
+    default: 5,
+    help: "The cpu poll rate, in seconds",
+    long_help: "The cpu poll rate, in seconds",
+    cpu_poll_rate: u64,
 }
 
 #[derive(Debug)]
@@ -16,11 +16,11 @@ pub struct CpuModule {
     system: System,
 }
 impl Module for CpuModule {
-    type StartupData = CpuConfig;
-    #[tracing::instrument(skip(data))]
-    async fn new(data: Self::StartupData) -> ModResult<(Self, ModuleData)> {
+    type StartupData = ();
+    #[tracing::instrument(skip_all, level = "debug")]
+    async fn new(_: Self::StartupData) -> ModResult<(Self, ModuleData)> {
         let mut me = Self {
-            poll_rate: Duration::from_secs(data.cpu_poll_rate),
+            poll_rate: Duration::from_secs(CONFIG.cpu.cpu_poll_rate),
             system: System::new(),
         };
         me.system.refresh_cpu();
@@ -28,7 +28,7 @@ impl Module for CpuModule {
         let my_data = me.get_data();
         Ok((me, my_data.into()))
     }
-    #[tracing::instrument(skip(self, sender))]
+    #[tracing::instrument(skip_all, level = "debug")]
     async fn run(&mut self, sender: ModuleSender) -> ModResult<()> {
         loop {
             let res = join!(sleep!(self.poll_rate), sender.send(self.get_data().into()));
@@ -37,6 +37,7 @@ impl Module for CpuModule {
     }
 }
 impl CpuModule {
+    #[tracing::instrument(skip_all, level = "debug")]
     pub fn get_data(&mut self) -> Cpu {
         self.system.refresh_cpu();
         Cpu::from_sysinfo(&self.system)

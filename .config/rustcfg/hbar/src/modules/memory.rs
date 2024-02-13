@@ -2,13 +2,13 @@ use super::*;
 
 use sysinfo::System;
 
-const DEFAULT_MEMORY_POLL_RATE: u64 = 5;
+config_struct! {
+    MemoryConfig, MemoryConfigOptions,
 
-#[derive(Debug, Clone, Copy, Parser, SmartDefault, Deserialize, Serialize)]
-pub struct MemoryConfig {
-    #[default(DEFAULT_MEMORY_POLL_RATE)]
-    #[arg(long, default_value_t = DEFAULT_MEMORY_POLL_RATE, help = "The memory poll rate, in seconds")]
-    pub memory_poll_rate: u64,
+    default: 5,
+    help: "The memory poll rate, in seconds",
+    long_help: "The memory poll rate, in seconds",
+    memory_poll_rate: u64,
 }
 
 #[derive(Debug)]
@@ -17,17 +17,17 @@ pub struct MemoryModule {
     system: System,
 }
 impl Module for MemoryModule {
-    type StartupData = MemoryConfig;
-    #[tracing::instrument(skip(data))]
-    async fn new(data: Self::StartupData) -> ModResult<(Self, ModuleData)> {
+    type StartupData = ();
+    #[tracing::instrument(skip_all, level = "debug")]
+    async fn new(_: Self::StartupData) -> ModResult<(Self, ModuleData)> {
         let mut me = Self {
-            poll_rate: Duration::from_secs(data.memory_poll_rate),
+            poll_rate: Duration::from_secs(CONFIG.memory.memory_poll_rate),
             system: System::new(),
         };
         let my_data = me.get_data();
         Ok((me, my_data.into()))
     }
-    #[tracing::instrument(skip(self, sender))]
+    #[tracing::instrument(skip_all, level = "debug")]
     async fn run(&mut self, sender: ModuleSender) -> ModResult<()> {
         loop {
             let poll = join!(sleep!(self.poll_rate), sender.send(self.get_data().into()));
@@ -36,6 +36,7 @@ impl Module for MemoryModule {
     }
 }
 impl MemoryModule {
+    #[tracing::instrument(skip_all, level = "debug")]
     pub fn get_data(&mut self) -> Memory {
         self.system.refresh_memory();
         Memory::from_sysinfo(&self.system)

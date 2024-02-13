@@ -27,18 +27,20 @@ pub enum ModError {
     SyncSendError(#[from] std::sync::mpsc::SendError<modules::ModuleData>),
     #[error("HTTP Request error: {0}")]
     Reqwest(#[from] reqwest::Error),
+    #[error("Clap parsing error: {0}")]
+    Clap(#[from] clap::error::Error),
     #[error("Invalid integer value: {0}")]
     InvalidInt(isize),
-    #[error("Error formatting toml: {0}")]
-    TomlSerialize(#[from] toml::ser::Error),
-    // #[error("Error editing/serializing toml: {0}")]
-    // TomlEditSerialize(#[from] toml_edit::ser::Error),
-    #[error("Error reading toml: {0}")]
-    TomlDeSerialize(#[from] toml::de::Error),
-    // #[error("Error editing/deserializing toml: {0}")]
-    // TomlEditDeSerialize(#[from] toml_edit::de::Error),
-    // #[error("File not found: {}", .0.display())]
-    // FileNotFound(PathBuf),
+
+    // #[error("Error formatting toml: {0}")]
+    // TomlSerialize(#[from] toml::ser::Error),
+    #[error("Error editing/serializing toml: {0}")]
+    TomlEditSerialize(#[from] toml_edit::ser::Error),
+    // #[error("Error reading toml: {0}")]
+    // TomlDeSerialize(#[from] toml::de::Error),
+    #[error("Error editing/deserializing toml: {0}")]
+    TomlEditDeSerialize(#[from] toml_edit::de::Error),
+
     /// An error type for hardcoded errors. This is why it is a static str
     #[error("Error: {0}")]
     KnownError(&'static str),
@@ -49,21 +51,25 @@ pub enum ModError {
     Unknown,
 }
 impl From<()> for ModError {
+    #[tracing::instrument(level = "debug")]
     fn from(_: ()) -> Self {
         Self::Unknown
     }
 }
 impl From<&'static str> for ModError {
+    #[tracing::instrument(level = "debug")]
     fn from(value: &'static str) -> Self {
         Self::KnownError(value)
     }
 }
-// impl From<String> for ModError {
-//     fn from(value: String) -> Self {
-//         Self::Other(value)
-//     }
-// }
+impl From<String> for ModError {
+    #[tracing::instrument(level = "debug")]
+    fn from(value: String) -> Self {
+        Self::Fmt(value)
+    }
+}
 impl Into<zbus::Error> for ModError {
+    #[tracing::instrument(skip_all, level = "debug")]
     fn into(self) -> zbus::Error {
         zbus::Error::Unsupported
     }

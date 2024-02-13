@@ -215,7 +215,7 @@ require("lazy").setup({
             vim.cmd("colorscheme onedark_vivid")
         end,
     },
-    {
+    --[[{
         "mikesmithgh/kitty-scrollback.nvim",
         enabled = is_kitty,
         lazy = true,
@@ -224,7 +224,7 @@ require("lazy").setup({
         config = function()
             require("kitty-scrollback").setup()
         end,
-    },
+    },]]
     {
         "NvChad/nvim-colorizer.lua",
         dependencies = {
@@ -360,6 +360,7 @@ require("lazy").setup({
             "hrsh7th/cmp-cmdline",
             {
                 "garyhurtz/cmp_kitty",
+                enabled = is_kitty,
                 init = function()
                     require("cmp_kitty"):setup()
                 end,

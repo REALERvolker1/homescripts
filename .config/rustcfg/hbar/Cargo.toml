@@ -2,8 +2,13 @@
 name = "hbar"
 version = "0.1.0"
 edition = "2021"
+authors = ["vlk"]
+description = "HBAR: A better Linux statusbar supporting both wayland and x11"
+license = "GPL-3.0-or-later"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "hbar"
+path = "src/globals.rs"
 
 [dependencies]
 ahash = { version = "0.8.7", default-features = false, features = [
@@ -16,23 +21,24 @@ chrono = { version = "0.4.33", default-features = false, features = [
     "std",
     "clock",
 ] }
-clap = { version = "4.4.18", features = ["derive", "cargo", "env", "unicode"] }
-clap-verbosity-flag = "2.1.2"
+clap = { version = "4.4.18", features = ["derive", "env", "unicode"] }
+color-eyre = "0.6.2"
 const_format = { version = "0.2.32", features = ["rust_1_64"] }
 derive_more = "0.99.17"
 dirs = "5.0.1"
 futures-util = { version = "0.3.30", features = ["tokio-io"] }
 gtk4 = { version = "0.8.0", features = ["v4_12"] }
+heck = "0.4.1"
 hyprland = "0.3.13"
 if_chain = "1.0.2"
 inotify = "0.10.2"
 itertools = "0.12.1"
 lazy_static = "1.4.0"
-nix = { version = "0.27.1", features = ["signal"] }
 parking_lot = { version = "0.12.1", features = ["serde"] }
-reqwest = { version = "0.11.24", features = ["json", "stream"] }
+reqwest = { version = "0.11.24", default-features = false, features = [
+    "native-tls",
+] }
 serde = { version = "1.0.196", features = ["derive"] }
-simple-eyre = "0.3.1"
 size = "0.4.1"
 smart-default = "0.7.1"
 strum = { version = "0.26.1", features = ["strum_macros", "derive", "phf"] }
@@ -53,9 +59,9 @@ tokio = { version = "1.36.0", default-features = false, features = [
     "io-util",
     "tracing",
 ] }
-toml = "0.8.10"
+toml_edit = { version = "0.22.4", features = ["perf", "serde"] }
 tracing = { version = "0.1.40", features = ["async-await"] }
-tracing-log = { version = "0.2.0", features = ["ahash", "lru"] }
+tracing-error = "0.2.0"
 tracing-subscriber = { version = "0.3.18", features = [
     "env-filter",
     "chrono",

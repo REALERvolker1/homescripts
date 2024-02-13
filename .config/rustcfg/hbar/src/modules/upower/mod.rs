@@ -1,95 +1,73 @@
-pub mod sysfs;
-pub mod upower;
 mod xmlgen;
+use super::*;
 
-use crate::*;
-
-use super::ModuleData;
-
-const DEFAULT_TYPE: BatteryRunTypeDiscriminants = BatteryRunTypeDiscriminants::Auto;
-const DEFAULT_SYSFS_POLL_RATE: u64 = 5;
-
-#[derive(Debug, SmartDefault, Parser, Clone, Serialize, Deserialize)]
-pub struct BatteryConfig {
-    #[default(DEFAULT_TYPE)]
-    #[arg(long = "battery-backend", default_value_t = DEFAULT_TYPE, help = "Override the battery module backend")]
-    pub backend: BatteryRunTypeDiscriminants,
-    #[default(DEFAULT_SYSFS_POLL_RATE)]
-    #[arg(
-        long,
-        default_value_t = DEFAULT_SYSFS_POLL_RATE,
-        help = "Sysfs battery polling rate",
-        long_help = "The rate at which to poll the battery when using the naive sysfs backend"
-    )]
-    pub sysfs_poll_rate: u64,
-
-    #[arg(
-        long,
-        help = "The battery number in sysfs to use",
-        long_help = "The battery number to use. For example, if you have two batteries, `BAT1` and `BAT2`, you can specify which one you choose to poll by setting this to `2`, for example to poll `BAT2`."
-    )]
-    pub sysfs_battery_number: Option<usize>,
+#[derive(Debug)]
+pub struct UPowerModule<'a> {
+    proxy: xmlgen::DeviceProxy<'a>,
+    state_stream: PropertyStream<'a, BatteryState>,
+    percent_stream: PropertyStream<'a, Percent>,
+    rate_stream: PropertyStream<'a, f64>,
+    current_data: BatteryStatus,
 }
-
-#[derive(derive_more::From, Default, strum_macros::EnumDiscriminants)]
-#[strum_discriminants(derive(Deserialize, Serialize, ValueEnum, strum_macros::Display, Default))]
-#[strum_discriminants(serde(rename_all = "lowercase"))]
-#[strum_discriminants(strum(serialize_all = "lowercase"))]
-#[strum_discriminants(clap(rename_all = "lowercase"))]
-pub enum BatteryRunType<'a> {
-    Sysfs(sysfs::SysFs),
-    Upower(upower::UPowerModule<'a>),
-    #[default]
-    #[strum_discriminants(default)]
-    Auto,
-}
-impl<'a> BatteryRunType<'a> {
-    pub fn unwrap_tuple(self) -> (Option<sysfs::SysFs>, Option<upower::UPowerModule<'a>>) {
-        match self {
-            Self::Sysfs(s) => (Some(s), None),
-            Self::Upower(s) => (None, Some(s)),
-            _ => (None, None),
-        }
+impl<'a> Module for UPowerModule<'a> {
+    type StartupData = Arc<Connection>;
+    #[tracing::instrument(skip_all, level = "debug")]
+    async fn new(data: Self::StartupData) -> ModResult<(Self, ModuleData)> {
+        let proxy = xmlgen::DeviceProxy::new(&data).await?;
+        let (init_state, state_stream, percent_stream, rate_stream) = join!(
+            Self::get_all(&proxy),
+            proxy.receive_state_changed(),
+            proxy.receive_percentage_changed(),
+            proxy.receive_energy_rate_changed(),
+        );
+        let state = init_state?;
+        let me = Self {
+            proxy,
+            state_stream,
+            percent_stream,
+            rate_stream,
+            current_data: state,
+        };
+        Ok((me, state.into()))
     }
-    #[tracing::instrument(skip(config, dbus_connection))]
-    pub async fn new(
-        config: BatteryConfig,
-        dbus_connection: Arc<Connection>,
-    ) -> ModResult<(Self, ModuleData)> {
-        macro_rules! s {
-            () => {
-                sysfs::SysFs::new(config).await
-            };
-            (return $s:expr) => {
-                (Self::Sysfs($s.0), $s.1.into())
-            };
-        }
-        macro_rules! u {
-            () => {
-                upower::UPowerModule::new(dbus_connection).await
-            };
-            (return $s:expr) => {
-                (Self::Upower($s.0), $s.1.into())
-            };
-        }
-        match config.backend {
-            BatteryRunTypeDiscriminants::Sysfs => {
-                let sysfs = s!()?;
-                Ok(s!(return sysfs))
-            }
-            BatteryRunTypeDiscriminants::Upower => {
-                let upower = u!()?;
-                Ok(u!(return upower))
-            }
-            _ => {
-                if let Some(s) = unerr!(u!()) {
-                    Ok(u!(return s))
-                } else {
-                    let sysfs = s!()?;
-                    Ok(s!(return sysfs))
+    #[tracing::instrument(skip_all, level = "debug")]
+    async fn run(&mut self, sender: modules::ModuleSender) -> ModResult<()> {
+        loop {
+            select! {
+                Some(s) = self.state_stream.next() => {
+                    if let Ok(s) = s.get().await {
+                        self.current_data.set_state(s);
+                        sender.send(self.current_data.into()).await?;
+                    }
+                }
+                Some(p) = self.percent_stream.next() => {
+                    if let Ok(p) = p.get().await {
+                        self.current_data.set_percentage(p);
+                        sender.send(self.current_data.into()).await?;
+                    }
+                }
+                Some(r) = self.rate_stream.next() => {
+                    if let Ok(r) = r.get().await {
+                        self.current_data.set_rate(r.into());
+                        sender.send(self.current_data.into()).await?;
+                    }
                 }
             }
         }
+    }
+}
+impl UPowerModule<'_> {
+    /// Get all the data
+    #[tracing::instrument(skip_all, level = "debug")]
+    pub async fn get_all(proxy: &xmlgen::DeviceProxy<'_>) -> ModResult<BatteryStatus> {
+        let (state, percent, rate) =
+            try_join!(proxy.state(), proxy.percentage(), proxy.energy_rate(),)?;
+        Ok(BatteryStatus::new(state, percent, rate.into()))
+    }
+    #[inline]
+    pub async fn update_all(&mut self) -> ModResult<()> {
+        self.current_data = Self::get_all(&self.proxy).await?;
+        Ok(())
     }
 }
 
@@ -104,16 +82,19 @@ pub struct BatteryStatus {
 }
 impl BatteryStatus {
     /// Basically just [`BatteryStatus::new`] but using current values
+    #[tracing::instrument(skip_all, level = "debug")]
     pub fn set_rate(mut self, rate: FuckingFloat) {
         self = Self::new(self.state, self.percentage, rate);
     }
 
     /// Basically just [`BatteryStatus::new`] but using current values
+    #[tracing::instrument(skip_all, level = "debug")]
     pub fn set_percentage(mut self, percentage: Percent) {
         self = Self::new(self.state, percentage, self.rate);
     }
 
     /// Basically just [`BatteryStatus::new`] but using current values
+    #[tracing::instrument(skip_all, level = "debug")]
     pub fn set_state(mut self, state: BatteryState) {
         self = Self::new(state, self.percentage, self.rate);
     }
@@ -210,13 +191,7 @@ pub enum BatteryState {
     Charging = 1,
     Discharging = 2,
     Empty = 3,
-    #[strum(
-        serialize = "fully-charged",
-        serialize = "Fully Charged",
-        serialize = "Full"
-    )]
     FullyCharged = 4,
-    #[strum(serialize = "pending-charge", serialize = "Not Charging")]
     PendingCharge = 5,
     PendingDischarge = 6,
     #[default]

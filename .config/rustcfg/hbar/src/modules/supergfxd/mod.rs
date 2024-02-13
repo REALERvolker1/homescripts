@@ -1,5 +1,5 @@
 mod xmlgen;
-use crate::*;
+use super::*;
 
 // https://gitlab.com/asus-linux/supergfxctl
 
@@ -14,7 +14,7 @@ pub struct GfxModule<'a> {
 }
 impl<'a> Module for GfxModule<'a> {
     type StartupData = Arc<Connection>;
-    #[tracing::instrument(skip(data))]
+    #[tracing::instrument(skip_all, level = "debug")]
     async fn new(data: Self::StartupData) -> ModResult<(Self, modules::ModuleData)> {
         let proxy = xmlgen::DaemonProxy::new(&data).await?;
 
@@ -36,7 +36,7 @@ impl<'a> Module for GfxModule<'a> {
             current_state.into(),
         ))
     }
-    #[tracing::instrument(skip(self, sender))]
+    #[tracing::instrument(skip_all, level = "debug")]
     async fn run(&mut self, sender: modules::ModuleSender) -> ModResult<()> {
         sender.send(self.current_state.into()).await?;
         loop {
@@ -81,6 +81,7 @@ impl GfxState {
             GfxMode::None => '󰳤',
         }
     }
+    #[tracing::instrument(level = "debug")]
     pub fn set_power(&mut self, power: GfxPower) {
         self.power = power;
     }

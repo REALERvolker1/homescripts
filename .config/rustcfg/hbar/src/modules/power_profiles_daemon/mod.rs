@@ -1,6 +1,5 @@
 mod xmlgen;
-
-use crate::*;
+use super::*;
 
 #[derive(Debug)]
 pub struct PowerProfiles<'a> {
@@ -9,7 +8,7 @@ pub struct PowerProfiles<'a> {
 }
 impl Module for PowerProfiles<'_> {
     type StartupData = Arc<Connection>;
-    #[tracing::instrument(skip(data))]
+    #[tracing::instrument(skip_all, level = "debug")]
     async fn new(data: Self::StartupData) -> ModResult<(Self, modules::ModuleData)> {
         let proxy = xmlgen::PowerProfilesProxy::new(&data).await?;
         let (prof, listener) = join!(
@@ -18,7 +17,7 @@ impl Module for PowerProfiles<'_> {
         );
         Ok((Self { proxy, listener }, prof?.into()))
     }
-    #[tracing::instrument(skip(self, sender))]
+    #[tracing::instrument(skip_all, level = "debug")]
     async fn run(&mut self, sender: modules::ModuleSender) -> ModResult<()> {
         while let Some(p) = self.listener.next().await {
             sender.send(p.get().await?.into()).await?;
@@ -27,6 +26,7 @@ impl Module for PowerProfiles<'_> {
     }
 }
 impl PowerProfiles<'_> {
+    #[tracing::instrument(skip_all, level = "debug")]
     pub async fn active_profile(&self) -> ModResult<PowerProfileState> {
         Ok(self.proxy.active_profile().await?)
     }

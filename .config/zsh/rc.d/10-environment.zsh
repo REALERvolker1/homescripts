@@ -9,6 +9,7 @@ foreach k v (
     run $XDG_RUNTIME_DIR
     bin ~/bin
     code ~/code
+    src ~/src
     pics ~/Pictures
     var ~/.var/app
     dots ${HOMESCRIPTS:=~/homescripts}

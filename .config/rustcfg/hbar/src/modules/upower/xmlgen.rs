@@ -123,7 +123,7 @@ trait Device {
 
     /// State property
     #[dbus_proxy(property)]
-    fn state(&self) -> zbus::Result<crate::modules::battery::BatteryState>;
+    fn state(&self) -> zbus::Result<super::BatteryState>;
 
     /// Technology property
     #[dbus_proxy(property)]

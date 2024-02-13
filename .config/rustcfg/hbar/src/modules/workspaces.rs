@@ -25,10 +25,32 @@ impl fmt::Display for WorkspaceData {
         )
     }
 }
+
+/// The type I have decided to use for monitor IDs
+pub type MonitorIdType = u8;
+
+/// The internal representation of a monitor
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct Monitor {
+    /// The monitor name, like `eDP-1`
+    pub name: String,
+    /// The internal monitor ID, for faster comparison
+    pub id: MonitorIdType,
+}
+impl Monitor {
+    pub fn detect() -> ModResult<HashMap<MonitorIdType, Self>> {
+        Ok(HashMap::new())
+    }
+}
+
 // TODO: Complain about lack of documentation about wayland_protocols
-// #[tracing::instrument(skip(data))]
-// #[tracing::instrument(skip(self, sender))]
+// #[tracing::instrument(skip_all, level = "debug")]
+// #[tracing::instrument(skip_all, level = "debug")]
 // fn b() {
 //     // let e = wayland_protocols_wlr::output_management::v1::client::zwlr_output_configuration_v1::ZwlrOutputConfigurationV1::
 //     let e = wayland_protocols::ext::foreign_toplevel_list::v1::client::ext_foreign_toplevel_list_v1::Event::
+// }
+// pub struct WorkspaceModule;
+// impl Module for WorkspaceModule {
+//     type StartupData = ;
 // }

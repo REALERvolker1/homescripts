@@ -34,11 +34,8 @@ foreground = "0xeaeaea"
 # text = "CellBackground"
 # unfocused_hollow = true
 
-[env]
-ICON_TYPE = "powerline"
-
 [font]
-size = 11.0
+size = 12.0
 
 [font.bold]
 family = "monospace"
@@ -48,29 +45,40 @@ style = "Bold"
 x = 0
 y = 0
 
+[font.bold_italic]
+family = "Liberation Mono Bold Italic"
+style = "Bold Italic"
+
 [font.italic]
-family = "monospace"
+family = "Hack Nerd Font Italic"
 style = "Italic"
 
 [font.normal]
 family = "monospace"
 style = "Regular"
 
-[font.offset]
-x = 0
-y = 0
-
 [scrolling]
 # draw_bold_text_with_bright_colors = false
 history = 4000
 
 [shell]
-program = "/usr/bin/zsh"
+# program = "/usr/bin/zsh"
+program = "/usr/bin/tmux"
 
 [window]
 dynamic_padding = true
+dynamic_title = true
 opacity = 0.75
+blur = true
 
 [window.padding]
 x = 4
 y = 4
+
+[cursor.style]
+shape = "Beam"
+blinking = "On"
+
+[cursor.vi_mode_style]
+shape = "Block"
+blinking = "On"

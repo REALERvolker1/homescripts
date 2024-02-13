@@ -11,11 +11,17 @@ pub struct Bar {
     application: gtk4::Application,
 }
 impl Bar {
-    pub fn run() -> ModResult<()> {
+    pub fn run() -> color_eyre::Result<()> {
         let app = gtk4::Application::builder().application_id(APP_ID).build();
+
         app.connect_activate(build_ui);
 
-        glib_exit_code_to_mod_result(app.run())
+        let run = app.run_with_args::<&str>(&[]);
+        warn!("GTK application exited with code {:?}", run);
+        glib_exit_code_to_mod_result(run)?;
+
+        // gio::DBusInterface::
+        Ok(())
     }
     pub fn insert_widget(&self) -> ModResult<()> {
         todo!()

@@ -1,0 +1,68 @@
+#!/usr/bin/zsh
+# A script to help me be on time for the little things
+# by vlk
+emulate -LR zsh
+set -euo pipefail
+
+ME=${0##*/}
+
+# Change this function to change the notification action
+_notify() {
+    local notif_interval=$1
+    local seconds=$2
+    local notif_icon='notification-new-90-symbolic'
+
+    notify-send -a $ME -i $notif_icon 'time up!' "Timer interval of $notif_interval ($seconds seconds) has finished!"
+}
+
+_panic() {
+    print -lP $@ "
+%B$ME%b %U<int>[h|m|s]%u
+
+This program sleeps for X hours, minutes, or seconds, then notifies you when it is done.
+
+Supports multiple times one after the other.
+%B'$ME 3m 5m'%b will sleep for 3 minutes and then notify. After doing that, it will sleep for another 5 minutes then notify when that is done."
+    exit 1
+}
+
+typeset -a intervals calc_intervals faildeps
+
+for i in notify-send
+    hash $i || faildeps+=($i)
+(($+faildeps[1])) && _panic "Error, missing dependencies"
+
+() for i {
+    if [[ $i =~ ^[0-9]+[hms]$ ]] {
+        local time_interval=${i##*[[:digit:]]}      # h
+        local sleep_time=${i%%[^[:digit:]]}         # 30
+
+        # it all has to be seconds for sleep
+        case $time_interval in
+            h) sleep_time=$((sleep_time * 3600)) ;;
+            m) sleep_time=$((sleep_time * 60)) ;;
+            # s) sleep_time=$sleep_time ;;
+        esac
+
+        intervals+=($i)                     # 30h
+        calc_intervals+=($sleep_time)       # 30 * 3600
+    } else {
+        _panic "invalid interval: '$i'"
+    }
+} $@
+
+(($+intervals[1])) || _panic 'No time intervals specified!'
+
+print "Timer schedule (in seconds):" $calc_intervals
+
+for ((i = 1; i <= $#calc_intervals; i++)); {
+    secs=$calc_intervals[$i]
+    pretty=$intervals[$i]
+
+    print -P "Waiting with interval of %B$pretty%b ($secs seconds)"
+    sleep $secs
+    _notify $pretty $secs
+}
+
+echo completed
+

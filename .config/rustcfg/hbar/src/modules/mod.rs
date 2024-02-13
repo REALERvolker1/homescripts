@@ -1,10 +1,10 @@
-pub mod battery;
 pub mod cpu;
 pub mod disks;
 pub mod memory;
 pub mod power_profiles_daemon;
 pub mod supergfxd;
 pub mod time;
+pub mod upower;
 pub mod weather;
 pub mod workspaces;
 
@@ -24,10 +24,9 @@ lazy_static! {
 /// then add the config to config.rs to receive configurations.
 #[derive(Debug)]
 pub struct Modules {
-    pub battery_sysfs: Option<battery::sysfs::SysFs>,
-    pub battery_upower: Option<battery::upower::UPowerModule<'static>>,
-    pub time: Option<time::Time>,
-    pub weather: Option<weather::Weather>,
+    pub battery: Option<upower::UPowerModule<'static>>,
+    pub time: Option<time::TimeModule>,
+    pub weather: Option<weather::WeatherModule>,
     pub power_profile: Option<power_profiles_daemon::PowerProfiles<'static>>,
     pub supergfxd: Option<supergfxd::GfxModule<'static>>,
     pub memory: Option<memory::MemoryModule>,
@@ -35,13 +34,21 @@ pub struct Modules {
     pub disks: Option<disks::DiskModule>,
 }
 impl Modules {
-    #[tracing::instrument(skip(sender, cfg))]
-    pub async fn new(sender: ModuleSender, cfg: config::Config) -> ModResult<Self> {
+    // #[tracing::instrument(skip_all, level = "debug")]
+    #[tracing::instrument(skip_all, level = "debug")]
+    pub async fn new(sender: ModuleSender) -> color_eyre::Result<Self> {
         // there was already an instance of this. If there wasn't,
         // then we already swapped the value to true so it's safe
         if MODULES_INITIALIZED.swap(true, Ordering::SeqCst) {
-            return Err(ModError::KnownError("modules already initialized"));
+            return Err(ModError::KnownError("modules already initialized").into());
         }
+
+        let client = Arc::new(
+            reqwest::ClientBuilder::new()
+                .timeout(Duration::from_secs(30))
+                .connection_verbose(true)
+                .build()?,
+        );
 
         // I'm pretty sure this will drop if it isn't required by anything.
         let system_connection = Arc::new(Connection::system().await?);
@@ -49,13 +56,19 @@ impl Modules {
         // all the init values I want to send
         let mut inits = Vec::new();
 
-        // helper macro. $var is the variable you want to set, $var1 is a random placeholder because the
-        // rust people have been arguing about concat_ident! for over 9 fucking years, and $module is the module init function.
+        /// helper macro. $var is the variable you want to set, $var1 is a random placeholder because the
+        /// rust people have been arguing about concat_ident! for over 9 fucking years, and $module is the module init function.
         macro_rules! init_var_v2 {
             ($($var:ident $var1:ident = $module:expr),+$(,)?) => {
                 let ($($var1),+) = join!($($module),+);
                 $(
-                    let ($var, state) = unerr_tuple!($var1);
+                    let ($var, state) = match $var1 {
+                        Ok(unerrd) => (Some(unerrd.0), Some(unerrd.1)),
+                        Err(e) => {
+                            ::tracing::error!("{e}");
+                            (None, None)
+                        }
+                    };
                     if let Some(s) = state {
                         inits.push(sender.send(s));
                     } else {
@@ -66,28 +79,21 @@ impl Modules {
         }
 
         init_var_v2!(
-            battery b = battery::BatteryRunType::new(cfg.battery, Arc::clone(&system_connection)),
+            battery b = upower::UPowerModule::new(Arc::clone(&system_connection)),
             power_profile p = power_profiles_daemon::PowerProfiles::new(Arc::clone(&system_connection)),
             supergfxd s = supergfxd::GfxModule::new(Arc::clone(&system_connection)),
-            time t = time::Time::new(cfg.time),
-            weather w = weather::Weather::new(cfg.weather),
-            memory m = memory::MemoryModule::new(cfg.memory),
-            cpu c = cpu::CpuModule::new(cfg.cpu),
-            disks d = disks::DiskModule::new(cfg.disks)
+            time t = time::TimeModule::new(()),
+            weather w = weather::WeatherModule::new(Arc::clone(&client)),
+            memory m = memory::MemoryModule::new(()),
+            cpu c = cpu::CpuModule::new(()),
+            disks d = disks::DiskModule::new(())
         );
-
-        let (battery_sysfs, battery_upower) = if let Some(bat) = battery {
-            bat.unwrap_tuple()
-        } else {
-            (None, None)
-        };
 
         // send all the data up the pipe
         futures_util::future::try_join_all(inits.into_iter()).await?;
 
         Ok(Self {
-            battery_sysfs,
-            battery_upower,
+            battery,
             time,
             weather,
             power_profile,
@@ -98,8 +104,8 @@ impl Modules {
         })
     }
     /// Runs all the modules, consumes self.
-    #[tracing::instrument(skip(self))]
-    pub async fn run(self, sender: ModuleSender) -> ModResult<()> {
+    #[tracing::instrument(skip_all, level = "debug")]
+    pub async fn run(self, sender: ModuleSender) -> color_eyre::Result<()> {
         let sender = Arc::clone(&sender);
         macro_rules! run {
             ($($module:tt),+$(,)?) => {
@@ -115,8 +121,7 @@ impl Modules {
         }
 
         run!(
-            battery_sysfs,
-            battery_upower,
+            battery,
             time,
             weather,
             power_profile,
@@ -151,7 +156,7 @@ impl Modules {
 #[strum_discriminants(clap(rename_all = "lowercase"))]
 pub enum ModuleData {
     Workspaces(workspaces::WorkspaceData),
-    Battery(battery::BatteryStatus),
+    Battery(upower::BatteryStatus),
     Time(time::DateTimeData),
     Weather(String),
     PowerProfile(power_profiles_daemon::PowerProfileState),
@@ -161,26 +166,20 @@ pub enum ModuleData {
     Disks(disks::DiskList),
     Uninitialized(&'static str),
 }
+config_struct! {
+    ModuleConfig, ModuleConfigOptions,
 
-#[derive(Debug, Parser, SmartDefault, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct ModuleConfig {
-    #[default(Self::LEFT_DEFAULT.to_vec())]
-    // #[arg(long, default_values_t = Self::LEFT_DEFAULT, help = "Modules on the left")]
-    pub left_modules: Vec<ModuleDataDiscriminants>,
+    default: vec![ModuleDataDiscriminants::Workspaces],
+    help: "Modules to show in the left side of the bar",
+    long_help: "Modules to show in the left side of the bar",
+    left_modules: Vec<ModuleDataDiscriminants>,
 
-    #[default(Self::CENTER_DEFAULT.to_vec())]
-    // #[arg(long, default_values_t = Self::CENTER_DEFAULT, help = "Modules in the center")]
-    pub center_modules: Vec<ModuleDataDiscriminants>,
+    default: vec![ModuleDataDiscriminants::Time],
+    help: "Modules to show in the center of the bar",
+    long_help: "Modules to show in the center of the bar",
+    center_modules: Vec<ModuleDataDiscriminants>,
 
-    #[default(Self::RIGHT_DEFAULT.to_vec())]
-    // #[arg(long, default_values_t = Self::RIGHT_DEFAULT, help = "Modules on the right")]
-    pub right_modules: Vec<ModuleDataDiscriminants>,
-}
-impl ModuleConfig {
-    pub const LEFT_DEFAULT: &'static [ModuleDataDiscriminants] =
-        &[ModuleDataDiscriminants::Workspaces];
-    pub const CENTER_DEFAULT: &'static [ModuleDataDiscriminants] = &[ModuleDataDiscriminants::Time];
-    pub const RIGHT_DEFAULT: &'static [ModuleDataDiscriminants] = &[
+    default: vec![
         ModuleDataDiscriminants::Battery,
         ModuleDataDiscriminants::Memory,
         ModuleDataDiscriminants::Cpu,
@@ -188,7 +187,10 @@ impl ModuleConfig {
         ModuleDataDiscriminants::PowerProfile,
         ModuleDataDiscriminants::Supergfxd,
         ModuleDataDiscriminants::Weather,
-    ];
+    ],
+    help: "Modules to show in the right side of the bar",
+    long_help: "Modules to show in the right side of the bar",
+    right_modules: Vec<ModuleDataDiscriminants>,
 }
 
 pub type ModuleSender = Arc<Sender<ModuleData>>;
