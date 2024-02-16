@@ -1,4 +1,4 @@
-use futures::StreamExt;
+use futures_util::StreamExt;
 // use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 use std::error::Error;

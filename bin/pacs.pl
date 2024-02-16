@@ -200,7 +200,14 @@ Do you want to \e[1m${action}\e[0m these packages?
     }
 }
 if ( $action eq "install" ) {
-    system("sudo pacman -S --needed $selstr");
+    ;
+    unless ( system("sudo pacman -S --needed $selstr") == 0 ) {
+	my $home = "$ENV{'HOME'}";
+	print "Possible error installing packages\n$selstr\n";
+	open( FH, '>', "$home/failed.packages" );
+	print FH "$selstr\n";
+	close(FH);
+    }
 }
 elsif ( $action eq "remove" ) {
     system("sudo pacman -Rcs $selstr");
