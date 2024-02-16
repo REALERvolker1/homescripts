@@ -206,7 +206,9 @@ alias cr='cargo run'
 # pass command line args too
 expand_aliases[cr]='cr --'
 alias cb='cargo build'
-alias cbr='cargo build --release'
+# for distribution, run cargo build --release. This is only for local dev.
+# Meant to go with my $CARGO_HOME/config.toml that enables full lto with mold
+alias cbr='RUSTFLAGS="-C target-cpu=native" cargo build --release'
 alias nightly='rustup override set nightly'
 
 # alias cupl='cargo install-update -l'
