@@ -1,10 +1,24 @@
 #!/usr/bin/env bash
 # A script by vlk to automate interaction with systemd-boot
 
+# Print an error message, then exit. For known points of failure
+_panic() {
+    printf '%s\n' "$@"
+    exit 1
+}
+
+# get the root fs
+# The first form just matches all non-spaces after UUID=, and then only matches on lines for the / partition
+#root=$(grep -oP '^UUID=\K[^\s]+(?=\s+/\s+)' /etc/fstab)
+# The other one actually matches UUIDs, but could be buggy on some hardware
+#root=$(grep -oP '^UUID=\K[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12}(?=\s+/\s)' /etc/fstab)
+root=$(grep -oP '^UUID=\K[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12}(?=\s+/\s)' /etc/fstab)
+[[ -n ${root-} ]] || _panic "Error, root UUID '$root' is invalid!"
+
 # set the kernel cmdline
 # having this as an array makes it a bit more ergonomic and readable
 declare -a sdb_options=(
-    'root=UUID=bf65b923-b2b3-4e64-9f41-46faf46361ea' rw zswap.enabled=0 nowatchdog nvme_load=yes
+    "root=UUID=$root" rw zswap.enabled=0 nowatchdog nvme_load=yes
     rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
     modprobe.blacklist=iTCO_wdt
 )
@@ -13,7 +27,7 @@ declare -a sdb_options=(
 declare -i MKINITCPIO=1
 
 # bootloader conf options
-LOADER_DEFAULT_TIMEOUT=1
+LOADER_DEFAULT_TIMEOUT=0
 LOADER_DEFAULT_CONSOLE_MODE=max
 
 # Set your bootctl install path. Should be automatic, but you can manually set it if this is broken
@@ -21,12 +35,6 @@ LOADER_DEFAULT_CONSOLE_MODE=max
 #BOOT_PATH=/boot
 #LOADER_PATH="$BOOT_PATH/loader"
 #ENTRIES_PATH="$LOADER_PATH/entries"
-
-# Print an error message, then exit. For known points of failure
-_panic() {
-    printf '%s\n' "$@"
-    exit 1
-}
 
 # Asks the user a yes or no question, with a prompt. Can change which answer is given by default
 _prompt() {
