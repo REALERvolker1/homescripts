@@ -39,7 +39,8 @@ waybar &
 # ) &
 
 set-cursor-theme.sh --session &
-#steam-symlink-unfucker.sh &
+steam-symlink-unfucker.sh &
+hyprpointer &
 # pointer.sh -n &
 #pointer.sh -um &
 #pmgmt.sh --monitor &

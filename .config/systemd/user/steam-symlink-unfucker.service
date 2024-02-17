@@ -1,0 +1,9 @@
+[Unit]
+Description=Unfuck flatpak steam symlinks to work around bug https://github.com/flathub/com.valvesoftware.Steam/issues/1218
+After=default.target
+
+[Service]
+ExecStart=/home/vlk/bin/steam-symlink-unfucker.sh
+
+[Install]
+WantedBy=default.target

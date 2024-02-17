@@ -1,2 +1,2 @@
 [Context]
-filesystems=~/.local/opt/azul-zing;xdg-config/MangoHud:ro
+filesystems=xdg-run:create;xdg-config/MangoHud:ro

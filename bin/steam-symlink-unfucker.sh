@@ -9,7 +9,6 @@ for i in $(pgrep 'steam-symlink-u'); do
 done
 
 steamdir="$HOME/.var/app/com.valvesoftware.Steam"
-targetdir="${XDG_CONFIG_HOME:-$HOME/.config}"
 
 if [ ! -d "$steamdir" ]; then
     echo "Error, steamdir '$steamdir' does not exist!"
@@ -18,27 +17,11 @@ fi
 
 cd "$steamdir" || exit 1
 
-copyfunc() {
-    for i in "$steamdir"/*(@); do
-        [ -z "$i" ] || [ ! -h "$i" ] && continue
-        target="$(realpath "$targetdir/${i##*/}")"
-        [ -z "$target" ] || [ ! -e "$target" ] && continue
-        echo "$target"
-        rm "$i"
-        cp -r "$target" "$steamdir"
-    done
-}
-
-rmhomefunc() {
-    rm "$steamdir/"{Music,Pictures} &>/dev/null && echo "removed home symlinks"
-}
-rmcfgfunc() {
-    rm "$steamdir/.config"/*(@) &>/dev/null && echo "removed config symlinks"
-}
-
 while true; do
-    rmcfgfunc
-    inotifywait -qe create "$steamdir/.config"
+    rm "$steamdir/.config"/*(@) &>/dev/null && echo "removed config symlinks"
+    # rm "$steamdir/.local/share"/*(@) &>/dev/null && echo "removed local-share symlinks"
+    rm "$steamdir/"{Music,Pictures} &>/dev/null && echo "removed home symlinks"
+    inotifywait -qe create "$steamdir/.config" "$steamdir/.local/share" "$steamdir"
 done
 
 wait

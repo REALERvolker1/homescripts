@@ -93,7 +93,7 @@ pub type Icon = &'static str;
     Hash,
     PartialEq,
     strum_macros::Display,
-    strum_macros::EnumIter,
+    strum_macros::VariantArray,
     Serialize,
     Deserialize,
 )]
