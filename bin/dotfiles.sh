@@ -21,7 +21,9 @@ git_interact() {
         if [ "${1:-}" == '-f' ]; then
             commitmsg="$default"
         else
-            diffcmd
+            if [[ "${2:-}" != --no-diff ]]; then
+                diffcmd
+            fi
             printf '%s\n' \
                 'What would you like the commit message to say?' \
                 "(enter 'q' or 'exit' to quit, leave blank to print default)" \
