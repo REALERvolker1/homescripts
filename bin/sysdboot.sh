@@ -22,12 +22,13 @@ declare -a sdb_options=(
     rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
     modprobe.blacklist=iTCO_wdt
 )
+# intel_pstate=passive kernel.split_lock_mitigate=0
 
 # set this option to 1 if you are using mkinitcpio to generate stuff, 0 to disable
 declare -i MKINITCPIO=1
 
 # bootloader conf options
-LOADER_DEFAULT_TIMEOUT=0
+LOADER_DEFAULT_TIMEOUT=1
 LOADER_DEFAULT_CONSOLE_MODE=max
 
 # Set your bootctl install path. Should be automatic, but you can manually set it if this is broken
@@ -74,6 +75,13 @@ _generate_configs() {
     local vml irfs base name file contents
     # find all the imgs that correspond to the kernel img
     local -a vmlinuz=("$BOOT_PATH/vmlinuz"*)
+
+    # If there is only one kernel installed, there's no point in waiting
+    local -i num_vmlinuz="${#vmlinuz[@]}"
+    if ((num_vmlinuz > 1)); then
+        echo "There is only '$num_vmlinuz' kernel. removing loader timeout"
+        LOADER_DEFAULT_TIMEOUT=0
+    fi
 
     for vml in "${vmlinuz[@]}"; do
         base="${vml#*/vmlinuz-}"

@@ -6,106 +6,219 @@ mod types;
 mod udev;
 
 pub(crate) use ahash::{HashSet, HashSetExt};
-
 pub(crate) use futures_lite::StreamExt;
-pub(crate) use types::*;
-// pub(crate) use parking_lot::Mutex;
-pub(crate) use color_eyre::eyre::anyhow;
 pub(crate) use serde::{Deserialize, Serialize};
+pub(crate) use simple_eyre::eyre::eyre;
 pub(crate) use std::{
+    fmt,
     path::{Path, PathBuf},
-    sync::Arc,
 };
-use tokio::io::AsyncWriteExt;
+pub(crate) use tokio::io::AsyncWriteExt;
 pub(crate) use tokio::sync::mpsc::{self, Sender};
-
-pub type Res<T> = color_eyre::Result<T>;
+pub(crate) use types::*;
 
 lazy_static::lazy_static! {
     pub static ref CONFIG: config::Config = config::Config::new();
 }
 
 fn main() -> Res<()> {
-    color_eyre::install()?;
+    simple_eyre::install()?;
     tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()?
-        .block_on(async move { CONFIG.command.run().await.unwrap() });
+        .block_on(async move {
+            match CONFIG.command.run().await {
+                Ok(()) => (),
+                Err(e) => eprintln!("Error: {}", e),
+            }
+        });
 
     Ok(())
 }
 
 #[allow(async_fn_in_trait)]
 /// Shared methods and types that all backends must implement.
-pub trait Backend: Sized + std::fmt::Debug + std::fmt::Display {
+pub trait Backend: Sized + fmt::Debug {
     async fn new() -> Res<Self>;
+
+    /// Just get all the pointer devices
+    async fn raw_get_pointers() -> Res<Vec<Mouse>>;
+    async fn get_touchpad_status(&self) -> Res<Status>;
+    /// Set the touchpad status. Gets the status after setting.
+    async fn set_touchpad_status(&self, status: Status) -> Res<Status>;
+
     /// Get the current backend type. Should kinda just be a static.
     fn backend() -> Backends;
+    /// Should check if the current mouse list is not empty
+    fn has_mice(&self) -> bool;
+    /// A getter for the internal mouse list
+    fn cached_mice(&self) -> &MouseList;
+    /// A setter for the internal mouse list
+    fn set_mice(&mut self, mice: MouseList);
+    /// A getter for the touchpad device
+    fn touchpad(&self) -> &Mouse;
 
     /// Refresh this list with mice. This is meant to be used internally.
-    fn refresh_with_mice(&mut self, mice: Vec<Mouse>);
+    fn refresh_with_mice(&mut self, mice: Vec<Mouse>) {
+        let mice = mice
+            .into_iter()
+            .filter(|m| CONFIG.is_mouse(&m.name))
+            .filter(|m| &m.address != &self.touchpad().address)
+            .map(|m| Mouse::from(m))
+            .collect::<HashSet<_>>();
+
+        self.set_mice(mice);
+    }
+
     /// Refresh the list of mice connected that are in `CONFIG.mouse_identifiers`
     async fn refresh_mice(&mut self) -> Res<()> {
         let pointers = Self::raw_get_pointers().await?.into_iter().collect();
         self.refresh_with_mice(pointers);
         Ok(())
     }
-    /// Just get all the pointer devices
-    async fn raw_get_pointers() -> Res<Vec<Mouse>>;
-    async fn get_touchpad_status(&self) -> Res<Status>;
-    async fn set_touchpad_status(&self, status: Status) -> Res<()>;
 
-    /// This is "blocking", it monitors the udev status and updates the icon file
-    async fn status_monitor_inner(&mut self) -> Res<()>;
+    /// Toggle touchpad
+    async fn toggle(&self) -> Res<()> {
+        let current_status = self.get_touchpad_status().await?;
+        let toggled_status = current_status.toggle();
+        let new_status = self.set_touchpad_status(toggled_status).await?;
+        if new_status == toggled_status {
+            println!("Toggled touchpad from {current_status} to {new_status}");
+            Ok(())
+        } else {
+            Err(eyre!(
+                "Failed to toggle touchpad from {current_status} to {toggled_status}. Current status is {new_status}"
+            ))
+        }
+    }
 
-    fn has_mice(&self) -> bool;
+    /// I want my touchpad to be off when I have mice connected or something. Returns a Status to print.
+    async fn normalize(&mut self, refresh_mice: bool) -> Res<Status> {
+        if refresh_mice {
+            self.refresh_mice().await?;
+        }
+
+        let status = if self.has_mice() {
+            Status::Off
+        } else {
+            Status::On
+        };
+
+        let new_status = self.set_touchpad_status(status).await?;
+        Ok(new_status)
+    }
+
+    /// Monitor the touchpad icon file using inotify
+    async fn monitor_touchpad_icon(&mut self) -> Res<()> {
+        // This requires the file to exist. If it does not exist, then it probably hasn't even been normalized yet.
+        // It refreshes mice just in case it didn't already do that, for maximum unbreakage.
+        if !CONFIG.touchpad_statusfile.exists() {
+            self.normalize(true).await?;
+        }
+
+        let listener = inotify::Inotify::init()?;
+        listener
+            .watches()
+            .add(&CONFIG.touchpad_statusfile, inotify::WatchMask::MODIFY)?;
+
+        let second = std::time::Duration::from_secs(1);
+        // if the file is deleted or something, I give it this many seconds to come back before just quitting.
+        let timeout_seconds = 30;
+
+        let mut buffer = [0; 1024];
+        let mut stream = listener.into_event_stream(&mut buffer)?;
+        // use async stdout
+        let mut stdout = tokio::io::stdout();
+        let mut timeout_count: u8 = 0;
+
+        loop {
+            // This loops until either the file is read successfully, or it times out.
+            loop {
+                match CONFIG.read_statusfile().await {
+                    Ok(s) => {
+                        // let output = s + "\n";
+                        stdout.write(&s.as_bytes()).await?;
+                        timeout_count = 0;
+                        // BREAK
+                        break;
+                    }
+                    Err(e) => {
+                        timeout_count += 1;
+                        eprintln!("Timeout count: {timeout_count} on error {e}");
+
+                        if timeout_count >= timeout_seconds {
+                            // BREAK
+                            return Err(eyre!("statusfile read timed out"));
+                        }
+                        tokio::time::sleep(second).await;
+                    }
+                }
+            }
+            if stream.next().await.is_none() {
+                return Err(eyre!("inotify stream closed"));
+            }
+        }
+    }
 }
 
 impl config::Command {
     pub async fn run(&self) -> Res<()> {
         let mut backend = CONFIG.backend.new_backend_thing().await?;
 
-        eprintln!("{:?}", backend);
-
         match self {
             Self::GetStatus => {
-                let status = backend.get_touchpad_status().await?;
-                println!("{}", status);
+                println!("{}", backend.get_touchpad_status().await?);
             }
             Self::GetIcon => {
-                let status = backend.get_touchpad_status().await?;
-                println!("{}", status.icon());
+                println!("{}", backend.get_touchpad_status().await?.icon());
             }
             Self::Enable => {
-                backend.set_touchpad_status(Status::On).await?;
+                println!(
+                    "Set status to {}",
+                    backend.set_touchpad_status(Status::On).await?
+                );
             }
             Self::Disable => {
-                backend.set_touchpad_status(Status::Off).await?;
+                println!(
+                    "Set status to {}",
+                    backend.set_touchpad_status(Status::Off).await?
+                );
             }
             Self::Toggle => {
-                let current = backend.get_touchpad_status().await?;
-                backend.set_touchpad_status(current.toggle()).await?;
+                backend.toggle().await?;
             }
             Self::Normalize => {
-                let current = Status::from_bool(backend.has_mice());
-                backend.set_touchpad_status(current.toggle()).await?;
+                println!(
+                    "Normalized touchpad status to {}",
+                    backend.normalize(false).await?
+                );
             }
             Self::StatusMonitor => {
-                let (sender, mut receiver) = mpsc::channel(5);
+                let (sender, mut receiver) = mpsc::channel(15);
 
                 tokio::spawn(async move {
                     // asynchronously write to stderr, because I need less latency
                     let mut stderr = tokio::io::stderr();
                     loop {
-                        backend.status_monitor_inner().await.unwrap();
-                        let back_display = backend.to_string();
+                        let print_string = match backend.normalize(true).await {
+                            Ok(s) => format!(
+                                "Mice: {}\nNormalizing status to {s}\n",
+                                backend
+                                    .cached_mice()
+                                    .iter()
+                                    .map(|m| m.to_string())
+                                    .collect::<Vec<_>>()
+                                    .join(", ")
+                            ),
+                            Err(e) => format!("{e}\n"),
+                        };
 
-                        let (write, recv) =
-                            tokio::join!(stderr.write(back_display.as_bytes()), receiver.recv());
+                        let (_, recv) =
+                            tokio::join!(stderr.write(print_string.as_bytes()), receiver.recv());
 
-                        write.unwrap();
                         if recv.is_none() {
-                            panic!("Status monitor stream ended");
+                            // this should never happen, and if it does, this is probably a zombie process or something idk
+                            panic!("Status monitor sender was disconnected");
                         }
                     }
                 });
@@ -114,43 +227,9 @@ impl config::Command {
                 udev::monitor_devices(sender).await?;
             }
             Self::MonitorIcon => {
-                let _ = backend.get_touchpad_status().await?;
-                let listener = inotify::Inotify::init()?;
-                listener
-                    .watches()
-                    .add(&CONFIG.touchpad_statusfile, inotify::WatchMask::MODIFY)?;
-
-                let mut buffer = [0; 1024];
-                let mut stream = listener.into_event_stream(&mut buffer)?;
-
-                let timeout = std::time::Duration::from_secs(1);
-                let mut stdout = tokio::io::stdout();
-
-                let mut timeout_count: u8 = 0;
-
-                loop {
-                    match CONFIG.read_statusfile().await {
-                        Ok(s) => {
-                            let output = s + "\n";
-                            stdout.write(&output.as_bytes()).await?;
-                        }
-                        Err(e) => {
-                            timeout_count += 1;
-                            // if the file is deleted or something, I give it 5 seconds to come back before ditching.
-                            if timeout_count >= 30 {
-                                return Err(e.into());
-                            }
-                            tokio::time::sleep(timeout).await;
-                        }
-                    }
-                    if stream.next().await.is_none() {
-                        eprintln!("Icon monitor stream ended");
-                        std::process::exit(127);
-                    }
-                }
+                backend.monitor_touchpad_icon().await?;
             }
-
-            _ => unreachable!(),
+            Self::Help => unreachable!(),
         }
 
         Ok(())

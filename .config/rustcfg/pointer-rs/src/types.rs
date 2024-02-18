@@ -1,8 +1,9 @@
 use std::env;
 
 use super::*;
-use hyprland::{keyword::OptionValue, shared::Address};
+use hyprland::keyword::OptionValue;
 
+pub type Res<T> = simple_eyre::Result<T>;
 pub type MouseList = HashSet<Mouse>;
 // pub type MouseList = Arc<HashSet<Mouse>>;
 
@@ -45,7 +46,7 @@ impl Backends {
 #[display(fmt = "{} ({})", name, address)]
 pub struct Mouse {
     pub name: String,
-    pub address: Address,
+    pub address: hyprland::shared::Address,
 }
 impl From<hyprland::data::Mouse> for Mouse {
     fn from(value: hyprland::data::Mouse) -> Self {
@@ -55,85 +56,6 @@ impl From<hyprland::data::Mouse> for Mouse {
         }
     }
 }
-/*
-#[derive(
-    Debug, Default, Clone, Eq, Hash, PartialEq, derive_more::Display, Serialize, Deserialize,
-)]
-#[display(fmt = "{} ({})", name, id)]
-pub struct Device {
-    pub name: String,
-    pub id: DeviceId,
-}
-impl Device {
-    pub fn get_id_x11(&self) -> Res<usize> {
-        if let DeviceId::X11Id(id) = self.id {
-            Ok(id)
-        } else {
-            Err(anyhow!("Device {self:?} is not a X11 device"))
-        }
-    }
-    pub fn get_address_hyprland<'a>(&'a self) -> Res<&'a Address> {
-        let my_id = &self.id;
-        if let Some(h) = my_id.get_hypr() {
-            Ok(h)
-        } else {
-            Err(anyhow!("Device {self:?} is not a Hyprland device"))
-        }
-        // if let Some(id) = self.id {
-        //     Ok(id)
-        // } else {
-        //     Err(anyhow!("Pointer {self:?} is not a hyprland mouse!"))
-        // }
-    }
-    pub fn name_contains(&self, needle: &str) -> bool {
-        self.name.contains(needle)
-    }
-    pub fn is_mouse(&self) -> bool {
-        for i in CONFIG.mouse_identifiers.iter() {
-            if self.name.contains(i) {
-                return true;
-            }
-        }
-        false
-    }
-    pub fn from_hyprland_mouse(value: Mouse) -> Self {
-        Device {
-            name: value.name,
-            id: DeviceId::HyprAddress(value.address),
-        }
-    }
-}
-
-#[derive(
-    Debug,
-    Default,
-    Clone,
-    Eq,
-    Hash,
-    PartialEq,
-    derive_more::Display,
-    strum_macros::EnumTryAs,
-    Serialize,
-    Deserialize,
-)]
-pub enum DeviceId {
-    #[display(fmt = "{_0}")]
-    X11Id(usize),
-    #[display(fmt = "{_0}")]
-    HyprAddress(Address),
-    #[default]
-    #[display(fmt = "None")]
-    None,
-}
-impl DeviceId {
-    pub fn get_hypr<'a>(&'a self) -> Option<&'a Address> {
-        match self {
-            DeviceId::HyprAddress(h) => Some(h),
-            _ => None,
-        }
-    }
-}
-*/
 
 pub type Icon = &'static str;
 

@@ -1,8 +1,7 @@
 use super::*;
 use tokio_udev::{AsyncMonitorSocket, EventType, MonitorBuilder};
 
-pub async fn monitor_devices(sender: Sender<()>) -> color_eyre::Result<()> {
-    // TODO: Only monitor mice
+pub async fn monitor_devices(sender: Sender<()>) -> Res<()> {
     let socket = MonitorBuilder::new()?.match_subsystem_devtype("usb", "usb_device")?;
     let mut monitor: AsyncMonitorSocket = socket.listen()?.try_into()?;
 

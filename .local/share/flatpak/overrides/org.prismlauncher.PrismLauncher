@@ -1,2 +1,2 @@
 [Context]
-filesystems=xdg-run:create;xdg-config/MangoHud:ro
+filesystems=xdg-data/PrismLauncher;/bruh/home/local/share/PrismLauncher;xdg-config/MangoHud:ro;xdg-run:create

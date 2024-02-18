@@ -1,0 +1,16 @@
+emulate -LR zsh
+set +u
+
+if [[ -t 0 ]]; then
+    echo "Error, please pipe lines of input into this function"
+    return 1
+elif (($+slurp)); then
+    print -l $slurp '' "Error, slurp array is already defined!"
+    return 1
+fi
+
+local line
+while read -r line; do
+    slurp+=("$line")
+done
+print -l $slurp '' "slurp array created, length: ${#slurp}"

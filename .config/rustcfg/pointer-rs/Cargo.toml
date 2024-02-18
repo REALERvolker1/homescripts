@@ -17,11 +17,6 @@ clap = { version = "4.5.1", features = [
     "wrap_help",
     "unicode",
 ] }
-color-eyre = { version = "0.6.2", default-features = false, features = [
-    "capture-spantrace",
-    "color-spantrace",
-    "track-caller",
-] }
 derive_more = { version = "0.99.17", default-features = false }
 futures-lite = "2.2.0"
 hyprland = { version = "0.3.13", default-features = false, features = [
@@ -30,9 +25,10 @@ hyprland = { version = "0.3.13", default-features = false, features = [
     "keyword",
 ] }
 if_chain = "1.0.2"
-inotify = "0.10.2"
+inotify = { version = "0.10.2" }
 lazy_static = "1.4.0"
 serde = { version = "1.0.196", features = ["derive"] }
+simple-eyre = "0.3.1"
 strum = { version = "0.26.1", features = ["strum_macros", "derive", "phf"] }
 strum_macros = "0.26.1"
 thiserror = "1.0.57"

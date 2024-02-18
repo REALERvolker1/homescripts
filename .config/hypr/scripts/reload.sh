@@ -10,7 +10,8 @@ if [ "$XDG_CURRENT_DESKTOP" = 'Hyprland' ]; then
     waybar &
     (
         sleep 2
-        pointer.sh -n
+        # pointer.sh -n
+        hyprpointer normalize
     ) &
     #vlkbg.sh
     #killall -SIGUSR2 waybar

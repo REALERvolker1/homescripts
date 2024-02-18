@@ -44,7 +44,7 @@ pub fn detect_touchpads(devices: &Vec<Mouse>) -> Res<Mouse> {
         }
     }
 
-    Err(anyhow!("No touchpad found"))
+    Err(eyre!("No touchpad found"))
 }
 
 #[derive(
@@ -59,8 +59,6 @@ pub fn detect_touchpads(devices: &Vec<Mouse>) -> Res<Mouse> {
     Serialize,
     Deserialize,
     strum_macros::Display,
-    strum_macros::VariantArray,
-    strum_macros::VariantNames,
 )]
 #[clap(rename_all = "kebab-case")]
 #[strum(serialize_all = "kebab-case")]
@@ -82,8 +80,8 @@ pub enum Command {
     /// Determine the touchpad state from available devices and set or unset as needed
     Normalize,
     #[default]
-    #[serde(skip)]
     #[clap(skip)]
+    #[serde(skip)]
     Help,
 }
 
@@ -93,7 +91,6 @@ pub struct Config {
     #[arg(
         short,
         long,
-        required = false,
         help = "The backend to use",
         long_help = "Override the backend used. Right now, the only option is 'hyprland'. If none is passed, then it will be autodetected.",
         default_value_t = Backends::default(),
@@ -154,6 +151,7 @@ impl Config {
         tokio::fs::read_to_string(&self.touchpad_statusfile).await
     }
     pub async fn update_statusfile(&self, status: Status) -> tokio::io::Result<()> {
-        tokio::fs::write(&self.touchpad_statusfile, status.icon()).await
+        let newlined = status.icon().to_owned() + "\n";
+        tokio::fs::write(&self.touchpad_statusfile, &newlined).await
     }
 }
