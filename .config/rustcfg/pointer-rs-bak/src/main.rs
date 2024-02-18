@@ -3,16 +3,20 @@
 mod config;
 mod hypr;
 mod types;
+mod udev;
 
 pub(crate) use ahash::{HashSet, HashSetExt};
-pub(crate) use futures_util::StreamExt;
+pub(crate) use futures_lite::StreamExt;
 pub(crate) use serde::{Deserialize, Serialize};
 pub(crate) use simple_eyre::eyre::eyre;
 pub(crate) use std::{
     fmt,
     path::{Path, PathBuf},
+    rc::Rc,
+    sync::Arc,
 };
 pub(crate) use tokio::io::AsyncWriteExt;
+pub(crate) use tokio::sync::mpsc::{self, Sender};
 pub(crate) use types::*;
 
 // lazy_static::lazy_static! {
@@ -197,16 +201,12 @@ impl config::Command {
                 );
             }
             Self::StatusMonitor => {
-                let mut stderr = tokio::io::stderr();
+                let (sender, mut receiver) = mpsc::channel(15);
 
-                let socket = tokio_udev::MonitorBuilder::new()?
-                    .match_subsystem_devtype("usb", "usb_device")?;
-                let mut monitor: tokio_udev::AsyncMonitorSocket = socket.listen()?.try_into()?;
-
-                let mut should_run = true;
-
-                loop {
-                    let ev = if should_run {
+                tokio::spawn(async move {
+                    // asynchronously write to stderr, because I need less latency
+                    let mut stderr = tokio::io::stderr();
+                    loop {
                         let print_string = match backend.normalize(true).await {
                             Ok(s) => format!(
                                 "Mice: {}\nNormalizing status to {s}\n",
@@ -219,25 +219,19 @@ impl config::Command {
                             ),
                             Err(e) => format!("{e}\n"),
                         };
-                        let (_, ev) =
-                            tokio::join!(stderr.write(print_string.as_bytes()), monitor.next());
-                        ev
-                    } else {
-                        monitor.next().await
-                    };
 
-                    if let Some(e) = ev {
-                        match e {
-                            Ok(event) => match event.event_type() {
-                                tokio_udev::EventType::Bind
-                                | tokio_udev::EventType::Unbind
-                                | tokio_udev::EventType::Unknown => should_run = true,
-                                _ => should_run = false,
-                            },
-                            Err(e) => return Err(eyre!("Error in udev monitor: {e}")),
+                        let (_, recv) =
+                            tokio::join!(stderr.write(print_string.as_bytes()), receiver.recv());
+
+                        if recv.is_none() {
+                            // this should never happen, and if it does, this is probably a zombie process or something idk
+                            panic!("Status monitor sender was disconnected");
                         }
                     }
-                }
+                });
+
+                // udev here reeeally doesn't like being in separate tokio tasks
+                udev::monitor_devices(sender).await?;
             }
             Self::MonitorIcon => {
                 backend.monitor_touchpad_icon().await?;
