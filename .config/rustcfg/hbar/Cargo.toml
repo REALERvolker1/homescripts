@@ -6,10 +6,6 @@ authors = ["vlk"]
 description = "HBAR: A better Linux statusbar supporting both wayland and x11"
 license = "GPL-3.0-or-later"
 
-[[bin]]
-name = "hbar"
-path = "src/globals.rs"
-
 [dependencies]
 ahash = { version = "0.8.7", default-features = false, features = [
     "std",
@@ -26,7 +22,7 @@ color-eyre = "0.6.2"
 const_format = { version = "0.2.32", features = ["rust_1_64"] }
 derive_more = "0.99.17"
 dirs = "5.0.1"
-futures-util = { version = "0.3.30", features = ["tokio-io"] }
+futures-util = { version = "0.3.30" }
 gtk4 = { version = "0.8.0", features = ["v4_12"] }
 heck = "0.4.1"
 hyprland = "0.3.13"
@@ -89,5 +85,4 @@ x11rb-async = { version = "0.13.0", features = [
 zbus = { version = "3.15.0", default-features = false, features = [
     "tokio",
     "chrono",
-    "serde-xml-rs",
 ] }

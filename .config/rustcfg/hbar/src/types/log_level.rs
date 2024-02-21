@@ -1,5 +1,3 @@
-use crate::*;
-
 #[derive(
     Debug,
     Clone,
@@ -8,7 +6,7 @@ use crate::*;
     Eq,
     Serialize,
     Deserialize,
-    ValueEnum,
+    clap::ValueEnum,
     strum_macros::Display,
     strum_macros::AsRefStr,
     strum_macros::VariantNames,

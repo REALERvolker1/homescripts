@@ -1,4 +1,4 @@
-use crate::*;
+use crate::prelude::*;
 use gtk4::{prelude::*, Application, ApplicationWindow, Button, CenterBox, Label};
 use std::cell::Cell;
 

@@ -13,9 +13,9 @@
 #\builtin unalias ${(@k)builtins} ${(@k)reswords} &>/dev/null
 
 # reset all, including font. Also reset the cursor
-alias unfuck="print -n '\e[0m''\e(B\e)0\017\e[?5l\e7\e[0;0r\e8''\e[0 q'"
-# run the reset command and then clear the screen
-unfuck && print -n '\e[H\e[2J'
+print -n '\e[0m''\e(B\e)0\017\e[?5l\e7\e[0;0r\e8''\e[0 q'
+# Clear the screen
+print -n '\e[H\e[2J'
 
 # Load environment variables and other shell unfucking
 . ${ZDOTDIR:-~}/environ.zsh

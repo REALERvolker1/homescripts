@@ -1,4 +1,4 @@
-use crate::*;
+use crate::prelude::*;
 
 #[macro_export]
 macro_rules! config_struct_nu {

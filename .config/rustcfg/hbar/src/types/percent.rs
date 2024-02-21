@@ -1,4 +1,4 @@
-use crate::*;
+use crate::prelude::*;
 
 /// A checked Percentage, from 0 to 100
 #[derive(

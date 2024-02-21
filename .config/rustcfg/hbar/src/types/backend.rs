@@ -1,4 +1,4 @@
-use crate::*;
+use std::env;
 
 /// All the backends this bar supports
 #[derive(

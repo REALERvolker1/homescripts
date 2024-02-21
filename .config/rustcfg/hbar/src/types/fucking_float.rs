@@ -1,4 +1,6 @@
-use crate::*;
+use super::Percent;
+use std::fmt;
+
 macro_rules! imp {
     ($($f:ty),+) => {
         $(impl From<$f> for FuckingFloat {

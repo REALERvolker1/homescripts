@@ -1,0 +1,33 @@
+[package]
+name = "prompt"
+version = "0.1.0"
+edition = "2021"
+
+# RUSTFLAGS="-C target-cpu=native -C link-arg=--ld-path=mold"
+[profile.release]
+lto = true
+strip = true
+codegen-units = 1
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ahash = { version = "0.8.8", default-features = false, features = [
+    "no-rng",
+    "std",
+    "serde",
+] }
+const_format = { version = "0.2.32", features = ["all"] }
+nu-ansi-term = "0.50.0"
+serde = { version = "1.0.197", features = ["derive"] }
+simd-json = { version = "0.13.8", default-features = false, features = ["serde_impl"] }
+smallstr = { version = "0.3.0", features = ["serde", "std"] }
+smallvec = { version = "1.13.1", features = [
+    "const_new",
+    "write",
+    "serde",
+    "union",
+    "specialization",
+] }
+strum = { version = "0.26.1", features = ["derive", "phf", "strum_macros"] }
+strum_macros = "0.26.1"
+thiserror = "1.0.57"

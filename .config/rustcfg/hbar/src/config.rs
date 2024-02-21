@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use crate::*;
+use crate::prelude::*;
 
 use clap::Parser;
 use heck::ToKebabCase;

@@ -10,17 +10,6 @@ fi
 # hyprctl clients -j | jq ".[] | select(.class == \"$browser_class\")"
 
 case "$1" in
---choose)
-    shift 1
-    if command -v re.sonny.Junction &>/dev/null; then
-        exec re.sonny.Junction "$@"
-    elif flatpak list --app --columns=application | grep -q 're.sonny.Junction'; then
-        exec $fr re.sonny.Junction "$@"
-    else
-        # fallback to self
-        exec "$0" 1 "$@"
-    fi
-    ;;
 1)
     shift 1
     exec $fr 'one.ablaze.floorp' "$@"
@@ -38,6 +27,13 @@ case "$1" in
     # exec firefox-developer-edition "$@"
     ;;
 *)
-    echo "Error, please enter a number 1-3"
+    if command -v re.sonny.Junction &>/dev/null; then
+        exec re.sonny.Junction "$@"
+    elif flatpak list --app --columns=application | grep -q 're.sonny.Junction'; then
+        exec $fr re.sonny.Junction "$@"
+    else
+        # fallback to self
+        exec "$0" 1 "$@"
+    fi
     ;;
 esac

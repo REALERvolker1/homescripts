@@ -1,5 +1,3 @@
-use crate::*;
-
 /// A bool type that can be set to `auto`
 #[derive(
     Debug,

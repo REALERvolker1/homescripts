@@ -8,7 +8,7 @@ pub mod upower;
 pub mod weather;
 pub mod workspaces;
 
-use crate::*;
+use crate::prelude::*;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 lazy_static! {

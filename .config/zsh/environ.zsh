@@ -150,7 +150,7 @@ if (($+commands[batpipe])) {
 
 # Both of these scripts are in ~/bin
 export TERMINAL='vlk-sensible-terminal 1'
-export BROWSER='vlk-sensible-browser --choose'
+export BROWSER='vlk-sensible-browser'
 
 # My dotfiles
 export HOMESCRIPTS="$HOME/random/homescripts"
