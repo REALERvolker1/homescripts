@@ -11,6 +11,8 @@ pub use std::{
     str::FromStr,
 };
 
+pub use nu_ansi_term::Color;
+
 pub type R<T> = Result<T, crate::error::Err>;
 
 pub trait Module {

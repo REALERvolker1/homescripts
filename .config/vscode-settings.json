@@ -133,9 +133,6 @@
         "editor.defaultFormatter": "richterger.perl"
     },
     "python.autoComplete.extraPaths": [
-        "/home/vlk/.vscode-oss/extensions/continue.continue-0.2.0-linux-x64",
-        "/home/vlk/.vscode-oss/extensions/continue.continue-0.5.0-linux-x64",
-        "/home/vlk/.vscode-oss/extensions/continue.continue-0.6.0-linux-x64",
         "/home/vlk/.vscode-oss/extensions/continue.continue-0.8.1-linux-x64"
     ],
     "diffEditor.codeLens": true,
@@ -183,7 +180,6 @@
     "editor.copyWithSyntaxHighlighting": false,
     "rust-analyzer.showUnlinkedFileNotification": false,
     "rust-analyzer.hover.actions.references.enable": true,
-    "rust-analyzer.completion.fullFunctionSignatures.enable": true,
     "rust-analyzer.inlayHints.lifetimeElisionHints.enable": "skip_trivial",
     "rust-analyzer.inlayHints.rangeExclusiveHints.enable": true,
     "rust-analyzer.lru.capacity": 256
