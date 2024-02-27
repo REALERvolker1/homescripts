@@ -1,0 +1,254 @@
+#!/usr/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
+# bruh.sh, a script to manage my shared partition
+#
+#    Copyright (C) 2024  vlk
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# The path to the share partition
+MOUNT="${BRUH_MOUNT:-/bruh/home}"
+
+_panic() {
+    printf '%s\n' "$@"
+    exit 1
+}
+
+_cmd() {
+    command -v "$@" &>/dev/null
+}
+
+# pretty-print paths
+if _cmd ls-colors; then
+    # My own rewrite of the lscolors crate binary
+    _pathp() { ls-colors "$@"; }
+elif _cmd lscolors; then
+    # The lscolors rust crate binary
+    _pathp() { lscolors "$@"; }
+elif _cmd ls; then
+    # GNU LS. This function colorizes the parent dirs first if it cannot
+    # find the child dirs -- this is for compat with lscolors
+    _pathp() {
+        local i
+        for i in "$@"; do
+            if [[ -e "$i" ]]; then
+                ls -d --color=auto "$i"
+            else
+                echo "$(_pathp "${i%/*}")/${i##*/}"
+            fi
+        done
+    }
+else
+    # just print
+    _pathp() { printf '%s\n' "$@"; }
+fi
+
+_check_deps() {
+    local -a faildeps=()
+    local dep
+    for dep in "$@"; do
+        _cmd "$dep" || faildeps+=("$dep")
+    done
+    if ((${#faildeps[@]})); then
+        _panic "Error, missing dependencies:" "${faildeps[@]}"
+    fi
+}
+
+# some commands require files from a certain prefix
+_ensure_valid_path_dirs() {
+    local -i count=0
+    local invalid_file_type=home
+    local file_type=mount
+    if [[ "${1-}" == --home ]]; then
+        count=${#mount_path_files[@]}
+        file_type=home
+        invalid_file_type=mount
+    else
+        count=${#home_path_files[@]}
+    fi
+    if ((count)); then
+        _panic "Error, expected $file_type-relative files, received some $invalid_file_type-relative files instead"
+    fi
+}
+
+_is_mount() {
+    case "$1" in
+    "$MOUNT"/*)
+        return 0
+        ;;
+    "$HOME"/*)
+        return 1
+        ;;
+    *)
+        _panic "Error, filepath '$1' has an invalid prefix!"
+        ;;
+    esac
+}
+
+_prompt() {
+    local ans
+    read -rp $'\n''Accept? [y/N] > ' ans
+    [[ "${ans:-}" == y ]]
+}
+
+# a dumb decision I made when starting this whole sharepart thing was making .local point to local, because I did not want dotfiles.
+_path_into() {
+    local i
+    local type="$1"
+    shift 1
+    if [[ "$type" == --mount ]]; then
+        for i in "$@"; do
+            case "$i" in
+            "$HOME/.local"*)
+                echo "${i/$HOME\/.local/$MOUNT/local}"
+                ;;
+            "$HOME/.config"*)
+                echo "${i/$HOME\/.config/$MOUNT/config}"
+                ;;
+            *)
+                echo "${i/$HOME/$MOUNT}"
+                ;;
+            esac
+        done
+    else
+        for i in "$@"; do
+            case "$i" in
+            "$MOUNT/local"*)
+                echo "${i/$MOUNT\/local/$HOME/.local}"
+                ;;
+            "$MOUNT/config"*)
+                echo "${i/$MOUNT\/config/$HOME/.config}"
+                ;;
+            *)
+                echo "${i/$MOUNT/$HOME}"
+                ;;
+            esac
+        done
+    fi
+}
+
+_share() {
+    local src dest
+    for src in "$@"; do
+        src="${src:-}" # ensure it is at least set
+        dest=$(_path_into --mount "$src")
+
+        [[ -e "$dest" ]] && _panic "Error, destination '$dest' already exists!"
+
+        echo -e "Linking paths\n"
+        _pathp "$src"
+        echo to
+        _pathp "$dest"
+
+        _prompt || _panic '' "Not linking path $src"
+
+        echo $'\nlinking'
+
+        # I am relying on set -e for error handling here, if either command fails, it will print
+        mv "$src" "$dest"
+        ln -s "$dest" "$src"
+
+        echo "Successfully linked"
+    done
+}
+
+_clone() {
+    local into="$1"
+    shift 1
+    local src dest
+    for src in "$@"; do
+        src="${src:-}"
+        dest=$(_path_into "$into" "$src")
+
+        [[ -e "$dest" ]] && _panic "Error, destination '$dest' already exists!"
+
+        echo -e "Cloning paths\n"
+        _pathp "$src"
+        echo to
+        _pathp "$dest"
+
+        _prompt || _panic '' "Not cloning path $src"
+
+        echo $'\ncloning'
+        cp "$src" "$dest"
+
+        echo "Successfully cloned"
+    done
+}
+
+_help() {
+    echo "USAGE: ${0##*/} --arg path1 path2
+
+    HOME_PATH refers to a path relative to your home directory ($HOME)
+    MOUNT_PATH refers to a path relative to your mount home directory ($MOUNT)
+
+    --share <HOME_PATH>         Move the original path to the mount drive,
+                                symlinking the moved path back to where the OG one was
+
+    --clone-from <MOUNT_PATH>   Copy the path from the mount path to its
+                                corresponding home path
+
+    --clone-into <HOME_PATH>    Similar to --clone-from, but in reverse.
+
+Script by vlk, 2/27/2024. Licensed under the GNU Affero GPLv3."
+    exit 1
+}
+
+# This script is nonfunctional if I don't have my share partition mounted
+[[ -d "$MOUNT" ]] || _panic \
+    "Error, share partition not mounted to $MOUNT!" \
+    '' \
+    'Either set the $BRUH_MOUNT environment variable, or specify the $MOUNT variable in this script if it is wrong!' \
+    "$0"
+
+# dependencies this program needs globally
+_check_deps realpath
+
+# This script only takes an action as $1, no files or folders
+action="${1:-}"
+shift 1
+
+declare -a mount_path_files=()
+declare -a home_path_files=()
+
+for path in "$@"; do
+    path=$(realpath -e "$path")
+
+    if _is_mount "$path"; then
+        mount_path_files+=("$path")
+    else
+        home_path_files+=("$path")
+    fi
+done
+
+case "$action" in
+--share)
+    _ensure_valid_path_dirs --home
+    _share "${home_path_files[@]}"
+    ;;
+--clone-from)
+    _ensure_valid_path_dirs --mount
+    _clone --home "${mount_path_files[@]}"
+    ;;
+--clone-into)
+    _ensure_valid_path_dirs --home
+    _clone --mount "${home_path_files[@]}"
+    ;;
+
+*)
+    echo "Invalid action type: '$action'"
+    _help
+    ;;
+esac
