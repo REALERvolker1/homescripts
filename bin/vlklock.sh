@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-__swaylock () {
+__swaylock() {
     exec swaylock -Ffli "$IMAGE" \
         --font "$FONT" \
         --font-size "$FONT_SIZE" \
@@ -19,11 +19,11 @@ __swaylock () {
         --text-wrong-color "$FONT_COLOR"
 }
 
-__i3lock () {
+__i3lock() {
     exec i3lock -efti "$IMAGE"
 }
 
-__i3lock_color () {
+__i3lock_color() {
     exec i3lock -Ffki "$IMAGE" \
         --greeter-text='' \
         --wrong-text='Access Denied' \
@@ -77,10 +77,10 @@ __i3lock_color () {
         --insidewrong-color="$WRONG_BG_ACCENT"
 }
 
-
-if pgrep 'i3lock' || pgrep 'swaylock'; then
+# if pgrep 'i3lock' || pgrep 'swaylock' || pgrep hyprlock; then
+if pgrep '(i3lock|swaylock|hyprlock)'; then
     notify-send 'Error! screenlocker already detected!'
-    date +'%x %X -- vlklock fail' >> "${XDG_CACHE_HOME:-$HOME/.cache}/vlklock-log"
+    date +'%x %X -- vlklock fail' >>"${XDG_CACHE_HOME:-$HOME/.cache}/vlklock-log"
     exit 1
 fi
 
@@ -109,17 +109,18 @@ VERIF_BG_ACCENT="${VERIF_ACCENT}70"
 WRONG_ACCENT=ff0000
 WRONG_BG_ACCENT="${WRONG_ACCENT}70"
 
-
-if [ -z "$WAYLAND_DISPLAY" ]; then
-    # i3lock-color --help mentions reading the manpage, because it has tons more features
+if [[ -n "${WAYLAND_DISPLAY-}" ]]; then
+    if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE-}" ]]; then
+        hyprlock
+    else
+        __swaylock
+    fi
+elif [[ -n "${DISPLAY-}" ]]; then
     if i3lock --help 2>&1 | grep -q 'manpage'; then
         __i3lock_color
     else
         __i3lock
     fi
 else
-    __swaylock
+    echo "Error, could not find a graphical display!"
 fi
-
-#vlkbg
-

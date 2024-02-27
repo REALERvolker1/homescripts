@@ -1,0 +1,9 @@
+[Unit]
+Description=Start hypridle daemon
+After=wayland.target
+
+[Service]
+ExecStart=hypridle
+
+[Install]
+WantedBy=wayland.target

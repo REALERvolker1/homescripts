@@ -136,8 +136,12 @@ require("lazy").setup({
         opts = {
             padding = true,
             sticky = true,
-            toggler = { line = "," },
+            toggler = { line = ",", block = "<C-,>" },
         },
+        init = function()
+            local ft = require("Comment.ft")
+            ft.hyprlang = "#%s"
+        end,
     },
     {
         "goolord/alpha-nvim",
