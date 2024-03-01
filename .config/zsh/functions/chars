@@ -1,0 +1,5 @@
+# A function that prints each character in a file, one-by-one
+local i
+
+for i in $@
+    print -l ${(s..)${"$(<$i)"//$'\n'}}

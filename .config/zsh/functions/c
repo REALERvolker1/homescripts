@@ -1,0 +1,7 @@
+# run vscodium
+
+if (($#)); then
+    codium $@
+else
+    codium ./
+fi

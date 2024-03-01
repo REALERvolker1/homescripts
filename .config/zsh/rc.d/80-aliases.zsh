@@ -1,6 +1,8 @@
 #!/usr/bin/zsh
 # vim:foldmethod=marker:ft=zsh
 
+# This is my "aliasrc". I keep all my shell functions in $ZDOTDIR/functions, so that they are autoloaded.
+
 # I have a bunch of aliases that only expand when I hit spacebar.
 # This works with the `expand_alias` function in my zsh keybindings.
 # That looks something like this:
@@ -55,7 +57,9 @@ alias cdrp='cd -P '
 
 alias cp='cp -r'
 
-alias sudo='sudo '
+# I am not really sure that all my scripts are root-safe,
+# running broken shell scripts as sudo is generally frowned upon
+# alias sudo='sudo '
 for i in {us,su}{do,od}
     expand_aliases[$i]=sudo
 
@@ -86,13 +90,13 @@ alias {\$,%}=''
 # copy a file's contents using my copy script
 alias copycat="=copy --cat"
 
-# run perl like `blah blah blah | ple '$%)@$(*&#)@'`
+# run perl like `blah blah blah | ple '$%)@$(*&#)@'`  (That garbage is probably valid perl syntax somewhere)
 alias ple='=perl -wlne'
 
 # grep with context
 alias gc='=rg --pretty --context=5 --pcre2 --ignore-case'
 
-# all of Fedora's colorgrep, in only 2 lines
+# all of Fedora's massive colorgrep script, in only 2 lines
 for i in {,xz,z}{,e,f}grep
     alias "$i=$i --color=auto"
 
@@ -139,7 +143,7 @@ for i in free df du
     alias "$i=$i -h"
 
 # TODO: migrate from ranger to something better
-# yazi was not better, the dev refuses to add LS_COLORS because windows sucks
+# yazi was not better, the dev refuses to add LS_COLORS because they are a cringe windows user and they don't like being able to find their files
 alias ra=ranger
 
 # flatpak aliases
@@ -164,16 +168,6 @@ alias ttymouse='sudo gpm -m /dev/input/mice -t imps2'
 alias {{vi,iv}{m,},v}=${EDITOR:-nvim}
 for i in ivm vi iv v
     expand_aliases[$i]=vim
-
-# vscodium
-c() {
-    if (($#)); then
-        codium $@
-    else
-        codium ./
-    fi
-}
-
 
 # bash dash ash ksh rksh csh tcsh zsh
 # I want to set up the environment for them
@@ -277,53 +271,7 @@ alias printfn="printf '%s\n' "
 alias hr='print -- ${(l:COLUMNS::-:)}'
 # alias hr='printf "%*s\n" "${COLUMNS:-$(tput cols)}" "" | tr " " -' # The bash-compatible version
 
-# prints each character in a file, one-by-one
-chars() {
-    local i
-    for i in $@
-        print -l ${(s..)${"$(<$i)"//$'\n'}}
-}
-
-# formats a video with ffmpeg so it is compatible with discord's video upload bs
-discordify() {
-    local file="${1:-}"
-    local filename='discordified.mp4'
-    [[ -f $file && -r $file ]] || {
-        echo "Error, please select a video to format for uploading to Discord!"
-        return 1
-    }
-    if [[ -e ./out.mp4 ]]; then
-        echo "Output file '$filename' already exists! Want to remove it?"
-        echo -n '[y/N]'
-        if read -q; then
-            rm $filename
-        else
-            return 1
-        fi
-    fi
-    # ffmpeg -i "$file" -map 0 -c:v libx264 -crf 18 -vf format=yuv420p -c:a copy ./out.mp4
-    # ffmpeg -i $file -map 0 -c:v h264_nvenc -vf format=yuv420p ./$filename
-    ffmpeg -i $file -c:v h264_nvenc ./$filename
-}
-
-# internal function to choose a distrobox container to enter
-_vlkrc::dbx::distro() {
-    local name="${1:?Error, please specify a distrobox container name!}"
-    shift 1
-    local -a cmd=("$@")
-    ((${#cmd[@]})) || cmd=(bash -l)
-    if distrobox-list | cut -d '|' -f 2 | grep -q -m 1 "$name"; then
-        distrobox-enter -n "$name" -- "${cmd[@]}"
-        return $?
-    elif ! command -v distrobox &>/dev/null; then
-        echo "Error, you don't seem to have distrobox installed!"
-    else
-        echo "Error, that distrobox container, '$name', does not exist!"
-    fi
-    return 1
-}
-
-# enter my distroboxes
+# enter my distroboxes. This uses an autoloaded function defined in $ZDOTDIR/functions/_vlkrc::dbx::distro
 alias ARCH='_vlkrc::dbx::distro ARCH'
 alias FEDORA='_vlkrc::dbx::distro FEDORA'
 #alias ARCH='distrobox-enter -n ARCH -- bash -l'
@@ -336,11 +284,6 @@ alias penv='printenv | fzf'
 # I don't want to double-source my zshrc
 alias refresh='exec =zsh'
 
-# list hashed directory shortcuts (like ~data being $HOME/.local/share)
-alias lsh="printf '\e[0;92m~%s\t\e[0;1;94m%s\e[0m\n' \${(@kv)nameddirs}"
-
-# list aliases
-alias aliases='printf "\e[1;93m%s\e[0m = \e[92m%s\e[0m\n" "${(@kv)aliases}"'
 
 # print on separate lines
 alias printl='print -l'
@@ -351,35 +294,6 @@ expand_aliases[p]='print'
 # print associations (assoc arrays) as [key] value
 expand_aliases[printa]='printf "[%s] %s\n"'
 expand_aliases[pa]='printf "[%s] %s\n"'
-
-# print-key-value
-# takes variable names as input, then prints their type and values
-# works with all data structures
-pkv() {
-    local i type type_print type_print_fmt type_print_header
-    for i in "$@"; do
-        type=${(Pt)${i}}
-        type_print="$i: $type"
-        type_print_fmt="$i: \e[1m$type"
-        type_print_header="─${(l:${#type_print}::─:)}─"
-
-        print -l \
-            "\e[0m╭${type_print_header}╮" \
-            "│ \e[0m${type_print_fmt}\e[0m │" \
-            "╰${type_print_header}╯"
-        case $type in
-        association*)
-            print -RaC 2 "${(@Pkv)i}"
-            ;;
-        array*)
-            print -Rl "${(@P)i}"
-            ;;
-        *)
-            print -R "${(P)i}"
-            ;;
-        esac
-    done
-}
 
 # I have my own handler for this in my zsh autoloaded functions
 alias whi{ch,hc}='__which__function'
@@ -411,3 +325,8 @@ if ((! ${+commands[fzf]})); then
         done
     }
 fi
+#!/usr/bin/zsh
+# vim:foldmethod=marker:ft=zsh
+
+# I have a bunch of aliases that only expand when I hit spacebar.
+# This works with the `expand_alias` function in my zsh keybindings.

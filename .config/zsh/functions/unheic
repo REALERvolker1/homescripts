@@ -1,0 +1,12 @@
+# converts a photo from my phone into a real image
+local file="${1:?Error, no files selected!}"
+local converted="${file//.[Hh][Ee][Ii][Cc]#/}.jpg"
+
+[[ -f $file && -r $file ]] || return 1
+
+echo $file '=>' $converted
+
+heif-convert $file $converted
+
+# show it once it is done
+icat $converted

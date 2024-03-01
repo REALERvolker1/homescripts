@@ -1,0 +1,29 @@
+# print-key-value
+# takes variable names as input, then prints their type and values
+# works with all data structures
+
+local i type type_print type_print_fmt type_print_header
+
+for i in "$@"; do
+    type=${(Pt)${i}}
+    type_print="$i: $type"
+    type_print_fmt="$i: \e[1m$type"
+    type_print_header="─${(l:${#type_print}::─:)}─"
+
+    print -l \
+        "\e[0m╭${type_print_header}╮" \
+        "│ \e[0m${type_print_fmt}\e[0m │" \
+        "╰${type_print_header}╯"
+
+    case $type in
+    association*)
+        print -RaC 2 "${(@Pkv)i}"
+        ;;
+    array*)
+        print -Rl "${(@P)i}"
+        ;;
+    *)
+        print -R "${(P)i}"
+        ;;
+    esac
+done

@@ -1,0 +1,18 @@
+# internal function to choose a distrobox container to enter
+
+local name="${1:?Error, please specify a distrobox container name!}"
+shift 1
+
+local -a cmd=("$@")
+
+((${#cmd[@]})) || cmd=(bash -l)
+if distrobox-list | cut -d '|' -f 2 | grep -q -m 1 "$name"; then
+    distrobox-enter -n "$name" -- "${cmd[@]}"
+    return $?
+elif ! command -v distrobox &>/dev/null; then
+    echo "Error, you don't seem to have distrobox installed!"
+else
+    echo "Error, that distrobox container, '$name', does not exist!"
+fi
+
+return 1
