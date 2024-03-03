@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 BIN_NAMES="brave:brave-browser"
 FLATPAK_NAMES="com.brave.Browser"

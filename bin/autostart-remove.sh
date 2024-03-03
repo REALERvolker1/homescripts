@@ -1,4 +1,4 @@
-#!/usr/bin/dash
+#!/usr/bin/env dash
 
 if [ -n "${WAYLAND_DISPLAY:-}" ]; then
     for i in "$HOME/.xsession-errors" "$HOME/.Xauthority"; do
@@ -7,5 +7,3 @@ if [ -n "${WAYLAND_DISPLAY:-}" ]; then
 fi
 
 [ -f "$HOME/.yarnrc" ] && rm "$HOME/.yarnrc"
-
-
