@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # shellcheck shell=bash
 # a script that does a thing.
 set -euo pipefail
@@ -24,12 +24,6 @@ _strip_color() {
         echo "$i"
     done
 }
-
-# box-drawing characters, powerline characters, and some other nerd font icons, useful for output
-#╭─┬─╮│    󰀄  󰕈
-#├─┼─┤│   󰓎 󰘳  󰂽
-#╰─┴─╯│   󰅟 󰘲 󰣇 󰣛
-# 󰬛󰬏󰬌 󰬘󰬜󰬐󰬊󰬒 󰬉󰬙󰬖󰬞󰬕 󰬍󰬖󰬟 󰬑󰬜󰬔󰬗󰬌󰬋 󰬖󰬝󰬌󰬙 󰬛󰬏󰬌 󰬓󰬈󰬡󰬠 󰬋󰬖󰬎
 
 declare -a fzf_args=()
 

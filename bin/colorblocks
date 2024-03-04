@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/usr/bin/env zsh
 # why do easy thing when you can do hard thing?
 
 black=232

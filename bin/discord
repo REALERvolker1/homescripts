@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 if [[ ${1-} == '--flatpak' ]]; then
     shift 1

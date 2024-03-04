@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/usr/bin/env zsh
 
 boxcolor="[0;38;5;$((RANDOM % 255))m"
 cachefile="$XDG_RUNTIME_DIR/zsh-dumbfetch-$XDG_SESSION_ID.cache"

@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # set -euo pipefail
 # This script is meant to be used internally as a library. Example:
 

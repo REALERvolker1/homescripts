@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # shellcheck shell=bash #disable=2034
 # a script by vlk to do a thing.
 
