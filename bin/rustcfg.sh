@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env /bash
 # a script by vlk to automate building required rust dependencies
 
 if ! command -v cargo &>/dev/null; then

@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # mini startx, by vlk
 # buncha shit stolen from https://github.com/Earnestly/sx
 # shellcheck disable=SC2064

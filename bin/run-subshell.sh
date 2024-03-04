@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env dash
 
 shellsel="$1"
 shift 1

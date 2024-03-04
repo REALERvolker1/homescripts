@@ -1,4 +1,4 @@
-#!/usr/bin/dash
+#!/usr/bin/env dash
 
 fr='flatpak run'
 if [ -n "$WAYLAND_DISPLAY" ]; then

@@ -1,4 +1,4 @@
-#!/usr/bin/dash
+#!/usr/bin/env dash
 
 if [ -z "${WAYLAND_DISPLAY:-}" ]; then
     _vst_firstpref=kitty

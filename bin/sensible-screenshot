@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # shellcheck shell=bash disable=1091
 set -euo pipefail
 IFS=$'\n\t'

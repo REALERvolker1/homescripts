@@ -1,8 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
-set_cursors () {
+set_cursors() {
     local cursor="${1:?Error, please input a cursor theme}"
     local size="${2:?Error, please input a cursor size}"
 
@@ -18,14 +18,14 @@ set_cursors () {
         hyprctl setcursor "$cursor" "$size"
         echo 'Cursors set in hyprland'
     fi
-    
+
     # X server resources
     if command -v xrdb >/dev/null; then
         # merge X resources if they are empty
         printf '%s\n' "$(xrdb -query | grep -vE '^Xcursor\.(theme|size)')" \
             "Xcursor.theme: ${XCURSOR_THEME:-}" \
-            "Xcursor.size: ${XCURSOR_SIZE:-}" \
-             | xrdb -load
+            "Xcursor.size: ${XCURSOR_SIZE:-}" |
+            xrdb -load
         echo 'Cursors set in X server resources'
     fi
 
@@ -41,7 +41,7 @@ set_cursors () {
     export XCURSOR_SIZE="$size"
 }
 
-get_cursor_xdg () {
+get_cursor_xdg() {
     local -a data_dirs=("$HOME/.icons/default/index.theme")
     local oldifs="$IFS"
     local IFS=':'
@@ -68,10 +68,10 @@ get_cursor_xdg () {
     echo "${cursortheme:-Adwaita}"
 }
 
-get_cursor_size () {
+get_cursor_size() {
     local size="${XCURSOR_SIZE:-24}"
     case "$size" in
-        ''|*[!0-9]*) size=24 ;;
+    '' | *[!0-9]*) size=24 ;;
     esac
     echo "$size"
 }
@@ -81,18 +81,18 @@ preferred_size="$(get_cursor_size)"
 
 action="${1:-}"
 case "${action}" in
-    '--shell-eval')
-        printf "export %s='%s'\n" 'XCURSOR_THEME' "$preferred_theme" 'XCURSOR_SIZE' "$preferred_size"
-        ;;
-    '--session')
-        set_cursors "$preferred_theme" "$preferred_size"
-        ;;
-    *)
-        printf '%s\n' '' "Error, unknown option '$action'"\
-            "--shell-eval   Print output to run through eval to get shell vars" \
-            '    run `eval "$(set-cursor-theme.sh --shell-eval)"' \
-            "--session      This is designed for setting the cursor in an interactive X or Wayland session" \
-            "    put this in your session autostarts"
-        exit 1
-        ;;
+'--shell-eval')
+    printf "export %s='%s'\n" 'XCURSOR_THEME' "$preferred_theme" 'XCURSOR_SIZE' "$preferred_size"
+    ;;
+'--session')
+    set_cursors "$preferred_theme" "$preferred_size"
+    ;;
+*)
+    printf '%s\n' '' "Error, unknown option '$action'" \
+        "--shell-eval   Print output to run through eval to get shell vars" \
+        '    run `eval "$(set-cursor-theme.sh --shell-eval)"' \
+        "--session      This is designed for setting the cursor in an interactive X or Wayland session" \
+        "    put this in your session autostarts"
+    exit 1
+    ;;
 esac

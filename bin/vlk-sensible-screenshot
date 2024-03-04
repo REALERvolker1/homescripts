@@ -1,4 +1,4 @@
-#!/usr/bin/dash
+#!/usr/bin/env dash
 # a screenshot script by vlk that tries its best to work on both xorg and wayland
 # https://github.com/REALERvolker1/homescripts
 

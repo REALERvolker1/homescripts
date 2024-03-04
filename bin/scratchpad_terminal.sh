@@ -10,4 +10,3 @@ while true; do
     kitty --class='__scratchpad__'
     echo "Restarting scratchpad terminal"
 done
-

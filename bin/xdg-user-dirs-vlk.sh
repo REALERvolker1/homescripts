@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 # generator for $XDG_CONFIG_HOME/user-dirs.dirs
 declare -a faildeps=()

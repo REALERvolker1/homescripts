@@ -1,4 +1,4 @@
-#!/usr/bin/dash
+#!/usr/bin/env dash
 # xrandr script to automatically set my xrandr settings
 set -eu
 IFS='

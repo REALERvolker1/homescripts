@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # shitty-fzf, a script by vlk to emulate fzf on inferior computers that do not have fzf installed
 set -eo pipefail
 IFS=$'\n\t'
