@@ -168,7 +168,7 @@ fi
 alias ttymouse='sudo gpm -m /dev/input/mice -t imps2'
 
 # I have been having this issue with Arch recently that sddm just shits itself on boot and needs to be restarted
-[[ ${TERM-} == linux ]] && alias sddm='sudo systemctl restart sddm.service && logout'
+[[ ${TERM-} == linux ]] && alias sddm-unfucker='sudo systemctl restart sddm.service && logout'
 
 alias {{vi,iv}{m,},v}=${EDITOR:-nvim}
 for i in ivm vi iv v
