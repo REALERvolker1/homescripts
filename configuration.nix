@@ -69,10 +69,11 @@
       brave
       junction
       floorp
-      vscode
-      # vscodium-fhs
-      # vesktop         # build is broken
-      # unstable.jan    # NoBoilerplate is a fucking liar
+      # vscode
+      vscodium-fhs
+      vesktop # build is broken
+      jan
+      libreoffice-fresh
 
       perl538Packages.PLS
       perl538Packages.PerlTidy
@@ -114,8 +115,9 @@
       git-extras
       delta
       bat
+      tealdeer
       fortune
-      clolcat       # TODO: Symlink lolcat to clolcat
+      clolcat # TODO: Symlink lolcat to clolcat
       libnotify
       inotify-tools
 
@@ -124,9 +126,7 @@
       yad
       gum
       dash
-      tmux
 
-      clolcat
       wget
       xdg-ninja
       fd
@@ -141,6 +141,7 @@
       killall
 
       kitty
+      alacritty
 
       btop
       nvtop
@@ -151,18 +152,21 @@
       slurp
       swappy
       wl-clipboard
+      kitti3
 
       kooha
       gimp-with-plugins
       obs-studio
       vlc
+      mpv
+      mpvScripts.mpris
+      mpvScripts.cutter
       # openai-whisper
       v4l-utils
 
       prismlauncher-unwrapped
-      temurin-jre-bin-8     # TODO: Figure out if these work for prismlauncher
-      temurin-jre-bin-17
-      temurin-bin-21
+      temurin-jre-bin-8 # TODO: Figure out if these work for prismlauncher
+      jdk17
 
       rofi-wayland
       rofimoji
@@ -172,14 +176,29 @@
       xorg.xeyes
 
       adw-gtk3
-      gradience
+      # gradience
       # google-cursor
       # gnome-browser-connector
       # gnome-extension-manager
       # gnome.gnome-tweaks
 
+      gnome.gnome-font-viewer
+      gnome.gnome-calculator
+      gnome.file-roller
+
+      mate.mate-polkit
+
+      xfce.xfce4-terminal
+      xfce.tumbler
+      xfce.catfish
+      xfce.xfce4-screenshooter # TODO: Remove if this doesn't work on hyprland
+      xfce.ristretto
+      xfce.mousepad
+
       hyprpaper
       hyprpicker
+      hyprlock
+      hypridle
 
       mangohud
     ];
@@ -187,6 +206,13 @@
 
   programs = {
     dconf.enable = true;
+    thunar = {
+      enable = true;
+      plugins = with pkgs.xfce; [
+        thunar-archive-plugin
+        thunar-media-tags-plugin
+      ];
+    };
     hyprland = {
       enable = true;
       portalPackage = pkgs.xdg-desktop-portal-hyprland;
@@ -215,6 +241,10 @@
       viAlias = true;
       vimAlias = true;
     };
+    tmux = {
+      enable = true;
+      # newSession = true;
+    };
     zsh = {
       enable = true;
       enableCompletion = false;
@@ -226,6 +256,7 @@
       package = pkgs.firefox-bin;
     };
     xwayland = { enable = true; };
+    virt-manager = { enable = true; };
     nix-ld = {
       enable = true;
       libraries = with pkgs; [ gtk4-layer-shell libudev-zero libudev0-shim ];
@@ -253,11 +284,16 @@
           wayland = { enable = true; };
         };
       };
+      # Temporary, remove later
+      desktopManager = {
+        plasma5 = {
+          enable = true;
+          phononBackend = "vlc";
+        };
+      };
       libinput = {
         enable = true;
-        mouse = {
-          accelProfile = "flat";
-        };
+        mouse = { accelProfile = "flat"; };
         touchpad = {
           accelProfile = "adaptive";
           disableWhileTyping = true;
@@ -269,15 +305,14 @@
       windowManager = {
         i3 = {
           enable = true;
-          extraPackages = with pkgs; [
-            i3status
-            i3lock
-          ];
+          extraPackages = with pkgs; [ i3status i3lock ];
           updateSessionEnvironment = true;
         };
       };
     };
     printing.enable = true;
+    blueman.enable = true;
+    gnome.gnome-keyring.enable = true;
     asusd = {
       enable = true;
       enableUserService = true;
@@ -299,6 +334,10 @@
       };
       pulse.enable = true;
       jack.enable = true;
+    };
+    picom = {
+      enable = true;
+      # TODO: research more into this
     };
     systemd-lock-handler.enable = true;
     logind = {
@@ -363,6 +402,32 @@
       };
     };
   };
+
+  xdg = {
+    autostart.enable = false;
+    icons.enable = true;
+    menus.enable = true;
+    sounds.enable = true;
+    mime = {
+      enable = true;
+      defaultApplications = {
+        "application/pdf" = "evince.desktop";
+        "text/xml" = [ "mousepad.desktop" "nvim.desktop" ];
+        "image/png" = "ristretto.desktop";
+      };
+    };
+    portal = {
+      enable = true;
+      xdgOpenUsePortal = true;
+      extraPortals = with pkgs; [ xdg-desktop-portal-gtk ];
+    };
+  };
+
+  qt = {
+    enable = true;
+    platformTheme = "qt5ct";
+    style = "kvantum";
+  };
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
@@ -390,7 +455,13 @@
     };
   };
 
-  sound.enable = true;
+  sound = {
+    enable = true;
+    # mediaKeys = {
+    # enable = true;
+    # volumeStep = 5;
+    # };
+  };
   security.rtkit.enable = true;
 
   nix.gc = {
@@ -401,6 +472,17 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # virtualisation = {
+  # libvirtd = {
+  # enable = true;
+
+  zramSwap = {
+    enable = true;
+    # algorithm = "zstd";
+    # memoryMax = 8589934592;     # Hope this is 8gb
+    memoryPercent = 25;
+    priority = 5;
+  };
   boot = {
     #         initrd = {
     #             availableKernelModules = [

@@ -327,6 +327,7 @@ x-content/audio-player=vlc.desktop;
 x-content/video-dvd=vlc.desktop;
 x-content/video-svcd=vlc.desktop;
 x-content/video-vcd=vlc.desktop;
+x-scheme-handler/discord-455712169795780630=discord-455712169795780630.desktop;
 x-scheme-handler/discord-505751038989434881=discord-505751038989434881.desktop;
 x-scheme-handler/ftp=com.vivaldi.Vivaldi.desktop;
 x-scheme-handler/http=chromium.desktop;com.brave.Browser.desktop;com.vivaldi.Vivaldi.desktop;io.gitlab.librewolf-community.desktop;
