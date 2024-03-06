@@ -10,33 +10,33 @@
   ];
 
   # I don't think this works
-  #  systemd = {
-  #    services = {
-  #      linkzz = {
-  #        enable = true;
-  #        description = "Symlink important interpreters";
-  #        #wantedBy = [ "multi-user.target" ];
-  #        unitConfig = { type = "simple"; };
-  #        serviceConfig = {
-  #          ExecStart = ''
-  #            sh -c "ln -sfn '$(which bash)' /usr/bin/bash
-  #            ln -sfn '/usr/bin/bash' /bin/bash
-  #            ln -sfn '$(which zsh)' /usr/bin/zsh
-  #            ln -sfn /usr/bin/zsh /bin/zsh
-  #            ln -sfn '$(which dash)' /usr/bin/dash
-  #            ln -sfn /usr/bin/dash /bin/dash
-  #            ln -sfn '$(which perl)' /usr/bin/perl
-  #            ln -sfn '$(which python3)' /usr/bin/python3"
-  #          '';
-  #        };
-  #      };
-  #    };
-  #  };
+  # systemd = {
+  # services = {
+  # linkzz = {
+  # enable = true;
+  # description = "Symlink important interpreters";
+  # wantedBy = [ "multi-user.target" ];
+  # unitConfig = { type = "simple"; };
+  # serviceConfig = {
+  # ExecStart = ''
+  # sh -c "ln -sfn '$(which bash)' /usr/bin/bash
+  # ln -sfn '/usr/bin/bash' /bin/bash
+  # ln -sfn '$(which zsh)' /usr/bin/zsh
+  # ln -sfn /usr/bin/zsh /bin/zsh
+  # ln -sfn '$(which dash)' /usr/bin/dash
+  # ln -sfn /usr/bin/dash /bin/dash
+  # ln -sfn '$(which perl)' /usr/bin/perl
+  # ln -sfn '$(which python3)' /usr/bin/python3"
+  # '';
+  # };
+  # };
+  # };
+  # };
 
   environment = {
     localBinInPath = true;
     homeBinInPath = true;
-    sessionVariables = {
+    sessionVariables = rec {
       ZDOTDIR = "$HOME/.config/zsh";
 
       XDG_CACHE_HOME = "$HOME/.cache";
@@ -45,10 +45,13 @@
       XDG_STATE_HOME = "$HOME/.local/state";
       XDG_BIN_HOME = "$HOME/.local/bin";
 
-      RUSTUP_HOME = "$HOME/.local/share/rustup";
-      CARGO_HOME = "$HOME/.local/share/cargo";
+      RUSTUP_HOME = "$XDG_DATA_HOME/rustup";
+      CARGO_HOME = "$XDG_DATA_HOME/cargo";
+      # RUSTUP_HOME = "$HOME/.local/share/rustup";
+      # CARGO_HOME = "$HOME/.local/share/cargo";
 
-      HISTFILE = "$HOME/.cache/shellhist";
+      HISTFILE = "$XDG_CACHE_HOME/shellhist";
+      # HISTFILE = "$HOME/.cache/shellhist";
 
       SUDO_PROMPT = "yo what ur password dawg > ";
       #NIXOS_OZONE_WL = "1";
@@ -81,7 +84,7 @@
       nodePackages_latest.pyright
       shellcheck
       shfmt
-      # typescript
+      typescript
       nixfmt
       nixd
       rustup
@@ -166,7 +169,6 @@
 
       prismlauncher-unwrapped
       temurin-jre-bin-8 # TODO: Figure out if these work for prismlauncher
-      jdk17
 
       rofi-wayland
       rofimoji
@@ -182,18 +184,18 @@
       # gnome-extension-manager
       # gnome.gnome-tweaks
 
-      gnome.gnome-font-viewer
-      gnome.gnome-calculator
-      gnome.file-roller
+      # gnome.gnome-font-viewer
+      # gnome.gnome-calculator
+      # gnome.file-roller
 
-      mate.mate-polkit
+      # mate.mate-polkit
 
-      xfce.xfce4-terminal
-      xfce.tumbler
-      xfce.catfish
-      xfce.xfce4-screenshooter # TODO: Remove if this doesn't work on hyprland
-      xfce.ristretto
-      xfce.mousepad
+      # xfce.xfce4-terminal
+      # xfce.tumbler
+      # xfce.catfish
+      # xfce.xfce4-screenshooter # TODO: Remove if this doesn't work on hyprland
+      # xfce.ristretto
+      # xfce.mousepad
 
       hyprpaper
       hyprpicker
@@ -249,7 +251,7 @@
       enable = true;
       enableCompletion = false;
       vteIntegration = false;
-      syntaxHighlighting.enable = false;
+      syntaxHighlighting.enable = true; # TODO: Change this
     };
     firefox = {
       enable = true;
@@ -259,13 +261,14 @@
     virt-manager = { enable = true; };
     nix-ld = {
       enable = true;
-      libraries = with pkgs; [ gtk4-layer-shell libudev-zero libudev0-shim ];
+      # libraries = with pkgs; [ gtk4-layer-shell libudev-zero libudev0-shim ];
     };
   };
 
   services = {
     xserver = {
       enable = true;
+      autorun = false;
       # They change the syntax on unstable
       xkb = {
         layout = "us";
@@ -286,22 +289,22 @@
       };
       # Temporary, remove later
       desktopManager = {
-        plasma5 = {
-          enable = true;
-          phononBackend = "vlc";
-        };
+      plasma5 = {
+      enable = true;
+      phononBackend = "vlc";
       };
-      libinput = {
-        enable = true;
-        mouse = { accelProfile = "flat"; };
-        touchpad = {
-          accelProfile = "adaptive";
-          disableWhileTyping = true;
-          naturalScrolling = true;
-          #sendEventsMode = "disabled-on-external-mouse";
-          tapping = true;
-        };
       };
+      # libinput = {
+        # enable = true;
+        # mouse = { accelProfile = "flat"; };
+        # touchpad = {
+          # accelProfile = "adaptive";
+          # disableWhileTyping = true;
+          # naturalScrolling = true;
+       #   #sendEventsMode = "disabled-on-external-mouse";
+          # tapping = true;
+        # };
+      # };
       windowManager = {
         i3 = {
           enable = true;
@@ -312,7 +315,7 @@
     };
     printing.enable = true;
     blueman.enable = true;
-    gnome.gnome-keyring.enable = true;
+    # gnome.gnome-keyring.enable = true;
     asusd = {
       enable = true;
       enableUserService = true;
@@ -335,10 +338,10 @@
       pulse.enable = true;
       jack.enable = true;
     };
-    picom = {
-      enable = true;
+    # picom = {
+      # enable = true;
       # TODO: research more into this
-    };
+    # };
     systemd-lock-handler.enable = true;
     logind = {
       killUserProcesses = true;
@@ -404,10 +407,10 @@
   };
 
   xdg = {
-    autostart.enable = false;
-    icons.enable = true;
-    menus.enable = true;
-    sounds.enable = true;
+    # autostart.enable = false;
+    # icons.enable = true;
+    # menus.enable = true;
+    # sounds.enable = true;
     mime = {
       enable = true;
       defaultApplications = {
@@ -423,11 +426,11 @@
     };
   };
 
-  qt = {
-    enable = true;
-    platformTheme = "qt5ct";
-    style = "kvantum";
-  };
+  # qt = {
+    # enable = true;
+    # platformTheme = "qt5ct";
+    # style = "kvantum";
+  # };
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
