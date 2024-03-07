@@ -55,6 +55,7 @@
 
       SUDO_PROMPT = "yo what ur password dawg > ";
       #NIXOS_OZONE_WL = "1";
+      MOZ_ENABLE_WAYLAND = "1";
     };
     # to fix the env for my scripts
     # This runs on every shell startup for some reason, and doesn't work anyways
@@ -74,6 +75,7 @@
       floorp
       # vscode
       vscodium-fhs
+      codeium # Must be symlinked into the .codeium directory
       vesktop # build is broken
       jan
       libreoffice-fresh
@@ -82,6 +84,7 @@
       perl538Packages.PerlTidy
       nodePackages_latest.bash-language-server
       nodePackages_latest.pyright
+      # python-qt
       shellcheck
       shfmt
       typescript
@@ -91,9 +94,15 @@
       nodejs_21
       cmake
       clang
+      llvmPackages.bintools
       libgcc
       gnumake
       mold
+      pkg-config
+      # glib
+
+      nix-tree
+      nix-du
 
       neofetch
       fastfetch
@@ -112,6 +121,8 @@
 
       pandoc
       glow
+      netcat
+      socat
       #csvkit       # requires pandas, that build is broken
       poppler_utils
       gh
@@ -129,6 +140,7 @@
       yad
       gum
       dash
+      python312 # TODO: Update to 3.13 if out of alpha
 
       wget
       xdg-ninja
@@ -142,6 +154,7 @@
       imagemagick
       graphicsmagick
       killall
+      ydotool
 
       kitty
       alacritty
@@ -150,12 +163,14 @@
       nvtop
       ranger
       difftastic
+      complgen
 
       grim
       slurp
       swappy
       wl-clipboard
       kitti3
+      playerctl
 
       kooha
       gimp-with-plugins
@@ -166,9 +181,11 @@
       mpvScripts.cutter
       # openai-whisper
       v4l-utils
+      yt-dlp
 
-      prismlauncher-unwrapped
+      prismlauncher
       temurin-jre-bin-8 # TODO: Figure out if these work for prismlauncher
+      temurin-jre-bin-17
 
       rofi-wayland
       rofimoji
@@ -194,8 +211,8 @@
       # xfce.tumbler
       # xfce.catfish
       # xfce.xfce4-screenshooter # TODO: Remove if this doesn't work on hyprland
-      # xfce.ristretto
       # xfce.mousepad
+      loupe
 
       hyprpaper
       hyprpicker
@@ -249,7 +266,8 @@
     };
     zsh = {
       enable = true;
-      enableCompletion = false;
+      enableCompletion = true;
+      enableBashCompletion = true;
       vteIntegration = false;
       syntaxHighlighting.enable = true; # TODO: Change this
     };
@@ -259,9 +277,21 @@
     };
     xwayland = { enable = true; };
     virt-manager = { enable = true; };
+    i3lock = {
+      enable = true;
+      package = pkgs.i3lock-color;
+    };
     nix-ld = {
       enable = true;
-      # libraries = with pkgs; [ gtk4-layer-shell libudev-zero libudev0-shim ];
+      libraries = with pkgs; [
+        openssl
+        glib
+        gtk4
+        gtk4-layer-shell
+        # libgudev
+        libudev-zero
+        libudev0-shim
+      ];
     };
   };
 
@@ -280,35 +310,36 @@
       # xkbVariant = "";
       videoDrivers = [ "nvidia" ];
       excludePackages = [ pkgs.xterm ];
-      displayManager = {
-        sddm = {
-          enable = true;
-          autoNumlock = true;
-          wayland = { enable = true; };
-        };
-      };
+      # displayManager = {
+      # sddm = {
+      # enable = true;
+      # autoNumlock = true;
+      # wayland = { enable = true; };
+      # };
+      # };
+
       # Temporary, remove later
       desktopManager = {
-      plasma5 = {
-      enable = true;
-      phononBackend = "vlc";
-      };
+        plasma5 = {
+          enable = true;
+          phononBackend = "vlc";
+        };
       };
       # libinput = {
-        # enable = true;
-        # mouse = { accelProfile = "flat"; };
-        # touchpad = {
-          # accelProfile = "adaptive";
-          # disableWhileTyping = true;
-          # naturalScrolling = true;
-       #   #sendEventsMode = "disabled-on-external-mouse";
-          # tapping = true;
-        # };
+      # enable = true;
+      # mouse = { accelProfile = "flat"; };
+      # touchpad = {
+      # accelProfile = "adaptive";
+      # disableWhileTyping = true;
+      # naturalScrolling = true;
+      #   #sendEventsMode = "disabled-on-external-mouse";
+      # tapping = true;
+      # };
       # };
       windowManager = {
         i3 = {
           enable = true;
-          extraPackages = with pkgs; [ i3status i3lock ];
+          extraPackages = with pkgs; [ i3status ];
           updateSessionEnvironment = true;
         };
       };
@@ -339,8 +370,8 @@
       jack.enable = true;
     };
     # picom = {
-      # enable = true;
-      # TODO: research more into this
+    # enable = true;
+    # TODO: research more into this
     # };
     systemd-lock-handler.enable = true;
     logind = {
@@ -427,9 +458,9 @@
   };
 
   # qt = {
-    # enable = true;
-    # platformTheme = "qt5ct";
-    # style = "kvantum";
+  # enable = true;
+  # platformTheme = "qt5ct";
+  # style = "kvantum";
   # };
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
