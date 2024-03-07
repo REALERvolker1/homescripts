@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 [ -z "${SWAYSOCK:-}" ] && exit 69
 

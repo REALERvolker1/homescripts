@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 [[ -t 0 ]] && OLDSTTY="$(stty --save)"
 

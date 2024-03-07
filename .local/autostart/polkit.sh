@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 
 for i in \
     '/usr/lib/mate-polkit/polkit-mate-authentication-agent-1' \

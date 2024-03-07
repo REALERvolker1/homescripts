@@ -1,4 +1,4 @@
-#!/usr/bin/dash
+#!/usr/bin/env dash
 # rewrite of my touchpad script to be a bit nicer, work with Waybar better, and use Hyprland 0.30.0 device query
 set -eu
 IFS="$(printf "\n\t")"

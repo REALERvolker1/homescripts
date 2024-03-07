@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/usr/bin/env zsh
 # A script to help me be on time for the little things
 # by vlk
 emulate -LR zsh

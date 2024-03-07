@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/usr/bin/env zsh
 # vlk prompt generator
 # set -x
 dependency_check() {

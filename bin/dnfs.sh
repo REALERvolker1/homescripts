@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # shellcheck shell=bash disable=2209
 # a script by vlk that searches for dnf packages and installs them
 set -euo pipefail

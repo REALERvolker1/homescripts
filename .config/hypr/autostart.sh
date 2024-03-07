@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # I have migrated a lot of this stuff to a systemd user target.
 [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && exit 69
 

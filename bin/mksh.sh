@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 binpath="$HOME/bin"
@@ -25,7 +25,7 @@ fi
 [[ -e $file ]] && _panic "Error, file '$file' already exists!"
 
 cat >"$file" <<EOF
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # shellcheck shell=bash
 # a script that does a thing.
 set -euo pipefail

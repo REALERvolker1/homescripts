@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # script to install my dotfiles on a distro. Not meant to be comprehensive or anything
 # This script is only intended for me to use. It does not install any dependencies.
 
@@ -26,7 +26,7 @@ done
 [[ "$(<"$PWD/.git/config")" == *'github.com/REALERvolker1/homescripts'* ]]
 
 # find non-duplicate backup folder for all the old files
-for ((i=0;i++<999;)){ [ ! -e "$HOME/oldskel_$i" ] && preserve_dir="$HOME/oldskel_$i" && break;}
+for ((i = 0; i++ < 999; )); do [ ! -e "$HOME/oldskel_$i" ] && preserve_dir="$HOME/oldskel_$i" && break; done
 
 # don't symlink these dirs
 declare -A skips=(

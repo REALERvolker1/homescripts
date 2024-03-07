@@ -1,4 +1,4 @@
-#!/usr/bin/dash
+#!/usr/bin/env dash
 
 output='󰧠'
 class=none

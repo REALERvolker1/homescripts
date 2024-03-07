@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/usr/bin/env zsh
 emulate -L zsh
 set -euo pipefail
 

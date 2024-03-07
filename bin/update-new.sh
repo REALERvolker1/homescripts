@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # shellcheck shell=bash
 # a script that does a thing.
 IFS=$'\n\t'

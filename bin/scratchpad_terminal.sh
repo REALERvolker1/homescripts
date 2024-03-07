@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 trap "echo 'Goodbye :)'; exit" SIGINT
 

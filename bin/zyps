@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # vlk's dnfs, a program to search dnf for packages in a TUI
 set -euo pipefail
 IFS=$'\n\t'

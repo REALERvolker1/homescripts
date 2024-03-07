@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 if [[ "$(id "$USER")" != *'(docker)'* ]]; then
     echo "Error, $USER must be in group 'docker' (sudo usermod -aG '$USER' 'docker')"
     exit 1

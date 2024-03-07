@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 while true; do
     sleep 5
@@ -6,4 +6,3 @@ while true; do
     sleep 5
     ydotool mousemove -x 20 -y 40
 done
-

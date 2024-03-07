@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 echo "$1 $2 $3"
 TYPE="$1"

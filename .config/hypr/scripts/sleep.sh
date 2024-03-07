@@ -1,6 +1,5 @@
-#!/usr/bin/bash
-set -euo pipefail
-IFS=$'\n\t'
+#!/usr/bin/env dash
+set -eu
 
 : $HYPRLAND_INSTANCE_SIGNATURE
 

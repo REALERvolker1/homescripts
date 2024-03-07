@@ -2,7 +2,7 @@
 # set -euo pipefail
 # This script is meant to be used internally as a library. Example:
 
-# #!/usr/bin/bash
+# #!/usr/bin/env bash
 # # A script that runs vscodium
 # FLATPAK_NAMES="com.vscodium.codium:com.visualstudio.code-oss:com.visualstudio.code"
 # BIN_NAMES="codium:code-oss:code"

@@ -1,4 +1,4 @@
-#!/usr/bin/dash
+#!/usr/bin/env dash
 
 if [ "$XDG_CURRENT_DESKTOP" = 'Hyprland' ]; then
     hyprctl reload

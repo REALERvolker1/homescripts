@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 case "$(gammastep -p |& grep -Po 'Period: *\K[A-Z,a-z]+')" in
 'Daytime')
