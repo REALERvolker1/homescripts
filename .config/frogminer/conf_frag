@@ -1,0 +1,12 @@
+# CONFIG_AMD_MEM_ENCRYPT is not set
+# CONFIG_BACKLIGHT_APPLE is not set
+# CONFIG_C2PORT is not set
+# CONFIG_DRM_AMDGPU is not set
+# CONFIG_DRM_RADEON is not set
+# CONFIG_KVM_AMD is not set
+# CONFIG_MACINTOSH_DRIVERS is not set
+# CONFIG_X86_AMD_FREQ_SENSITIVITY is not set
+# CONFIG_X86_AMD_PSTATE is not set
+# CONFIG_X86_AMD_PSTATE_UT is not set
+# CONFIG_X86_MCE_AMD is not set
+# CONFIG_X86_POWERNOW_K8 is not set

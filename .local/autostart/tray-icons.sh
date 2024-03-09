@@ -1,9 +1,13 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
-pgrep firewall-applet &>/dev/null || {
+pgrep nm-applet &>/dev/null || nm-applet &
+
+pgrep firewall-applet &>/dev/null || (
     sleep 5
-    firewall-applet &!
-}
+    exec firewall-applet
+) &
 
-pgrep nm-applet &>/dev/null || nm-applet &!
+
+disown
+wait
 
