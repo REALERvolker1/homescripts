@@ -130,7 +130,7 @@ else
 fi
 
 # difftastic
-expand_aliases[diff]=difft
+alias diff=difft
 
 # use this if the extract zsh function doesn't work
 # alias extract='ouch decompress'

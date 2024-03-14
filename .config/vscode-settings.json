@@ -182,5 +182,16 @@
     "rust-analyzer.hover.actions.references.enable": true,
     "rust-analyzer.inlayHints.lifetimeElisionHints.enable": "skip_trivial",
     "rust-analyzer.inlayHints.rangeExclusiveHints.enable": true,
-    "rust-analyzer.lru.capacity": 256
+    "rust-analyzer.lru.capacity": 256,
+    "codeium.aggressiveShutdown": true,
+    "[c]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    },
+    "[cpp]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    },
+    "[go]": {
+        "editor.defaultFormatter": "golang.go"
+    },
+    "go.diagnostic.vulncheck": "Imports"
 }

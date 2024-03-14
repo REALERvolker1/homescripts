@@ -8,21 +8,27 @@ _panic() {
     exit 1
 }
 
-# support custom X server implementations, default to the best*
-STX_XSERVER="${STX_XSERVER:-Xorg}"
 [[ -e ${XINITRC-} ]] || XINITRC="$HOME/.xinitrc"
+
+# support custom X server implementations, inheriting this env var
+if [[ -z "${STX_XSERVER-}" ]]; then
+    # the xserverrc file is used to configure and start X with custom user settings
+    if [[ -e "${XSERVERRC-}" && -x "${XSERVERRC-}" ]]; then
+        STX_XSERVER="$XSERVERRC"
+    elif [[ -x "$HOME/.xserverrc" ]]; then
+        STX_XSERVER="$HOME/.xserverrc"
+    else
+        # just default to the most modern X server implementation
+        STX_XSERVER=Xorg
+    fi
+fi
 
 # Check for dependencies
 declare -a faildeps=()
 for i in stty tty xauth "$STX_XSERVER" deallocvt mcookie; do
     command -v "$i" &>/dev/null || faildeps+=("$i")
 done
-if ((${#faildeps[@]})); then
-    _panic "Error, missing dependencies:" "${faildeps[@]}"
-fi
-
-: "${TTY:=$(tty)}"
-OLDSTTY=$(stty -g)
+((${#faildeps[@]})) && _panic "Error, missing dependencies:" "${faildeps[@]}"
 
 # Fedora-specific tweak to force startx to run as the current user because selinux I think
 [[ -e /etc/redhat-release ]] && export XORG_RUN_AS_USER_OK=1
@@ -31,8 +37,11 @@ OLDSTTY=$(stty -g)
 export XAUTHORITY="${XAUTHORITY:-$XDG_RUNTIME_DIR/Xauthority}"
 
 # make sure we're in a real vtty and not some sort of Xterm
-[[ ${TERM:-Undefined} != 'linux' && ${TTY-} != '/dev/tty'* ]] &&
+[[ ${TERM:-Undefined} == linux && "${TTY:=$(tty)}" == /dev/tty* ]] ||
     _panic "Error, you must be in a real vtty!" "Terminal '${TERM-}' and '$TTY' do not count!"
+
+# Save STTY so I can restore state on cleanup
+OLDSTTY=$(stty -g)
 
 # Determine which commands to run with the X server
 declare -a EXEC_COMMAND
@@ -96,7 +105,7 @@ exec::xserver() {
 }
 
 exec::desktop() {
-    DISPLAY=$display "${EXEC_COMMAND[@]}" &
+    DISPLAY="$display" "${EXEC_COMMAND[@]}" &
     wait "$!"
 }
 
@@ -104,7 +113,7 @@ exec::desktop() {
 : >"$XAUTHORITY"
 xauth add "$display" MIT-MAGIC-COOKIE-1 "$(mcookie)"
 
-# cleanup on exit
+# cleanup on generic exit
 trap 'cleanup::exit' EXIT
 
 # signals we want to propagate to this script
