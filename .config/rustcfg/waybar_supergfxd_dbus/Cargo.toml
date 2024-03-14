@@ -1,0 +1,32 @@
+[package]
+name = "waybar_supergfxd_dbus"
+edition = "2021"
+version = "0.1.0"
+
+[dependencies.futures-util]
+version = "0.3"
+features = []
+default-features = false
+
+[dependencies.serde]
+version = "1"
+features = []
+default-features = false
+
+[dependencies.tokio]
+version = "1"
+features = ["rt", "parking_lot", "macros", "io-std"]
+default-features = false
+
+[dependencies.zbus]
+version = "4"
+features = ["tokio"]
+default-features = false
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.release.package]
