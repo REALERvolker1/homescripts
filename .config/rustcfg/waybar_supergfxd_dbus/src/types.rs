@@ -17,12 +17,12 @@ impl GfxMode {
     pub const fn icon(&self) -> Option<Icon> {
         match self {
             GfxMode::Hybrid => None,
-            GfxMode::Integrated => Some("󰰃\n"),
-            GfxMode::NvidiaNoModeset => Some("󰰒\n"),
-            GfxMode::Vfio => Some("󰰪\n"),
-            GfxMode::AsusEgpu => Some("󰯷\n"),
-            GfxMode::AsusMuxDgpu => Some("󰰏\n"),
-            GfxMode::None => Some("󰳤\n"),
+            GfxMode::Integrated => Some("󰰃"),
+            GfxMode::NvidiaNoModeset => Some("󰰒"),
+            GfxMode::Vfio => Some("󰰪"),
+            GfxMode::AsusEgpu => Some("󰯷"),
+            GfxMode::AsusMuxDgpu => Some("󰰏"),
+            GfxMode::None => Some("󰳤"),
         }
     }
 }

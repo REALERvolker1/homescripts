@@ -2,7 +2,6 @@
 # I have migrated a lot of this stuff to a systemd user target.
 [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && exit 69
 
-# [ -f "$HOME/.xsession-errors" ] && rm "$HOME/.xsession-errors" &
 autostart-remove.sh &
 
 (
@@ -40,13 +39,12 @@ waybar &
 
 set-cursor-theme.sh --session &
 steam-symlink-unfucker.sh &
-hyprpointer &
+# hyprpointer normalize &
+hyprpointer status-monitor &
 # pointer.sh -n &
 #pointer.sh -um &
 #pmgmt.sh --monitor &
 #scratchpad_terminal.sh &
-
-autostart-clipboard.sh &
 
 hyprpm reload &
 

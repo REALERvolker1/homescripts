@@ -1,10 +1,9 @@
 pub mod types;
 pub mod xmlgen;
 
-use futures_util::StreamExt;
+use futures_lite::StreamExt;
 use tokio::io::AsyncWriteExt;
 
-// type E = Box<dyn std::error::Error>;
 type E = zbus::Error;
 
 macro_rules! k {
@@ -28,32 +27,24 @@ fn main() {
 
             let mode_query = proxy.mode().await?;
 
-            let mut stdout = tokio::io::stdout();
-            macro_rules! writeme {
-                ($var:ident) => {
-                    stdout.write_all($var.icon().as_bytes()).await?;
-                    stdout.flush().await?;
-                };
-            }
-
             if let Some(icon) = mode_query.icon() {
                 // I don't need to run this anymore
-                stdout.write_all(icon.as_bytes()).await?;
+                println!("{icon}");
                 k!();
             }
 
             let mut subscriber = proxy.receive_notify_gfx_status().await?;
 
-            loop {
-                let (_, action) = tokio::join!(subscriber.next(), async {
-                    let power = proxy.power().await?;
-                    writeme!(power);
+            let mut stdout = tokio::io::stdout();
 
-                    k!();
-                });
-                if action.is_err() {
-                    return action;
-                }
+            loop {
+                futures_lite::future::zip(subscriber.next(), async {
+                    let power = proxy.power().await.unwrap();
+
+                    stdout.write_all(power.icon().as_bytes()).await.unwrap();
+                    stdout.flush().await.unwrap();
+                })
+                .await;
             }
         })
         .unwrap();
