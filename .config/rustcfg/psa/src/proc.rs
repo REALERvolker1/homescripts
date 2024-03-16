@@ -1,310 +1,288 @@
-use crate::{
-    procinfo::{self, Painterly, Styler},
-    style,
+//! api here is kinda bad since I switched from using global arcmutex to using referenced hashmap. Sorry!
+
+use ahash::{HashMap, HashMapExt};
+use nix::unistd::{self, Pid, Uid};
+use nu_ansi_term::{Color, Style};
+use once_cell::sync::Lazy;
+use procfs::{
+    process::{ProcState, StatFlags},
+    ProcError, ProcResult,
 };
-use lscolors::LsColors;
+use std::{path::PathBuf, rc::Rc};
 
-use procfs;
-use std::{collections::HashMap, path::Path, rc::Rc};
+use crate::CONFIG;
 
-macro_rules! style_args_default {
-    ($arg:expr) => {
-        Rc::new(style::COLOR_CONFIG.args_color.paint($arg).to_string())
-    };
-    ($arg:expr, norc) => {
-        style::COLOR_CONFIG.args_color.paint($arg).to_string()
-    };
-}
+pub static LS_COLORS: Lazy<lscolors::LsColors> =
+    Lazy::new(|| lscolors::LsColors::from_env().unwrap_or_default());
 
-macro_rules! unrc {
-    ($rc:expr) => {
-        $rc.as_ref().to_owned()
-    };
-}
+static PROCESS_UID: Lazy<u32> = Lazy::new(|| unistd::Uid::current().as_raw());
 
-pub struct StyleCache {
-    pub name_format_cache: HashMap<Rc<String>, Rc<String>>,
-    pub args_format_cache: HashMap<Rc<String>, Rc<String>>,
-    pub ls_colors: LsColors,
-}
-impl Default for StyleCache {
-    fn default() -> Self {
-        Self {
-            name_format_cache: HashMap::new(),
-            args_format_cache: HashMap::new(),
-            ls_colors: LsColors::from_env().unwrap_or_default(),
-        }
-    }
-}
-impl StyleCache {
-    /// This function gets a styled arg and returns it. It uses a cache. It is fast, but uses more memory.
-    pub fn get_styled_arg(&mut self, arg: &str) -> String {
-        // Since I'm trying to avoid doing bare clones, I have decided to learn how to use
-        // Rc types. This is why I am writing Rc::clone all over the place, I'm pretty sure it
-        // just points to the same pointer in memory while acting like an owned value.
-        let argrc = Rc::new(arg.to_owned());
-        let output = if let Some(cached) = self.args_format_cache.get(&argrc) {
-            // load from cache
-            Rc::clone(&cached)
-        } else if let Some(slash_index) = arg.find("/") {
-            // only work on stuff that is probably a path. I do not verify paths
-            // because I want this to work on most file-like stuff and whatnot
-            let (left, right) = arg.split_at(slash_index);
-            // The left string has no slashes and is probably not a path.
-            // Call this function recursively so it gets styled like a normal nonpathlike string
-            let left = self.get_styled_arg(left);
-            let right_rc = Rc::new(right.to_owned());
-
-            let styled_path = if let Some(right_string) = self.args_format_cache.get(&right_rc) {
-                // the right string can be in the cache separately too
-                Rc::clone(&right_string)
-            } else {
-                let right_style = self.ls_colors.style_for_path_components(Path::new(right));
-                let right_vec = right_style
-                    .map(|(str, style_opt)| {
-                        let segment = str.to_string_lossy();
-                        if let Some(style) = style_opt {
-                            style.to_nu_ansi_term_style().paint(segment).to_string()
-                        } else {
-                            // fallback to the default args style
-                            style_args_default!(segment, norc)
-                        }
-                    })
-                    .collect::<Vec<String>>();
-                // collect the result path stuff into a string
-                let right_result = Rc::new(right_vec.join(""));
-
-                // put formatted path into cache for easier computation and whatnot
-                self.args_format_cache
-                    .insert(Rc::clone(&right_rc), Rc::clone(&right_result));
-
-                Rc::clone(&right_result)
-            };
-
-            let stylestr = Rc::new(format!("{}{}", left, styled_path));
-            // This line inserts the entire thing into the cache, but the left one is treated like a normal arg so there's literally no need.
-            // self.args_format_cache
-            //     .insert(Rc::clone(&argrc), Rc::clone(&stylestr));
-            stylestr
+pub fn format_process(
+    process: &procfs::process::Process,
+    queue: &mut PathColorQueue,
+) -> ProcResult<String> {
+    if !CONFIG.color {
+        // I don't feel like adding all this compatibility right now.
+        return if let Some(my_process) = Process::from_procfs_process(process, queue)? {
+            Ok(my_process.format_for_fzf())
         } else {
-            // fallback to the default args style
-            let styled = style_args_default!(arg);
-            self.args_format_cache
-                .insert(Rc::clone(&argrc), Rc::clone(&styled));
-            styled
+            Err(ProcError::Other("Invalid process".to_owned()))
         };
-        unrc!(output)
     }
-    /// This is literally just here so I can cache duplicate names. It is not designed to be convenient to use in other contexts.
-    pub fn get_styled_name(
-        &mut self,
-        name: &str,
-        process_state: procinfo::RecognizedStates,
-    ) -> String {
-        // Show if the process is dead
-        if process_state == procinfo::RecognizedStates::Unknown
-            || process_state == procinfo::RecognizedStates::Zombie
-        {
-            return process_state
-                .to_nu_ansi_term_style()
-                .paint(name)
-                .to_string();
-        }
 
-        // process is alive and well
-        let namerc = Rc::new(name.to_owned());
-        let result_rc = if let Some(styled) = self.name_format_cache.get(&namerc) {
-            // load from cache
-            Rc::clone(&styled)
-        } else {
-            let styled_name = process_state
-                .to_nu_ansi_term_style()
-                .paint(name)
-                .to_string();
-            let styled_name_rc = Rc::new(styled_name);
-            self.name_format_cache
-                .insert(Rc::clone(&namerc), Rc::clone(&styled_name_rc));
-            styled_name_rc
-        };
-        unrc!(result_rc)
-    }
+    let stat = process.stat()?;
+    let status = process.status()?;
+
+    let state = stat.state()?;
+    let state_color = state_color(state);
+    let owner_type = OwnerType::from_uid(process.uid()?).style();
+
+    let flags = stat.flags()?;
+
+    let uid = Uid::from_raw(status.euid);
+    let username = match unistd::User::from_uid(uid) {
+        Ok(Some(user)) => format!("{} ({})", user.name, user.uid),
+        Ok(None) => uid.to_string() + " (unknown)",
+        Err(e) => format!("Error getting user {}: {}", uid, e),
+    };
+
+    let flag_style = Color::LightYellow.reset_before_style().italic();
+
+    Ok(format!(
+        "Name: {} {}\nState: {}\nUser: {}\nArgs: {}\nFlags: [{}]\n",
+        state_color.reset_before_style().bold().paint(status.name),
+        owner_type.paint(format!("({})", stat.pid)),
+        state_color.underline().paint(format!("{:?}", state)),
+        owner_type.paint(username),
+        format_process_args(process.cmdline().unwrap_or_default(), queue).join(" "),
+        flags
+            .iter_names()
+            .map(|f| flag_style.paint(f.0).to_string())
+            .collect::<Vec<_>>()
+            .join(", "),
+    ))
 }
 
-#[derive(Debug, Clone)]
-pub struct Proc {
-    pub name: String,
-    pub name_styled: String,
-    pub uid: u32,
-    pub state: procinfo::RecognizedStates,
-    // pub user: procinfo::User,
-    pub user_fmt: String,
+#[derive(Debug, PartialEq, Eq)]
+pub struct Process {
     pub pid: i32,
-    pub pid_styled: String,
-    pub ppid: i32,
-    pub args: Vec<String>,
-    pub styled_args: Vec<String>,
+    pub owner_type: OwnerType,
+    pub state: ProcState,
+
+    fmt_args: String,
+    fmt_name: String,
+    fmt_pid: String,
 }
-impl Default for Proc {
-    fn default() -> Self {
-        Self {
-            name: "".to_owned(),
-            name_styled: "".to_owned(),
-            uid: 0,
-            state: procinfo::RecognizedStates::Unknown,
-            // user: procinfo::User::default(),
-            user_fmt: "".to_owned(),
-            pid: -1,
-            pid_styled: "".to_owned(),
-            ppid: -1,
-            args: Vec::new(),
-            styled_args: Vec::new(),
+impl Process {
+    pub fn from_procfs_process(
+        process: &procfs::process::Process,
+        queue: &mut PathColorQueue,
+    ) -> ProcResult<Option<Self>> {
+        let stat = process.stat()?;
+
+        let uid = process.uid()?;
+        if CONFIG.mine && uid != *PROCESS_UID {
+            return Ok(None);
         }
-    }
-}
-impl Proc {
-    /// Basically the main function lmao. It takes so many args because it is supposed to be used in one specific way.
-    pub fn from_procfs_proc(
-        procfs_process: procfs::process::Process,
-        user: Rc<procinfo::User>,
-        style_cache: &mut StyleCache,
-    ) -> Result<Proc, procinfo::ProcError> {
-        // If the args are empty, it is a kernel process, spawned without a binary.
-        let args = procfs_process.cmdline().unwrap_or_default();
-        if args.is_empty() {
-            return Err(procinfo::ProcError::Empty);
+        let owner_type = OwnerType::from_uid(uid);
+
+        let flags = stat.flags()?;
+
+        if flags.contains(StatFlags::PF_KTHREAD) && !CONFIG.kernel_procs {
+            return Ok(None);
         }
 
-        let filter_type = user.filter_type;
-        let uid = user.uid;
+        let status = process.status()?;
+        let state = stat.state()?;
 
-        let my_pid = procfs_process.pid();
-        let pid_string = my_pid.to_string();
-
-        let (parent_pid, name, name_styled, state) = if let Ok(status) = procfs_process.status() {
-            let stat_state = status.state.as_str();
-            let my_state = stat_state.split_at(stat_state.find(" ").unwrap_or(1)).0;
-            let my_state_recognized = procinfo::RecognizedStates::from(my_state);
-
-            let my_styled_name = style_cache.get_styled_name(&status.name, my_state_recognized);
-            (
-                status.ppid,
-                status.name,
-                my_styled_name,
-                my_state_recognized,
-            )
+        let fmt_args = if let Ok(a) = process.cmdline() {
+            format_process_args(a, queue).join(" ")
         } else {
-            // I probably didn't have perms for this anyways
-            return Err(procinfo::ProcError::Empty);
+            String::new()
         };
 
-        // Style the pid here because there's literally no way it could be cached.
-        let (style_pid, styled_args) = if state == procinfo::RecognizedStates::Zombie {
-            // if it's a zombie process, style with state
-            (
-                state
-                    .to_nu_ansi_term_style()
-                    .bold()
-                    .paint(&pid_string)
-                    .to_string(),
-                vec![state
-                    .to_nu_ansi_term_style()
-                    .paint("<defunct/zombie>")
-                    .to_string()],
-            )
+        let fmt_name;
+        let fmt_pid;
+
+        // moving formatting from the print function to the constructor saves 4ms in debug mode because this is multithreaded.
+        if CONFIG.color {
+            fmt_name = state_color(state).paint(status.name).to_string();
+            fmt_pid = owner_type.style().paint(stat.pid.to_string()).to_string();
         } else {
-            let pid_style = if state == procinfo::RecognizedStates::Unknown {
-                state
-                    .to_nu_ansi_term_style()
-                    .bold()
-                    .paint(&pid_string)
-                    .to_string()
-            } else {
-                filter_type
-                    .to_nu_ansi_term_style()
-                    .paint(&pid_string)
-                    .to_string()
-            };
+            fmt_name = status.name;
+            fmt_pid = stat.pid.to_string();
+        }
 
-            let mut mutable_args = args.clone();
-
-            // This makes it so the path to the binary is always first.
-            // If it is a different string though, then still show it so that I still see the information.
-            if let Some(first) = mutable_args.first() {
-                if let Ok(binary) = procfs_process.exe() {
-                    let binary_string = binary.to_string_lossy().to_string();
-                    if first != &binary_string {
-                        mutable_args[0] = format!("({})", first);
-                        mutable_args.insert(0, binary_string);
-                    }
-                }
-            }
-
-            // If the args are empty, it is a kernel process, spawned without a binary.
-            // if mutable_args.is_empty() {
-            //     mutable_args.push("(-)".to_owned()); // to make it look a bit more like linux ps
-            // }
-
-            // Some electron apps and browsers have all the args as one giant arg. This is a hacky way to fix that.
-            // If a filepath is unfortunate enough to have a space in it, then it will be split, but its parent dir might still be styled.
-            let args_iter = mutable_args.iter().flat_map(|a| a.split(" "));
-
-            let args_style = args_iter
-                .map(|a| style_cache.get_styled_arg(a))
-                .collect::<Vec<String>>();
-
-            (pid_style, args_style)
-        };
-
-        Ok(Self {
-            name,
-            name_styled,
+        let me = Self {
+            pid: stat.pid,
+            owner_type,
             state,
-            uid,
-            // user: unrc!(user),
-            user_fmt: user.paint(),
-            pid: my_pid,
-            pid_styled: style_pid,
-            ppid: parent_pid,
-            args,
-            styled_args,
-        })
-    }
-    pub fn console_style(&self) -> String {
-        let args_string = self.styled_args.join(" ");
-        format!(
-            "{}{}{}{}{}",
-            self.pid_styled,
-            style::DELIM,
-            self.name_styled,
-            style::DELIM,
-            args_string
-        )
-    }
-    pub fn info_style(&self) -> String {
-        format!(
-            "PID: {}, NAME: {}, STATE: {}
-USER: {}
-ARGS: {}",
-            self.pid_styled,
-            self.name_styled,
-            self.state.paint(),
-            // self.user.paint(),
-            self.user_fmt,
-            self.styled_args.join(" ")
-        )
-    }
-    pub fn from_pid(pid: i32) -> Result<Self, procinfo::ProcError> {
-        let procfs_process = procfs::process::Process::new(pid)?;
-        let user = if let Some(u) = procinfo::User::from_uid(procfs_process.uid()?) {
-            Rc::new(u)
-        } else {
-            return Err(procinfo::ProcError::CustomError(
-                "Could not find user!".to_owned(),
-            ));
+            fmt_args,
+            fmt_name,
+            fmt_pid,
         };
 
-        let mut style_cache = StyleCache::default();
+        // stat.cutime
 
-        Self::from_procfs_proc(procfs_process, user, &mut style_cache)
+        Ok(Some(me))
     }
+    pub fn format_for_fzf(&self) -> String {
+        // spaces between tabs just in case
+        format!("{}\t{}\t{}", &self.fmt_pid, &self.fmt_name, &self.fmt_args)
+    }
+}
+
+#[derive(Debug)]
+pub struct FzfOutput(pub Vec<procfs::process::Process>);
+impl FzfOutput {
+    pub fn from_output(out: &str) -> ProcResult<Self> {
+        let mut procs = Vec::new();
+        for maybe_pid in out
+            .split('\n')
+            .filter_map(|p| p.split_once('\t')?.0.parse::<i32>().ok())
+        {
+            match procfs::process::Process::new(maybe_pid) {
+                Ok(p) => procs.push(p),
+                Err(e) => return Err(e),
+            }
+        }
+
+        Ok(Self(procs))
+    }
+    /// Format each as a string, printing errors inline.
+    #[inline]
+    pub fn format_each(&self) -> Vec<String> {
+        let mut akyvgrfjavg = HashMap::new();
+        self.0
+            .iter()
+            .map(|p| format_process(p, &mut akyvgrfjavg).unwrap_or_else(|e| e.to_string()))
+            .collect()
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum OwnerType {
+    Mine,
+    Others,
+    Root,
+}
+impl OwnerType {
+    pub fn from_uid(uid: u32) -> Self {
+        if uid == unistd::ROOT.as_raw() {
+            Self::Root
+        } else if uid == *PROCESS_UID {
+            Self::Mine
+        } else {
+            Self::Others
+        }
+    }
+    #[inline]
+    pub fn style(&self) -> Style {
+        match self {
+            Self::Mine => Color::LightGreen,
+            Self::Others => Color::LightCyan,
+            Self::Root => Color::LightRed,
+        }
+        .bold()
+    }
+}
+
+pub const fn state_color(state: ProcState) -> Color {
+    match state {
+        ProcState::Running => Color::LightGreen,
+        ProcState::Sleeping => Color::Yellow,
+        ProcState::Waiting => Color::Cyan,
+        ProcState::Idle => Color::LightYellow,
+
+        ProcState::Tracing => Color::LightMagenta,
+        ProcState::Stopped => Color::Magenta,
+        ProcState::Dead => Color::LightRed,
+        ProcState::Zombie => Color::Red,
+
+        ProcState::Parked | ProcState::Wakekill | ProcState::Waking => Color::Blue, //old kernels
+    }
+}
+
+static DEFAULT_ARG_STYLE: Lazy<Style> = Lazy::new(|| Style::new().fg(Color::Green));
+static FLATPAK_RELATIVE_PATH_COLOR: Lazy<Style> = Lazy::new(|| Style::new().fg(Color::Cyan));
+
+fn format_process_args(args: Vec<String>, queue: &mut PathColorQueue) -> Vec<String> {
+    // I split args on spaces because some chromium and electron apps don't split args on spaces and have one giant arg.
+    // I also trim newlines and tabs and escapes and whatnot because those can break output.
+    // I found negligible performance benefits to making this a parallel iter.
+    if CONFIG.color {
+        args.into_iter()
+            .map(|a| a.replace(['\n', '\t', '\x1b', '\0', '\r'], " "))
+            .flat_map(|a| {
+                a.split(' ')
+                    .map(|a| colorize_arg(a, queue))
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>()
+    } else {
+        args
+    }
+}
+
+/// Colorize a program's argument.
+///
+/// This is not cached because it is used in a hot loop and the colorize functions are quick enough.
+fn colorize_arg(maybe_path: &str, queue: &mut PathColorQueue) -> String {
+    let maybe_path = maybe_path.trim();
+    if maybe_path.is_empty() {
+        return maybe_path.to_owned();
+    }
+
+    let Some(find) = maybe_path.find('/') else {
+        return DEFAULT_ARG_STYLE.paint(maybe_path).to_string();
+    };
+
+    let (prefix, probably_path) = maybe_path.split_at(find);
+
+    // turning this into a PathBuf will remove duplicate slashes, but I think it's worth it in the scheme of things.
+    let colorized_path = colorize_path(probably_path, queue);
+
+    format!("{}{colorized_path}", DEFAULT_ARG_STYLE.paint(prefix))
+}
+
+/// I added this on really late so the code is definitely not designed around this lmao
+pub type PathColorQueue = HashMap<String, Rc<String>>;
+// static COLORIZED_PATH_CACHE: Lazy<RwLock<HashMap<String, Arc<String>>>> =
+//     Lazy::new(|| RwLock::new(HashMap::new()));
+
+/// Colorize a path with ls colors. This is cached because the clone cost is probably less than the io cost.
+fn colorize_path(pathlike: &str, queue: &mut PathColorQueue) -> Rc<String> {
+    if let Some(c) = queue.get(pathlike) {
+        return Rc::clone(c);
+    }
+
+    let pathlike_string = pathlike.to_owned();
+
+    if pathlike.starts_with("/app") {
+        let pack_string = Rc::new(FLATPAK_RELATIVE_PATH_COLOR.paint(pathlike).to_string());
+        queue.insert(pathlike_string, Rc::clone(&pack_string));
+        return pack_string;
+    }
+
+    let pathlike = PathBuf::from(pathlike);
+
+    let components = LS_COLORS.style_for_path_components(&pathlike);
+
+    let comp_string = components
+        .map(|(p, c)| {
+            match c {
+                Some(c) => c.to_nu_ansi_term_style().paint(p.to_string_lossy()),
+                None => DEFAULT_ARG_STYLE.paint(p.to_string_lossy()),
+            }
+            .hyperlink(&pathlike_string)
+            .to_string()
+        })
+        .collect::<Vec<_>>()
+        .join("");
+
+    let comp_string = Rc::new(comp_string);
+
+    queue.insert(pathlike_string, Rc::clone(&comp_string));
+
+    comp_string
 }

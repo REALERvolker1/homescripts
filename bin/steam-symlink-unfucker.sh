@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/zsh
 #vlk script
 # Steam is the only flatpak app I have that just cannot handle symlinked or bind-mounted directories!
 setopt NULL_GLOB
