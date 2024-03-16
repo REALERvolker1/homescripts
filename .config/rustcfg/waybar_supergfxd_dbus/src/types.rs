@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use zbus::zvariant;
-type Icon = &'static str;
+// type Icon = &'static str;
+type Icon = char;
 
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone, zvariant::Type, Serialize, Deserialize)]
 pub enum GfxMode {
@@ -17,12 +18,12 @@ impl GfxMode {
     pub const fn icon(&self) -> Option<Icon> {
         match self {
             GfxMode::Hybrid => None,
-            GfxMode::Integrated => Some("󰰃"),
-            GfxMode::NvidiaNoModeset => Some("󰰒"),
-            GfxMode::Vfio => Some("󰰪"),
-            GfxMode::AsusEgpu => Some("󰯷"),
-            GfxMode::AsusMuxDgpu => Some("󰰏"),
-            GfxMode::None => Some("󰳤"),
+            GfxMode::Integrated => Some('󰰃'),
+            GfxMode::NvidiaNoModeset => Some('󰰒'),
+            GfxMode::Vfio => Some('󰰪'),
+            GfxMode::AsusEgpu => Some('󰯷'),
+            GfxMode::AsusMuxDgpu => Some('󰰏'),
+            GfxMode::None => Some('󰳤'),
         }
     }
 }
@@ -40,12 +41,22 @@ pub enum GfxPower {
 impl GfxPower {
     pub const fn icon(&self) -> Icon {
         match self {
-            GfxPower::Active => "󰒇\n",
-            GfxPower::Suspended => "󰒆\n",
-            GfxPower::Off => "󰒅\n",
-            GfxPower::AsusDisabled => "󰒈\n",
-            GfxPower::AsusMuxDiscreet => "󰾂\n",
-            GfxPower::Unknown => "󰳤\n",
+            GfxPower::Active => '󰒇',
+            GfxPower::Suspended => '󰒆',
+            GfxPower::Off => '󰒅',
+            GfxPower::AsusDisabled => '󰒈',
+            GfxPower::AsusMuxDiscreet => '󰾂',
+            GfxPower::Unknown => '󰳤',
+        }
+    }
+    pub const fn class_name(&self) -> &'static str {
+        match self {
+            GfxPower::Active => "active",
+            GfxPower::Suspended => "suspended",
+            GfxPower::Off => "off",
+            GfxPower::AsusDisabled => "asus-disabled",
+            GfxPower::AsusMuxDiscreet => "asus-mux-discreet",
+            GfxPower::Unknown => "unknown",
         }
     }
 }

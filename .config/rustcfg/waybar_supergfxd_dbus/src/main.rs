@@ -29,7 +29,7 @@ fn main() {
 
             if let Some(icon) = mode_query.icon() {
                 // I don't need to run this anymore
-                println!("{icon}");
+                println!("{{\"text\": \"{icon}\"}}");
                 k!();
             }
 
@@ -41,7 +41,13 @@ fn main() {
                 futures_lite::future::zip(subscriber.next(), async {
                     let power = proxy.power().await.unwrap();
 
-                    stdout.write_all(power.icon().as_bytes()).await.unwrap();
+                    let out_text = format!(
+                        "{{\"text\": \"{}\", \"class\": \"{:?}\"}}\n",
+                        power.icon(),
+                        power
+                    );
+
+                    stdout.write_all(out_text.as_bytes()).await.unwrap();
                     stdout.flush().await.unwrap();
                 })
                 .await;

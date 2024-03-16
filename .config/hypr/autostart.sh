@@ -6,45 +6,38 @@ autostart-remove.sh &
 
 (
     autostart-dbus-activation-env.sh
-    systemctl --user start user-graphical-session.target
-    systemctl --user start wayland.target
+    # systemctl --user start user-graphical-session.target
+    # systemctl --user start wayland.target
 ) &
+
+autostart-gammastep.sh &
 
 xhost +local: &
 # xhost +local:root:
-#autostart-keyring.sh &
-#autostart-polkit.sh &
+autostart-keyring.sh &
+autostart-polkit.sh &
 
-#ydotoold &
+pgrep ydotoold &>/dev/null || ydotoold &
 #asusctl -c 80 &
 
-#vlkbg.sh &
-#autostart-gammastep.sh &
-#dunst &
-#mako &
+dunst &
 hyprpaper &
 
 # barcfg
 waybar &
-#nm-applet &
-#(
-#    sleep 5
-#    firewall-applet
-#) &
-
-# (
-# sleep 3
-# hyprshade auto
-# ) &
 
 set-cursor-theme.sh --session &
 steam-symlink-unfucker.sh &
 # hyprpointer normalize &
-hyprpointer status-monitor &
-# pointer.sh -n &
-#pointer.sh -um &
+pgrep hyprpointer || hyprpointer status-monitor &
 #pmgmt.sh --monitor &
-#scratchpad_terminal.sh &
+
+pgrep nm-applet &>/dev/null || nm-applet &
+
+# pgrep firewall-applet &>/dev/null || (
+#     sleep 5
+#     exec firewall-applet
+# ) &
 
 hyprpm reload &
 

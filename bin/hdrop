@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 ## This script emulates the main feature of tdrop (https://github.com/noctuid/tdrop) in Hyprland, namely:
 ##
@@ -33,31 +33,31 @@
 ## License: AGPL
 
 check() {
-  command -v "$1" 1>/dev/null
+    command -v "$1" 1>/dev/null
 }
 
 notify() {
-  # shellcheck disable=SC2015
-  check notify-send && {
-    notify-send "$@"
-  } || {
-    echo "$@"
-  }
+    # shellcheck disable=SC2015
+    check notify-send && {
+        notify-send "$@"
+    } || {
+        echo "$@"
+    }
 }
 
 basicChecks() {
-  check jq || {
-    notify "hdrop: Missing dependency 'jq'"
-    exit 1
-  }
-  check hyprctl || {
-    notify "hdrop: 'hyprctl' can't be executed"
-    exit 1
-  }
-  pgrep Hyprland &>/dev/null || {
-    notify "hdrop: Hyprland session could not be detected" "hdrop only works in Hyprland"
-    exit 1
-  }
+    check jq || {
+        notify "hdrop: Missing dependency 'jq'"
+        exit 1
+    }
+    check hyprctl || {
+        notify "hdrop: 'hyprctl' can't be executed"
+        exit 1
+    }
+    pgrep Hyprland &>/dev/null || {
+        notify "hdrop: Hyprland session could not be detected" "hdrop only works in Hyprland"
+        exit 1
+    }
 }
 
 basicChecks
@@ -68,38 +68,38 @@ ACTIVE_WORKSPACE="$(hyprctl activeworkspace -j | jq -r .id)"
 
 case "$1" in
 "")
-  notify "hdrop: missing Argument" "Append the command you would like to execute, e.g. 'hdrop librewolf'"
-  exit 1
-  ;;
+    notify "hdrop: missing Argument" "Append the command you would like to execute, e.g. 'hdrop librewolf'"
+    exit 1
+    ;;
 "foot")
-  TEMP=$(getopt --options a: -n hdrop -- "$@")
-  ;;
+    TEMP=$(getopt --options a: -n hdrop -- "$@")
+    ;;
 *)
-  TEMP=$(getopt --longoptions class: -n hdrop -- "$@")
-  ;;
+    TEMP=$(getopt --longoptions class: -n hdrop -- "$@")
+    ;;
 esac
 
 eval set -- "$TEMP"
 
 while true; do
-  case "$1" in
-  -a | --class)
-    CLASS="$2"
-    shift 2
-    ;;
-  --)
-    shift
-    break
-    ;;
-  *) break ;;
-  esac
+    case "$1" in
+    -a | --class)
+        CLASS="$2"
+        shift 2
+        ;;
+    --)
+        shift
+        break
+        ;;
+    *) break ;;
+    esac
 done
 
 if [[ $(hyprctl clients -j | jq -r ".[] | select(.class==\"$CLASS\" and .workspace.id!=$ACTIVE_WORKSPACE)") ]]; then
-  hyprctl dispatch -- movetoworkspacesilent "$ACTIVE_WORKSPACE","$CLASS" || notify "hdrop: Error moving '$commandline' to current workspace"
-  hyprctl dispatch -- focuswindow "$CLASS" || notify "hdrop: Error focusing '$commandline' on current workspace"
+    hyprctl dispatch -- movetoworkspacesilent "$ACTIVE_WORKSPACE","$CLASS" || notify "hdrop: Error moving '$commandline' to current workspace"
+    hyprctl dispatch -- focuswindow "$CLASS" || notify "hdrop: Error focusing '$commandline' on current workspace"
 elif [[ $(hyprctl clients -j | jq -r ".[] | select(.class==\"$CLASS\" and .workspace.id==$ACTIVE_WORKSPACE)") ]]; then
-  hyprctl dispatch -- movetoworkspacesilent special:hdrop,"$CLASS" || notify "hdrop: Error moving '$commandline' to workspace 'special:hdrop'"
+    hyprctl dispatch -- movetoworkspacesilent special:hdrop,"$CLASS" || notify "hdrop: Error moving '$commandline' to workspace 'special:hdrop'"
 else
-  $commandline || notify "hdrop: Error executing given command" "'$commandline'"
+    $commandline || notify "hdrop: Error executing given command" "'$commandline'"
 fi

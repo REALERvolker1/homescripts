@@ -1,4 +1,4 @@
-#!/usr/bin/env dash
+#!/usr/bin/dash
 
 if [ -n "${WAYLAND_DISPLAY:-}" ]; then
     for i in "$HOME/.xsession-errors" "$HOME/.Xauthority"; do
