@@ -68,24 +68,18 @@ impl Config {
         eprintln!(
             "Usage: {} [OPTIONS]
 
---color         Show colored output
---no-color      Don't show colored output
-        (default: color: {})
+--color             Show colored output (default)
+--no-color          Don't show colored output
 
 --kernel-procs      Show kernel processes along with regular system processes
---no-kernel-procs   Hide kernel processes
-        (default: kernel_procs: {})
+--no-kernel-procs   Hide kernel processes (default)
 
---mine          Only show the current user's processes
---all           Show processes belonging to anyone
-            (default: mine: {})
+--mine              Only show the current user's processes (default)
+--all               Show processes belonging to anyone
 
 --pipe-command  The command to run fzf with. Should be an fzf-compatible program.
-            (default: pipe_command: {})",
+    default: {}",
             env!("CARGO_PKG_NAME"),
-            default.color,
-            default.kernel_procs,
-            default.mine,
             default.pipe_command.as_string()
         );
         panic!("{error_message}: {arg}")

@@ -1,7 +1,7 @@
 //! api here is kinda bad since I switched from using global arcmutex to using referenced hashmap. Sorry!
 
-use ahash::{HashMap, HashMapExt};
-use nix::unistd::{self, Pid, Uid};
+use ahash::HashMap;
+use nix::unistd;
 use nu_ansi_term::{Color, Style};
 use once_cell::sync::Lazy;
 use procfs::{
@@ -12,18 +12,16 @@ use std::{path::PathBuf, rc::Rc};
 
 use crate::CONFIG;
 
+/// Interestingly enough, it is faster to have a single global LS_COLORS object than to create a new one for each thread.
 pub static LS_COLORS: Lazy<lscolors::LsColors> =
     Lazy::new(|| lscolors::LsColors::from_env().unwrap_or_default());
 
 static PROCESS_UID: Lazy<u32> = Lazy::new(|| unistd::Uid::current().as_raw());
 
-pub fn format_process(
-    process: &procfs::process::Process,
-    queue: &mut PathColorQueue,
-) -> ProcResult<String> {
+pub fn format_process(process: &procfs::process::Process) -> ProcResult<String> {
     if !CONFIG.color {
         // I don't feel like adding all this compatibility right now.
-        return if let Some(my_process) = Process::from_procfs_process(process, queue)? {
+        return if let Some(my_process) = Process::from_procfs_process(process, &mut None)? {
             Ok(my_process.format_for_fzf())
         } else {
             Err(ProcError::Other("Invalid process".to_owned()))
@@ -39,7 +37,7 @@ pub fn format_process(
 
     let flags = stat.flags()?;
 
-    let uid = Uid::from_raw(status.euid);
+    let uid = unistd::Uid::from_raw(status.euid);
     let username = match unistd::User::from_uid(uid) {
         Ok(Some(user)) => format!("{} ({})", user.name, user.uid),
         Ok(None) => uid.to_string() + " (unknown)",
@@ -54,7 +52,7 @@ pub fn format_process(
         owner_type.paint(format!("({})", stat.pid)),
         state_color.underline().paint(format!("{:?}", state)),
         owner_type.paint(username),
-        format_process_args(process.cmdline().unwrap_or_default(), queue).join(" "),
+        format_process_args(process.cmdline().unwrap_or_default(), &mut None).join(" "),
         flags
             .iter_names()
             .map(|f| flag_style.paint(f.0).to_string())
@@ -76,7 +74,7 @@ pub struct Process {
 impl Process {
     pub fn from_procfs_process(
         process: &procfs::process::Process,
-        queue: &mut PathColorQueue,
+        cache: &mut PathColorCache,
     ) -> ProcResult<Option<Self>> {
         let stat = process.stat()?;
 
@@ -96,7 +94,7 @@ impl Process {
         let state = stat.state()?;
 
         let fmt_args = if let Ok(a) = process.cmdline() {
-            format_process_args(a, queue).join(" ")
+            format_process_args(a, cache).join(" ")
         } else {
             String::new()
         };
@@ -152,10 +150,9 @@ impl FzfOutput {
     /// Format each as a string, printing errors inline.
     #[inline]
     pub fn format_each(&self) -> Vec<String> {
-        let mut akyvgrfjavg = HashMap::new();
         self.0
             .iter()
-            .map(|p| format_process(p, &mut akyvgrfjavg).unwrap_or_else(|e| e.to_string()))
+            .map(|p| format_process(p).unwrap_or_else(|e| e.to_string()))
             .collect()
     }
 }
@@ -206,7 +203,7 @@ pub const fn state_color(state: ProcState) -> Color {
 static DEFAULT_ARG_STYLE: Lazy<Style> = Lazy::new(|| Style::new().fg(Color::Green));
 static FLATPAK_RELATIVE_PATH_COLOR: Lazy<Style> = Lazy::new(|| Style::new().fg(Color::Cyan));
 
-fn format_process_args(args: Vec<String>, queue: &mut PathColorQueue) -> Vec<String> {
+fn format_process_args(args: Vec<String>, cache: &mut PathColorCache) -> Vec<String> {
     // I split args on spaces because some chromium and electron apps don't split args on spaces and have one giant arg.
     // I also trim newlines and tabs and escapes and whatnot because those can break output.
     // I found negligible performance benefits to making this a parallel iter.
@@ -215,7 +212,7 @@ fn format_process_args(args: Vec<String>, queue: &mut PathColorQueue) -> Vec<Str
             .map(|a| a.replace(['\n', '\t', '\x1b', '\0', '\r'], " "))
             .flat_map(|a| {
                 a.split(' ')
-                    .map(|a| colorize_arg(a, queue))
+                    .map(|a| colorize_arg(a, cache))
                     .collect::<Vec<_>>()
             })
             .collect::<Vec<_>>()
@@ -227,7 +224,7 @@ fn format_process_args(args: Vec<String>, queue: &mut PathColorQueue) -> Vec<Str
 /// Colorize a program's argument.
 ///
 /// This is not cached because it is used in a hot loop and the colorize functions are quick enough.
-fn colorize_arg(maybe_path: &str, queue: &mut PathColorQueue) -> String {
+fn colorize_arg(maybe_path: &str, cache: &mut PathColorCache) -> String {
     let maybe_path = maybe_path.trim();
     if maybe_path.is_empty() {
         return maybe_path.to_owned();
@@ -239,28 +236,30 @@ fn colorize_arg(maybe_path: &str, queue: &mut PathColorQueue) -> String {
 
     let (prefix, probably_path) = maybe_path.split_at(find);
 
-    // turning this into a PathBuf will remove duplicate slashes, but I think it's worth it in the scheme of things.
-    let colorized_path = colorize_path(probably_path, queue);
+    let colorized_path = colorize_path(probably_path, cache);
 
     format!("{}{colorized_path}", DEFAULT_ARG_STYLE.paint(prefix))
 }
 
 /// I added this on really late so the code is definitely not designed around this lmao
-pub type PathColorQueue = HashMap<String, Rc<String>>;
+pub type PathColorCache = Option<HashMap<String, Rc<String>>>;
+
 // static COLORIZED_PATH_CACHE: Lazy<RwLock<HashMap<String, Arc<String>>>> =
 //     Lazy::new(|| RwLock::new(HashMap::new()));
 
 /// Colorize a path with ls colors. This is cached because the clone cost is probably less than the io cost.
-fn colorize_path(pathlike: &str, queue: &mut PathColorQueue) -> Rc<String> {
-    if let Some(c) = queue.get(pathlike) {
-        return Rc::clone(c);
+fn colorize_path(pathlike: &str, cache: &mut PathColorCache) -> Rc<String> {
+    if let Some(cache) = cache {
+        if let Some(c) = cache.get(pathlike) {
+            return Rc::clone(c);
+        }
     }
 
     let pathlike_string = pathlike.to_owned();
 
     if pathlike.starts_with("/app") {
         let pack_string = Rc::new(FLATPAK_RELATIVE_PATH_COLOR.paint(pathlike).to_string());
-        queue.insert(pathlike_string, Rc::clone(&pack_string));
+        // queue.insert(pathlike_string, Rc::clone(&pack_string));
         return pack_string;
     }
 
@@ -282,7 +281,9 @@ fn colorize_path(pathlike: &str, queue: &mut PathColorQueue) -> Rc<String> {
 
     let comp_string = Rc::new(comp_string);
 
-    queue.insert(pathlike_string, Rc::clone(&comp_string));
+    if let Some(cache) = cache {
+        cache.insert(pathlike_string, Rc::clone(&comp_string));
+    }
 
     comp_string
 }
