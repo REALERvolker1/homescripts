@@ -259,7 +259,9 @@ fn colorize_path(pathlike: &str, cache: &mut PathColorCache) -> Rc<String> {
 
     if pathlike.starts_with("/app") {
         let pack_string = Rc::new(FLATPAK_RELATIVE_PATH_COLOR.paint(pathlike).to_string());
-        // queue.insert(pathlike_string, Rc::clone(&pack_string));
+        if let Some(cache) = cache {
+            cache.insert(pathlike_string, Rc::clone(&pack_string));
+        }
         return pack_string;
     }
 
