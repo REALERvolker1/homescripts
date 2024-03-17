@@ -4,8 +4,8 @@
 
 (
     autostart-dbus-activation-env.sh
-    systemctl --user start user-graphical-session.target
-    systemctl --user start xorg.target
+    # systemctl --user start user-graphical-session.target
+    # systemctl --user start xorg.target
 ) &
 xrdb -merge "$XRESOURCES" &
 # vlk-xrandr.sh --monitor &

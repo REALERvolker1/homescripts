@@ -2,6 +2,10 @@
 # I have migrated a lot of this stuff to a systemd user target.
 [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && exit 69
 
+exec autostart-vlk-session.sh
+
+exit
+
 autostart-remove.sh &
 
 (
