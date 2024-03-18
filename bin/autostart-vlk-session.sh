@@ -47,27 +47,30 @@ dbus-update-activation-environment --systemd --all
 # Pretty sure this detects if it is started properly, and I don't want to mess with it
 gnome-keyring-daemon --start --components=secrets &
 
-pk=''
-for i in \
-    '/usr/lib/mate-polkit/polkit-mate-authentication-agent-1' \
-    '/usr/libexec/xfce-polkit' \
-    '/usr/lib/xfce-polkit/xfce-polkit' \
-    '/usr/libexec/polkit-mate-authentication-agent-1' \
-    '/usr/libexec/polkit-gnome-authentication-agent-1' \
-    '/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1' \
-    '/usr/libexec/lxqt-policykit-agent' \
-    'lxpolkit'; do
-    if [[ -x $i ]]; then
-        pk="$i"
-        break
-    fi
-done
+(
+    pk=''
+    for i in \
+        '/usr/lib/mate-polkit/polkit-mate-authentication-agent-1' \
+        '/usr/libexec/xfce-polkit' \
+        '/usr/lib/xfce-polkit/xfce-polkit' \
+        '/usr/libexec/polkit-mate-authentication-agent-1' \
+        '/usr/libexec/polkit-gnome-authentication-agent-1' \
+        '/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1' \
+        '/usr/libexec/lxqt-policykit-agent' \
+        'lxpolkit'; do
+        if [[ -x $i ]]; then
+            pk="$i"
+            break
+        fi
+    done
 
-if [[ -n $pk ]]; then
-    "$pk" &
-else
-    echo "No suitable polkit agent found"
-fi
+    if [[ -n $pk ]]; then
+        "$pk"
+    else
+        echo "No suitable polkit agent found"
+    fi
+    unset pk
+) &
 
 # _pgrepx ydotoold &
 
@@ -76,6 +79,7 @@ dunst &
 
 set-cursor-theme.sh --session &
 _pgrepx steam-symlink-unfucker.sh &
+_pgrepx heroic-symlink-unfucker.sh &
 
 _pgrepx nm-applet &
 

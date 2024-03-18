@@ -2,6 +2,10 @@
 
 [ -z "${I3SOCK:-}" ] && exit 69
 
+exec autostart-vlk-session.sh
+
+exit
+
 (
     autostart-dbus-activation-env.sh
     # systemctl --user start user-graphical-session.target

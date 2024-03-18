@@ -1,2 +1,2 @@
 [Context]
-filesystems=!xdg-config/Kvantum;!~/Games/Heroic;/bruh/steam
+filesystems=!xdg-config/Kvantum;!~/random;!xdg-config/gtk-3.0;!xdg-config/fontconfig;!xdg-data/fonts;!xdg-config/gtk-2.0;!xdg-config/gtk-4.0;!xdg-data/icons;!~/Games/Heroic;!~/.local/share/applications;/bruh/steam
