@@ -22,7 +22,7 @@ print -n '\e[H\e[2J'
 
 # This is really only here so my prompt doesn't show my hostname when on my main pc
 # It is only here because I'm lazy and I would forget to remove it if it were anywhere else
-CURRENT_HOSTNAME='sigma-balls'
+CURRENT_HOSTNAME='joe'
 
 ### shell session settings
 # VLKPROMPT_SKIP=1  # Skip custom prompt, use the fallback
