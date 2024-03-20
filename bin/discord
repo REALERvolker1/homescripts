@@ -5,7 +5,7 @@ if [[ ${1-} == '--flatpak' ]]; then
     PREFERS_FLATPAK=ye
 fi
 BIN_NAMES="vesktop:discord-canary:discord:webcord"
-FLATPAK_NAMES="com.discordapp.Discord:io.github.spacingbat3.webcord"
+FLATPAK_NAMES="dev.vencord.Vesktop:com.discordapp.Discord:io.github.spacingbat3.webcord"
 
 source flatpak-fallback.sh
 
