@@ -227,10 +227,10 @@ export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=\"$XDG_STATE_HOME/java\"" # doesn't do jack shit
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 # Choose between old java and normal java
-if [[ -o i ]] {
-    # export JAVA_HOME=/usr/lib/jvm/default
-    export JAVA_HOME="/usr/lib/jvm/java-8-openjdk"
-}
+# if [[ -o i ]] {
+#     # export JAVA_HOME=/usr/lib/jvm/default
+#     export JAVA_HOME="/usr/lib/jvm/java-8-openjdk"
+# }
 
 # fix Supcom FAF
 # [[ -n ${JAVA_HOME-} ]] && export INSTALL4J_JAVA_HOME=${JAVA_HOME-}

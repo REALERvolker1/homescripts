@@ -1,3 +1,5 @@
+[[ ${VLKZSH_SAFEMODE:-1} -eq 0 && $+commands[zoxide] -eq 1 ]] || return
+
 # =============================================================================
 #
 # Utility functions for zoxide.
@@ -117,3 +119,5 @@ fi
 # To initialize zoxide, add this to your configuration (usually ~/.zshrc):
 #
 # eval "$(zoxide init zsh)"
+# zoxide cd
+alias cd=z

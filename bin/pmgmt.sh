@@ -14,11 +14,13 @@ pidfile="/tmp/${me}.pid"
 # According to DJ Ware on Youtube, balanced mode is just as good as (or better than)
 # performance mode on kernel 6.7+ in benchmark performance, on hybrid architecture
 # Intel CPUs. I have an i7 12650H, hopefully this helps
-if [[ $(uname -r | grep -oP '^[0-9]+\.\K[0-9]+') -gt 6 ]]; then
-    ac_power_profile=balanced
-else
-    ac_power_profile=performance
-fi
+# if [[ $(uname -r | grep -oP '^[0-9]+\.\K[0-9]+') -gt 6 ]]; then
+#     ac_power_profile=balanced
+# else
+#     ac_power_profile=performance
+# fi
+# Update: Performance mode is better lol
+ac_power_profile=performance
 
 ac_command_center() {
     killall nvidia-smi
@@ -70,9 +72,6 @@ case "${1:-}" in
 --oneshot | -o)
     auto_check
     ;;
-#--env-command | -e)
-#    ac_command_center "$PMGMT_ACTION"
-#    ;;
 --monitor | -m)
     pid_check
     auto_check
@@ -83,8 +82,7 @@ case "${1:-}" in
     exit "${?:-0}"
     ;;
 *)
-    cat <<EOF
-Invalid argument: $me ${1:-}
+    echo "Invalid argument: $me ${1:-}
 
 Current options:
 --ac (-a)         run the commands for the onAC state
@@ -92,7 +90,7 @@ Current options:
 
 --oneshot (-o)    auto-detect the correct state and run the commands for that
 --monitor (-m)    Monitor the battery state, and automatically set the correct state
-EOF
+"
     exit 1
     ;;
 esac

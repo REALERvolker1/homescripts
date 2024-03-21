@@ -92,9 +92,6 @@ for i in "$HOME/".{xsel.log,wget-hsts}
 # Track stty changes between prompts, ask me if I want to accept any changes
 zsh-defer zstatectl --track
 
-# zoxide cd
-alias cd=z
-
 # My custom fetchscript
 dumbfetch
 

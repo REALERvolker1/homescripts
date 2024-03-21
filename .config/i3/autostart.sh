@@ -2,7 +2,7 @@
 
 [ -z "${I3SOCK:-}" ] && exit 69
 
-exec autostart-vlk-session.sh
+exec autostart.sh
 
 exit
 

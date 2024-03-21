@@ -59,7 +59,7 @@ __vlkplugin::refresh() {
         [cmds]="recompile --all" # build-fzf-tab-module
     )
     vlkplugins+=(fzfz)
-    
+
     # zsh-autocomplete. Horrible performance, so I'm disabling it on battery (when battery variable is zero)
     typeset -A aucz=(
         [url]='https://github.com/marlonrichert/zsh-autocomplete'
@@ -89,7 +89,7 @@ __vlkplugin::refresh() {
         if __vlkplugin::load $plugin[plugin]; then
             if ((${+plugin[cmds]})); then
                 # run any startup commands
-                exec $plugin[cmds]
+                eval $plugin[cmds]
             fi
         else
             # it could not load successfully
@@ -113,7 +113,7 @@ __vlkplugin::keybind_reset() {
 }
 
 # This will run after all the plugins are loaded.
-# zsh-autocomplete is very slow, so I might notice that it is still loading 
+# zsh-autocomplete is very slow, so I might notice that it is still loading
 # when I press the up arrow and see the autocomplete history list instead of atuin.
 # Someone should rewrite that shit in rust istg. https://docs.rs/zsh-module/0.3.0/zsh_module/index.html
 zsh-defer __vlkplugin::keybind_reset
