@@ -87,8 +87,8 @@ if cmd pacman; then
         [ ! -d /var/cache/pkgfile ] && sudo mkdir -p /var/cache/pkgfile
         unsafe sudo pkgfile --update &>/dev/null &
     fi
-    _head "Backgrounding pacman -Fy" 35
-    unsafe sudo pacman -Fy &>/dev/null &
+    # _head "Backgrounding pacman -Fy" 35
+    # unsafe sudo pacman -Fy &>/dev/null &
 fi
 if cmd sysdboot.sh; then
     unsafe sysdboot.sh update --no-mkinitcpio --no-interactive

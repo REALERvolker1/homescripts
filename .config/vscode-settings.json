@@ -149,7 +149,7 @@
     "python.experiments.optInto": [],
     "html.format.enable": false,
     "[html]": {
-        "editor.defaultFormatter": "vscode.html-language-features"
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "ccls.cache.directory": ".cache/ccls",
     "perl.cacheDir": "${workspace}/.cache/perl-lang",

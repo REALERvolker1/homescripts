@@ -1,2 +1,2 @@
 [Context]
-filesystems=xdg-data/icons;xdg-data/applications
+filesystems=!xdg-data/icons

@@ -107,7 +107,7 @@ if [[ -n ${WAYLAND_DISPLAY-} ]]; then
         hyprpm reload &
     fi
 
-elif [[ -n ${WAYLAND_DISPLAY-} ]]; then
+elif [[ -n ${DISPLAY-} ]]; then
     [[ -r "${XRESOURCES-}" ]] && xrdb -merge "${XRESOURCES-}" &
 
     _pgrepx gammastep -P -m randr &

@@ -5,7 +5,7 @@ IFS='
 '
 
 # name of the monitor
-PRIMARY='eDP-1'
+PRIMARY='eDP-2'
 HIRATE=144
 LORATE=60
 RES='1920x1080'
@@ -18,7 +18,7 @@ RELATIVE_POS='--left-of'
 # of my primary monitor. This should be impossible, as xorg sees both
 # monitors as a single screen, but I'm not complaining
 # Less fortunate people can just set it to '' I think
-NORATEREDUCE=':HDMI-1-0:DP-1-0:'
+NORATEREDUCE=':HDMI-2-0:DP-2-0:'
 
 # path to print last monitor state
 STATEPATH="${STATEPATH:-$XDG_RUNTIME_DIR/vlk-xrandr-state}"

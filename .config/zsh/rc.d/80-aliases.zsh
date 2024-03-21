@@ -120,6 +120,8 @@ alias download='curl -sfLO '
 alias ytmp3="yt-dlp --extract-audio --audio-format mp3 "
 alias ytmp4="yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --progress --remux-video mp4 "
 
+alias nmapa="nmap -Av 192.168.0.'*'"
+
 # terminal image viewers
 # also, kitty-specific ssh thing that makes ssh nicer
 if [[ ${TERM-} == *kitty* ]]; then

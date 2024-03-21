@@ -9,10 +9,18 @@ codegen-units = 1
 strip = true
 
 [dependencies]
-futures-util = { version = "0.3.30", default-features = false, features = ["std"] }
-inotify = { version = "0.10.2", default-features = false, features = ["tokio", "stream"] }
+ahash = { version = "0.8.11", default-features = false, features = [
+    "no-rng",
+    "std",
+] }
+inotify = { version = "0.10.2", default-features = false }
 once_cell = "1.19.0"
-tokio = { version = "1.36.0", features = ["rt", "io-std", "tokio-macros", "tracing", "signal", "parking_lot", "fs", "macros"], default-features = false }
-tokio-stream = { version = "0.1.15", features = ["fs"] }
+signal-hook = "0.3.17"
 tracing = "0.1.40"
-tracing-subscriber = { version = "0.3.18", features = ["once_cell", "parking_lot", "std", "smallvec", "fmt"], default-features = false }
+tracing-subscriber = { version = "0.3.18", features = [
+    "once_cell",
+    "parking_lot",
+    "std",
+    "smallvec",
+    "fmt",
+], default-features = false }
