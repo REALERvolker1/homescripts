@@ -23,6 +23,8 @@ fn main() -> std::io::Result<()> {
 
     let mut inotify = paths.init_inotify()?;
 
+    // initial removal
+    paths.rm_symlinks();
     loop {
         let events = inotify.read_events_blocking(&mut buffer)?;
         for _ in events {
