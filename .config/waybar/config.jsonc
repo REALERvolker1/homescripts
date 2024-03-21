@@ -15,6 +15,7 @@
         "mpris",
         "bluetooth",
         "memory",
+        "network",
         // "battery",
         "clock",
         "custom/battery",

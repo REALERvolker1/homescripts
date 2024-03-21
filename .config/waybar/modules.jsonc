@@ -98,6 +98,14 @@
             "critical": 80
         }
     },
+    "network": {
+        "interval": 5,
+        "format": "{icon} 󰸇 {bandwidthUpBytes} / {bandwidthDownBytes} 󰮏",
+        "interface": "wlo1",
+        "tooltip": "{ifname}: {essid} ({signalStrength}) {bandwidthUpBits}bps / {bandwidthDownBits}bps",
+        "format-icons": ["󰤟", "󰤢", "󰤥", "󰤨"],
+        "on-click": "nm-connection-editor"
+    },
     // battery uses inotify, and waybar doesn't kill it so you hit max inotify watches just by restarting
     // "battery": {
     //     "states": {
