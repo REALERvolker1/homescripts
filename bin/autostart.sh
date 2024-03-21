@@ -78,8 +78,9 @@ gnome-keyring-daemon --start --components=secrets &
 dunst &
 
 set-cursor-theme.sh --session &
-_pgrepx steam-symlink-unfucker.sh &
-_pgrepx heroic-symlink-unfucker.sh &
+# _pgrepx steam-symlink-unfucker.sh &
+# _pgrepx heroic-symlink-unfucker.sh &
+_pgrepx symlink_unfuckd &
 
 _pgrepx nm-applet &
 
