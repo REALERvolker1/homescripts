@@ -101,7 +101,7 @@ if [[ -n ${WAYLAND_DISPLAY-} ]]; then
     # I'm pretty sure this works on other compositors too
     hyprpaper &
 
-    _pgrepx waybar &>/dev/null &
+    _pgrepx waybar &
 
     if [[ -n ${HYPRLAND_INSTANCE_SIGNATURE-} ]]; then
         _pgrepx hyprpointer status-monitor &

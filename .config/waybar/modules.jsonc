@@ -16,11 +16,7 @@
         "on-click": "activate",
         "on-click-middle": "close",
         "icon-size": 20,
-        "ignore-list": [
-            "__scratchpad__",
-            "hdropkitty",
-            "xwaylandvideobridge"
-        ]
+        "ignore-list": ["__scratchpad__", "hdropkitty", "xwaylandvideobridge"]
     },
     "hyprland/window": {
         "format": "{title:.60}",
@@ -52,11 +48,11 @@
                 "tooltip": true,
                 "tooltip-icon-size": 24
             },
-            // {
-            //     "type": "audio-out",
-            //     "tooltip": true,
-            //     "tooltip-icon-size": 24
-            // },
+            {
+                "type": "audio-out",
+                "tooltip": true,
+                "tooltip-icon-size": 24
+            },
             {
                 "type": "audio-in",
                 "tooltip": true,
@@ -78,11 +74,7 @@
             "phone": "",
             "portable": "",
             "car": "",
-            "default": [
-                "",
-                "",
-                ""
-            ]
+            "default": ["", "", ""]
         },
         "scroll-step": 5.0,
         "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
@@ -99,6 +91,7 @@
         "on-click-right": "$XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --manager"
     },
     "memory": {
+        "interval": 10,
         "format": "󰭰  {used}GiB",
         "states": {
             "warning": 60,
@@ -137,11 +130,17 @@
         "exec": "$XDG_CONFIG_HOME/rustcfg/power-cli/target/release/power-cli --waybar",
         "return-type": "json"
     },
-    // "custom/battery": {
-    //     "exec": "$XDG_CONFIG_HOME/rustcfg/power-cli/statusline.sh --waybar",
-    //     "return-type": "json",
-    //     "interval": "once",
-    //     "signal": 8
+    // "power-profiles-daemon": {
+    //     "format": "{icon}",
+    //     "format-icons": {
+    //         "performance": "󱐋",
+    //         "balanced": "󰛲",
+    //         "power-saver": "󰌪"
+    //     }
+    // },
+    /// upower is a dud, it does not display watts usage
+    // "upower": {
+    //     "format": "{icon} {percentage}%"
     // },
     "keyboard-state": {
         "format": "{icon}",
