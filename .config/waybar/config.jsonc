@@ -10,12 +10,12 @@
     "modules-left": ["hyprland/workspaces", "wlr/taskbar"],
     "modules-center": ["hyprland/window"],
     "modules-right": [
+        "network",
         "pulseaudio",
         "privacy",
         "mpris",
         "bluetooth",
         "memory",
-        "network",
         // "battery",
         "clock",
         "custom/battery",

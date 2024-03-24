@@ -165,7 +165,10 @@ window#waybar.kitty .modules-right > * > * {
     animation-duration: 5s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
         1px 1px 0 #000;
     box-shadow: inset 0px -3px @accent_color;
 }
@@ -173,6 +176,10 @@ window#waybar.kitty .modules-right > * > * {
     box-shadow: inset -3px -3px @accent_color;
 }
 
+#network {
+    border-radius: 0px 0px 10px 10px;
+    margin-right: 5px;
+}
 #pulseaudio {
     border-radius: 0px 0px 0px 10px;
 }
@@ -220,18 +227,21 @@ window#waybar.kitty .modules-right > * > * {
 #battery.plugged,
 #custom-battery.Charging,
 #custom-battery.PendingCharge {
-    box-shadow: inset -3px -3px @success_bg_color,
+    box-shadow:
+        inset -3px -3px @success_bg_color,
         inset 3px -3px @success_bg_color;
     /* box-shadow: inset 3px 0px @success_bg_color; */
 }
 #battery.warning:not(.Charging),
 #custom-battery.warning:not(.Charging) {
-    box-shadow: inset -3px -3px @warning_bg_color,
+    box-shadow:
+        inset -3px -3px @warning_bg_color,
         inset 3px -3px @warning_bg_color;
 }
 #battery.critical:not(.Charging),
 #custom-battery.critical:not(.Charging) {
-    box-shadow: inset -3px -3px @destructive_bg_color,
+    box-shadow:
+        inset -3px -3px @destructive_bg_color,
         inset 3px -3px @destructive_bg_color;
 }
 
