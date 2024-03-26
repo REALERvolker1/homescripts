@@ -37,7 +37,8 @@ workspace $ws8 output DP-1 DP-1-0 eDP-1
 font pango:monospace bold 10
 mouse_warping output
 
-$exec "$XDG_CONFIG_HOME/i3/autostart.sh"
+# $exec "$XDG_CONFIG_HOME/i3/autostart.sh"
+$exec "autostart.sh"
 $execa "$XDG_CONFIG_HOME/i3/exec-always.sh"
 
 include classes.i3
@@ -89,7 +90,7 @@ bar {
     binding_mode_indicator yes
     position bottom
     padding 0px
-    tray_output eDP-1
+    tray_output eDP-2
     #tray_output none
     tray_padding 0
     i3bar_command i3bar --transparency
