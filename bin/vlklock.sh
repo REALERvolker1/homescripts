@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 __swaylock() {
     exec swaylock -Ffli "$IMAGE" \
@@ -109,6 +109,7 @@ VERIF_BG_ACCENT="${VERIF_ACCENT}70"
 WRONG_ACCENT=ff0000
 WRONG_BG_ACCENT="${WRONG_ACCENT}70"
 
+playerctl pause
 if [[ -n "${WAYLAND_DISPLAY-}" ]]; then
     if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE-}" ]]; then
         hyprlock

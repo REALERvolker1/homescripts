@@ -30,6 +30,8 @@ tooltip label {
 .modules-center {
     padding: 0px 10px;
     border-radius: 0px 0px 10px 10px;
+    margin-right: 5px;
+    margin-left: 5px;
 }
 /* .modules-right {
     border-radius: 0px 0px 0px 10px;
