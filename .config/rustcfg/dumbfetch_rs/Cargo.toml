@@ -1,0 +1,16 @@
+[package]
+name = "dumbfetch_rs"
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+
+[dependencies]
+const_format = { version = "0.2.32", features = ["rust_1_64"] }
+konst = { version = "0.3.8", default-features = false, features = ["iter"] }
+phf = "0.11.2"
+phf_macros = "0.11.2"
+rustix = { version = "0.38.32", features = ["fs", "system", "rand"] }
