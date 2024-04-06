@@ -8,7 +8,8 @@ typedef enum {
     CACHE_READ,
     CACHE_REFRESH,
 } CacheInteraction;
-const char *cache_interaction_to_string(CacheInteraction cache_interaction);
+inline const char *
+cache_interaction_to_string(CacheInteraction cache_interaction);
 
 struct Options {
     CacheInteraction cache_interaction;
@@ -16,7 +17,7 @@ struct Options {
 };
 
 struct Options argparse(int argc, char **argv);
-void debug_print_opts(struct Options *opt);
+inline void debug_print_opts(struct Options *opt);
 
 extern const struct Options OPTIONS_DEFAULT_PARTIAL;
 

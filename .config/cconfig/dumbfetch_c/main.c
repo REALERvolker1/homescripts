@@ -16,7 +16,7 @@ struct Properties {
     char xdg_desktop[16];
 };
 
-void generate_padding(char *buffer, int length, int max_length) {
+inline void generate_padding(char *buffer, int length, int max_length) {
     int pad_length = max_length - length;
     for (int i = 0; i <= pad_length; i++) {
         buffer[i] = ' ';

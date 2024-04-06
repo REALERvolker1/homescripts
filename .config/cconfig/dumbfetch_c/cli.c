@@ -11,7 +11,7 @@ const struct Options OPTIONS_DEFAULT_PARTIAL = {
     .cache_interaction = CACHE_READ,
 };
 
-const char *cache_interaction_to_string(CacheInteraction ci) {
+const inline char *cache_interaction_to_string(CacheInteraction ci) {
     switch (ci) {
     case CACHE_NONE:
         return "CACHE_NONE";
@@ -25,8 +25,7 @@ const char *cache_interaction_to_string(CacheInteraction ci) {
     }
 }
 
-void debug_print_opts(struct Options *opt) {
-
+inline void debug_print_opts(struct Options *opt) {
     printf("Options { cache_interaction: %s, cache_path: %s }\n",
            cache_interaction_to_string(opt->cache_interaction),
            opt->cache_path);
@@ -97,7 +96,7 @@ void get_default_cache_path_for_options(struct Options *opt) {
     opt->cache_interaction = CACHE_REFRESH;
 }
 
-struct Options argparse(int argc, char **argv) {
+inline struct Options argparse(int argc, char **argv) {
     struct Options opt = OPTIONS_DEFAULT_PARTIAL;
     _Bool valid_cache_path_set = false;
 
