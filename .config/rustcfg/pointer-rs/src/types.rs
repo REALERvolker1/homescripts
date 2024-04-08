@@ -3,7 +3,8 @@ use std::env;
 use super::*;
 use hyprland::keyword::OptionValue;
 
-pub type Res<T> = simple_eyre::Result<T>;
+pub type Res<T> = color_eyre::Result<T>;
+// pub type Res<T> = simple_eyre::Result<T>;
 pub type MouseList = HashSet<Mouse>;
 pub type Conf = config::Config;
 

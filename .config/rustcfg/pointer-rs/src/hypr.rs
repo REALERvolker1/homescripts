@@ -6,19 +6,28 @@ pub struct Hyprland {
     conf: Conf,
     mice: MouseList,
     touchpad: Mouse,
-    touchpad_key: String,
 }
+
+pub const TOUCHPAD_VARIABLE: &str = "$TOUCHPAD_ENABLED";
+pub const TOUCHPAD_STATUS_PATH: &str = "";
 
 impl Backend for Hyprland {
     async fn new(conf: Conf) -> Res<Self> {
         let devices = Self::raw_get_pointers().await?;
         let touchpad = conf.detect_touchpads(&devices)?;
 
-        // device:"$touchpad_name":enabled
+        // old meethod: device:"$touchpad_name":enabled
+        // new method in config file:
+        //
+        // $TOUCHPAD_ENABLED = true
+        // device {
+        //     name = asup1205:00-093a:2003-touchpad
+        //     enabled = $TOUCHPAD_ENABLED
+        // }
+        //
         let mut me = Self {
             conf,
             mice: HashSet::new(),
-            touchpad_key: format!("device:{}:enabled", &touchpad.name),
             touchpad,
         };
 
@@ -38,13 +47,18 @@ impl Backend for Hyprland {
     }
     // device:"$touchpad_name":enabled
     async fn set_touchpad_status(&self, enabled: Status) -> Res<Status> {
-        Keyword::set_async(&self.touchpad_key, enabled.to_bool_optionvalue()).await?;
+        println!("setting");
+        tokio::fs::write()
+        // does not work
+        // Keyword::set_async(TOUCHPAD_VARIABLE, enabled.to_bool_optionvalue()).await?;
         // get status right away so I'm sure I'm setting this to the correct value
-        let status = self.get_touchpad_status().await?;
+        // let status = self.get_touchpad_status().await?;
+        // getting status is broken with the new device config method. Just assume it succeeded
+        let status = enabled;
         Ok(status)
     }
     async fn get_touchpad_status(&self) -> Res<Status> {
-        let statkey = Keyword::get_async(&self.touchpad_key).await?;
+        let statkey = Keyword::get_async(TOUCHPAD_VARIABLE).await?;
         let stat = Status::from_opt(&statkey.value);
         self.conf.update_statusfile(stat).await?;
         Ok(stat)

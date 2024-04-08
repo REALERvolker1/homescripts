@@ -7,21 +7,15 @@ description = "pointer-rs, an overengineered event-driven touchpad toggler for w
 license = "GPL-3.0-or-later"
 
 [dependencies]
-ahash = { version = "0.8.7", default-features = false, features = [
+ahash = { version = "0.8.11", default-features = false, features = [
     "std",
     "no-rng",
 ] }
-clap = { version = "4.5.1", features = [
-    "derive",
-    "cargo",
-    "wrap_help",
-    "unicode",
-] }
+clap = { version = "4.5.4", features = ["derive", "cargo", "wrap_help"] }
+color-eyre = "0.6.3"
 derive_more = { version = "0.99.17", default-features = false }
 futures-util = { version = "0.3.30", default-features = false, features = [
-    "async-await",
     "std",
-    "async-await-macro",
 ] }
 hyprland = { version = "0.3.13", default-features = false, features = [
     "data",
@@ -29,11 +23,11 @@ hyprland = { version = "0.3.13", default-features = false, features = [
     "tokio",
 ] }
 inotify = { version = "0.10.2" }
-serde = { version = "1.0.196", features = ["derive"] }
+serde = { version = "1.0.197", features = ["derive"] }
 simple-eyre = "0.3.1"
-strum = { version = "0.26.1", features = ["strum_macros", "derive", "phf"] }
-strum_macros = "0.26.1"
-tokio = { version = "1.36.0", default-features = false, features = [
+strum = { version = "0.26.2", features = ["phf"] }
+strum_macros = "0.26.2"
+tokio = { version = "1.37.0", default-features = false, features = [
     "rt",
     "macros",
     "parking_lot",

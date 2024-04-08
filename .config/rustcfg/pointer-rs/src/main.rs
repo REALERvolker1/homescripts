@@ -23,7 +23,7 @@ fn main() -> Res<()> {
     simple_eyre::install()?;
     let config = config::Config::new();
     tokio::runtime::Builder::new_current_thread()
-        .enable_all()
+        .enable_io()
         .build()?
         .block_on(async move {
             let comm = config.command;
