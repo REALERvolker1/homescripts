@@ -1,25 +1,16 @@
-#!/usr/bin/bash
+#!/usr/bin/dash
 # script by vlk
 
 # config
 UPOWER_AC_DEVICE='/org/freedesktop/UPower/devices/line_power_ACAD'
 SYSFS_AC_DEVICE='/sys/class/power_supply/ACAD/online'
 #KEYBOARD_PATH='sysfs/leds/asus::kbd_backlight'
-buscmd=(busctl call org.freedesktop.UPower /org/freedesktop/UPower/KbdBacklight org.freedesktop.UPower.KbdBacklight SetBrightness i)
+buscmd="busctl call org.freedesktop.UPower /org/freedesktop/UPower/KbdBacklight org.freedesktop.UPower.KbdBacklight SetBrightness i"
 me="${0##*/}"
 my_pid="$$"
 #pidfile="$XDG_RUNTIME_DIR/${me}.pid"
 pidfile="/tmp/${me}.pid"
 
-# According to DJ Ware on Youtube, balanced mode is just as good as (or better than)
-# performance mode on kernel 6.7+ in benchmark performance, on hybrid architecture
-# Intel CPUs. I have an i7 12650H, hopefully this helps
-# if [[ $(uname -r | grep -oP '^[0-9]+\.\K[0-9]+') -gt 6 ]]; then
-#     ac_power_profile=balanced
-# else
-#     ac_power_profile=performance
-# fi
-# Update: Performance mode is better lol
 ac_power_profile=performance
 
 ac_command_center() {
@@ -27,19 +18,18 @@ ac_command_center() {
     echo "$1"
     if [ "$1" = true ]; then
         #light -Srs "$KEYBOARD_PATH" 3
-        "${buscmd[@]}" 3 &
+        $buscmd 3 &
         brightnessctl s '80%'
         powerprofilesctl set "$ac_power_profile"
         asusctl bios -O true
         #nvidia-smi dmon -d 5 &>/dev/null &
-        if [[ "$(supergfxctl -g)" == 'Hybrid' ]]; then
-            nvidia-smi -l &>/dev/null &
-            disown
+        if [ "$(supergfxctl -g)" = Hybrid ]; then
+            nvidia-smi -l >/dev/null 2>&1 &
         fi
 
     elif [ "$1" = false ]; then
         #light -Srs "$KEYBOARD_PATH" 1
-        "${buscmd[@]}" 1 &
+        $buscmd 1 &
         brightnessctl s '40%'
         powerprofilesctl set balanced
         asusctl bios -O false
@@ -47,7 +37,7 @@ ac_command_center() {
 }
 
 auto_check() {
-    if [[ "$(cat "$SYSFS_AC_DEVICE")" -eq 1 ]]; then
+    if [ "$(cat "$SYSFS_AC_DEVICE")" -eq 1 ]; then
         ac_command_center true
     else
         ac_command_center false
@@ -55,7 +45,7 @@ auto_check() {
 }
 
 pid_check() {
-    if [[ -e "$pidfile" ]] && pgrep -F "$pidfile" >&2; then
+    if [ -e "$pidfile" ] && pgrep -F "$pidfile" >&2; then
         echo "Error, $me already seems to be running!" >&2
         exit 2
     fi
