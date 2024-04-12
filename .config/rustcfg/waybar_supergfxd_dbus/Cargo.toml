@@ -10,11 +10,11 @@ panic = "abort"
 strip = true
 
 [dependencies]
-futures-lite = { version = "2.2.0", default-features = false, features = ["fastrand"] }
-serde = { version = "1.0.197", default-features = false }
-tokio = { version = "1.36.0", default-features = false, features = [
-    "rt",
-    "parking_lot",
-    "io-std",
+futures-lite = { version = "2.3.0", default-features = false, features = [
+    "fastrand",
 ] }
-zbus = { version = "4.1.2", default-features = false, features = ["tokio"] }
+serde = { version = "1.0.197", default-features = false }
+tokio = { version = "1.37.0", default-features = false, features = ["rt"] }
+zbus = { version = "4.1.2", default-features = false, features = [
+    "tokio",
+], git = "https://github.com/REALERvolker1/zbus.git" }

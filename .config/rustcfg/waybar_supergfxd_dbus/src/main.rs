@@ -2,10 +2,8 @@ pub mod types;
 pub mod xmlgen;
 
 use futures_lite::StreamExt;
-use tokio::io::AsyncWriteExt;
 
 type E = zbus::Error;
-
 macro_rules! k {
     () => {
         return Ok::<(), E>(());
@@ -35,20 +33,15 @@ fn main() {
 
             let mut subscriber = proxy.receive_notify_gfx_status().await?;
 
-            let mut stdout = tokio::io::stdout();
-
             loop {
                 futures_lite::future::zip(subscriber.next(), async {
                     let power = proxy.power().await.unwrap();
 
-                    let out_text = format!(
+                    println!(
                         "{{\"text\": \"{}\", \"class\": \"{:?}\"}}\n",
                         power.icon(),
                         power
                     );
-
-                    stdout.write_all(out_text.as_bytes()).await.unwrap();
-                    stdout.flush().await.unwrap();
                 })
                 .await;
             }

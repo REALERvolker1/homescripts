@@ -2,13 +2,13 @@ use std::{io::Write, time::Duration};
 
 use dbus::message::MatchRule;
 
-static POWER_MAP: phf::Map<u32, &'static str> = phf_macros::phf_map! {
+const POWER_MAP: phf::Map<u32, &'static str> = phf_macros::phf_map! {
     0u32 => "󰒇\n",
     1u32 => "󰒆\n",
     2u32 => "󰒅\n",
 };
 
-static MODE_MAP: phf::Map<u32, &'static str> = phf_macros::phf_map! {
+const MODE_MAP: phf::Map<u32, &'static str> = phf_macros::phf_map! {
     1u32 => "󰰃\n",
     2u32 => "󰰒\n",
     3u32 => "󰰪\n",

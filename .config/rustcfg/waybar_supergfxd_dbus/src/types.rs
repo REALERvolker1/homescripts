@@ -16,15 +16,17 @@ pub enum GfxMode {
 }
 impl GfxMode {
     pub const fn icon(&self) -> Option<Icon> {
-        match self {
-            GfxMode::Hybrid => None,
-            GfxMode::Integrated => Some('󰰃'),
-            GfxMode::NvidiaNoModeset => Some('󰰒'),
-            GfxMode::Vfio => Some('󰰪'),
-            GfxMode::AsusEgpu => Some('󰯷'),
-            GfxMode::AsusMuxDgpu => Some('󰰏'),
-            GfxMode::None => Some('󰳤'),
-        }
+        let icon = match self {
+            GfxMode::Hybrid => return None,
+            GfxMode::Integrated => '󰰃',
+            GfxMode::NvidiaNoModeset => '󰰒',
+            GfxMode::Vfio => '󰰪',
+            GfxMode::AsusEgpu => '󰯷',
+            GfxMode::AsusMuxDgpu => '󰰏',
+            GfxMode::None => '󰳤',
+        };
+
+        return Some(icon);
     }
 }
 
