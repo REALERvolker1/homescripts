@@ -192,5 +192,6 @@
     "[go]": {
         "editor.defaultFormatter": "golang.go"
     },
-    "go.diagnostic.vulncheck": "Imports"
+    "go.diagnostic.vulncheck": "Imports",
+    "gitlens.plusFeatures.enabled": false
 }

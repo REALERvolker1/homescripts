@@ -63,7 +63,7 @@ if ((VLKZSH_SAFEMODE)) || [[ $TERM == linux || $TTY == /dev/tty* || $COLORTERM !
 
     # if we're in a VTTY, start tmux
     if [[ $TERM == linux && ${TTY:-$(tty)} == /dev/tty* ]] && (($+commands[tmux])); then
-        # exec tmux
+        # exec tmux # or, don't
         loginctl list-sessions
     fi
 }

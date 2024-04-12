@@ -30,8 +30,6 @@ alias -g @n='&>/dev/null'
 alias -g @t='| tee'
 alias -g @p="| ${PAGER:-less}"
 
-#alias getcargo='bash <(curl -sSf https://sh.rustup.rs) --default-toolchain stable --profile complete --no-modify-path'
-
 # check for all deps first. If not all deps are found, use an alternative fallback config
 __lscmd="command ls --color=auto --group-directories-first -A"
 __llcmd="$__lscmd -l"
@@ -211,8 +209,17 @@ alias cb='cargo build'
 # Meant to go with my $CARGO_HOME/config.toml that enables full lto with mold
 alias cbr='RUSTFLAGS="-C link-arg=--ld-path=mold -C target-cpu=native" cargo build --release'
 alias nightly='rustup override set nightly'
-
 # alias cupl='cargo install-update -l'
+
+cbc() {
+    local -a cargs=(-Wall -fuse-ld=mold -march=native -mtune=native)
+    if [[ ${1-} == --debug ]]; then
+        cargs+=(-O0 -g)
+    else
+        cargs+=(-Ofast -flto=full)
+    fi
+    clang $cargs ./**/*.c(.) -o ${PWD##*/}
+}
 
 if (($+commands[dnf])); then
     # all kinds of Fedora aliases
