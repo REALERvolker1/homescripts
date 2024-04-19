@@ -19,7 +19,7 @@ fi
 source flatpak-fallback.sh
 
 # code-oss doesn't work with wayland
-[[ ${RESULT_NAME-} == *codium* && -n ${WAYLAND_DISPLAY:-} ]] && result_command+=(--enable-features=UseOzonePlatform --ozone-platform=wayland)
+# [[ ${RESULT_NAME-} == *codium* && -n ${WAYLAND_DISPLAY:-} ]] && result_command+=(--enable-features=UseOzonePlatform --ozone-platform=wayland)
 
 # A really naive way of making it not shit all over my home directory
 #(

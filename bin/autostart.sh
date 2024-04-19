@@ -100,6 +100,7 @@ if [[ -n ${WAYLAND_DISPLAY-} ]]; then
 
     # I'm pretty sure this works on other compositors too
     hyprpaper &
+    wl-clip-persist --clipboard regular
 
     _pgrepx waybar &
 

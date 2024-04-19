@@ -19,7 +19,7 @@ ac_command_center() {
     if [ "$1" = true ]; then
         #light -Srs "$KEYBOARD_PATH" 3
         $buscmd 3 &
-        brightnessctl s '80%'
+        brightnessctl s '100%'
         powerprofilesctl set "$ac_power_profile"
         asusctl bios -O true
         #nvidia-smi dmon -d 5 &>/dev/null &

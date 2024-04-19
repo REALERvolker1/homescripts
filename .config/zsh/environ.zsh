@@ -15,10 +15,7 @@ unset MAILCHECK
 echo -en '\e[0m'
 
 # reset the internal field separators
-if [[ $IFS != $' \t\n\C-@' ]] {
-    echo 'Resetting non-default IFS'
-    IFS=$' \t\n\C-@'
-}
+[[ $IFS != $' \t\n\C-@' ]] && IFS=$' \t\n\C-@'
 
 # Set the current va-api driver used
 # export LIBVA_DRIVER_NAME='iHD'       # integrated gpu
