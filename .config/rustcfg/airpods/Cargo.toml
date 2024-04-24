@@ -8,5 +8,6 @@ edition = "2021"
 [dependencies]
 airinfo = "0.1.0"
 dbus = { version = "0.9.7", features = ["futures"] }
+dbus-tokio = "0.7.6"
 futures-util = "0.3.30"
 tokio = { version = "1.37.0", features = ["rt", "macros", "sync"] }
