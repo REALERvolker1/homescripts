@@ -102,13 +102,11 @@ if [[ -n ${WAYLAND_DISPLAY-} ]]; then
     hyprpaper &
     wl-clip-persist --clipboard regular
 
+    _pgrepx waybar &
     if [[ -n ${HYPRLAND_INSTANCE_SIGNATURE-} ]]; then
         _pgrepx hyprpointer status-monitor &
         hyprpm reload &
-        (
-            sleep 1
-            _pgrepx waybar
-        ) &
+
     fi
 
 elif [[ -n ${DISPLAY-} ]]; then
