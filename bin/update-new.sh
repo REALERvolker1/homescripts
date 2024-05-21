@@ -34,6 +34,9 @@ _head() {
 
 cmd() { command -v "$@" &>/dev/null; }
 
+sudo -vn &>/dev/null || echo "This script requires sudo"
+sudo -v
+
 if [[ -f /etc/os-release ]]; then
     DISTRO_COLOR="$(grep -oP '^ANSI_COLOR="\K[^"]*' /etc/os-release || echo '31')"
 else
@@ -41,8 +44,7 @@ else
 fi
 readonly DISTRO_COLOR
 
-sudo -vn &>/dev/null || echo "This script requires sudo"
-sudo -v
+export RUSTFLAGS="${RUSTFLAGS:---target-cpu native}"
 
 if cmd apt; then
     unsafe
