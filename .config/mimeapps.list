@@ -69,14 +69,14 @@ audio/vnd.wave=io.bassi.Amberol.desktop
 application/x-godot-resource=org.xfce.mousepad.desktop
 
 [Added Associations]
-x-scheme-handler/https=one.ablaze.floorp.desktop;org.mozilla.firefox.desktop;io.gitlab.librewolf-community.desktop;com.brave.Browser.desktop;
+x-scheme-handler/https=one.ablaze.floorp.desktop;com.brave.Browser.desktop;org.mozilla.firefox.desktop;io.gitlab.librewolf-community.desktop;
 video/x-matroska=vlc.desktop;
 x-scheme-handler/http=io.gitlab.librewolf-community.desktop;
 text/plain=org.gnome.TextEditor.desktop;
 application/x-shellscript=org.gnome.TextEditor.desktop;
 text/x-csrc=org.gnome.TextEditor.desktop;
 application/xml=org.gnome.TextEditor.desktop;
-inode/directory=thunar.desktop;io.bassi.Amberol.desktop;userapp-thunar-LX18J2.desktop;
+inode/directory=io.bassi.Amberol.desktop;thunar.desktop;userapp-thunar-LX18J2.desktop;
 text/html=one.ablaze.floorp.desktop;org.xfce.mousepad.desktop;
 application/x-executable=org.xfce.mousepad.desktop;
 application/json=org.xfce.mousepad.desktop;
@@ -124,3 +124,5 @@ image/vnd.microsoft.icon=org.gnome.Loupe.desktop;
 video/mp2t=org.xfce.mousepad.desktop;
 image/x-tga=org.gnome.Loupe.desktop;
 audio/vnd.wave=io.bassi.Amberol.desktop;
+image/jpeg=gimp.desktop;com.github.PintaProject.Pinta.desktop;
+application/pdf=libreoffice-draw.desktop;
