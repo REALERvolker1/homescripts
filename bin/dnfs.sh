@@ -259,7 +259,7 @@ selection="$(
     fi
 
     # save into a variable so the fzf window isn't just open empty for a long time
-    dnf_packages="$(${config[grep]} -Pv "$grepstr" <(dnf list -C "${dnf_opts[@]}" --"${config[querytype]}" | tr -s '[:blank:]' '\t' | ${config[grep]} -P "^[^ ]+\.(${config[arch]})") | sed -E "$pkgsedstr")"
+    dnf_packages="$(dnf list -C "${dnf_opts[@]}" --"${config[querytype]}" | tr -s '[:blank:]' '\t' | ${config[grep]} -P "^[^ ]+\.(${config[arch]})" | sed -E "$pkgsedstr" | ${config[grep]} -Pv "$grepstr")"
     fzf "${fzf_args[@]}" <<<"$dnf_packages"
 )"
 
