@@ -1,0 +1,74 @@
+# This is a script to build either rust or C projects
+
+emulate -LR zsh
+
+
+# Build a rust project with cargo
+_cb_cargo() {
+    cargo build "$@"
+}
+
+# Find all C source files recursively
+_cb_cfind() {
+    print -l ./**/*.c(.)
+}
+
+# Build a C project with clang
+_cb_clang() {
+    local -a build_args=(-Wall -march=native -mtune=native)
+
+    # Mold linker so I don't have to wait forever for lto
+    if ((${+commands[mold]})); then
+        build_args+=(-fuse-ld=mold)
+    fi
+
+    if [[ $1 == '--debug' ]]; then
+        shift 1
+        build_args+=(-O0 -g)
+    else
+        build_args+=(-Ofast -flto=full)
+    fi
+
+    clang $build_args "$@" "${(@f)$(_cb_cfind)}" -o $PWD:t
+}
+
+_cb_autodetect() {
+    # This is most likely a rust project because it is managed by cargo
+    if [[ -f "$PWD/Cargo.toml" ]]; then
+        _cb_cargo
+    # This is probably a C project?
+    elif [[ -f "$PWD/main.c" ]]; then
+        print -l "Do you want to build a C project?" \
+        "Including the following files:"
+
+        _cb_cfind
+
+        print -n '[y/N] > '
+
+        read -rq ans && _cb_clang
+    else
+        print "Could not detect language environment!"
+    fi
+}
+
+_cb_autodetect
+
+# local option="${1-}"
+
+# if [[ -z "${option-}" ]]; then
+#     _cb_autodetect "$@"
+#     return
+# fi
+
+# shift 1
+
+# case "$option" in
+#     *cargo) _cb_cargo "$@" ;;
+#     *c) _cb_clang "$@" ;;
+#     *
+# esac
+
+
+
+
+unfunction _cb_cargo _cb_clang _cb_cfind _cb_autodetect

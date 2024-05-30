@@ -303,6 +303,7 @@ export PATH="$(
         {$HOME/{,.local},$VLK_NIX_HOME,$CARGO_HOME,$GOPATH,$BUN_INSTALL,$PYTHONUSERBASE}/bin
         $PNPM_HOME
         {"$XDG_DATA_HOME",/var/lib}/flatpak/exports/bin
+    '/opt/xc16-stuff'
     )
     dir_pref_after=(
         /usr/local/bin /opt/cuda/bin /usr/bin
