@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=MelonDS
+GenericName=Text Editor
+Comment=Edit text files
+TryExec=melonDS
+Exec=melonDS %F
+Type=Application
+Keywords=ds;emulator;nintendo;
+#Icon=
+Categories=Game;
+StartupNotify=false
