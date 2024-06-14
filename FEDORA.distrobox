@@ -1,5 +1,5 @@
 [FEDORA]
-additional_packages="git zsh dash figlet lolcat lsd eza neofetch fzf inotify-tools neovim"
+additional_packages="git zsh dash figlet lolcat eza neofetch fzf inotify-tools neovim"
 home=${HOME}/.cache/FEDORA
 image=fedora:latest
 nvidia=true
