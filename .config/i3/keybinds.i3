@@ -6,7 +6,7 @@ floating_modifier $mod
 
 bindsym $mod + d $exec "rofi -modes 'drun,run' -show drun -sidebar-mode"
 bindsym $mods + d $exec rofi -show run
-bindsym $modc + d $exec wofi -S drun
+# bindsym $modc + d $exec wofi -S drun
 
 bindsym $mod + Tab $exec rofi -modi window -show window
 
@@ -18,11 +18,11 @@ bindsym --release $mod + z $exec vlk-sensible-browser 1
 bindsym --release $mods + z $exec vlk-sensible-browser 2
 bindsym --release $modc + z $exec vlk-sensible-browser 3
 
-bindsym --release $mod + backslash $exec nemo
+bindsym --release $mod + backslash $exec thunar
 bindsym --release $mods + backslash $exec mousepad
 bindsym --release $modc + backslash $exec codium
 
-bindsym --release $mod + x $exec nemo
+bindsym --release $mod + x $exec thunar
 bindsym --release $mods + x $exec mousepad
 bindsym --release $modc + x $exec codium
 
