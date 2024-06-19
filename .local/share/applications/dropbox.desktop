@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Dropbox
+GenericName=File sharing
+Comment=Online dropbox thing
+TryExec=dropbox
+Exec=dropbox start
+Type=Application
+Keywords=internet;file;drive;
+#Icon=
+Categories=Utility;
+StartupNotify=false

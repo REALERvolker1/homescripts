@@ -1,11 +1,11 @@
 [Desktop Entry]
-Name=MelonDS
-GenericName=Text Editor
-Comment=Edit text files
-TryExec=melonDS
-Exec=melonDS %F
+Name=MPLab IDE
+GenericName=Proprietary IDE
+Comment=Edit code for work
+TryExec=mplab_ide
+Exec=mplab_ide %F
 Type=Application
-Keywords=ds;emulator;nintendo;
+Keywords=mcc;code;ide;microchip;mcl;xcc;
 #Icon=
-Categories=Game;
+Categories=Utility;Development;IDE;
 StartupNotify=false

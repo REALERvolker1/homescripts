@@ -5,13 +5,13 @@ IFS='
 '
 
 # name of the monitor
-PRIMARY='eDP-2'
+PRIMARY='eDP-1'
 HIRATE=144
 LORATE=60
 RES='1920x1080'
 
 # --left-of, --right-of, --above, --below
-RELATIVE_POS='--left-of'
+RELATIVE_POS='--right-of'
 
 # my hardware has an interesting quirk where if my external monitor is
 # plugged into my dedicated GPU port, it does not reduce the refresh rate
