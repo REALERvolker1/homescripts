@@ -28,12 +28,14 @@ assign [class="(?i)VSCodium"] workspace $ws1
 assign [class="Code - OSS"] workspace $ws1
 assign [class="(?i)firefox"] workspace $ws4
 assign [class="LibreWolf"] workspace $ws2
+assign [class="(?i)floorp"] workspace $ws2
 #assign [class="Mullvad Browser"] workspace $ws2
 #assign [class="Opera"] workspace $ws3
 assign [class="Brave-browser"] workspace $ws3
 assign [class="(?i)steam"] workspace $ws5
 for_window [class="^$" title="^Steam$"] workspace $ws5
-assign [class="discord"] workspace $ws6
+assign [class="(?i)discord"] workspace $ws6
+assign [class="(?i)vesktop"] workspace $ws6
 
 # }}}
 # Settings managers {{{
