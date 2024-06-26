@@ -1,5 +1,9 @@
 #!/usr/bin/bash
 
+if [[ $(playerctl status) == Playing ]]; then
+    exit 0
+fi
+
 __swaylock() {
     exec swaylock -Ffli "$IMAGE" \
         --font "$FONT" \
