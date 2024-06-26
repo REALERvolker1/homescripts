@@ -1,4 +1,7 @@
 #!/usr/bin/bash
+# script by vlk
+# mplab has a bug where it will freeze when you open it while connected to the internet.
+# This is a workaround.
 
 for i in mplab_ide nmcli; do
     command -v "$i" || {
@@ -10,7 +13,7 @@ done
 nmcli n off
 
 (
-    sleep 10
+    sleep 5
     nmcli n on
 ) &
 
