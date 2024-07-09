@@ -304,6 +304,7 @@ alias printl='print -l'
 expand_aliases[printl]='print -l'
 expand_aliases[pl]='print -l'
 expand_aliases[p]='print'
+expand_aliases[e]='echo'
 
 # print associations (assoc arrays) as [key] value
 expand_aliases[printa]='printf "[%s] %s\n"'

@@ -232,5 +232,36 @@
             "italic": false
         }
     ],
-    "clangd.path": "/home/vlk/.config/VSCodium/User/globalStorage/llvm-vs-code-extensions.vscode-clangd/install/18.1.3/clangd_18.1.3/bin/clangd"
+    "clangd.path": "/home/vlk/.config/VSCodium/User/globalStorage/llvm-vs-code-extensions.vscode-clangd/install/18.1.3/clangd_18.1.3/bin/clangd",
+    "codeium.enableConfig": {
+        "*": true,
+        "c": false
+    },
+    "astyle.cmd_options": [
+        "astyle",
+        "--indent=spaces=4",
+        "--attach-extern-c",
+        "--attach-closing-while",
+        "--attach-inlines",
+        "--attach-namespaces",
+        "--indent-classes",
+        "--indent-switches",
+        "--indent-cases",
+        "--indent-namespaces",
+        "--indent-after-parens",
+        "--indent-modifiers",
+        "--break-blocks",
+        "--pad-oper",
+        "--pad-comma",
+        "--pad-paren-out",
+        "--pad-header",
+        "--delete-empty-lines",
+        "--squeeze-ws",
+        "--align-pointer=type",
+        "--align-reference=name",
+        "--break-closing-braces",
+        "--attach-return-type",
+        "--convert-tabs",
+        "--lineend=windows"
+    ]
 }

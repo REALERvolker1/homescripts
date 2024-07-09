@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name=MPLab IDE
+Name=MPLab IDE (mplab.sh)
 GenericName=Proprietary IDE
 Comment=Edit code for work
 TryExec=mplab_ide
-Exec=mplab_ide %F
+Exec=mplab.sh %F
 Type=Application
 Keywords=mcc;code;ide;microchip;mcl;xcc;
 #Icon=

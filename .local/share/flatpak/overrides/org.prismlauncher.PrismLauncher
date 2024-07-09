@@ -1,2 +1,3 @@
 [Context]
-filesystems=xdg-data/PrismLauncher;/bruh/home/local/share/PrismLauncher;xdg-config/MangoHud:ro;xdg-run:create
+sockets=fallback-x11
+filesystems=xdg-run:create;xdg-config/MangoHud:ro;/bruh/home/local/share/PrismLauncher;xdg-data/PrismLauncher

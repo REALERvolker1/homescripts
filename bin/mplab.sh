@@ -19,4 +19,4 @@ nmcli n off
 
 disown
 
-exec mplab_ide
+exec mplab_ide "$@"
