@@ -264,5 +264,6 @@
         "--attach-return-type",
         "--convert-tabs",
         "--lineend=windows"
-    ]
+    ],
+    "codeium.enableCodeLens": false
 }
