@@ -100,14 +100,19 @@ if [[ -n ${WAYLAND_DISPLAY-} ]]; then
 
     # I'm pretty sure this works on other compositors too
     hyprpaper &
-    wl-clip-persist --clipboard regular
+    # wl-clip-persist --clipboard regular   # Bug: Automatically clears my clipboard
+    wl-paste -t text --watch clipman store --histpath="$XDG_RUNTIME_DIR/virus.bin"
 
     _pgrepx waybar &
     if [[ -n ${HYPRLAND_INSTANCE_SIGNATURE-} ]]; then
         _pgrepx hyprpointer status-monitor &
         hyprpm reload &
-
     fi
+
+    (
+        sleep 5
+        _pgrepx waybar
+    ) &
 
 elif [[ -n ${DISPLAY-} ]]; then
     [[ -r "${XRESOURCES-}" ]] && xrdb -merge "${XRESOURCES-}" &
