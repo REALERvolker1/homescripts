@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Game 1222229231367487539
+Exec=/app/bin/lime3ds-gui %u
+Type=Application
+NoDisplay=true
+Categories=Discord;Games;
+MimeType=x-scheme-handler/discord-1222229231367487539;
