@@ -1,0 +1,11 @@
+[package]
+name = "hyprpointer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hypesocket = { git = "https://github.com/REALERvolker1/hypesocket", version = "0.1.0" }
+konst = { version = "0.3.9", features = ["rust_latest_stable"] }
+strum = { version = "0.26.3", features = ["std", "phf"] }
+strum_macros = "0.26.4"
+thiserror = "1.0.63"

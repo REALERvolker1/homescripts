@@ -62,8 +62,8 @@ style = "Regular"
 history = 4000
 
 [shell]
-# program = "/usr/bin/zsh"
-program = "/usr/bin/tmux"
+program = "/usr/bin/zsh"
+# program = "/usr/bin/tmux"
 
 [window]
 dynamic_padding = true

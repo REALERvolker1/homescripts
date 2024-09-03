@@ -72,7 +72,7 @@ gnome-keyring-daemon --start --components=secrets &
     unset pk
 ) &
 
-# _pgrepx ydotoold &
+_pgrepx ydotoold &
 
 # dunst can take care of its own duplicates
 dunst &

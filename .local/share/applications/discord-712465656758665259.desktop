@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Game 712465656758665259
+Exec=/tmp/.mount_Linux-7DibRd/usr/bin/yuzu %u
+Type=Application
+NoDisplay=true
+Categories=Discord;Games;
+MimeType=x-scheme-handler/discord-712465656758665259;
