@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# This script is a workaround for a bug in hyprland with wlr-layer-shell keyboard apps sometimes grabbing keyboard focus but not doing anything with it
+
+declare -a faildeps=()
+for i in pgrep killall rofi; do
+    command -v "$i" &>/dev/null || faildeps+=("$i")
+done
+
+if ((${#faildeps[@]})); then
+    printf '%s\n' "${0##*/} Failed to get dependencies" "${faildeps[@]}"
+    # Notify just in case I am not watching stdout
+    IFS=$'\n' # newline join the array
+    notify-send -a "${0##*/}" 'Failed to get dependencies' "${faildeps[*]}"
+    exit 1
+fi
+
+unset faildeps
+
+# keyboard shortcut toggles it off if it is on. This way it can't hog the focus forever
+if pgrep -x '^rofi$'; then
+    killall rofi
+else
+    exec rofi -modi drun,run -show drun -sidebar-mode
+fi
