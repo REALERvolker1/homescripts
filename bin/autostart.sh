@@ -98,14 +98,14 @@ if [[ -n ${WAYLAND_DISPLAY-} ]]; then
     xhost +local: &
     # xhost +local:root:
 
-    # I'm pretty sure this works on other compositors too
     hyprpaper &
+
     # wl-clip-persist --clipboard regular   # Bug: Automatically clears my clipboard
     wl-paste -t text --watch clipman store --histpath="$XDG_RUNTIME_DIR/virus.bin"
 
     _pgrepx waybar &
     if [[ -n ${HYPRLAND_INSTANCE_SIGNATURE-} ]]; then
-        _pgrepx hyprpointer status-monitor &
+        # _pgrepx hyprpointer status-monitor &
         hyprpm reload &
     fi
 
@@ -137,10 +137,11 @@ elif [[ -n ${DISPLAY-} ]]; then
     #    ret="$?"
     #    ((ret)) || xinput set-prop "$mo" 'libinput Accel Profile Enabled' 0 1 0
     #) &
-    (
-        xmodmap -e "clear lock"
-        xmodmap -e "keycode 66 = Escape NoSymbol Escape"
-    ) &
+    # (
+    # xmodmap -e "clear lock"
+    # xmodmap -e "keycode 66 = Escape NoSymbol Escape"
+    # ) &
+    caps-escape.sh &
 
     #flameshot &
 

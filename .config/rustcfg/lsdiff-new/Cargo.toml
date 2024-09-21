@@ -1,0 +1,8 @@
+[package]
+name = "lsdiff-new"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lscolors = { version = "0.19.0", default-features = false, features = ["owo-colors"] }
+owo-colors = "4.0.0"

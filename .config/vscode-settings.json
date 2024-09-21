@@ -265,5 +265,15 @@
         "--convert-tabs",
         "--lineend=windows"
     ],
-    "codeium.enableCodeLens": false
+    "codeium.enableCodeLens": false,
+    "rust-analyzer.typing.autoClosingAngleBrackets.enable": true,
+    "rust-analyzer.cargo.allTargets": false,
+    "rust-analyzer.hover.memoryLayout.offset": "hexadecimal",
+    "rust-analyzer.imports.preferNoStd": true,
+    "rust-analyzer.imports.granularity.group": "one",
+    "rust-analyzer.imports.preferPrelude": true,
+    "rust-analyzer.imports.prefix": "crate",
+    "rust-analyzer.imports.prefixExternPrelude": true,
+    "rust-analyzer.inlayHints.closureReturnTypeHints.enable": "with_block",
+    "rust-analyzer.inlayHints.discriminantHints.enable": "fieldless"
 }
