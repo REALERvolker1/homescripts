@@ -8,7 +8,7 @@ TOUCHPAD_VAR='$TOUCHPAD_ENABLED'
 _notify() {
     header="$1"
     shift 1
-    notify-send -a "${0##*/}" "$header" "$*"
+    notify-send -a "${0##*/}" "$header" "$*" &
     echo "$header" "$*"
 }
 

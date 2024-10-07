@@ -19,7 +19,8 @@ _cmd() {
 }
 # Check if the program binary is running, if not, then run it.
 _pgrepx() {
-    pgrep -f "$1" &>/dev/null || "$@"
+    pgrep -x "$1" &>/dev/null || "$@"
+    # pgrep -f "$1" &>/dev/null || "$@"
 }
 
 # set up sane logging
@@ -103,7 +104,6 @@ if [[ -n ${WAYLAND_DISPLAY-} ]]; then
     # wl-clip-persist --clipboard regular   # Bug: Automatically clears my clipboard
     wl-paste -t text --watch clipman store --histpath="$XDG_RUNTIME_DIR/virus.bin"
 
-    _pgrepx waybar &
     if [[ -n ${HYPRLAND_INSTANCE_SIGNATURE-} ]]; then
         # _pgrepx hyprpointer status-monitor &
         hyprpm reload &
