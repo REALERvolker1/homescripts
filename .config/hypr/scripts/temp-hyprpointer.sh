@@ -19,6 +19,11 @@ _panic() {
 
 # This requires you to set the variable in the hyprland config
 set_status() {
+    if [ -z "${1:-}" ]; then
+        normalize
+        return 0
+    fi
+
     hyprctl keyword "$TOUCHPAD_VAR" "$1" -r
     echo "$1" >"$TOUCHPAD_STATUSFILE"
     _notify set_status "Set touchpad status to $1"
@@ -46,8 +51,7 @@ get_status() {
     elif [ -e "$TOUCHPAD_STATUSFILE" ]; then
         _panic "TOUCHPAD_STATUSFILE '$TOUCHPAD_STATUSFILE' exists and is not a file!"
     else
-        normalize
-        get_status
+        current_status=""
     fi
 }
 
@@ -60,6 +64,7 @@ toggle)
     case "$current_status" in
     true) current_status=false ;;
     false) current_status=true ;;
+    '') ;;
     *) _panic "Invalid current_status: '$current_status'" ;;
     esac
 

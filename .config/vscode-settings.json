@@ -181,7 +181,7 @@
     "rust-analyzer.hover.actions.references.enable": true,
     "rust-analyzer.inlayHints.lifetimeElisionHints.enable": "skip_trivial",
     "rust-analyzer.inlayHints.rangeExclusiveHints.enable": true,
-    "rust-analyzer.lru.capacity": 256,
+    "rust-analyzer.lru.capacity": 512,
     "codeium.aggressiveShutdown": true,
     "[c]": {
         "editor.defaultFormatter": null
@@ -275,5 +275,5 @@
     "rust-analyzer.imports.prefix": "crate",
     "rust-analyzer.imports.prefixExternPrelude": true,
     "rust-analyzer.inlayHints.closureReturnTypeHints.enable": "with_block",
-    "rust-analyzer.inlayHints.discriminantHints.enable": "fieldless"
+    "rust-analyzer.inlayHints.discriminantHints.enable": "fieldless",
 }

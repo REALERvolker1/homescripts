@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Game 1222229231367487539
-Exec=/app/bin/lime3ds-gui %u
+Exec=/app/bin/lime3ds %u
 Type=Application
 NoDisplay=true
 Categories=Discord;Games;
