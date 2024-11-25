@@ -1,0 +1,21 @@
+[package]
+name = "pmgmt"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5.21", features = ["derive", "cargo"] }
+color-eyre = "0.6.3"
+futures-util = { version = "0.3.31", default-features = false, features = ["async-await", "async-await-macro", "std"] }
+serde = { version = "1.0.215", features = ["std", "derive"] }
+strum = "0.26.3"
+strum_macros = "0.26.4"
+thiserror = "2.0.3"
+tokio = { version = "1.41.1", default-features = false, features = ["fs", "io-std", "io-util", "macros", "parking_lot", "process", "rt", "signal", "socket2", "sync", "time"] }
+toml_edit = { version = "0.22.22", features = ["serde"] }
+tracing = "0.1.40"
+tracing-appender = { version = "0.2.3", features = ["parking_lot"] }
+tracing-subscriber = "0.3.18"
+upowerz = { git = "https://github.com/REALERvolker1/upowerz", version = "0.1.0", features = ["tokio"] }
+which = "7.0.0"
+zbus = { version = "5.1.1", default-features = false, features = ["heapless", "serde_bytes", "tokio"] }
