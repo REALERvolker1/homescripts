@@ -10,6 +10,8 @@
         '2: startx' 
         '3: tmux' 
         "4: Regular ${SHELL:-zsh}"
+        "5: bash"
+        '6: Hyprland under bash (mitigate zsh killbug)'
     )
     local chosen
     chosen=$(print -l $choices | fzf)
@@ -24,6 +26,12 @@
         ;;
     3*)
         exec tmux
+        ;;
+    5*)
+        exec bash
+        ;;
+    6*)
+        exec bash -c Hyprland
         ;;
     *)
         echo "Resuming shell session"

@@ -1,9 +1,12 @@
 use {
-    crate::logger::{LogColor, LogLevel},
+    crate::{
+        logger::{LogColor, LogLevel},
+        xmlgen::supergfxd::GfxMode, R,
+    },
     ::clap::{Parser, Subcommand},
     ::core::str::FromStr,
     ::serde::{Deserialize, Serialize},
-    ::std::path::PathBuf,
+    ::std::path::{Path, PathBuf},
     ::tracing::{error, info, warn},
 };
 
@@ -13,8 +16,11 @@ const AUTODETECTED_RUNNERS: [&str; 3] = ["wofi", "tofi", "dmenu"];
 #[derive(Debug, Serialize, Deserialize, Parser)]
 #[clap(version, about, long_about = None)]
 struct ArgsInner {
+    /// The path to the config file
+    #[clap(short, long, required = true)]
+    pub config: PathBuf,
     /// Whether to use color for stdout logs
-    #[clap(short, long, required = false, default_value_t = LogColor::default())]
+    #[clap(long, required = false, default_value_t = LogColor::default())]
     pub color: LogColor,
 
     /// The logging level
@@ -124,4 +130,76 @@ pub enum ArgParseError {
 
     #[error("Error initializing logger: {0}")]
     Logging(#[from] crate::logger::LogError),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BatLevelConfig {
+    pub battery_level: u8,
+    pub show_warning: bool,
+    pub gfx_mode: Option<GfxMode>,
+    pub power_profile: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Config {
+    pub battery_levels: Vec<BatLevelConfig>,
+    pub rofi_command: String,
+    pub dmenu_mode: bool,
+}
+impl Default for Config {
+    fn default() -> Self {
+        let default_rofi_command = RofiCommand::default();
+        Self {
+            battery_levels: vec![
+                BatLevelConfig {
+                    battery_level: 20,
+                    show_warning: true,
+                    gfx_mode: None,
+                    power_profile: None,
+                },
+                BatLevelConfig {
+                    battery_level: 10,
+                    show_warning: true,
+                    gfx_mode: None,
+                    power_profile: None,
+                },
+            ],
+            rofi_command: default_rofi_command
+                .command
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .to_string(),
+            dmenu_mode: default_rofi_command.is_rofi,
+        }
+    }
+}
+impl Config {
+    const CONFIG_FNAME: &str = "config.toml";
+    const CONFIG_DNAME: &str = env!("CARGO_PKG_NAME");
+
+    pub fn default_path() -> PathBuf {
+        let mut path = match std::env::var_os("XDG_CONFIG_HOME") {
+            Some(p) => PathBuf::from(p),
+            None => {
+                let mut home = PathBuf::from(
+                    std::env::var_os("HOME").expect("Failed to find user home directory!"),
+                );
+                home.push(".config");
+                home
+            }
+        };
+        path.push(Self::CONFIG_DNAME);
+        path.push(Self::CONFIG_FNAME);
+        path
+    }
+
+    pub fn write_to_config(&self, path: &Path) -> R<Self> {
+        std::fs::create_dir_all(
+            path.parent()
+                .expect("Config directory has no parent directory"),
+        )?;
+
+        let str = toml_edit::ser::to_string_pretty(self)?;
+    }
 }

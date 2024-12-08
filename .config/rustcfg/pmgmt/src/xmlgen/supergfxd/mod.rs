@@ -20,6 +20,8 @@
 //! [Writing a client proxy]: https://dbus2.github.io/zbus/client.html
 //! [D-Bus standard interfaces]: https://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces,
 use zbus::proxy;
+mod types;
+pub use types::*;
 #[proxy(
     interface = "org.supergfxctl.Daemon",
     default_service = "org.supergfxctl.Daemon",
@@ -31,25 +33,25 @@ pub trait Daemon {
     fn config(&self) -> zbus::Result<(u32, bool, bool, bool, bool, u64, u32)>;
 
     /// Mode method
-    fn mode(&self) -> zbus::Result<u32>;
+    fn mode(&self) -> zbus::Result<GfxMode>;
 
     /// PendingMode method
-    fn pending_mode(&self) -> zbus::Result<u32>;
+    fn pending_mode(&self) -> zbus::Result<GfxMode>;
 
     /// PendingUserAction method
     fn pending_user_action(&self) -> zbus::Result<u32>;
 
     /// Power method
-    fn power(&self) -> zbus::Result<u32>;
+    fn power(&self) -> zbus::Result<GfxPower>;
 
     /// SetConfig method
     fn set_config(&self, config: &(u32, bool, bool, bool, bool, u64, u32)) -> zbus::Result<()>;
 
     /// SetMode method
-    fn set_mode(&self, mode: u32) -> zbus::Result<u32>;
+    fn set_mode(&self, mode: GfxMode) -> zbus::Result<GfxMode>;
 
     /// Supported method
-    fn supported(&self) -> zbus::Result<Vec<u32>>;
+    fn supported(&self) -> zbus::Result<Vec<GfxMode>>;
 
     /// Vendor method
     fn vendor(&self) -> zbus::Result<String>;

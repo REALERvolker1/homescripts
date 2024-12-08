@@ -1,4 +1,5 @@
 mod argparse;
+mod daemon;
 mod dbus_server;
 mod logger;
 mod rofi;

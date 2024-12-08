@@ -232,7 +232,7 @@
             "italic": false
         }
     ],
-    "clangd.path": "/home/vlk/.config/VSCodium/User/globalStorage/llvm-vs-code-extensions.vscode-clangd/install/18.1.3/clangd_18.1.3/bin/clangd",
+    "clangd.path": "/usr/bin/clangd",
     "codeium.enableConfig": {
         "*": true,
         "c": false
@@ -275,5 +275,5 @@
     "rust-analyzer.imports.prefix": "crate",
     "rust-analyzer.imports.prefixExternPrelude": true,
     "rust-analyzer.inlayHints.closureReturnTypeHints.enable": "with_block",
-    "rust-analyzer.inlayHints.discriminantHints.enable": "fieldless",
+    "rust-analyzer.inlayHints.discriminantHints.enable": "fieldless"
 }

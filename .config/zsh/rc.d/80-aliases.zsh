@@ -110,15 +110,19 @@ alias glop='glow --pager'
 alias bat{op,tio,io}=battop
 
 # record audio with pipewire
-alias record='pw-record --target "alsa_input.usb-ASUSTeK_COMPUTER_INC._C-Media_R__Audio-00.analog-stereo"'
+alias record='=pw-record --target "alsa_input.usb-ASUSTeK_COMPUTER_INC._C-Media_R__Audio-00.analog-stereo"'
 
 # download something without changing the name
-alias download='curl -sfLO '
+alias download='=curl -sfLO '
 # download from youtube
-alias ytmp3="yt-dlp --extract-audio --audio-format mp3 "
-alias ytmp4="yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --progress --remux-video mp4 "
+alias ytmp3="=yt-dlp --extract-audio --audio-format mp3 "
+alias ytmp4="=yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --progress --remux-video mp4 "
 
-alias nmapa="nmap -Av 192.168.0.'*'"
+alias nmapa="=nmap -Av 192.168.0.'*'"
+
+# so I can see what's plugged into what
+# Does not show device names for some reason
+# alias lsusb='=lsusb -t'
 
 # terminal image viewers
 # also, kitty-specific ssh thing that makes ssh nicer

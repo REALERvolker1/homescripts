@@ -1,0 +1,17 @@
+[package]
+name = "pmgmt2"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+const_format = { version = "0.2.33", features = ["rust_1_64"] }
+futures-util = { version = "0.3.31", default-features = false, features = ["async-await", "async-await-macro", "memchr", "std"] }
+pollster = "0.4.0"
+serde = { version = "1.0.215", features = ["std", "derive"] }
+serde_repr = "0.1.19"
+strum = "0.26.3"
+strum_macros = "0.26.4"
+thiserror = "2.0.4"
+toml_edit = { version = "0.22.22", features = ["serde"] }
+upowerz = { git = "https://github.com/REALERvolker1/upowerz", version = "0.1.0", features = ["async-io"] }
+zbus = { version = "5.1.1", default-features = false, features = ["async-io", "heapless", "serde_bytes"] }
