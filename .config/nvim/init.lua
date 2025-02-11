@@ -84,13 +84,13 @@ vim.loader.enable()
 
 -- funny rainbow stuff I need for a few plugins
 local rainbow_hl_config = {
-    { key = "RainbowDelimiterRed", fg = "#E06C75" },
+    { key = "RainbowDelimiterRed",    fg = "#E06C75" },
     { key = "RainbowDelimiterYellow", fg = "#E5C07B" },
-    { key = "RainbowDelimiterBlue", fg = "#61AFEF" },
+    { key = "RainbowDelimiterBlue",   fg = "#61AFEF" },
     { key = "RainbowDelimiterOrange", fg = "#D19A66" },
-    { key = "RainbowDelimiterGreen", fg = "#98C379" },
+    { key = "RainbowDelimiterGreen",  fg = "#98C379" },
     { key = "RainbowDelimiterViolet", fg = "#C678DD" },
-    { key = "RainbowDelimiterCyan", fg = "#56B6C2" },
+    { key = "RainbowDelimiterCyan",   fg = "#56B6C2" },
 }
 local delim_highlight = {}
 for _, v in pairs(rainbow_hl_config) do
@@ -304,10 +304,10 @@ require("lazy").setup({
         version = "*",
         opts = {},
         keys = {
-            { "<M-Down>", "<Cmd>MultipleCursorsAddDown<CR>", mode = { "n", "i" }, desc = "Add multiple cursors down" },
-            { "<M-j>", "<Cmd>MultipleCursorsAddDown<CR>", desc = "Add multiple cursors down" },
-            { "<M-Up>", "<Cmd>MultipleCursorsAddUp<CR>", mode = { "n", "i" }, desc = "Add multiple cursors up" },
-            { "<M-k>", "<Cmd>MultipleCursorsAddUp<CR>", desc = "Add multiple cursors up" },
+            { "<M-Down>", "<Cmd>MultipleCursorsAddDown<CR>", mode = { "n", "i" },               desc = "Add multiple cursors down" },
+            { "<M-j>",    "<Cmd>MultipleCursorsAddDown<CR>", desc = "Add multiple cursors down" },
+            { "<M-Up>",   "<Cmd>MultipleCursorsAddUp<CR>",   mode = { "n", "i" },               desc = "Add multiple cursors up" },
+            { "<M-k>",    "<Cmd>MultipleCursorsAddUp<CR>",   desc = "Add multiple cursors up" },
             {
                 "<M-LeftMouse>",
                 "<Cmd>MultipleCursorsMouseAddDelete<CR>",
@@ -501,7 +501,7 @@ require("lazy").setup({
                 capabilities = capabilities,
             })
             lspconfig.pyright.setup({ capabilities = capabilities })
-            lspconfig.tsserver.setup({ capabilities = capabilities })
+            lspconfig.ts_ls.setup({ capabilities = capabilities })
             -- lspconfig.rust_analyzer.setup({})
             lspconfig.perlls.setup({ capabilities = capabilities })
             lspconfig.autotools_ls.setup({ capabilities = capabilities })
