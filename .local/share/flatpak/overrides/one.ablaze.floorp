@@ -1,2 +1,6 @@
 [Context]
+sockets=inherit-wayland-socket
 filesystems=~/src;~/Dropbox:ro
+
+[Environment]
+MOZ_ENABLE_WAYLAND=

@@ -275,5 +275,6 @@
     "rust-analyzer.imports.prefix": "crate",
     "rust-analyzer.imports.prefixExternPrelude": true,
     "rust-analyzer.inlayHints.closureReturnTypeHints.enable": "with_block",
-    "rust-analyzer.inlayHints.discriminantHints.enable": "fieldless"
+    "rust-analyzer.inlayHints.discriminantHints.enable": "fieldless",
+    "lldb.suppressUpdateNotifications": true
 }

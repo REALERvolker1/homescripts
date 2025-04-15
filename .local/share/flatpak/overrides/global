@@ -2,8 +2,7 @@
 filesystems=xdg-data/icons:ro;xdg-config/gtk-4.0;xdg-config/gtk-2.0:ro;xdg-data/fonts:ro;xdg-config/fontconfig:ro;xdg-config/gtk-3.0;~/random:ro;xdg-config/Kvantum:ro;
 
 [Environment]
-XCURSOR_THEME=GoogleDot-Purple
-XCURSOR_SIZE=24
-MOZ_ENABLE_WAYLAND=1
-QT_STYLE_OVERRIDE=kvantum
 QT_SCALE_FACTOR=1.25
+XCURSOR_SIZE=24
+XCURSOR_THEME=GoogleDot-Purple
+QT_STYLE_OVERRIDE=kvantum

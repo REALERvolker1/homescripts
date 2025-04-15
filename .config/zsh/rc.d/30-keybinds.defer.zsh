@@ -130,6 +130,32 @@ __vlk::zle::quit() {
 zle -N __vlk::zle::quit
 bindkey -M main 'q' __vlk::zle::quit
 
+# Make it so I can tab-complete for homedirs without my plugins breaking everything
+# expands `lns ~rnd/images ~data/backgrounds` to `lns /home/vlk/random/images /home/vlk/.local/share/backgrounds`
+__vlk::zle::expand_nameddirs() {
+    # Only works if there is a tilde
+    if [[ ${LBUFFER:=} != *'~'* ]]; then
+        zle self-insert
+        return
+    fi
+
+    local buffer
+    buffer="${LBUFFER##*'~'}"
+
+    # Prevent lag from typing ~///////
+    if [[ -n $buffer ]]; then
+        # only do one lookup
+        buffer="${nameddirs[$buffer]}"
+        if [[ -n $buffer ]]; then
+            LBUFFER="${LBUFFER%'~'*}$buffer"
+        fi
+    fi
+
+    zle self-insert
+}
+zle -N __vlk::zle::expand_nameddirs
+bindkey -M main '/' __vlk::zle::expand_nameddirs
+
 # I forget where I found this or why it's useful,
 # but from what I can see, it probably makes sure to unfuck some stty stuff
 if ((${+terminfo[smkx]} && ${+terminfo[rmkx]})) {
