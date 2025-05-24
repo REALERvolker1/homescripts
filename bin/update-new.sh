@@ -116,6 +116,11 @@ if cmd distrobox; then
     unsafe distrobox upgrade --all
 fi
 
+if cmd pipx; then
+    _head '󰌠 pipx' 93
+    unsafe pipx upgrade-all
+fi
+
 if (($(jobs -r | wc -l))); then
     echo "Waiting for background jobs to finish"
     jobs

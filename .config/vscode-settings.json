@@ -11,7 +11,8 @@
         "**/Thumbs.db": false
     },
     "files.associations": {
-        "*.rasi": "rasi"
+        "*.rasi": "rasi",
+        "*.h": "c"
     },
     "editor.fontLigatures": true,
     "editor.formatOnSave": true,
@@ -184,10 +185,10 @@
     "rust-analyzer.lru.capacity": 512,
     "codeium.aggressiveShutdown": true,
     "[c]": {
-        "editor.defaultFormatter": null
+        "editor.defaultFormatter": "chiehyu.vscode-astyle"
     },
     "[cpp]": {
-        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+        "editor.defaultFormatter": "chiehyu.vscode-astyle"
     },
     "[go]": {
         "editor.defaultFormatter": "golang.go"
@@ -238,33 +239,7 @@
         "c": false
     },
     // `astyle --indent=spaces=4 --attach-extern-c --attach-closing-while --attach-inlines --attach-namespaces --indent-classes --indent-switches --indent-cases --indent-namespaces --indent-after-parens --indent-modifiers --break-blocks --pad-oper --pad-comma --pad-paren-out --pad-header --delete-empty-lines --squeeze-ws --align-pointer=type --align-reference=name --break-closing-braces --attach-return-type --convert-tabs --lineend=windows`
-    "astyle.cmd_options": [
-        "astyle",
-        "--indent=spaces=4",
-        "--attach-extern-c",
-        "--attach-closing-while",
-        "--attach-inlines",
-        "--attach-namespaces",
-        "--indent-classes",
-        "--indent-switches",
-        "--indent-cases",
-        "--indent-namespaces",
-        "--indent-after-parens",
-        "--indent-modifiers",
-        "--break-blocks",
-        "--pad-oper",
-        "--pad-comma",
-        "--pad-paren-out",
-        "--pad-header",
-        "--delete-empty-lines",
-        "--squeeze-ws",
-        "--align-pointer=type",
-        "--align-reference=name",
-        "--break-closing-braces",
-        "--attach-return-type",
-        "--convert-tabs",
-        "--lineend=windows"
-    ],
+    "astyle.cmd_options": [],
     "codeium.enableCodeLens": false,
     "rust-analyzer.typing.autoClosingAngleBrackets.enable": true,
     "rust-analyzer.cargo.allTargets": false,
@@ -276,5 +251,7 @@
     "rust-analyzer.imports.prefixExternPrelude": true,
     "rust-analyzer.inlayHints.closureReturnTypeHints.enable": "with_block",
     "rust-analyzer.inlayHints.discriminantHints.enable": "fieldless",
-    "lldb.suppressUpdateNotifications": true
+    "lldb.suppressUpdateNotifications": true,
+    "astyle.astylerc": "~/.astylerc",
+    "editor.codeActionsOnSave": {}
 }
