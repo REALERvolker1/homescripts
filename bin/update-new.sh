@@ -96,7 +96,8 @@ if cmd sysdboot.sh; then
     unsafe sysdboot.sh update --no-mkinitcpio --no-interactive
 fi
 (
-    if cmd rustup && [[ $(date +'%A') == 'Tuesday' ]]; then
+    # update this every other day
+    if cmd rustup && (($(date +'%d') % 2)); then
         _head '󱘗 rustup' '38;5;166'
         unsafe rustup update
     fi
