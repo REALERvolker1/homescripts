@@ -4,10 +4,11 @@ mod langs;
 mod templates;
 mod tui;
 
-fn main() {
-    unsafe {
-        crate::io_methods::signal_runtime_init().expect("Failed to register signal handlers");
-    }
+fn main() -> () {
+    std::thread::spawn(move || {
+        let mut term = io_methods::TermHandle::new();
+        io_methods::SigThread::sigloop(&mut term)
+    });
 
-    std::process::exit(crate::io_methods::block_join_sigloop());
+    loop {}
 }

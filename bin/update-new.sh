@@ -44,7 +44,7 @@ else
 fi
 readonly DISTRO_COLOR
 
-export RUSTFLAGS="${RUSTFLAGS:---target-cpu native}"
+export RUSTFLAGS="${RUSTFLAGS:--C target-cpu=native}"
 
 if cmd apt; then
     unsafe

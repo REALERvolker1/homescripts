@@ -55,6 +55,11 @@ alias cdrp='cd -P '
 
 alias cp='cp -r'
 
+mkcd() {
+    mkdir "$@"
+    cd "$@"
+}
+
 # I am not really sure that all my scripts are root-safe,
 # running broken shell scripts as sudo is generally frowned upon
 # alias sudo='sudo '
@@ -121,7 +126,7 @@ alias ytmp4="=yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --prog
 alias nmapa="=nmap -Av 192.168.0.'*'"
 
 expand_aliases[uncrlf]='sed -i $'\''s/\r\n$/\n/g'\'
-alias uncrlf="echo"
+alias uncrlf=:
 
 # so I can see what's plugged into what
 # Does not show device names for some reason

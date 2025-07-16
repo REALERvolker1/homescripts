@@ -1,5 +1,8 @@
-use crate::io_methods::isatty;
-use std::io::Read;
+use {crate::io_methods::OUTSTREAM_FD, std::io::Read};
+use {
+    crate::io_methods::isatty,
+    ::core::sync::atomic::{AtomicU32, Ordering},
+};
 
 type TerminalDimensionRepr = u16;
 type PackedTerminalDimensionRepr = u32;
@@ -70,6 +73,21 @@ impl TermRect {
 
         shifted | self.cols.to_raw() as PackedTerminalDimensionRepr
     }
+}
+
+static TERM_SIZE: AtomicU32 = AtomicU32::new(0);
+
+pub fn update_window_size() -> std::io::Result<TermRect> {
+    let (cols, rows) = termion::terminal_size_fd(&OUTSTREAM_FD)?;
+    let size = TermRect::new_from_raw(rows, cols);
+
+    TERM_SIZE.store(size.pack(), Ordering::Release);
+    Ok(size)
+}
+
+pub fn get_window_size() -> TermRect {
+    let packed = TERM_SIZE.load(Ordering::Acquire);
+    TermRect::new_from_packed(packed)
 }
 
 pub struct TuiWidget {

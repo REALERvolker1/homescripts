@@ -117,7 +117,7 @@ or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.
 
 export LS_COLORS="${LS_COLORS:-$__dircolors_default}"
 
-unset __dircolor_cache
+unset __dircolor_cache __dircolors_default
 
 if [[ ${EDITOR-} != nvim ]] {
     if (($+commands[nvim])) {
@@ -200,6 +200,12 @@ export PARALLEL_HOME="$XDG_CONFIG_HOME/parallel"
 export MOST_INITFILE="$XDG_CONFIG_HOME/mostrc"
 export KDEHOME="$XDG_CONFIG_HOME/kdehome"
 #export DISCORD_USER_DATA_DIR="$XDG_DATA_HOME"  # Probably not needed
+
+# I fixed some bugs in this. I don't think they really tested to see if it would compile before they made the release.
+export PICO_SDK_PATH="$HOME/src/pico-sdk"
+
+# Don't break builds if sccache decides not to work today
+export SCCACHE_IGNORE_SERVER_IO_ERROR=1
 
 # starship (unused)
 # export STARSHIP_CONFIG="$XDG_CONFIG_HOME/starship/dashline.toml" STARSHIP_CACHE="$XDG_CACHE_HOME/starship"
