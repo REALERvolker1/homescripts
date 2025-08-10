@@ -1,0 +1,12 @@
+[Desktop Entry]
+Categories=Development;IDE;
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=idea-wrapper com.jetbrains.IntelliJ-IDEA-Community -Dawt.toolkit.name=WLToolkit
+GenericName=Capable and Ergonomic Java IDE for Wayland
+Icon=com.jetbrains.IntelliJ-IDEA-Community
+Keywords=development;idea;ide;intellij;java;
+Name=IntelliJ IDEA Community (Wayland)
+StartupNotify=true
+StartupWMClass=jetbrains-idea-ce
+Terminal=false
+Type=Application
+X-Flatpak=com.jetbrains.IntelliJ-IDEA-Community

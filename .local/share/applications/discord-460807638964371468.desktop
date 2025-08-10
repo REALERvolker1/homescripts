@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Game 460807638964371468
+Exec=/app/bin/Cemu_relwithdebinfo %u
+Type=Application
+NoDisplay=true
+Categories=Discord;Games;
+MimeType=x-scheme-handler/discord-460807638964371468;

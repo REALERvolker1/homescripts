@@ -1,2 +1,4 @@
 [Context]
-filesystems=/bruh
+sockets=wayland
+features=per-app-dev-shm
+filesystems=/bruh;host-etc;host-os

@@ -202,7 +202,7 @@ export KDEHOME="$XDG_CONFIG_HOME/kdehome"
 #export DISCORD_USER_DATA_DIR="$XDG_DATA_HOME"  # Probably not needed
 
 # I fixed some bugs in this. I don't think they really tested to see if it would compile before they made the release.
-export PICO_SDK_PATH="$HOME/src/pico-sdk"
+# export PICO_SDK_PATH="$HOME/src/pico-sdk"
 
 # Don't break builds if sccache decides not to work today
 export SCCACHE_IGNORE_SERVER_IO_ERROR=1

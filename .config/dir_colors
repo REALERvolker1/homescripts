@@ -146,8 +146,6 @@ EXEC 01;38;5;46 # files with execute permission
 .april 38;5;124 # April Speech to Text model
 .asar 1;38;5;124 # JavaScript Electron archive
 .phar 1;38;5;124 # PHP archive file
-.mcpack 1;38;5;124 # Minecraft Bedrock resource pack/addon
-.mcworld 1;38;5;124 # Minecraft Bedrock world
 
 .swm 1;38;5;124 # Split windows imaging format
 .dwm 1;38;5;124
@@ -199,6 +197,7 @@ EXEC 01;38;5;46 # files with execute permission
 .i686 38;5;52
 .i386 38;5;52
 *passwd 38;5;52
+*known-hosts 38;5;52
 
 # image formats
 .avif 38;5;135 # AV1-codec image
@@ -357,11 +356,11 @@ EXEC 01;38;5;46 # files with execute permission
 .nojekyll 38;5;91 # prevent github pages from doing jekyll bs
 
 # Ignore
-.gitignore 38;5;238
-.hgignore 38;5;238 # Mercurial ignore
-.cvsignore 38;5;238 # CVS ignore
-.ignore 38;5;238
-.packignore 38;5;238 # prismlauncher modpack ignore
+.gitignore 38;5;240
+.hgignore 38;5;240 # Mercurial ignore
+.cvsignore 38;5;240 # CVS ignore
+.ignore 38;5;240
+.packignore 38;5;240 # prismlauncher modpack ignore
 
 .gsd-keyboard.settings-ported 38;5;239 # random GNOME settings daemon file
 .gdb 38;5;239 # database file
@@ -370,70 +369,84 @@ EXEC 01;38;5;46 # files with execute permission
 .mount 38;5;239 # a mount
 .DS_Store 38;5;239 # useless bs
 
-.Xauthority 38;5;238 # Xorg X authority
-.xsession-errors 38;5;238 # Xorg Xsession errorfile
-.xsession-errors.old 38;5;238 # previous Xorg Xsession errorfile left over from lightdm
-.disabled 38;5;238
-.driver 38;5;238 # Device driver
-.directory 38;5;238 # a directory entry
-.pid 38;5;238 # the PID of a process
-.lock 38;5;238 # lockfile
-.part 38;5;238 # part of a download
-.swp 38;5;238 # swapfile
-.swap 38;5;238 # swapfile
-.tmp 38;5;238 # tmp file
-.sock 38;5;238 # "socket" file
-.history 38;5;238
-.chk 38;5;238
-.mask 38;5;238
-*shadow 38;5;238
-.pulse-cookie 38;5;238 # home dir file from steam
+.Xauthority 38;5;240 # Xorg X authority
+.xsession-errors 38;5;240 # Xorg Xsession errorfile
+.xsession-errors.old 38;5;240 # previous Xorg Xsession errorfile left over from lightdm
+.disabled 38;5;240
+.driver 38;5;240 # Device driver
+.directory 38;5;240 # a directory entry
+.pid 38;5;240 # the PID of a process
+.lock 38;5;240 # lockfile
+.part 38;5;240 # part of a download
+.swp 38;5;240 # swapfile
+.swap 38;5;240 # swapfile
+.tmp 38;5;240 # tmp file
+.sock 38;5;240 # "socket" file
+*history 38;5;240
+*HIST 38;5;240
+*HST 38;5;240
+*hst 38;5;240
+.chk 38;5;240
+.mask 38;5;240
+*shadow 38;5;240
+*cookie 38;5;240 # home dir file from steam
+*machineid 38;5;240
+*Preferences 38;5;240
+*Cookies 38;5;240
+*Tokens 38;5;240
 
-#.trashinfo 38;5;238 # trash information file
-.zcompdump 38;5;238 # zsh completion
-.bash_history 38;5;238
-.zsh_history 38;5;238
-*objdump 38;5;238 # Object dump for compiled langs
+#.trashinfo 38;5;240 # trash information file
+.zcompdump 38;5;240 # zsh completion
+.bash_history 38;5;240
+.zsh_history 38;5;240
+*objdump 38;5;240 # Object dump for compiled langs
 
 # cryptography
-.gpg 38;5;238 # GPG encrypted file
-.pki 38;5;238 # Public Key Infrastructure
-.key 38;5;238 # crypto key
-.pub 38;5;238 # crypto public key
-.pem 38;5;238 # Privacy-enhanced mail cert
-.pam 38;5;238 # PAM Linux auth
-.x509 38;5;238 # some crypto thing I found in my programming lang installs
-.keys 38;5;238 # multiple keys
-.keyring 38;5;238 # a keyring to store keys
-.keystore 38;5;238 # more key storage
-.genkey 38;5;238 # make keys
-.hmac 38;5;238 # crypto code
-.crt 38;5;238 # security certificate
-.asc 38;5;238 # Armored ASCII file
-.ocx 38;5;238 # ActiveX control
-.rsa 38;5;238 # rsa ncryption
+.gpg 38;5;240 # GPG encrypted file
+.pki 38;5;240 # Public Key Infrastructure
+.key 38;5;240 # crypto key
+.pub 38;5;240 # crypto public key
+.pem 38;5;240 # Privacy-enhanced mail cert
+.pam 38;5;240 # PAM Linux auth
+.x509 38;5;240 # some crypto thing I found in my programming lang installs
+.keys 38;5;240 # multiple keys
+.keyring 38;5;240 # a keyring to store keys
+.keystore 38;5;240 # more key storage
+.genkey 38;5;240 # make keys
+.hmac 38;5;240 # crypto code
+.crt 38;5;240 # security certificate
+.asc 38;5;240 # Armored ASCII file
+.ocx 38;5;240 # ActiveX control
+.rsa 38;5;240 # rsa ncryption
 
 # binary stuff
-.bin 38;5;238 # random ass binary
-.pdb 38;5;238 # random ass binary
-.dat 38;5;238 # random Data file. Most likely compiled
-.compiled 38;5;238 # something that's probably compiled
-.zwc 38;5;238 # compiled ZSH script
-.pyc 38;5;238 # compiled Cpython
-.o 1;38;5;238 # compiled C-lang object file
-.out 1;38;5;238 # Compiled executable
-.wasm 38;5;238 # Webassembly
-.wasi 38;5;238 # Webassembly system interface
-.vlx 38;5;238 # Compiled AutoLISP
-.exe 38;5;238 # Windows executable
-.chm 38;5;238 # Windows compiled HTML help
-.cmi 38;5;238 # Compiled OCaml Interface
-.rlib 38;5;238 # Rust static library
-.qm 38;5;238 # QT compiled translation file
-.cljc 38;5;238 # Clojure compiled I think?
-.pak 38;5;238 # Chromium stuff
-.vpkg 38;5;238 # visual studio pkg
-.symbols 38;5;238
+.bin 38;5;240 # random ass binary
+.hex 38;5;240 # microcontroller binary
+.elf 38;5;240 # Executable linkable file
+.rlf 38;5;93 # idk, the internet says this is a proprietary art tool file format but it was in my /dist/ dir
+.pdb 38;5;240 # random ass binary
+.dat 38;5;240 # random Data file. Most likely compiled
+.compiled 38;5;240 # something that's probably compiled
+.zwc 38;5;240 # compiled ZSH script
+.pyc 38;5;240 # compiled Cpython
+.i 38;5;240 # compiler input
+.p1 38;5;240 # idk what this was but it was in my build dir
+.o 1;38;5;240 # compiled C-lang object file
+.out 1;38;5;240 # Compiled executable
+.wasm 38;5;240 # Webassembly
+.wasi 38;5;240 # Webassembly system interface
+.vlx 38;5;240 # Compiled AutoLISP
+.exe 38;5;240 # Windows executable
+.chm 38;5;240 # Windows compiled HTML help
+.cmi 38;5;240 # Compiled OCaml Interface
+.rlib 38;5;240 # Rust static library
+.qm 38;5;240 # QT compiled translation file
+.cljc 38;5;240 # Clojure compiled I think?
+.pak 38;5;240 # Chromium stuff
+.vpkg 38;5;240 # visual studio pkg
+.symbols 38;5;240
+.ipa 38;5;240 # Some people claim that this is beer
+.inx 38;5;240 # compressed log file format
 
 .gguf 38;5;130 # AI LLM dataset
 .tiktoken 38;5;130 # AI LLM tokens
@@ -441,24 +454,36 @@ EXEC 01;38;5;46 # files with execute permission
 .db 38;5;242 # Database
 .sqlite 38;5;242 # sqlite database
 .sqlite3 38;5;242
-.vscdb 38;5;242
+.vscdb 38;5;242 # VSCode database
 .empty 38;5;242
 .pack 38;5;242
-*- 38;5;242
+.pb 38;5;242 # Some people forget that this portable binary database is supposed to be PORTABLE
+*- 38;5;242 # -
+.mcc 38;5;242 # Microchip's codegen tool. Can't live with it, can't live without it.
+.m3core 38;5;242 # MCC internal file
+.m3lib 38;5;242 # MCC internal file
+.mcuxpresso 38;5;242 # I feel bad for anyone who has to use this on a day to day basis
 
 # ROM
-.z64 38;5;241 # Nintendo 64 ROM
-.gb 38;5;241 # Nintendo Gameboy ROM
-.gbc 38;5;241 # Nintendo Gameboy Color ROM
-.gba 38;5;241 # Nintendo Gameboy Advance ROM
-.nes 38;5;241 # Nintendo NES ROM
-.smc 38;5;241 # Nintendo SNES ROM
-.swc 38;5;241 # Nintendo SNES wildcard
-.sav 38;5;237 # Nintendo gb save
-.srm 38;5;237 # Nintendo SNES save
-.dem 38;5;241 # Game demo file
-.save 38;5;237 # generic save file
-.rom 38;5;241 # generic rom file (like for TI-84 roms)
+.z64 38;5;99 # Nintendo 64 ROM
+.gb 38;5;36 # Nintendo Gameboy ROM
+.gbc 38;5;155 # Nintendo Gameboy Color ROM
+.gba 38;5;141 # Nintendo Gameboy Advance ROM
+.nes 38;5;131 # Nintendo NES ROM
+.smc 38;5;133 # Nintendo SNES ROM
+.swc 38;5;133 # Nintendo SNES wildcard
+.sav 38;5;30 # Nintendo gb save
+.srm 38;5;127 # Nintendo SNES save
+.dem 38;5;140 # Game demo file
+.save 38;5;140 # generic save file
+.rom 38;5;134 # generic rom file (like for TI-84 roms)
+.ROM 38;5;134 # generic rom file (like for TI-84 roms)
+.wua 38;5;69 # Wii U Archive
+.rvz 38;5;69 # Compressed ROM only usable in Dolphin or Cemu or something
+.nds 38;5;140 # Nintendo DS Rom
+.dsv 38;5;128 # Nintendo DS save file
+.nsp 38;5;137 # Nintendo Switch rom
+.xcl 38;5;137 # Another nintendo switch archive format
 
 .8xp 38;5;130 # TI-84+ file
 .8xv 38;5;130 # TI-84+ Variable file
@@ -470,11 +495,17 @@ EXEC 01;38;5;46 # files with execute permission
 .wad 38;5;130 # Doom map
 
 # hashes
-.md5 38;5;237
-.crc 38;5;237
-.sha1 38;5;237
-.sha128 38;5;237
-.sha267 38;5;237
+.md5 38;5;239 # Most secure hashing format in the DRC
+.crc 38;5;239
+.sha1 38;5;239
+.sha128 38;5;239
+.sha256 38;5;239 # The FBI can crack this already, you know
+.sha512 38;5;239
+.sha267 38;5;239
+.sig 38;5;239
+.hxl 38;5;239
+.mum 38;5;239
+.sdb 38;5;239
 
 .csv 38;5;116 # Comma-separated values
 .yaml 38;5;116 # yet another markup language
@@ -499,13 +530,17 @@ EXEC 01;38;5;46 # files with execute permission
 .torrent 38;5;130 # 🤨
 .magnet 38;5;130 # 🤨
 
+
 .nbt 38;5;95 # NBT Data file. Most likely from Minecraft
+.snbt 38;5;95 # Stringified NBT, basically NBT in string instead of binary encoded
 .schematic 38;5;95 # Worldedit schematic from Minecraft
 .mcmeta 38;5;95 # Minecraft metadata
 .mca 38;5;95 # Minecraft map region
 .mcfunction 38;5;95 # Minecraft Bedrock edition function
 .zs 38;5;95 # MineTweaker ZenScript
 .sk 38;5;95 # Skript Minecraft server plugin
+.mcworld 1;38;5;124 # Minecraft Bedrock world
+.mcpack 1;38;5;124 # Minecraft Bedrock resource pack/addon
 
 .i3 38;5;116 # vlk i3 window manager config
 .hypr 38;5;116 # vlk hyprland config
@@ -531,6 +566,8 @@ EXEC 01;38;5;46 # files with execute permission
 .kbd 38;5;116 # keyboard stuff
 .scripts 38;5;116 # multiple scripts
 .plugin 38;5;116
+.scan 38;5;116
+.rendered 38;5;116
 .vdf 38;5;116 # Valve Data File
 #.cfg 38;5;116
 *cfg 38;5;116 # 99% likely config file
@@ -540,6 +577,8 @@ EXEC 01;38;5;46 # files with execute permission
 .list 38;5;116 # list
 .page 38;5;116
 .resources 38;5;116 # res
+*index 38;5;116
+*data 38;5;116
 
 .zone 38;5;116 # DNS zone
 .arpa 38;5;116 # DNS arpa
@@ -595,7 +634,7 @@ EXEC 01;38;5;46 # files with execute permission
 .preset 38;5;99 # systemd preset
 .socket 38;5;99 # sockets that aren't really sockets
 .slice 38;5;99 # systemd slices
-.path 38;5;242
+.path 38;5;147
 
 .sql 38;5;116 # SQL script
 .spdx 38;5;116
@@ -619,13 +658,13 @@ EXEC 01;38;5;46 # files with execute permission
 .builtin 38;5;116
 
 # Shell config
-*rc 38;5;113 # basically anything ending with rc is 99% going to be a config file
+*rc 1;38;5;113 # basically anything ending with rc is 99% going to be a config file
 *profile 38;5;113 # anything ending with profile is also probably a config
-*config 38;5;113 # same for this
+*config 38;5;114 # same for this
 # .dir_colors 38;5;113 # dir colors
 *dir_colors 38;5;113 # dir colors
 *dircolors 38;5;113 # dir colors
-.Xresources 38;5;113 # Xorg X resources
+*Xresources 38;5;113 # Xorg X resources
 .tmux 38;5;113
 #.conf 38;5;113
 #.zshenv 38;5;113
@@ -755,6 +794,20 @@ EXEC 01;38;5;46 # files with execute permission
 .boot 38;5;200 # Clojure
 .cl2 38;5;200 # Clojure
 
+# csharp
+.cs 38;5;201 # Csharp source code
+.csx 38;5;201 # Visual Csharp script
+.cake 38;5;201 # Csharp stuff
+.rsp 38;5;200 # Csharp compiler response
+.vcpkg 38;5;240 # Csharp package
+.vsidx 38;5;240 # Visual studio FileContentIndex
+.suo 38;5;200 # idk what this is I just found it in my C# project one day
+.sln 1;38;5;201 # Visual Studio solution
+.resx 38;5;200 # idk what this is I just found it in my C# project one day
+.datasource 38;5;166 # DataGrid source for visual studio (XML)
+.resx 38;5;166 # Visual Studio resources file (XML)
+.Designer.cs 38;5;199 # Visual Studio Designer generated code
+
 # GNOME GTK
 .vala 38;5;164 # GNOME programming lang
 .vapi 38;5;164 # Vala API file
@@ -801,12 +854,6 @@ EXEC 01;38;5;46 # files with execute permission
 .hpp 38;5;115 # C++ header
 .cp 38;5;86 # C++ source code (or component pascal)
 .inl 38;5;87 # C++ Inline File
-
-# csharp
-.cs 38;5;84 # Csharp source code
-.csx 38;5;84 # Visual Csharp script
-.cake 38;5;84 # Csharp stuff
-.rsp 38;5;85 # Csharp compiler response
 
 # D
 .d 38;5;142 # D-lang source code
@@ -1049,8 +1096,15 @@ EXEC 01;38;5;46 # files with execute permission
 *MAKEFILE 1;38;5;202
 *Makefile.am 1;38;5;202
 *Makefile.in 1;38;5;202
-*package.json 38;5;202
-*package-lock.json 38;5;238
+*package.json 38;5;202 # node.js config file
+*package-lock.json 38;5;241 # Proof of slavery to NPM
+.cortex-debug 38;5;251 # ARM Cortex debuggger file
+.bazelignore 38;5;184 # make bazel skip stuff when building
+.bazelversion 38;5;184 # min bazel version?
+.bazel 38;5;184 # Bazel configurations
+.bzl 38;5;184 # More bazel stuff
+.cvs 38;5;187 # Concurrent Versioning System
+.mc3 38;5;166 # MCC configuration (XML)
 
 # DOCUMENT {{{
 # LaTeX
@@ -1067,6 +1121,9 @@ EXEC 01;38;5;46 # files with execute permission
 .MD 38;5;159 # MARKDOWN
 *README 1;38;5;159
 *README.md 1;38;5;159
+*CONTRIBUTORS 1;38;5;159
+*AUTHORS 1;38;5;159
+*CONTRIBUTING 1;38;5;159
 *readme 1;38;5;159
 .markdown 38;5;159 # markdown
 .cat 38;5;159 # some doc format
@@ -1079,6 +1136,8 @@ EXEC 01;38;5;46 # files with execute permission
 .mediawiki 38;5;159 # mediawiki file
 .wiki 38;5;159 # Wiki file
 .pdf 1;38;5;159 # the worst document format ever created
+.bdic 38;5;159 # Binary-encoded dictionary
+.trie2 38;5;159 # Binary-encoded dictionary. I think this is a proprietary format
 # office docs
 .odt 38;5;27 # Opendocument text
 .odp 38;5;202 # open document presentation
@@ -1114,13 +1173,23 @@ EXEC 01;38;5;46 # files with execute permission
 .man 38;5;158
 .roff 38;5;158
 .1 38;5;158
+.001 38;5;158
 .2 38;5;158
+.002 38;5;158
 .3 38;5;158
+.003 38;5;158
 .4 38;5;158
+.004 38;5;158
 .5 38;5;158
+.005 38;5;158
 .6 38;5;158
+.006 38;5;158
 .7 38;5;158
+.007 38;5;158
 .8 38;5;158
+.008 38;5;158
 .9 38;5;158
+.009 38;5;158
 .0 38;5;158
+.000 38;5;158
 

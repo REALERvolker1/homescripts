@@ -41,13 +41,7 @@
     "terminal.integrated.cursorStyle": "line",
     "terminal.integrated.confirmOnExit": "hasChildProcesses",
     "terminal.integrated.drawBoldTextInBrightColors": false,
-    "terminal.integrated.ignoreProcessNames": [
-        "starship",
-        "oh-my-posh",
-        "bash",
-        "zsh",
-        "atuin"
-    ],
+    "terminal.integrated.ignoreProcessNames": ["starship", "oh-my-posh", "bash", "zsh", "atuin"],
     // "terminal.integrated.defaultProfile.linux": "bash",
     // "terminal.integrated.profiles.linux": {
     //     "bash": {
@@ -132,9 +126,7 @@
     "[perl]": {
         "editor.defaultFormatter": "richterger.perl"
     },
-    "python.autoComplete.extraPaths": [
-        "/home/vlk/.vscode-oss/extensions/continue.continue-0.8.1-linux-x64"
-    ],
+    "python.autoComplete.extraPaths": ["/home/vlk/.vscode-oss/extensions/continue.continue-0.8.1-linux-x64"],
     "diffEditor.codeLens": true,
     "continue.telemetryEnabled": false,
     "python.languageServer": "Pylance",
@@ -167,9 +159,7 @@
         "azcli"
     ],
     "vscord.status.idle.enabled": false,
-    "python.analysis.extraPaths": [
-        "/home/vlk/.vscode-oss/extensions/continue.continue-0.8.1-linux-x64"
-    ],
+    "python.analysis.extraPaths": ["/home/vlk/.vscode-oss/extensions/continue.continue-0.8.1-linux-x64"],
     "window.zoomLevel": -1,
     "oneDarkPro.bold": true,
     "[lua]": {
@@ -256,5 +246,23 @@
     "editor.codeActionsOnSave": {},
     "telemetry.feedback.enabled": false,
     "typescript.experimental.useTsgo": true,
-    "raspberry-pi-pico.python3Path": "/usr/bin/python"
+    "raspberry-pi-pico.python3Path": "/usr/bin/python",
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "biome.configurationPath": ".config/biome.jsonc",
+    "prettier.experimentalTernaries": true,
+    "prettier.printWidth": 120,
+    "svelte.plugin.svelte.format.config.printWidth": 120,
+    "svelte.plugin.svelte.format.config.svelteStrictMode": true,
+    "mcuxpresso.sdks": [
+        {
+            "type": "git-repositoryv2",
+            "path": "/home/vlk/.nxp/sdk/mcux_sdk_main",
+            "fromAch": false
+        }
+    ],
+    "memory-inspector.debugTypes": ["gdb", "embedded-debug", "arm-debugger", "mcuxpresso-debug"],
+    "memory-inspector.columns.ascii": true,
+    "memory-inspector.columns.variables": true
 }
