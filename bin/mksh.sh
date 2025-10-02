@@ -29,15 +29,16 @@ cat >"$file" <<EOF
 # shellcheck shell=bash
 # a script that does a thing.
 set -euo pipefail
+shopt -s extglob globstar nullglob nocaseglob dotglob
 IFS=\$'\\n\\t'
 
 # useful functions
-_panic() {
+util::panic() {
     printf '[0m%s[0m\\n' "\$@" >&2
     exit 1
 }
 
-_prompt() {
+util::prompt() {
     local answer
     printf '%s\\n' "\$@"
     read -r -p "[y/N] > " answer
@@ -48,7 +49,7 @@ _prompt() {
     fi
 }
 
-_array_join() {
+util::array_join() {
     local ifsstr=\$'\\n'
     if [[ "\${1:-}" == '--ifs='* ]]; then
         ifsstr="\${1#*=}"
@@ -60,7 +61,7 @@ _array_join() {
     IFS="\$oldifs"
 }
 
-_strip_color() {
+util::strip_color() {
     # Strip all occurences of ansi color strings from input strings
     # uncomment matches to do stuff with the strings themselves
     local ansi_regex='\\[([0-9;]+)m'
@@ -84,9 +85,9 @@ _strip_color() {
 # dependency check
 declare -a faildeps=()
 for i in placeholder_dep{1,2}; do
-    command -v "\$i" &>/dev/null || faildeps+=("\$i")
+    hash "\$i" || faildeps+=("\$i")
 done
-((\${#faildeps[@]})) && _panic "Error, missing dependencies:" "\${faildeps[@]}"
+((\${#faildeps[@]})) && util::panic "Error, missing dependencies:" "\${faildeps[*]}"
 
 # argparse
 declare -A config=(

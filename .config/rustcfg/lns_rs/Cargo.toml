@@ -1,0 +1,12 @@
+[package]
+name = "lns_rs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+const_format = { version = "0.2.34", features = ["rust_1_83"] }
+derive_more = { version = "2.0.1", features = ["display", "error"] }
+lscolors = { version = "0.20.0", default-features = false, features = ["owo-colors"] }
+owo-colors = { version = "4.2.2", default-features = false }
+paste = "1.0.15"
+pathdiff = "0.2.3"

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Assassin's Creed Rogue
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/311560
+Icon=steam_icon_311560
+Terminal=false
+Type=Application
+Categories=Game;

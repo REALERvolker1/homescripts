@@ -129,7 +129,7 @@
     "python.autoComplete.extraPaths": ["/home/vlk/.vscode-oss/extensions/continue.continue-0.8.1-linux-x64"],
     "diffEditor.codeLens": true,
     "continue.telemetryEnabled": false,
-    "python.languageServer": "Pylance",
+    "python.languageServer": "Jedi",
     "telemetry.telemetryLevel": "off",
     "code-runner.enableAppInsights": false,
     "workbench.settings.enableNaturalLanguageSearch": false,
@@ -223,9 +223,8 @@
             "italic": false
         }
     ],
-    "clangd.path": "/usr/bin/clangd",
     "codeium.enableConfig": {
-        "*": true,
+        "*": false,
         "c": false
     },
     // `astyle --indent=spaces=4 --attach-extern-c --attach-closing-while --attach-inlines --attach-namespaces --indent-classes --indent-switches --indent-cases --indent-namespaces --indent-after-parens --indent-modifiers --break-blocks --pad-oper --pad-comma --pad-paren-out --pad-header --delete-empty-lines --squeeze-ws --align-pointer=type --align-reference=name --break-closing-braces --attach-return-type --convert-tabs --lineend=windows`
@@ -264,5 +263,11 @@
     ],
     "memory-inspector.debugTypes": ["gdb", "embedded-debug", "arm-debugger", "mcuxpresso-debug"],
     "memory-inspector.columns.ascii": true,
-    "memory-inspector.columns.variables": true
+    "memory-inspector.columns.variables": true,
+    "idf.hasWalkthroughBeenShown": true,
+    "codeium.disableSupercomplete": false,
+    "idf.enableCCache": true,
+    "clangd.onConfigChanged": "restart",
+    "clangd.arguments": ["--enable-config"],
+    "clangd.useScriptAsExecutable": true
 }

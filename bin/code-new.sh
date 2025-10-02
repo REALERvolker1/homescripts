@@ -18,6 +18,9 @@ fi
 
 source flatpak-fallback.sh
 
+# Path fixes
+export IDF_PATH='/opt/esp-idf'
+
 # code-oss doesn't work with wayland
 # [[ ${RESULT_NAME-} == *codium* && -n ${WAYLAND_DISPLAY:-} ]] && result_command+=(--enable-features=UseOzonePlatform --ozone-platform=wayland)
 

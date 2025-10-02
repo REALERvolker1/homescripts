@@ -1,0 +1,1666 @@
+#compdef probe-rs
+
+autoload -U is-at-least
+
+_probe-rs() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_probe-rs_commands" \
+"*::: :->probe-rs" \
+&& ret=0
+    case $state in
+    (probe-rs)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-command-$line[1]:"
+        case $line[1] in
+            (dap-server)
+_arguments "${_arguments_options[@]}" : \
+'--port=[IP port number to listen for incoming DAP connections, e.g. "50000"]:PORT:_default' \
+'--ip=[IP address to listen for incoming DAP connections, e.g. "127.0.0.1"]:IP:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--single-session[Some editors and IDEs expect the debug adapter processes to exit at the end of every debug session (on receiving a \`Disconnect\` or \`Terminate\` request)]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(list)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(info)
+_arguments "${_arguments_options[@]}" : \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--target-sel=[SWD Multidrop target selection value]:TARGET_SEL:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(reset)
+_arguments "${_arguments_options[@]}" : \
+'--core=[]:CORE:_default' \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(gdb)
+_arguments "${_arguments_options[@]}" : \
+'--gdb-connection-string=[Use this flag to override the default GDB connection string (localhost\:1337).]:GDB_CONNECTION_STRING:_default' \
+'--gdb=[Spawn gdb after starting the gdbserver.]:GDB:_default' \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--reset-halt[Use this flag to reset and halt (instead of just a halt) the attached core after attaching to the target.]' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'::path -- The path to the ELF file to debug:_files' \
+'*::GDB ARGS -- Arguments to pass to gdb.:_default' \
+&& ret=0
+;;
+(debug)
+_arguments "${_arguments_options[@]}" : \
+'--core=[]:CORE:_default' \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--exe=[Binary to debug]:EXE:_files' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--no-catch-reset[Disable reset vector catch if its supported on the target]' \
+'--no-catch-hardfault[Disable hardfault vector catch if its supported on the target]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(download)
+_arguments "${_arguments_options[@]}" : \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--flash-layout=[Requests the flash builder to output the layout into the given file in SVG format]:filename:_default' \
+'--binary-format=[If a format is provided, use it. If a target has a preferred format, we use that. Finally, if neither of the above cases are true, we default to ELF]:BINARY_FORMAT:_default' \
+'--base-address=[The address in memory where the binary will be put at. This is only considered when \`bin\` is selected as the format]:BASE_ADDRESS:_default' \
+'--skip=[The number of bytes to skip at the start of the binary file. This is only considered when \`bin\` is selected as the format]:SKIP:_default' \
+'--idf-bootloader=[The idf bootloader path]:IDF_BOOTLOADER:_default' \
+'--idf-partition-table=[The idf partition table path]:IDF_PARTITION_TABLE:_default' \
+'--idf-target-app-partition=[The idf target app partition]:IDF_TARGET_APP_PARTITION:_default' \
+'*--skip-section=[Section name to skip flashing. This option may be specified multiple times, and is only considered when \`elf\` is selected as the format]:SKIP_SECTION:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--chip-erase[Whether to erase the entire chip before downloading]' \
+'--disable-progressbars[]' \
+'--disable-double-buffering[Use this flag to disable double-buffering when downloading flash data. If download fails during programming with timeout errors, try this option]' \
+'--restore-unwritten[Enable this flag to restore all bytes erased in the sector erase but not overwritten by any page]' \
+'--preverify[Before flashing, read back all the flashed data to skip flashing if the device is up to date]' \
+'--verify[After flashing, read back all the flashed data to verify it has been written correctly]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+':path -- The path to the file to be downloaded to the flash:_files' \
+&& ret=0
+;;
+(verify)
+_arguments "${_arguments_options[@]}" : \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--binary-format=[If a format is provided, use it. If a target has a preferred format, we use that. Finally, if neither of the above cases are true, we default to ELF]:BINARY_FORMAT:_default' \
+'--base-address=[The address in memory where the binary will be put at. This is only considered when \`bin\` is selected as the format]:BASE_ADDRESS:_default' \
+'--skip=[The number of bytes to skip at the start of the binary file. This is only considered when \`bin\` is selected as the format]:SKIP:_default' \
+'--idf-bootloader=[The idf bootloader path]:IDF_BOOTLOADER:_default' \
+'--idf-partition-table=[The idf partition table path]:IDF_PARTITION_TABLE:_default' \
+'--idf-target-app-partition=[The idf target app partition]:IDF_TARGET_APP_PARTITION:_default' \
+'*--skip-section=[Section name to skip flashing. This option may be specified multiple times, and is only considered when \`elf\` is selected as the format]:SKIP_SECTION:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--disable-progressbars[]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+':path -- The path to the file to be compared with the flash:_files' \
+&& ret=0
+;;
+(erase)
+_arguments "${_arguments_options[@]}" : \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--disable-progressbars[]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(run)
+_arguments "${_arguments_options[@]}" : \
+'--format=[Configure formatting of the test report output]:pretty|terse|json:((pretty\:"One line per test. Output for humans. (default)"
+terse\:"One character per test. Usefull for test suites with many tests"
+json\:"Json output"))' \
+'*--skip-test=[Skip tests whose names contain FILTER (this flag can be used multiple times)]:FILTER:_default' \
+'-Z+[No-op, ignored. Flag only exists for CLI compatibility with libtest]:UNSTABLE_FLAGS:_default' \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--flash-layout=[Requests the flash builder to output the layout into the given file in SVG format]:filename:_default' \
+'--binary-format=[If a format is provided, use it. If a target has a preferred format, we use that. Finally, if neither of the above cases are true, we default to ELF]:BINARY_FORMAT:_default' \
+'--base-address=[The address in memory where the binary will be put at. This is only considered when \`bin\` is selected as the format]:BASE_ADDRESS:_default' \
+'--skip=[The number of bytes to skip at the start of the binary file. This is only considered when \`bin\` is selected as the format]:SKIP:_default' \
+'--idf-bootloader=[The idf bootloader path]:IDF_BOOTLOADER:_default' \
+'--idf-partition-table=[The idf partition table path]:IDF_PARTITION_TABLE:_default' \
+'--idf-target-app-partition=[The idf target app partition]:IDF_TARGET_APP_PARTITION:_default' \
+'*--skip-section=[Section name to skip flashing. This option may be specified multiple times, and is only considered when \`elf\` is selected as the format]:SKIP_SECTION:_default' \
+'--log-format=[The format string to use when printing defmt encoded log messages from the target]:LOG_FORMAT:_default' \
+'*--target-output-file=[File name to store formatted output at. Different channels can be assigned to different files using channel=file arguments to multiple occurrences (eg. \`--target-output-file defmt=out/defmt.txt --target-output-file out/default\`). Channel names can be prefixed with \`rtt\:\` or \`semihosting\:\` (eg. \`semihosting\:stdout\`) to disambiguate]:TARGET_OUTPUT_FILE:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--catch-reset[Deprecated(catch_reset is enabled by default) - Use no_reset_catch to disable this]' \
+'--catch-hardfault[Deprecated(catch_hardfault is enabled by default) - Use no_catch_hardfault to disable this]' \
+'--no-catch-reset[Disable reset vector catch if its supported on the target]' \
+'--no-catch-hardfault[Disable hardfault vector catch if its supported on the target]' \
+'--list[List all tests instead of executing them]' \
+'--exact[If set, filters are matched exactly rather than by substring]' \
+'--ignored[If set, run only ignored tests]' \
+'--include-ignored[If set, run ignored and non-ignored tests]' \
+'--nocapture[]' \
+'--show-output[No-op, ignored. libtest-mimic does not currently capture stdout]' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--disable-progressbars[]' \
+'--disable-double-buffering[Use this flag to disable double-buffering when downloading flash data. If download fails during programming with timeout errors, try this option]' \
+'--restore-unwritten[Enable this flag to restore all bytes erased in the sector erase but not overwritten by any page]' \
+'--preverify[Before flashing, read back all the flashed data to skip flashing if the device is up to date]' \
+'--verify[After flashing, read back all the flashed data to verify it has been written correctly]' \
+'--always-print-stacktrace[Always print the stacktrace on ctrl + c]' \
+'--chip-erase[Whether to erase the entire chip before downloading]' \
+'--no-location[Suppress filename and line number information from the rtt log]' \
+'--rtt-scan-memory[Scan the memory to find the RTT control block]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'*::filter -- The TEST_FILTER string is tested against the name of all tests, and only those tests whose names contain the filter are run. Multiple filter strings may be passed, which will run all tests matching any of the filters.:_default' \
+':path -- The path to the ELF file to flash and run.
+If the binary uses `embedded-test` each test will be executed in turn. See `TEST OPTIONS` for more configuration options exclusive to this mode.
+If the binary does not use `embedded-test` the binary will be flashed and run normally. See `RUN OPTIONS` for more configuration options exclusive to this mode.:_files' \
+&& ret=0
+;;
+(attach)
+_arguments "${_arguments_options[@]}" : \
+'--format=[Configure formatting of the test report output]:pretty|terse|json:((pretty\:"One line per test. Output for humans. (default)"
+terse\:"One character per test. Usefull for test suites with many tests"
+json\:"Json output"))' \
+'*--skip-test=[Skip tests whose names contain FILTER (this flag can be used multiple times)]:FILTER:_default' \
+'-Z+[No-op, ignored. Flag only exists for CLI compatibility with libtest]:UNSTABLE_FLAGS:_default' \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--flash-layout=[Requests the flash builder to output the layout into the given file in SVG format]:filename:_default' \
+'--binary-format=[If a format is provided, use it. If a target has a preferred format, we use that. Finally, if neither of the above cases are true, we default to ELF]:BINARY_FORMAT:_default' \
+'--base-address=[The address in memory where the binary will be put at. This is only considered when \`bin\` is selected as the format]:BASE_ADDRESS:_default' \
+'--skip=[The number of bytes to skip at the start of the binary file. This is only considered when \`bin\` is selected as the format]:SKIP:_default' \
+'--idf-bootloader=[The idf bootloader path]:IDF_BOOTLOADER:_default' \
+'--idf-partition-table=[The idf partition table path]:IDF_PARTITION_TABLE:_default' \
+'--idf-target-app-partition=[The idf target app partition]:IDF_TARGET_APP_PARTITION:_default' \
+'*--skip-section=[Section name to skip flashing. This option may be specified multiple times, and is only considered when \`elf\` is selected as the format]:SKIP_SECTION:_default' \
+'--log-format=[The format string to use when printing defmt encoded log messages from the target]:LOG_FORMAT:_default' \
+'*--target-output-file=[File name to store formatted output at. Different channels can be assigned to different files using channel=file arguments to multiple occurrences (eg. \`--target-output-file defmt=out/defmt.txt --target-output-file out/default\`). Channel names can be prefixed with \`rtt\:\` or \`semihosting\:\` (eg. \`semihosting\:stdout\`) to disambiguate]:TARGET_OUTPUT_FILE:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--catch-reset[Deprecated(catch_reset is enabled by default) - Use no_reset_catch to disable this]' \
+'--catch-hardfault[Deprecated(catch_hardfault is enabled by default) - Use no_catch_hardfault to disable this]' \
+'--no-catch-reset[Disable reset vector catch if its supported on the target]' \
+'--no-catch-hardfault[Disable hardfault vector catch if its supported on the target]' \
+'--list[List all tests instead of executing them]' \
+'--exact[If set, filters are matched exactly rather than by substring]' \
+'--ignored[If set, run only ignored tests]' \
+'--include-ignored[If set, run ignored and non-ignored tests]' \
+'--nocapture[]' \
+'--show-output[No-op, ignored. libtest-mimic does not currently capture stdout]' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--disable-progressbars[]' \
+'--disable-double-buffering[Use this flag to disable double-buffering when downloading flash data. If download fails during programming with timeout errors, try this option]' \
+'--restore-unwritten[Enable this flag to restore all bytes erased in the sector erase but not overwritten by any page]' \
+'--preverify[Before flashing, read back all the flashed data to skip flashing if the device is up to date]' \
+'--verify[After flashing, read back all the flashed data to verify it has been written correctly]' \
+'--always-print-stacktrace[Always print the stacktrace on ctrl + c]' \
+'--chip-erase[Whether to erase the entire chip before downloading]' \
+'--no-location[Suppress filename and line number information from the rtt log]' \
+'--rtt-scan-memory[Scan the memory to find the RTT control block]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'*::filter -- The TEST_FILTER string is tested against the name of all tests, and only those tests whose names contain the filter are run. Multiple filter strings may be passed, which will run all tests matching any of the filters.:_default' \
+':path -- The path to the ELF file to flash and run.
+If the binary uses `embedded-test` each test will be executed in turn. See `TEST OPTIONS` for more configuration options exclusive to this mode.
+If the binary does not use `embedded-test` the binary will be flashed and run normally. See `RUN OPTIONS` for more configuration options exclusive to this mode.:_files' \
+&& ret=0
+;;
+(trace)
+_arguments "${_arguments_options[@]}" : \
+'--core=[]:CORE:_default' \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+':loc -- The address of the memory to dump from the target:_default' \
+&& ret=0
+;;
+(itm)
+_arguments "${_arguments_options[@]}" : \
+'--core=[]:CORE:_default' \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+":: :_probe-rs__itm_commands" \
+"*::: :->itm" \
+&& ret=0
+
+    case $state in
+    (itm)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-itm-command-$line[1]:"
+        case $line[1] in
+            (memory)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+':coreclk -- The core clock frequency in Hz:_default' \
+&& ret=0
+;;
+(swo)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+':duration -- The trace duration in ms:_default' \
+':clk -- The speed of the clock feeding the TPIU/SWO module in Hz:_default' \
+':baud -- The desired baud rate of the SWO output:_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_probe-rs__itm__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-itm-help-command-$line[1]:"
+        case $line[1] in
+            (memory)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(swo)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(chip)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+":: :_probe-rs__chip_commands" \
+"*::: :->chip" \
+&& ret=0
+
+    case $state in
+    (chip)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-chip-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(info)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+':name -- The name of the chip to display:_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_probe-rs__chip__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-chip-help-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(info)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(benchmark)
+_arguments "${_arguments_options[@]}" : \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--address=[Start address for the benchmark test]:ADDRESS:_default' \
+'--min-speed=[Minimum speed for the debug probe]:MIN_SPEED:_default' \
+'--max-speed=[Maximum speed for the debug probe]:MAX_SPEED:_default' \
+'--word-size=[Word size for read/write accesses]:WORD_SIZE:_default' \
+'--iterations=[Number of times to run each test]:ITERATIONS:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(profile)
+_arguments "${_arguments_options[@]}" : \
+'--format=[Configure formatting of the test report output]:pretty|terse|json:((pretty\:"One line per test. Output for humans. (default)"
+terse\:"One character per test. Usefull for test suites with many tests"
+json\:"Json output"))' \
+'*--skip-test=[Skip tests whose names contain FILTER (this flag can be used multiple times)]:FILTER:_default' \
+'-Z+[No-op, ignored. Flag only exists for CLI compatibility with libtest]:UNSTABLE_FLAGS:_default' \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--flash-layout=[Requests the flash builder to output the layout into the given file in SVG format]:filename:_default' \
+'--binary-format=[If a format is provided, use it. If a target has a preferred format, we use that. Finally, if neither of the above cases are true, we default to ELF]:BINARY_FORMAT:_default' \
+'--base-address=[The address in memory where the binary will be put at. This is only considered when \`bin\` is selected as the format]:BASE_ADDRESS:_default' \
+'--skip=[The number of bytes to skip at the start of the binary file. This is only considered when \`bin\` is selected as the format]:SKIP:_default' \
+'--idf-bootloader=[The idf bootloader path]:IDF_BOOTLOADER:_default' \
+'--idf-partition-table=[The idf partition table path]:IDF_PARTITION_TABLE:_default' \
+'--idf-target-app-partition=[The idf target app partition]:IDF_TARGET_APP_PARTITION:_default' \
+'*--skip-section=[Section name to skip flashing. This option may be specified multiple times, and is only considered when \`elf\` is selected as the format]:SKIP_SECTION:_default' \
+'--log-format=[The format string to use when printing defmt encoded log messages from the target]:LOG_FORMAT:_default' \
+'*--target-output-file=[File name to store formatted output at. Different channels can be assigned to different files using channel=file arguments to multiple occurrences (eg. \`--target-output-file defmt=out/defmt.txt --target-output-file out/default\`). Channel names can be prefixed with \`rtt\:\` or \`semihosting\:\` (eg. \`semihosting\:stdout\`) to disambiguate]:TARGET_OUTPUT_FILE:_default' \
+'--duration=[Duration of profile in seconds]:DURATION:_default' \
+'--core=[Which core to profile]:CORE:_default' \
+'--limit=[Limit the number of entries to output]:LIMIT:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--catch-reset[Deprecated(catch_reset is enabled by default) - Use no_reset_catch to disable this]' \
+'--catch-hardfault[Deprecated(catch_hardfault is enabled by default) - Use no_catch_hardfault to disable this]' \
+'--no-catch-reset[Disable reset vector catch if its supported on the target]' \
+'--no-catch-hardfault[Disable hardfault vector catch if its supported on the target]' \
+'--list[List all tests instead of executing them]' \
+'--exact[If set, filters are matched exactly rather than by substring]' \
+'--ignored[If set, run only ignored tests]' \
+'--include-ignored[If set, run ignored and non-ignored tests]' \
+'--nocapture[]' \
+'--show-output[No-op, ignored. libtest-mimic does not currently capture stdout]' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--disable-progressbars[]' \
+'--disable-double-buffering[Use this flag to disable double-buffering when downloading flash data. If download fails during programming with timeout errors, try this option]' \
+'--restore-unwritten[Enable this flag to restore all bytes erased in the sector erase but not overwritten by any page]' \
+'--preverify[Before flashing, read back all the flashed data to skip flashing if the device is up to date]' \
+'--verify[After flashing, read back all the flashed data to verify it has been written correctly]' \
+'--always-print-stacktrace[Always print the stacktrace on ctrl + c]' \
+'--chip-erase[Whether to erase the entire chip before downloading]' \
+'--no-location[Suppress filename and line number information from the rtt log]' \
+'--rtt-scan-memory[Scan the memory to find the RTT control block]' \
+'--flash[Flash the ELF before profiling]' \
+'--line-info[Print file and line info for each entry]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'::filter -- The TEST_FILTER string is tested against the name of all tests, and only those tests whose names contain the filter are run. Multiple filter strings may be passed, which will run all tests matching any of the filters.:_default' \
+':path -- The path to the ELF file to flash and run.
+If the binary uses `embedded-test` each test will be executed in turn. See `TEST OPTIONS` for more configuration options exclusive to this mode.
+If the binary does not use `embedded-test` the binary will be flashed and run normally. See `RUN OPTIONS` for more configuration options exclusive to this mode.:_files' \
+":: :_probe-rs__profile_commands" \
+"*::: :->profile" \
+&& ret=0
+
+    case $state in
+    (profile)
+        words=($line[3] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-profile-command-$line[3]:"
+        case $line[3] in
+            (naive)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(itm)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+':clk -- The speed of the clock feeding the TPIU/SWO module in Hz:_default' \
+':baud -- The desired baud rate of the SWO output:_default' \
+&& ret=0
+;;
+(pcsr)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_probe-rs__profile__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-profile-help-command-$line[1]:"
+        case $line[1] in
+            (naive)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(itm)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(pcsr)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(read)
+_arguments "${_arguments_options[@]}" : \
+'--core=[]:CORE:_default' \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'-o+[File to output binary data to]:OUTPUT:_files' \
+'--output=[File to output binary data to]:OUTPUT:_files' \
+'-f+[Format of the outputted binary data]:FORMAT:(hex binary)' \
+'--format=[Format of the outputted binary data]:FORMAT:(hex binary)' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+':width -- Width of the data to read/write:((b8\:"8-bit width"
+b16\:"16-bit width"
+b32\:"32-bit width"
+b64\:"64-bit width"))' \
+':address -- The address to start from. Takes an integer as an argument, and can be specified in decimal (16), hexadecimal (0x10) or octal (0o20) format:_default' \
+':words -- Number of words to read from the target:_default' \
+&& ret=0
+;;
+(write)
+_arguments "${_arguments_options[@]}" : \
+'--core=[]:CORE:_default' \
+'--chip=[]:CHIP:_default' \
+'--chip-description-path=[]:chip description file path:_files' \
+'--protocol=[Protocol used to connect to chip. Possible options\: \[swd, jtag\]]:PROTOCOL:_default' \
+'--probe=[Use this flag to select a specific probe in the list]:PROBE:_default' \
+'--speed=[The protocol speed in kHz]:SPEED:_default' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--non-interactive[Disable interactive probe selection]' \
+'--connect-under-reset[Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip]' \
+'--dry-run[]' \
+'--allow-erase-all[Use this flag to allow all memory, including security keys and 3rd party firmware, to be erased even when it has read-only protection]' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+':width -- Width of the data to read/write:((b8\:"8-bit width"
+b16\:"16-bit width"
+b32\:"32-bit width"
+b64\:"64-bit width"))' \
+':address -- The address to start from. Takes an integer as an argument, and can be specified in decimal (16), hexadecimal (0x10) or octal (0o20) format:_default' \
+'*::values -- Values to write to the target. Takes a list of integer values and can be specified in decimal (16), hexadecimal (0x10) or octal (0o20) format:_default' \
+&& ret=0
+;;
+(complete)
+_arguments "${_arguments_options[@]}" : \
+'--shell=[]:SHELL:(bash elvish fish powershell zsh)' \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+":: :_probe-rs__complete_commands" \
+"*::: :->complete" \
+&& ret=0
+
+    case $state in
+    (complete)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-complete-command-$line[1]:"
+        case $line[1] in
+            (install)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(probe-list)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+':input -- The already entered user input that will be used to filter the list:_default' \
+&& ret=0
+;;
+(chip-list)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+':input -- The already entered user input that will be used to filter the list:_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_probe-rs__complete__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-complete-help-command-$line[1]:"
+        case $line[1] in
+            (install)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(probe-list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(chip-list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(mi)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+":: :_probe-rs__mi_commands" \
+"*::: :->mi" \
+&& ret=0
+
+    case $state in
+    (mi)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-mi-command-$line[1]:"
+        case $line[1] in
+            (meta)
+_arguments "${_arguments_options[@]}" : \
+'--log-file=[Location for log file for probe-rs'\''s own debug output]:LOG_FILE:_files' \
+'-r+[]' \
+'--report=[]' \
+'--preset=[A configuration preset to apply]:PRESET:_default' \
+'--log-to-folder[Enable logging of probe-rs'\''s own debug data to the default folder. This option is ignored if \`--log-file\` is specified]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_probe-rs__mi__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-mi-help-command-$line[1]:"
+        case $line[1] in
+            (meta)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_probe-rs__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-help-command-$line[1]:"
+        case $line[1] in
+            (dap-server)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(info)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(reset)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(gdb)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(debug)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(download)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(verify)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(erase)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(run)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(attach)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(trace)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(itm)
+_arguments "${_arguments_options[@]}" : \
+":: :_probe-rs__help__itm_commands" \
+"*::: :->itm" \
+&& ret=0
+
+    case $state in
+    (itm)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-help-itm-command-$line[1]:"
+        case $line[1] in
+            (memory)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(swo)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(chip)
+_arguments "${_arguments_options[@]}" : \
+":: :_probe-rs__help__chip_commands" \
+"*::: :->chip" \
+&& ret=0
+
+    case $state in
+    (chip)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-help-chip-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(info)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(benchmark)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(profile)
+_arguments "${_arguments_options[@]}" : \
+":: :_probe-rs__help__profile_commands" \
+"*::: :->profile" \
+&& ret=0
+
+    case $state in
+    (profile)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-help-profile-command-$line[1]:"
+        case $line[1] in
+            (naive)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(itm)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(pcsr)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(read)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(write)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(complete)
+_arguments "${_arguments_options[@]}" : \
+":: :_probe-rs__help__complete_commands" \
+"*::: :->complete" \
+&& ret=0
+
+    case $state in
+    (complete)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-help-complete-command-$line[1]:"
+        case $line[1] in
+            (install)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(probe-list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(chip-list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(mi)
+_arguments "${_arguments_options[@]}" : \
+":: :_probe-rs__help__mi_commands" \
+"*::: :->mi" \
+&& ret=0
+
+    case $state in
+    (mi)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:probe-rs-help-mi-command-$line[1]:"
+        case $line[1] in
+            (meta)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_probe-rs_commands] )) ||
+_probe-rs_commands() {
+    local commands; commands=(
+'dap-server:Debug Adapter Protocol (DAP) server. See <https\://probe.rs/docs/tools/debugger/>' \
+'list:List all connected debug probes' \
+'info:Gets info about the selected debug probe and connected target' \
+'reset:Resets the target attached to the selected debug probe' \
+'gdb:Run a GDB server' \
+'debug:Basic command line debugger' \
+'download:Download memory to attached target' \
+'verify:Compare memory to attached target' \
+'erase:Erase all nonvolatile memory of attached target' \
+'run:Flash and run an ELF program' \
+'attach:Attach to rtt logging' \
+'trace:Trace a memory location on the target' \
+'itm:Configure and monitor ITM trace packets from the target' \
+'chip:Inspect internal registry of supported chips' \
+'benchmark:Measure the throughput of the selected debug probe' \
+'profile:Profile on-target runtime performance of target ELF program' \
+'read:Read from target memory address' \
+'write:Write to target memory address' \
+'complete:Install and complete autocomplete scripts' \
+'mi:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'probe-rs commands' commands "$@"
+}
+(( $+functions[_probe-rs__attach_commands] )) ||
+_probe-rs__attach_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs attach commands' commands "$@"
+}
+(( $+functions[_probe-rs__benchmark_commands] )) ||
+_probe-rs__benchmark_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs benchmark commands' commands "$@"
+}
+(( $+functions[_probe-rs__chip_commands] )) ||
+_probe-rs__chip_commands() {
+    local commands; commands=(
+'list:Lists all the available families and their chips with their full' \
+'info:Shows chip properties of a specific chip' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'probe-rs chip commands' commands "$@"
+}
+(( $+functions[_probe-rs__chip__help_commands] )) ||
+_probe-rs__chip__help_commands() {
+    local commands; commands=(
+'list:Lists all the available families and their chips with their full' \
+'info:Shows chip properties of a specific chip' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'probe-rs chip help commands' commands "$@"
+}
+(( $+functions[_probe-rs__chip__help__help_commands] )) ||
+_probe-rs__chip__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs chip help help commands' commands "$@"
+}
+(( $+functions[_probe-rs__chip__help__info_commands] )) ||
+_probe-rs__chip__help__info_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs chip help info commands' commands "$@"
+}
+(( $+functions[_probe-rs__chip__help__list_commands] )) ||
+_probe-rs__chip__help__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs chip help list commands' commands "$@"
+}
+(( $+functions[_probe-rs__chip__info_commands] )) ||
+_probe-rs__chip__info_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs chip info commands' commands "$@"
+}
+(( $+functions[_probe-rs__chip__list_commands] )) ||
+_probe-rs__chip__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs chip list commands' commands "$@"
+}
+(( $+functions[_probe-rs__complete_commands] )) ||
+_probe-rs__complete_commands() {
+    local commands; commands=(
+'install:Installs the autocomplete script for the correct shell' \
+'probe-list:Lists the probes that are currently plugged in in a way that the shell understands' \
+'chip-list:Lists the chips in a way that the shell understands' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'probe-rs complete commands' commands "$@"
+}
+(( $+functions[_probe-rs__complete__chip-list_commands] )) ||
+_probe-rs__complete__chip-list_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs complete chip-list commands' commands "$@"
+}
+(( $+functions[_probe-rs__complete__help_commands] )) ||
+_probe-rs__complete__help_commands() {
+    local commands; commands=(
+'install:Installs the autocomplete script for the correct shell' \
+'probe-list:Lists the probes that are currently plugged in in a way that the shell understands' \
+'chip-list:Lists the chips in a way that the shell understands' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'probe-rs complete help commands' commands "$@"
+}
+(( $+functions[_probe-rs__complete__help__chip-list_commands] )) ||
+_probe-rs__complete__help__chip-list_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs complete help chip-list commands' commands "$@"
+}
+(( $+functions[_probe-rs__complete__help__help_commands] )) ||
+_probe-rs__complete__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs complete help help commands' commands "$@"
+}
+(( $+functions[_probe-rs__complete__help__install_commands] )) ||
+_probe-rs__complete__help__install_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs complete help install commands' commands "$@"
+}
+(( $+functions[_probe-rs__complete__help__probe-list_commands] )) ||
+_probe-rs__complete__help__probe-list_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs complete help probe-list commands' commands "$@"
+}
+(( $+functions[_probe-rs__complete__install_commands] )) ||
+_probe-rs__complete__install_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs complete install commands' commands "$@"
+}
+(( $+functions[_probe-rs__complete__probe-list_commands] )) ||
+_probe-rs__complete__probe-list_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs complete probe-list commands' commands "$@"
+}
+(( $+functions[_probe-rs__dap-server_commands] )) ||
+_probe-rs__dap-server_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs dap-server commands' commands "$@"
+}
+(( $+functions[_probe-rs__debug_commands] )) ||
+_probe-rs__debug_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs debug commands' commands "$@"
+}
+(( $+functions[_probe-rs__download_commands] )) ||
+_probe-rs__download_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs download commands' commands "$@"
+}
+(( $+functions[_probe-rs__erase_commands] )) ||
+_probe-rs__erase_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs erase commands' commands "$@"
+}
+(( $+functions[_probe-rs__gdb_commands] )) ||
+_probe-rs__gdb_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs gdb commands' commands "$@"
+}
+(( $+functions[_probe-rs__help_commands] )) ||
+_probe-rs__help_commands() {
+    local commands; commands=(
+'dap-server:Debug Adapter Protocol (DAP) server. See <https\://probe.rs/docs/tools/debugger/>' \
+'list:List all connected debug probes' \
+'info:Gets info about the selected debug probe and connected target' \
+'reset:Resets the target attached to the selected debug probe' \
+'gdb:Run a GDB server' \
+'debug:Basic command line debugger' \
+'download:Download memory to attached target' \
+'verify:Compare memory to attached target' \
+'erase:Erase all nonvolatile memory of attached target' \
+'run:Flash and run an ELF program' \
+'attach:Attach to rtt logging' \
+'trace:Trace a memory location on the target' \
+'itm:Configure and monitor ITM trace packets from the target' \
+'chip:Inspect internal registry of supported chips' \
+'benchmark:Measure the throughput of the selected debug probe' \
+'profile:Profile on-target runtime performance of target ELF program' \
+'read:Read from target memory address' \
+'write:Write to target memory address' \
+'complete:Install and complete autocomplete scripts' \
+'mi:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'probe-rs help commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__attach_commands] )) ||
+_probe-rs__help__attach_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help attach commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__benchmark_commands] )) ||
+_probe-rs__help__benchmark_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help benchmark commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__chip_commands] )) ||
+_probe-rs__help__chip_commands() {
+    local commands; commands=(
+'list:Lists all the available families and their chips with their full' \
+'info:Shows chip properties of a specific chip' \
+    )
+    _describe -t commands 'probe-rs help chip commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__chip__info_commands] )) ||
+_probe-rs__help__chip__info_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help chip info commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__chip__list_commands] )) ||
+_probe-rs__help__chip__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help chip list commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__complete_commands] )) ||
+_probe-rs__help__complete_commands() {
+    local commands; commands=(
+'install:Installs the autocomplete script for the correct shell' \
+'probe-list:Lists the probes that are currently plugged in in a way that the shell understands' \
+'chip-list:Lists the chips in a way that the shell understands' \
+    )
+    _describe -t commands 'probe-rs help complete commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__complete__chip-list_commands] )) ||
+_probe-rs__help__complete__chip-list_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help complete chip-list commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__complete__install_commands] )) ||
+_probe-rs__help__complete__install_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help complete install commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__complete__probe-list_commands] )) ||
+_probe-rs__help__complete__probe-list_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help complete probe-list commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__dap-server_commands] )) ||
+_probe-rs__help__dap-server_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help dap-server commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__debug_commands] )) ||
+_probe-rs__help__debug_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help debug commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__download_commands] )) ||
+_probe-rs__help__download_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help download commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__erase_commands] )) ||
+_probe-rs__help__erase_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help erase commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__gdb_commands] )) ||
+_probe-rs__help__gdb_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help gdb commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__help_commands] )) ||
+_probe-rs__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help help commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__info_commands] )) ||
+_probe-rs__help__info_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help info commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__itm_commands] )) ||
+_probe-rs__help__itm_commands() {
+    local commands; commands=(
+'memory:Direct ITM data to Embedded Trace Buffer/FIFO (ETB/ETF) for extraction' \
+'swo:Direct ITM traffic out the TRACESWO pin for reception by the probe' \
+    )
+    _describe -t commands 'probe-rs help itm commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__itm__memory_commands] )) ||
+_probe-rs__help__itm__memory_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help itm memory commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__itm__swo_commands] )) ||
+_probe-rs__help__itm__swo_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help itm swo commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__list_commands] )) ||
+_probe-rs__help__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help list commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__mi_commands] )) ||
+_probe-rs__help__mi_commands() {
+    local commands; commands=(
+'meta:' \
+    )
+    _describe -t commands 'probe-rs help mi commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__mi__meta_commands] )) ||
+_probe-rs__help__mi__meta_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help mi meta commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__profile_commands] )) ||
+_probe-rs__help__profile_commands() {
+    local commands; commands=(
+'naive:Naive, Halt -> Read PC -> Resume profiler' \
+'itm:Use the Itm port to profile the chip (ARM only)' \
+'pcsr:Use the DWT_PCSR to profile the chip (ARM only)' \
+    )
+    _describe -t commands 'probe-rs help profile commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__profile__itm_commands] )) ||
+_probe-rs__help__profile__itm_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help profile itm commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__profile__naive_commands] )) ||
+_probe-rs__help__profile__naive_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help profile naive commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__profile__pcsr_commands] )) ||
+_probe-rs__help__profile__pcsr_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help profile pcsr commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__read_commands] )) ||
+_probe-rs__help__read_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help read commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__reset_commands] )) ||
+_probe-rs__help__reset_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help reset commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__run_commands] )) ||
+_probe-rs__help__run_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help run commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__trace_commands] )) ||
+_probe-rs__help__trace_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help trace commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__verify_commands] )) ||
+_probe-rs__help__verify_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help verify commands' commands "$@"
+}
+(( $+functions[_probe-rs__help__write_commands] )) ||
+_probe-rs__help__write_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs help write commands' commands "$@"
+}
+(( $+functions[_probe-rs__info_commands] )) ||
+_probe-rs__info_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs info commands' commands "$@"
+}
+(( $+functions[_probe-rs__itm_commands] )) ||
+_probe-rs__itm_commands() {
+    local commands; commands=(
+'memory:Direct ITM data to Embedded Trace Buffer/FIFO (ETB/ETF) for extraction' \
+'swo:Direct ITM traffic out the TRACESWO pin for reception by the probe' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'probe-rs itm commands' commands "$@"
+}
+(( $+functions[_probe-rs__itm__help_commands] )) ||
+_probe-rs__itm__help_commands() {
+    local commands; commands=(
+'memory:Direct ITM data to Embedded Trace Buffer/FIFO (ETB/ETF) for extraction' \
+'swo:Direct ITM traffic out the TRACESWO pin for reception by the probe' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'probe-rs itm help commands' commands "$@"
+}
+(( $+functions[_probe-rs__itm__help__help_commands] )) ||
+_probe-rs__itm__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs itm help help commands' commands "$@"
+}
+(( $+functions[_probe-rs__itm__help__memory_commands] )) ||
+_probe-rs__itm__help__memory_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs itm help memory commands' commands "$@"
+}
+(( $+functions[_probe-rs__itm__help__swo_commands] )) ||
+_probe-rs__itm__help__swo_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs itm help swo commands' commands "$@"
+}
+(( $+functions[_probe-rs__itm__memory_commands] )) ||
+_probe-rs__itm__memory_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs itm memory commands' commands "$@"
+}
+(( $+functions[_probe-rs__itm__swo_commands] )) ||
+_probe-rs__itm__swo_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs itm swo commands' commands "$@"
+}
+(( $+functions[_probe-rs__list_commands] )) ||
+_probe-rs__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs list commands' commands "$@"
+}
+(( $+functions[_probe-rs__mi_commands] )) ||
+_probe-rs__mi_commands() {
+    local commands; commands=(
+'meta:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'probe-rs mi commands' commands "$@"
+}
+(( $+functions[_probe-rs__mi__help_commands] )) ||
+_probe-rs__mi__help_commands() {
+    local commands; commands=(
+'meta:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'probe-rs mi help commands' commands "$@"
+}
+(( $+functions[_probe-rs__mi__help__help_commands] )) ||
+_probe-rs__mi__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs mi help help commands' commands "$@"
+}
+(( $+functions[_probe-rs__mi__help__meta_commands] )) ||
+_probe-rs__mi__help__meta_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs mi help meta commands' commands "$@"
+}
+(( $+functions[_probe-rs__mi__meta_commands] )) ||
+_probe-rs__mi__meta_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs mi meta commands' commands "$@"
+}
+(( $+functions[_probe-rs__profile_commands] )) ||
+_probe-rs__profile_commands() {
+    local commands; commands=(
+'naive:Naive, Halt -> Read PC -> Resume profiler' \
+'itm:Use the Itm port to profile the chip (ARM only)' \
+'pcsr:Use the DWT_PCSR to profile the chip (ARM only)' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'probe-rs profile commands' commands "$@"
+}
+(( $+functions[_probe-rs__profile__help_commands] )) ||
+_probe-rs__profile__help_commands() {
+    local commands; commands=(
+'naive:Naive, Halt -> Read PC -> Resume profiler' \
+'itm:Use the Itm port to profile the chip (ARM only)' \
+'pcsr:Use the DWT_PCSR to profile the chip (ARM only)' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'probe-rs profile help commands' commands "$@"
+}
+(( $+functions[_probe-rs__profile__help__help_commands] )) ||
+_probe-rs__profile__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs profile help help commands' commands "$@"
+}
+(( $+functions[_probe-rs__profile__help__itm_commands] )) ||
+_probe-rs__profile__help__itm_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs profile help itm commands' commands "$@"
+}
+(( $+functions[_probe-rs__profile__help__naive_commands] )) ||
+_probe-rs__profile__help__naive_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs profile help naive commands' commands "$@"
+}
+(( $+functions[_probe-rs__profile__help__pcsr_commands] )) ||
+_probe-rs__profile__help__pcsr_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs profile help pcsr commands' commands "$@"
+}
+(( $+functions[_probe-rs__profile__itm_commands] )) ||
+_probe-rs__profile__itm_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs profile itm commands' commands "$@"
+}
+(( $+functions[_probe-rs__profile__naive_commands] )) ||
+_probe-rs__profile__naive_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs profile naive commands' commands "$@"
+}
+(( $+functions[_probe-rs__profile__pcsr_commands] )) ||
+_probe-rs__profile__pcsr_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs profile pcsr commands' commands "$@"
+}
+(( $+functions[_probe-rs__read_commands] )) ||
+_probe-rs__read_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs read commands' commands "$@"
+}
+(( $+functions[_probe-rs__reset_commands] )) ||
+_probe-rs__reset_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs reset commands' commands "$@"
+}
+(( $+functions[_probe-rs__run_commands] )) ||
+_probe-rs__run_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs run commands' commands "$@"
+}
+(( $+functions[_probe-rs__trace_commands] )) ||
+_probe-rs__trace_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs trace commands' commands "$@"
+}
+(( $+functions[_probe-rs__verify_commands] )) ||
+_probe-rs__verify_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs verify commands' commands "$@"
+}
+(( $+functions[_probe-rs__write_commands] )) ||
+_probe-rs__write_commands() {
+    local commands; commands=()
+    _describe -t commands 'probe-rs write commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_probe-rs" ]; then
+    (( $+functions[_probe-rs_chip_list] )) ||
+        _probe-rs_chip_list() {
+            array_of_lines=("${(@f)$(probe-rs complete zsh chip-list "" )}")
+            _values 'flags' $array_of_lines
+        }
+(( $+functions[_probe-rs_probe_list] )) ||
+        _probe-rs_probe_list() {
+            array_of_lines=("${(@f)$(probe-rs complete zsh probe-list "" )}")
+            _values 'flags' $array_of_lines
+        }
+_probe-rs "$@"
+else
+    compdef _probe-rs probe-rs
+fi

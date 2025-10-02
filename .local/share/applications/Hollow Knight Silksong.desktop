@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Hollow Knight: Silksong
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/1030300
+Icon=steam_icon_1030300
+Terminal=false
+Type=Application
+Categories=Game;
