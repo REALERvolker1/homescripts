@@ -220,6 +220,8 @@ expand_aliases[cr]='cr --'
 # alias cb='cargo build'
 # for distribution, run cargo build --release. This is only for local dev.
 alias cbr='RUSTFLAGS="-C target-cpu=native" cargo build --release'
+# For distro/cross-compilation
+alias cbrr='cargo build --release'
 
 cbc() {
     local -a cargs=(-Wall -fuse-ld=mold -march=native -mtune=native)

@@ -269,5 +269,9 @@
     "idf.enableCCache": true,
     "clangd.onConfigChanged": "restart",
     "clangd.arguments": ["--enable-config"],
-    "clangd.useScriptAsExecutable": true
+    "clangd.useScriptAsExecutable": true,
+    "raspberry-pi-pico.useCmakeTools": true,
+    "raspberry-pi-pico.cmakeAutoConfigure": false,
+    "raspberry-pi-pico.cmakePath": "/usr/bin/cmake",
+    "raspberry-pi-pico.ninjaPath": "/usr/bin/ninja"
 }

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Cisco Packet Tracer 9.0.0 (PTSA)
+Type=Application
+Categories=Education;
+Exec=/usr/lib/packettracer/packettracer.AppImage -uri=%u
+Icon=Cisco_Packet_Tracer_9.0.0
+Terminal=false
+StartupNotify=true
+MimeType=x-scheme-handler/pttp;

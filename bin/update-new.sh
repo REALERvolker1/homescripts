@@ -73,7 +73,7 @@ if cmd pacman; then
     fi
     if cmd paru; then
         _head ' paru'
-        unsafe paru -Syu
+        unsafe paru -Syu --sudoloop
     elif cmd yay; then
         _head ' yay'
         unsafe yay -Syyu --devel
