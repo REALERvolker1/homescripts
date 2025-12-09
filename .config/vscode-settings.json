@@ -12,7 +12,8 @@
     },
     "files.associations": {
         "*.rasi": "rasi",
-        "*.h": "c"
+        "*.h": "c",
+        "*.S": "arm"
     },
     "editor.fontLigatures": true,
     "editor.formatOnSave": true,
@@ -175,10 +176,10 @@
     "rust-analyzer.lru.capacity": 512,
     "codeium.aggressiveShutdown": true,
     "[c]": {
-        "editor.defaultFormatter": "chiehyu.vscode-astyle"
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
     },
     "[cpp]": {
-        "editor.defaultFormatter": "chiehyu.vscode-astyle"
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
     },
     "[go]": {
         "editor.defaultFormatter": "golang.go"
@@ -270,8 +271,17 @@
     "clangd.onConfigChanged": "restart",
     "clangd.arguments": ["--enable-config"],
     "clangd.useScriptAsExecutable": true,
-    "raspberry-pi-pico.useCmakeTools": true,
     "raspberry-pi-pico.cmakeAutoConfigure": false,
     "raspberry-pi-pico.cmakePath": "/usr/bin/cmake",
-    "raspberry-pi-pico.ninjaPath": "/usr/bin/ninja"
+    "raspberry-pi-pico.ninjaPath": "/usr/bin/ninja",
+    "rust-analyzer.assist.emitMustUse": true,
+    "rust-analyzer.assist.preferSelf": true,
+    "rust-analyzer.diagnostics.enable": true,
+    "rust-analyzer.hover.memoryLayout.alignment": "hexadecimal",
+    "clangd.useBinaryFromToolchain": true,
+    "clangd.resourceDir.passForClangToolchains": true,
+    "clangd.resourceDir.passForGccToolchains": true,
+    "cmake.showConfigureWithDebuggerNotification": false,
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
 }
