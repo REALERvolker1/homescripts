@@ -16,7 +16,6 @@
         "*.S": "arm"
     },
     "editor.fontLigatures": true,
-    "editor.formatOnSave": true,
     "editor.minimap.enabled": false,
     "editor.minimap.renderCharacters": false,
     "files.defaultLanguage": "shell",
@@ -245,7 +244,7 @@
     "astyle.astylerc": "~/.astylerc",
     "editor.codeActionsOnSave": {},
     "telemetry.feedback.enabled": false,
-    "typescript.experimental.useTsgo": true,
+    "typescript.experimental.useTsgo": false,
     "raspberry-pi-pico.python3Path": "/usr/bin/python",
     "[typescript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -282,6 +281,6 @@
     "clangd.resourceDir.passForClangToolchains": true,
     "clangd.resourceDir.passForGccToolchains": true,
     "cmake.showConfigureWithDebuggerNotification": false,
-    "editor.formatOnPaste": true,
-    "editor.formatOnType": true,
+    "editor.formatOnSave": true,
+    "memory-view.tracking.duplicateDebuggerMemoryViews": false
 }
