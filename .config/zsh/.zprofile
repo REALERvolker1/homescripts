@@ -19,7 +19,8 @@
 
     case $chosen in
     1*)
-        exec Hyprland
+        # exec Hyprland
+        exec start-hyprland
         ;;
     2*)
         exec startx

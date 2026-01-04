@@ -224,7 +224,7 @@
         }
     ],
     "codeium.enableConfig": {
-        "*": false,
+        "*": true,
         "c": false
     },
     // `astyle --indent=spaces=4 --attach-extern-c --attach-closing-while --attach-inlines --attach-namespaces --indent-classes --indent-switches --indent-cases --indent-namespaces --indent-after-parens --indent-modifiers --break-blocks --pad-oper --pad-comma --pad-paren-out --pad-header --delete-empty-lines --squeeze-ws --align-pointer=type --align-reference=name --break-closing-braces --attach-return-type --convert-tabs --lineend=windows`
@@ -282,5 +282,9 @@
     "clangd.resourceDir.passForGccToolchains": true,
     "cmake.showConfigureWithDebuggerNotification": false,
     "editor.formatOnSave": true,
-    "memory-view.tracking.duplicateDebuggerMemoryViews": false
+    "memory-view.tracking.duplicateDebuggerMemoryViews": false,
+    "terminal.integrated.defaultProfile.linux": "zsh",
+    "stm32-for-vscode.openOCDPath": "/usr/bin/openocd",
+    "stm32-for-vscode.makePath": "/usr/bin/make",
+    "stm32-for-vscode.armToolchainPath": "/usr/bin"
 }

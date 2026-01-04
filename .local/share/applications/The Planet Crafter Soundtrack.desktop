@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=The Planet Crafter Soundtrack
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/2902050
+Icon=steam_icon_2902050
+Terminal=false
+Type=Application
+Categories=Game;
