@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Subnautica: Below Zero
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/848450
+Icon=steam_icon_848450
+Terminal=false
+Type=Application
+Categories=Game;

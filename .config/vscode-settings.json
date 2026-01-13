@@ -172,7 +172,7 @@
     "rust-analyzer.hover.actions.references.enable": true,
     "rust-analyzer.inlayHints.lifetimeElisionHints.enable": "skip_trivial",
     "rust-analyzer.inlayHints.rangeExclusiveHints.enable": true,
-    "rust-analyzer.lru.capacity": 512,
+    "rust-analyzer.lru.capacity": 384,
     "codeium.aggressiveShutdown": true,
     "[c]": {
         "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
@@ -224,7 +224,7 @@
         }
     ],
     "codeium.enableConfig": {
-        "*": true,
+        "*": false,
         "c": false
     },
     // `astyle --indent=spaces=4 --attach-extern-c --attach-closing-while --attach-inlines --attach-namespaces --indent-classes --indent-switches --indent-cases --indent-namespaces --indent-after-parens --indent-modifiers --break-blocks --pad-oper --pad-comma --pad-paren-out --pad-header --delete-empty-lines --squeeze-ws --align-pointer=type --align-reference=name --break-closing-braces --attach-return-type --convert-tabs --lineend=windows`
@@ -233,7 +233,6 @@
     "rust-analyzer.typing.autoClosingAngleBrackets.enable": true,
     "rust-analyzer.cargo.allTargets": false,
     "rust-analyzer.hover.memoryLayout.offset": "hexadecimal",
-    "rust-analyzer.imports.preferNoStd": true,
     "rust-analyzer.imports.granularity.group": "one",
     "rust-analyzer.imports.preferPrelude": true,
     "rust-analyzer.imports.prefix": "crate",
@@ -286,5 +285,9 @@
     "terminal.integrated.defaultProfile.linux": "zsh",
     "stm32-for-vscode.openOCDPath": "/usr/bin/openocd",
     "stm32-for-vscode.makePath": "/usr/bin/make",
-    "stm32-for-vscode.armToolchainPath": "/usr/bin"
+    "stm32-for-vscode.armToolchainPath": "/usr/bin",
+    "rust-analyzer.completion.addSemicolonToUnit": false,
+    "rust-analyzer.inlayHints.closureCaptureHints.enable": true,
+    "rust-analyzer.inlayHints.expressionAdjustmentHints.enable": "always",
+    "rust-analyzer.inlayHints.expressionAdjustmentHints.hideOutsideUnsafe": true
 }
