@@ -8,12 +8,12 @@
         "**/.hg": false,
         "**/.svn": false,
         "**/CVS": false,
-        "**/Thumbs.db": false
+        "**/Thumbs.db": false,
     },
     "files.associations": {
         "*.rasi": "rasi",
-        "*.h": "c",
-        "*.S": "arm"
+        // "*.h": "c",
+        "*.S": "arm",
     },
     "editor.fontLigatures": true,
     "editor.minimap.enabled": false,
@@ -41,7 +41,7 @@
     "terminal.integrated.cursorStyle": "line",
     "terminal.integrated.confirmOnExit": "hasChildProcesses",
     "terminal.integrated.drawBoldTextInBrightColors": false,
-    "terminal.integrated.ignoreProcessNames": ["starship", "oh-my-posh", "bash", "zsh", "atuin"],
+    "terminal.integrated.ignoreProcessNames": ["starship", "oh-my-posh", "bash", "zsh", "atuin", "mcfly"],
     // "terminal.integrated.defaultProfile.linux": "bash",
     // "terminal.integrated.profiles.linux": {
     //     "bash": {
@@ -88,43 +88,41 @@
     "vscord.status.buttons.button1.active.enabled": true,
     "vscord.status.buttons.button1.active.url": "https://github.com/REALERvolker1",
     "[jsonc]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
     "explicitFolding.rules": {
         "*": {
             "begin": "{{{",
-            "end": "}}}"
-        }
+            "end": "}}}",
+        },
     },
     "color-highlight.markerType": "outline",
     "color-highlight.markRuler": false,
     // "python.formatting.provider": "none",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.smoothScrolling": true,
-    "[shellscript]": {
-        "editor.defaultFormatter": "foxundermoon.shell-format"
-    },
     "shellformat.flag": "-i 4",
     "[properties]": {
-        "editor.defaultFormatter": null
+        "editor.defaultFormatter": null,
     },
     "vscord.behaviour.suppressNotifications": true,
     "explorer.confirmDragAndDrop": false,
     "workbench.startupEditor": "readme",
     "[rust]": {
-        "editor.defaultFormatter": "rust-lang.rust-analyzer"
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+        "emmet.showAbbreviationSuggestions": false,
     },
     "[python]": {
-        "editor.defaultFormatter": "ms-python.python"
+        "editor.defaultFormatter": "ms-python.python",
     },
     "evenBetterToml.formatter.allowedBlankLines": 2,
     "evenBetterToml.formatter.arrayTrailingComma": true,
     "evenBetterToml.formatter.arrayAutoExpand": true,
     "[toml]": {
-        "editor.defaultFormatter": "tamasfe.even-better-toml"
+        "editor.defaultFormatter": "tamasfe.even-better-toml",
     },
     "[perl]": {
-        "editor.defaultFormatter": "richterger.perl"
+        "editor.defaultFormatter": "richterger.perl",
     },
     "python.autoComplete.extraPaths": ["/home/vlk/.vscode-oss/extensions/continue.continue-0.8.1-linux-x64"],
     "diffEditor.codeLens": true,
@@ -141,7 +139,7 @@
     "python.experiments.optInto": [],
     "html.format.enable": false,
     "[html]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
     "ccls.cache.directory": ".cache/ccls",
     "perl.cacheDir": "${workspace}/.cache/perl-lang",
@@ -156,14 +154,14 @@
         "gitignore",
         "properties",
         "spring-boot-properties",
-        "azcli"
+        "azcli",
     ],
     "vscord.status.idle.enabled": false,
     "python.analysis.extraPaths": ["/home/vlk/.vscode-oss/extensions/continue.continue-0.8.1-linux-x64"],
     "window.zoomLevel": -1,
     "oneDarkPro.bold": true,
     "[lua]": {
-        "editor.defaultFormatter": "JohnnyMorganz.stylua"
+        "editor.defaultFormatter": "JohnnyMorganz.stylua",
     },
     "stylua.configPath": "~/.config/stylua/stylua.toml",
     "stylua.styluaPath": "/usr/bin/stylua",
@@ -172,60 +170,89 @@
     "rust-analyzer.hover.actions.references.enable": true,
     "rust-analyzer.inlayHints.lifetimeElisionHints.enable": "skip_trivial",
     "rust-analyzer.inlayHints.rangeExclusiveHints.enable": true,
-    "rust-analyzer.lru.capacity": 384,
+    "rust-analyzer.lru.capacity": 256,
     "codeium.aggressiveShutdown": true,
     "[c]": {
-        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+        "editor.defaultFormatter": "ebextensions.clang-format-2025",
     },
     "[cpp]": {
-        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+        "editor.defaultFormatter": "ebextensions.clang-format-2025",
     },
     "[go]": {
-        "editor.defaultFormatter": "golang.go"
+        "editor.defaultFormatter": "golang.go",
     },
     "go.diagnostic.vulncheck": "Imports",
     "gitlens.plusFeatures.enabled": false,
+    "better-comments.multilineComments": true,
+    // NOTE: Install extension `@ext:edwinhuish.better-comments-next` for these to work
+    "better-comments.strict": false,
     "better-comments.tags": [
+        //! module-level rustdoc
         {
             "tag": "!",
-            "color": "#FF2D00",
-            "strikethrough": false,
-            "underline": false,
-            "backgroundColor": "transparent",
-            "bold": false,
-            "italic": false
+            "color": "#FF7D7D",
         },
+        //? I almost never use this
         {
             "tag": "?",
-            "color": "#3498DB",
-            "strikethrough": false,
-            "underline": false,
-            "backgroundColor": "transparent",
-            "bold": false,
-            "italic": false
+            "color": "#34C8EB",
         },
+        // regular comment
+        // // commented-out comment. Leave all settings for documentation purposes
         {
             "tag": "//",
-            "color": "#474747",
+            "color": "#707070",
             "strikethrough": true,
             "underline": false,
             "backgroundColor": "transparent",
             "bold": false,
-            "italic": false
+            "italic": false,
+        },
+        /// # Safety
+        /// A safety text section in conventional rustdoc markdown
+        {
+            // SAFETY: Conventional C++/Rust inline safety comment. The next line of code looks sus but trust me it is fine
+            "tag": ["safe", "# safe", "\\safe", "@safe"],
+            "color": "#FF3333",
+            "bold": true,
+        },
+        /// # Panic
+        /// The following jsonc does not panic, that was just a test of a conventional rustdoc panic heading
+        {
+            // PANIC: I labeled this 'panic' instead of 'panics' because some ppl write it singular for some reason.
+            // \throws: exceptions
+            "tag": ["panic", "# panic", "\\throw", "@throw"],
+            "color": "#CD9CFF",
+        },
+
+        /*
+         * TODO: Make multi-line comments work
+         * This would be great!
+         */
+        // TODO: This background color is OK, decide if the contrast is helpful or nah
+        {
+            // @todo This is a javadoc-style todo
+            "tag": ["todo", "@todo", "# todo", "\\todo"],
+            "color": "#FF8C00",
+            "backgroundColor": "#1A1A10",
+        },
+        // FIXME: If I eventually end up porting my ultra-legibility MPLAB theme to vscode,
+        //        I will have to change these colors
+        {
+            "tag": ["fix", "# fix", "@fix", "\\fix"],
+            "color": "#FFD400",
+            "backgroundColor": "#1A1A10",
+            "bold": true,
         },
         {
-            "tag": "todo",
-            "color": "#FF8C00",
-            "strikethrough": false,
-            "underline": false,
-            "backgroundColor": "transparent",
-            "bold": false,
-            "italic": false
-        }
+            "tag": ["hack"],
+            "color": "#9B59B6",
+            "backgroundColor": "#181B22",
+        },
     ],
     "codeium.enableConfig": {
-        "*": false,
-        "c": false
+        "*": true,
+        "c": false,
     },
     // `astyle --indent=spaces=4 --attach-extern-c --attach-closing-while --attach-inlines --attach-namespaces --indent-classes --indent-switches --indent-cases --indent-namespaces --indent-after-parens --indent-modifiers --break-blocks --pad-oper --pad-comma --pad-paren-out --pad-header --delete-empty-lines --squeeze-ws --align-pointer=type --align-reference=name --break-closing-braces --attach-return-type --convert-tabs --lineend=windows`
     "astyle.cmd_options": [],
@@ -246,10 +273,9 @@
     "typescript.experimental.useTsgo": false,
     "raspberry-pi-pico.python3Path": "/usr/bin/python",
     "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
     "biome.configurationPath": ".config/biome.jsonc",
-    "prettier.experimentalTernaries": true,
     "prettier.printWidth": 120,
     "svelte.plugin.svelte.format.config.printWidth": 120,
     "svelte.plugin.svelte.format.config.svelteStrictMode": true,
@@ -257,8 +283,8 @@
         {
             "type": "git-repositoryv2",
             "path": "/home/vlk/.nxp/sdk/mcux_sdk_main",
-            "fromAch": false
-        }
+            "fromAch": false,
+        },
     ],
     "memory-inspector.debugTypes": ["gdb", "embedded-debug", "arm-debugger", "mcuxpresso-debug"],
     "memory-inspector.columns.ascii": true,
@@ -267,7 +293,6 @@
     "codeium.disableSupercomplete": false,
     "idf.enableCCache": true,
     "clangd.onConfigChanged": "restart",
-    "clangd.arguments": ["--enable-config"],
     "clangd.useScriptAsExecutable": true,
     "raspberry-pi-pico.cmakeAutoConfigure": false,
     "raspberry-pi-pico.cmakePath": "/usr/bin/cmake",
@@ -276,10 +301,6 @@
     "rust-analyzer.assist.preferSelf": true,
     "rust-analyzer.diagnostics.enable": true,
     "rust-analyzer.hover.memoryLayout.alignment": "hexadecimal",
-    "clangd.useBinaryFromToolchain": true,
-    "clangd.resourceDir.passForClangToolchains": true,
-    "clangd.resourceDir.passForGccToolchains": true,
-    "cmake.showConfigureWithDebuggerNotification": false,
     "editor.formatOnSave": true,
     "memory-view.tracking.duplicateDebuggerMemoryViews": false,
     "terminal.integrated.defaultProfile.linux": "zsh",
@@ -289,5 +310,35 @@
     "rust-analyzer.completion.addSemicolonToUnit": false,
     "rust-analyzer.inlayHints.closureCaptureHints.enable": true,
     "rust-analyzer.inlayHints.expressionAdjustmentHints.enable": "always",
-    "rust-analyzer.inlayHints.expressionAdjustmentHints.hideOutsideUnsafe": true
+    "rust-analyzer.inlayHints.expressionAdjustmentHints.hideOutsideUnsafe": true,
+    "rust-analyzer.showRequestFailedErrorNotification": false,
+    "rust-analyzer.completion.autoIter.enable": false,
+    "rust-analyzer.hover.memoryLayout.niches": true,
+    "rust-analyzer.inlayHints.implicitDrops.enable": true,
+    "privy.customModel": "glm-4.7:cloud",
+    "privy.model": "custom",
+    "privy.syntaxHighlighting.useVisualStudioCodeColors": true,
+    "privy.indexRepository.enabled": true,
+    "privy.autocomplete.model": "deepseek-r1:latest",
+    "privy.autocomplete.mode": "manual",
+    // "rust-analyzer.server.path": "lspmux",
+    "rust-analyzer.server.path": "rust-analyzer",
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
+    "cmake.ignoreCMakeListsMissing": true,
+    "cmake.showConfigureWithDebuggerNotification": false,
+    "continue.pauseTabAutocompleteOnBattery": true,
+    "wgsl-analyzer.inlayHints.structLayoutHints": true,
+    "[shellscript]": {
+        "editor.defaultFormatter": "mkhl.shfmt",
+    },
+    "yaml.schemas": {
+        "file:///home/vlk/.vscode-oss/extensions/continue.continue-1.2.14-linux-x64/config-yaml-schema.json": [
+            ".continue/**/*.yaml",
+        ],
+        "file:///home/vlk/.vscode-oss/extensions/continue.continue-1.2.16-linux-x64/config-yaml-schema.json": [
+            ".continue/**/*.yaml",
+        ],
+    },
+    "continue.enableTabAutocomplete": false,
 }

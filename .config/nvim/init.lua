@@ -58,6 +58,7 @@ vim.filetype.add({
     extension = {
         rasi = "rasi",
     },
+    pattern = { [".*/hypr/.*%.conf"] = "hyprlang" },
 })
 
 -- try to detect filetype again
@@ -84,13 +85,13 @@ vim.loader.enable()
 
 -- funny rainbow stuff I need for a few plugins
 local rainbow_hl_config = {
-    { key = "RainbowDelimiterRed",    fg = "#E06C75" },
+    { key = "RainbowDelimiterRed", fg = "#E06C75" },
     { key = "RainbowDelimiterYellow", fg = "#E5C07B" },
-    { key = "RainbowDelimiterBlue",   fg = "#61AFEF" },
+    { key = "RainbowDelimiterBlue", fg = "#61AFEF" },
     { key = "RainbowDelimiterOrange", fg = "#D19A66" },
-    { key = "RainbowDelimiterGreen",  fg = "#98C379" },
+    { key = "RainbowDelimiterGreen", fg = "#98C379" },
     { key = "RainbowDelimiterViolet", fg = "#C678DD" },
-    { key = "RainbowDelimiterCyan",   fg = "#56B6C2" },
+    { key = "RainbowDelimiterCyan", fg = "#56B6C2" },
 }
 local delim_highlight = {}
 for _, v in pairs(rainbow_hl_config) do
@@ -113,6 +114,13 @@ if fh ~= nil then
         is_plugged = false
     end
 end
+
+-- local vlk_c_formatter = { "astyle" }
+local vlk_c_formatter = { "clang-format" }
+local vlk_js_formatter = {
+    formatters = { "biome", "prettierd", "prettier" },
+    stop_after_first = true,
+}
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -138,10 +146,6 @@ require("lazy").setup({
             sticky = true,
             toggler = { line = ",", block = "<C-,>" },
         },
-        init = function()
-            local ft = require("Comment.ft")
-            ft.hyprlang = "#%s"
-        end,
     },
     {
         "goolord/alpha-nvim",
@@ -248,6 +252,19 @@ require("lazy").setup({
         },
     },
     {
+        "m00qek/baleia.nvim",
+        version = "*",
+        lazy = true,
+        config = function()
+            vim.g.baleia = require("baleia").setup({})
+
+            -- Command to colorize the current buffer
+            vim.api.nvim_create_user_command("BaleiaColorize", function()
+                vim.g.baleia.once(vim.api.nvim_get_current_buf())
+            end, { bang = true })
+        end,
+    },
+    {
         "folke/which-key.nvim",
         event = "VeryLazy",
         init = function()
@@ -304,10 +321,20 @@ require("lazy").setup({
         version = "*",
         opts = {},
         keys = {
-            { "<M-Down>", "<Cmd>MultipleCursorsAddDown<CR>", mode = { "n", "i" },               desc = "Add multiple cursors down" },
-            { "<M-j>",    "<Cmd>MultipleCursorsAddDown<CR>", desc = "Add multiple cursors down" },
-            { "<M-Up>",   "<Cmd>MultipleCursorsAddUp<CR>",   mode = { "n", "i" },               desc = "Add multiple cursors up" },
-            { "<M-k>",    "<Cmd>MultipleCursorsAddUp<CR>",   desc = "Add multiple cursors up" },
+            {
+                "<M-Down>",
+                "<Cmd>MultipleCursorsAddDown<CR>",
+                mode = { "n", "i" },
+                desc = "Add multiple cursors down",
+            },
+            { "<M-j>", "<Cmd>MultipleCursorsAddDown<CR>", desc = "Add multiple cursors down" },
+            {
+                "<M-Up>",
+                "<Cmd>MultipleCursorsAddUp<CR>",
+                mode = { "n", "i" },
+                desc = "Add multiple cursors up",
+            },
+            { "<M-k>", "<Cmd>MultipleCursorsAddUp<CR>", desc = "Add multiple cursors up" },
             {
                 "<M-LeftMouse>",
                 "<Cmd>MultipleCursorsMouseAddDelete<CR>",
@@ -460,11 +487,6 @@ require("lazy").setup({
         version = "^4",
         dependencies = {
             -- "mfussenegger/nvim-dap",
-            {
-                -- not required after vim 0.10
-                "lvimuser/lsp-inlayhints.nvim",
-                opts = {},
-            },
         },
         enabled = is_plugged,
         ft = { "rust" },
@@ -479,11 +501,11 @@ require("lazy").setup({
                         auto_focus = true,
                     },
                 },
-                server = {
-                    on_attach = function(client, bufnr)
-                        require("lsp-inlayhints").on_attach(client, bufnr)
-                    end,
-                },
+                -- server = {
+                -- on_attach = function(client, bufnr)
+                -- require("lsp-inlayhints").on_attach(client, bufnr)
+                -- end,
+                -- },
             }
         end,
     },
@@ -495,18 +517,16 @@ require("lazy").setup({
         enabled = is_plugged,
         priority = 40,
         config = function()
-            local lspconfig = require("lspconfig")
-
-            lspconfig.bashls.setup({
+            -- vim.lsp.config.rust_analyzer.setup({}) -- causes conflicts with rustaceanvim
+            vim.lsp.config("bashls", {
                 capabilities = capabilities,
             })
-            lspconfig.pyright.setup({ capabilities = capabilities })
-            lspconfig.ts_ls.setup({ capabilities = capabilities })
-            -- lspconfig.rust_analyzer.setup({})
-            lspconfig.perlls.setup({ capabilities = capabilities })
-            lspconfig.autotools_ls.setup({ capabilities = capabilities })
-            lspconfig.nixd.setup({ capabilities = capabilities })
-            lspconfig.jsonls.setup({
+            vim.lsp.config("pyright", { capabilities = capabilities })
+            vim.lsp.config("ts_ls", { capabilities = capabilities })
+            vim.lsp.config("perlls", { capabilities = capabilities })
+            vim.lsp.config("autotools_ls", { capabilities = capabilities })
+            vim.lsp.config("nixd", { capabilities = capabilities })
+            vim.lsp.config("jsonls", {
                 capabilities = capabilities,
 
                 settings = {
@@ -517,7 +537,7 @@ require("lazy").setup({
                     },
                 },
             })
-            lspconfig.lua_ls.setup({
+            vim.lsp.config("lua_ls", {
                 on_init = function(client)
                     local path = client.workspace_folders[1].name
                     if
@@ -545,13 +565,6 @@ require("lazy").setup({
     },
     {
         "nvim-treesitter/nvim-treesitter",
-        dependencies = {
-            {
-                "luckasRanarison/tree-sitter-hyprlang",
-                ft = { "hyprlang" },
-                -- lazy = false,
-            },
-        },
         build = function()
             local ts_update = require("nvim-treesitter.install").update({ with_sync = true })
             ts_update()
@@ -599,6 +612,9 @@ require("lazy").setup({
         -- lazy = false,
         event = { "BufWritePre" },
         cmd = { "ConformInfo" },
+        -- This will provide type hinting with LuaLS
+        ---@module "conform"
+        ---@type conform.setupOpts
         opts = {
             formatters_by_ft = {
                 lua = { "stylua" },
@@ -607,22 +623,33 @@ require("lazy").setup({
                 bash = { "shfmt" },
                 rust = { "rustfmt" },
                 nix = { "nixfmt" },
-                c = { "astyle" },
-                cpp = { "astyle" },
+                c = { "clang-format" },
+                cpp = { "clang-format" },
+                go = { "gofmt" },
                 java = { "astyle" },
+                markdown = { "mdformat", "mdsf" },
+                awk = { "gawk" },
                 -- Conform will run multiple formatters sequentially
                 -- python = { "isort", "black" },
                 -- Use a sub-list to run only the first available formatter
-                javascript = { { "prettierd", "prettier" } },
-                typescript = { { "prettierd", "prettier" } },
-                jsx = { { "prettierd", "prettier" } },
-                css = { { "prettierd", "prettier" } },
-                less = { { "prettierd", "prettier" } },
-                scss = { { "prettierd", "prettier" } },
-                json = { { "prettierd", "prettier" } },
-                json5 = { { "prettierd", "prettier" } },
-                html = { { "prettierd", "prettier" } },
-                yaml = { { "prettierd", "prettier" } },
+                javascript = vlk_js_formatter,
+                typescript = vlk_js_formatter,
+                jsx = vlk_js_formatter,
+                css = vlk_js_formatter,
+                less = vlk_js_formatter,
+                scss = vlk_js_formatter,
+                json = vlk_js_formatter,
+                json5 = vlk_js_formatter,
+                html = vlk_js_formatter,
+                yaml = { "yamlfmt" },
+                python = function(bufnr)
+                    if require("conform").get_formatter_info("ruff_format", bufnr).available then
+                        return { "ruff_format" }
+                    else
+                        return { "ufmt" }
+                    end
+                end,
+                ["_"] = { "trim_whitespace" },
             },
             formatters = {
                 shfmt = {
@@ -644,11 +671,42 @@ require("lazy").setup({
                 astyle = {
                     prepend_args = { "--indent=spaces=" .. vlk_tab_width },
                 },
+                clang_format = {
+                    prepend_args = { "-style=file" },
+                },
+                injected = {
+                    -- Set to true to ignore errors
+                    ignore_errors = true,
+                    -- Map of treesitter language to filetype
+                    lang_to_ft = {
+                        bash = "sh",
+                    },
+                    -- Map of treesitter language to file extension
+                    -- A temporary file name with this extension will be generated during formatting
+                    -- because some formatters care about the filename.
+                    lang_to_ext = {
+                        bash = "sh",
+                        c_sharp = "cs",
+                        elixir = "exs",
+                        javascript = "js",
+                        julia = "jl",
+                        latex = "tex",
+                        markdown = "md",
+                        python = "py",
+                        ruby = "rb",
+                        rust = "rs",
+                        teal = "tl",
+                        typescript = "ts",
+                    },
+                },
             },
-            notify_on_error = true,
+            notify_on_error = false,
+            notify_no_formatters = false,
             format_on_save = {
-                timeout_ms = 200,
+                timeout_ms = 500,
                 lsp_fallback = true,
+                async = false,
+                quiet = true,
             },
         },
     },

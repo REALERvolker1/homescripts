@@ -19,6 +19,7 @@
         // "battery",
         "clock",
         "custom/battery",
+        "cffi/supergfxd",
         // "power-profiles-daemon",
         // "upower",
         "custom/weather",
@@ -26,6 +27,6 @@
         // "custom/supergfx_status",
         "keyboard-state",
         "custom/pointer",
-        "tray"
-    ]
+        "tray",
+    ],
 }

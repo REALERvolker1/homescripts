@@ -21,3 +21,5 @@
 [merge]
     conflictstyle = diff3
 
+[init]
+	defaultBranch = master

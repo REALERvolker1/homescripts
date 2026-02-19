@@ -238,6 +238,9 @@ export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 # fix Supcom FAF
 # [[ -n ${JAVA_HOME-} ]] && export INSTALL4J_JAVA_HOME=${JAVA_HOME-}
 
+export DLSS_SDK="${HOME}/random/DLSS"
+export VULKAN_SDK='/usr/include/vulkan'
+
 # perl, this doesn't really do much at all
 export PERL_CPANM_HOME="$XDG_DATA_HOME/cpanm"
 

@@ -6,9 +6,9 @@
         "format-icons": {
             "urgent": "󰗖",
             "active": "󰝥",
-            "default": "󰝦"
+            "default": "󰝦",
         },
-        "sort-by-number": true
+        "sort-by-number": true,
     },
     "wlr/taskbar": {
         "all-outputs": false,
@@ -16,12 +16,12 @@
         "on-click": "activate",
         "on-click-middle": "close",
         "icon-size": 20,
-        "ignore-list": ["__scratchpad__", "hdropkitty", "xwaylandvideobridge"]
+        "ignore-list": ["__scratchpad__", "hdropkitty", "xwaylandvideobridge"],
     },
     "hyprland/window": {
         "format": "{title:.60}",
         // "rotate": 1,
-        "separate-outputs": true
+        "separate-outputs": true,
     },
     "mpris": {
         "format": "{player_icon} {player:.15} {status_icon}",
@@ -31,13 +31,13 @@
             "chrome": "",
             "chromium": "",
             "firefox": "",
-            "vlc": "󰕼"
+            "vlc": "󰕼",
         },
         "status-icons": {
             "playing": "󰏤",
             "paused": "󰐊",
-            "stopped": "󰓛"
-        }
+            "stopped": "󰓛",
+        },
     },
     "privacy": {
         // not configured, not in waybar release
@@ -46,19 +46,19 @@
             {
                 "type": "screenshare",
                 "tooltip": true,
-                "tooltip-icon-size": 24
+                "tooltip-icon-size": 24,
             },
             {
                 "type": "audio-out",
                 "tooltip": true,
-                "tooltip-icon-size": 24
+                "tooltip-icon-size": 24,
             },
             {
                 "type": "audio-in",
                 "tooltip": true,
-                "tooltip-icon-size": 24
-            }
-        ]
+                "tooltip-icon-size": 24,
+            },
+        ],
     },
     "pulseaudio": {
         "format": "{icon} {volume}%",
@@ -74,11 +74,11 @@
             "phone": "",
             "portable": "",
             "car": "",
-            "default": ["", "", ""]
+            "default": ["", "", ""],
         },
         "scroll-step": 5.0,
         "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-        "on-click-right": "pavucontrol"
+        "on-click-right": "pavucontrol",
     },
     "bluetooth": {
         "format": " {status}",
@@ -88,15 +88,15 @@
         "format-connected": "",
         "format-connected-battery": " {device_battery_percentage}",
         "on-click": "$XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --toggle",
-        "on-click-right": "$XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --manager"
+        "on-click-right": "$XDG_CONFIG_HOME/bar-scripts/bluetooth-bar.sh --manager",
     },
     "memory": {
         "interval": 10,
         "format": "󰭰  {used}GiB",
         "states": {
             "warning": 60,
-            "critical": 80
-        }
+            "critical": 80,
+        },
     },
     "network": {
         "interval": 5,
@@ -104,7 +104,7 @@
         "interface": "wlo1",
         "tooltip": "{ifname}: {essid} ({signalStrength}) {bandwidthUpBits}bps / {bandwidthDownBits}bps",
         "format-icons": ["󰤟", "󰤢", "󰤥", "󰤨"],
-        "on-click": "nm-connection-editor"
+        "on-click": "nm-connection-editor",
     },
     // battery uses inotify, and waybar doesn't kill it so you hit max inotify watches just by restarting
     // "battery": {
@@ -123,12 +123,12 @@
     "clock": {
         "timezone": "America/Chicago",
         "format": "{:%a, %m/%d @ %I:%M %p}",
-        "format-alt": "{:%Y-%m-%d}"
+        "format-alt": "{:%Y-%m-%d}",
     },
     "custom/weather": {
         "exec": "$XDG_CONFIG_HOME/bar-scripts/weather.sh --waybar",
         "return-type": "json",
-        "interval": 300
+        "interval": 300,
     },
     // "custom/supergfx_status": {
     //     "exec": "$XDG_CONFIG_HOME/bar-scripts/supergfx-status.sh"
@@ -136,7 +136,11 @@
     "custom/battery": {
         // "exec": "$XDG_CONFIG_HOME/bar-scripts/upower-cli/target/release/upower-cli --waybar",
         "exec": "$XDG_CONFIG_HOME/rustcfg/power-cli/target/release/power-cli --waybar",
-        "return-type": "json"
+        "return-type": "json",
+    },
+    "cffi/supergfxd": {
+        // "module_path": "/bruh/home/code/c/supergfxd_waybar_plugin/build/libsupergfxbar.so.1.0",
+        "module_path": "/bruh/home/code/rustfr/waybarcffi_touchpad/target/release/libwaybarcffi_touchpad.so",
     },
     // "power-profiles-daemon": {
     //     "format": "{icon}",
@@ -157,8 +161,8 @@
         "scrolllock": false,
         "format-icons": {
             "locked": "", //󰎼
-            "unlocked": "󰎾"
-        }
+            "unlocked": "󰎾",
+        },
     },
     "gamemode": {
         "format": "󰊗 {count}",
@@ -167,19 +171,19 @@
         "hide-not-running": true,
         "use-icon": false,
         "icon-size": 0,
-        "icon-spacing": 0
+        "icon-spacing": 0,
         // "glyph": "󰊗"
     },
     "custom/pointer": {
         // for some reason it won't close the inotify process
         // "exec": "$XDG_CONFIG_HOME/bar-scripts/pointer-monitor/monitor.sh"
-        "exec": "hyprpointer monitor-icon"
+        "exec": "hyprpointer monitor-icon",
         // "exec": "inotifywait -qme close_write $XDG_RUNTIME_DIR/touchpad-statusfile | while read -r line; do echo $(cat ${line%% *}); done"
         // "exec": "pointer.sh -m"
     },
     "tray": {
         "icon-size": 21,
         "spacing": 4,
-        "show-passive-items": true
-    }
+        "show-passive-items": true,
+    },
 }

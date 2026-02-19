@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=No Man's Sky
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/275850
+Icon=steam_icon_275850
+Terminal=false
+Type=Application
+Categories=Game;
