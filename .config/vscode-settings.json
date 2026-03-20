@@ -323,7 +323,6 @@
     "privy.autocomplete.mode": "manual",
     // "rust-analyzer.server.path": "lspmux",
     "rust-analyzer.server.path": "rust-analyzer",
-    "editor.formatOnPaste": true,
     "editor.formatOnType": true,
     "cmake.ignoreCMakeListsMissing": true,
     "cmake.showConfigureWithDebuggerNotification": false,
@@ -333,12 +332,29 @@
         "editor.defaultFormatter": "mkhl.shfmt",
     },
     "yaml.schemas": {
-        "file:///home/vlk/.vscode-oss/extensions/continue.continue-1.2.14-linux-x64/config-yaml-schema.json": [
+        "file:///home/vlk/.vscode-oss/extensions/continue.continue-1.2.16-linux-x64/config-yaml-schema.json": [
             ".continue/**/*.yaml",
         ],
-        "file:///home/vlk/.vscode-oss/extensions/continue.continue-1.2.16-linux-x64/config-yaml-schema.json": [
+        "file:///home/vlk/.vscode-oss/extensions/continue.continue-1.2.17-linux-x64/config-yaml-schema.json": [
             ".continue/**/*.yaml",
         ],
     },
     "continue.enableTabAutocomplete": false,
+    "continue.pauseCodebaseIndexOnStart": true,
+    "idf.gitPath": "/usr/bin/git",
+    "kconfig.python": "/usr/bin/python3",
+    "editor.cursorSurroundingLines": 3,
+    "editor.rulers": [80, 120],
+    "errorLens.ignoreUntitled": true,
+    "errorLens.gutterIconSet": "emoji",
+    "errorLens.gutterEmoji": {
+        "warning": "󰠗",
+        "info": "󰙎",
+        "hint": "󰧛",
+        "error": "",
+    },
+    "errorLens.statusBarColorsEnabled": true,
+    "errorLens.statusBarMessageTemplate": "$count $source : $message",
+    "errorLens.statusBarMessageType": "activeCursor",
+    "errorLens.statusBarMessageEnabled": true,
 }

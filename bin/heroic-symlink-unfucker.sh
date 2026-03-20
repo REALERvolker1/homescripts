@@ -20,7 +20,7 @@ while true; do
     rm "$hgdir/.config"/*(@) &>/dev/null && echo "removed config symlinks"
     rm "$hgdir/.local/share"/*(@) &>/dev/null && echo "removed local-share symlinks"
     rm "$hgdir/"{Music,Pictures,Documents} &>/dev/null && echo "removed home symlinks"
-    inotifywait -qe create "$hgdir/.config" "$hgdir/.local/share" "$hgdir"
+    inotifywait -qe create -e modify "$hgdir/.config" "$hgdir/.local/share" "$hgdir"
 done
 
 wait

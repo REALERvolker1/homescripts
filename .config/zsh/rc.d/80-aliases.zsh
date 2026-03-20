@@ -352,6 +352,22 @@ if ((! ${+commands[fzf]})); then
         done
     }
 fi
+
+cargo_clean_recursive() {
+    local line
+    find "$PWD" -type d -name target | while read -r line; do
+        line="${line%/target*}/Cargo.toml"
+        if [[ -f "$line" ]]; then
+            echo "Cleaning manifest path \`$line\`"
+            cargo clean --manifest-path "$line"
+        fi
+    done
+}
+
+rustc_renice() {
+    sudo renice -n -20 "$(pgrep rustc | head -n 1)"
+}
+
 #!/usr/bin/zsh
 # vim:foldmethod=marker:ft=zsh
 

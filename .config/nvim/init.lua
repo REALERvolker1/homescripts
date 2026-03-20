@@ -627,7 +627,7 @@ require("lazy").setup({
                 cpp = { "clang-format" },
                 go = { "gofmt" },
                 java = { "astyle" },
-                markdown = { "mdformat", "mdsf" },
+                markdown = vlk_js_formatter,
                 awk = { "gawk" },
                 -- Conform will run multiple formatters sequentially
                 -- python = { "isort", "black" },

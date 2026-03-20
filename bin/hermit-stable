@@ -1,0 +1,4 @@
+#!/bin/bash
+: "${HERMIT_EXE:=/home/vlk/.config/goose/mcp-hermit/cache/pkg/hermit@stable/hermit}"
+test -x ${HERMIT_EXE} && exec "${HERMIT_EXE}" "$@"
+(curl -fsSL "https://github.com/cashapp/hermit/releases/download/stable/install.sh" | bash) && exec "${HERMIT_EXE}" "$@"

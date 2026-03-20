@@ -155,4 +155,6 @@ elif [[ -n ${DISPLAY-} ]]; then
     vlk-xrandr.sh &
 fi
 
+_pgrepx ollama serve &
+
 wait
