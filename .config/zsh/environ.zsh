@@ -199,6 +199,8 @@ export FCEUX_HOME="$XDG_CONFIG_HOME/fceux"
 export PARALLEL_HOME="$XDG_CONFIG_HOME/parallel"
 export MOST_INITFILE="$XDG_CONFIG_HOME/mostrc"
 export KDEHOME="$XDG_CONFIG_HOME/kdehome"
+export KERAS_HOME="${XDG_STATE_HOME}/keras"
+export MINETEST_USER_PATH="$XDG_DATA_HOME/minetest"
 #export DISCORD_USER_DATA_DIR="$XDG_DATA_HOME"  # Probably not needed
 
 # I fixed some bugs in this. I don't think they really tested to see if it would compile before they made the release.

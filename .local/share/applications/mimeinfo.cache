@@ -339,6 +339,7 @@ x-scheme-handler/ipns=com.brave.Browser.desktop;
 x-scheme-handler/mailto=com.vivaldi.Vivaldi.desktop;
 x-scheme-handler/mms=vlc.desktop;
 x-scheme-handler/mmsh=vlc.desktop;
+x-scheme-handler/opencode=opencode-desktop-handler.desktop;
 x-scheme-handler/pttp=CiscoPacketTracerPtsa-9.0.0.desktop;
 x-scheme-handler/rtmp=vlc.desktop;
 x-scheme-handler/rtp=vlc.desktop;

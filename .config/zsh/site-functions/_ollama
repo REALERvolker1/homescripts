@@ -1,0 +1,202 @@
+#compdef ollama
+
+# Cached model lists for this shell session.
+typeset -ga _OLLAMA_ALL_MODELS=()
+
+_ollama_util_query_endpoint() {
+    emulate -L zsh
+    set -o pipefail
+    \curl -fsSL "${OLLAMA_HOST:-http://localhost:11434}$1" | \jq -r '.models[]?.name' 2>/dev/null | \sed 's/:/\\:/g'
+}
+
+_ollama__all_models() {
+  emulate -L zsh
+
+  if (( $#_OLLAMA_ALL_MODELS == 0 )); then
+    _OLLAMA_ALL_MODELS=("${(@f)$(_ollama_util_query_endpoint /api/tags)}")
+  fi
+
+  (( $#_OLLAMA_ALL_MODELS )) || return 1
+  _describe -t models 'model' _OLLAMA_ALL_MODELS
+}
+
+_ollama__running_models() {
+  emulate -L zsh
+
+  local -a running
+  running=("${(@f)$(_ollama_util_query_endpoint /api/ps)}")
+
+  _describe -t models 'running model' running
+}
+
+_ollama__int_value() {
+  _message 'integer'
+}
+
+_ollama() {
+  emulate -L zsh
+  local curcontext="$curcontext" state line
+    local -a _OLLAMA_COMPLETION_HELPARGS=('(- *)'{-h,--help}'[Show help]')
+local -a commands=(
+    'serve:Start Ollama'
+    'start:Alias for serve'
+    'create:Create a model'
+    'show:Show information for a model'
+    'run:Run a model'
+    'stop:Stop a running model'
+    'pull:Pull a model from a registry'
+    'push:Push a model to a registry'
+    'signin:Sign in to ollama.com'
+    'signout:Sign out from ollama.com'
+    'list:List models'
+    'ls:Alias for list'
+    'ps:List running models'
+    'cp:Copy a model'
+    'rm:Remove a model'
+    'launch:Launch the Ollama menu or an integration'
+    'help:Help about any command'
+  )
+
+  _arguments -C \
+    $_OLLAMA_COMPLETION_HELPARGS \
+    '(- *)'{-v,--version}'[Show version information]' \
+    '(- *)--nowordwrap[Don'\''t wrap words to the next line automatically]' \
+    '(- *)--verbose[Show timings for response]' \
+    '1:command:->command' \
+    '*::arg:->args'
+
+  case $state in
+    command)
+        _describe -t commands 'ollama command' commands
+      ;;
+    args)
+      case $words[1] in
+        serve|start)
+          return 0
+          ;;
+        create)
+  _arguments -C \
+    '(- *)--experimental[Enable experimental safetensors model creation]' \
+    '(- *)'{-f,--file}'[Name of the Modelfile]:file:_files' \
+    '(- *)'{-q,--quantize}'[Quantize model to this level]:quantize value' \
+    $_OLLAMA_COMPLETION_HELPARGS \
+    '1:model name' \
+    '*::arg:->args'
+          ;;
+        show)
+_arguments -C \
+    $_OLLAMA_COMPLETION_HELPARGS \
+    '(- *)'{-v,--verbose}'[Show detailed model information]' \
+    '(- *)--license[Show license of a model]' \
+    '(- *)--modelfile[Show Modelfile of a model]' \
+    '(- *)--parameters[Show parameters of a model]' \
+    '(- *)--system[Show system message of a model]' \
+    '(- *)--template[Show template of a model]' \
+    '1:model:_ollama__all_models' \
+    '*::arg:->args'
+          ;;
+        run)
+_arguments -C \
+    '(- *)--dimensions=[Truncate output embeddings to specified dimension]:dimension:_ollama__int_value' \
+    '(- *)--experimental[Enable experimental agent loop with tools]' \
+    '(- *)--experimental-websearch[Enable web search tool in experimental mode]' \
+    '(- *)--experimental-yolo[Skip all tool approval prompts (use with caution)]' \
+    '(- *)--format=[Response format (for example json)]:format' \
+    $_OLLAMA_COMPLETION_HELPARGS \
+    '(- *)--hidethinking[Hide thinking output (if provided)]' \
+    '(- *)--insecure[Use an insecure registry]' \
+    '(- *)--keepalive=[Duration to keep a model loaded]:duration' \
+    '(- *)--nowordwrap[Don'\''t wrap words to the next line automatically]' \
+    '(- *)--think=[Enable thinking mode]:mode:(true false high medium low)' \
+    '(- *)--truncate=[Truncate inputs exceeding context length]:truncate:(true false)' \
+    '(- *)'{-v,--verbose}'[Show timings for response]' \
+    '(- *)--width=[Image width]:width:_ollama__int_value' \
+    '(- *)--height=[Image height]:height:_ollama__int_value' \
+    '(- *)--steps=[Denoising steps]:steps:_ollama__int_value' \
+    '(- *)--seed=[Random seed]:seed:_ollama__int_value' \
+    '(- *)--negative=[Negative prompt]:prompt' \
+    '1:model:_ollama__all_models' \
+    '*::arg:->args'
+          ;;
+        stop)
+_arguments -C \
+    $_OLLAMA_COMPLETION_HELPARGS \
+    '1:model:_ollama__running_models' \
+    '*::arg:->args'
+          ;;
+        pull)
+_arguments -C \
+    '(- *)--insecure[Use an insecure registry]' \
+    $_OLLAMA_COMPLETION_HELPARGS \
+    '*::arg:->args'
+          ;;
+        push)
+_arguments -C \
+    $_OLLAMA_COMPLETION_HELPARGS \
+    '(- *)--insecure[Use an insecure registry]' \
+    '1:model:_ollama__all_models' \
+    '*::arg:->args'
+          ;;
+        signin | signout | list | ls | ps)
+            _arguments $_OLLAMA_COMPLETION_HELPARGS
+          ;;
+        cp)
+_arguments -C \
+    $_OLLAMA_COMPLETION_HELPARGS \
+    '1:source:_ollama__all_models' \
+    '2:destination:_ollama__all_models' \
+    '*::arg:->args'
+          ;;
+        rm)
+_arguments -C \
+    $_OLLAMA_COMPLETION_HELPARGS \
+    '*:model:_ollama__all_models'
+          ;;
+        launch)
+
+local -a opts
+  opts=(
+    '(- *)--config[Configure without launching]'
+    $_OLLAMA_COMPLETION_HELPARGS
+    '(- *)'{-y,--yes}'[Automatically answer yes to confirmation prompts]'
+    '(- *)'{-m,--model}'[Model to use]:model:_ollama__all_models'
+  )
+
+  _arguments -C \
+    '1:integration:->integration' \
+    '*::arg:->args'
+
+  case $state in
+    integration)
+local -a integrations=(
+    'claude:Claude Code'
+    'cline:Cline'
+    'codex:Codex'
+    'droid:Droid'
+    'opencode:OpenCode'
+    'openclaw:OpenClaw'
+    'clawdbot:Alias for openclaw'
+    'moltbot:Alias for openclaw'
+    'pi:Pi'
+    'vscode:VS Code'
+    'code:Alias for vscode'
+  )
+  _describe -t integrations 'integration' integrations
+      ;;
+    args)
+      if [[ ${words[(I)--]} -gt 0 && $CURRENT -gt ${words[(I)--]} ]]; then
+        return 0
+      fi
+      _arguments -C "${opts[@]}"
+      ;;
+  esac
+          ;;
+        help)
+            _describe -t commands 'ollama command' commands
+          ;;
+      esac
+      ;;
+  esac
+}
+
+compdef _ollama ollama

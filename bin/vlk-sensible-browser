@@ -1,10 +1,12 @@
-#!/usr/bin/env dash
+#!/usr/bin/env bash
 
 fr='flatpak run'
 if [ -n "$WAYLAND_DISPLAY" ]; then
     export MOZ_ENABLE_WAYLAND=1
     ozone="--enable-features=UseOzonePlatform --ozone-platform=wayland"
 fi
+
+junction=re.sonny.Junction
 
 # browser_class='firefox' or 'LibreWolf' or 'brave-browser'
 # hyprctl clients -j | jq ".[] | select(.class == \"$browser_class\")"
@@ -27,10 +29,10 @@ case "$1" in
     # exec firefox-developer-edition "$@"
     ;;
 *)
-    if command -v re.sonny.Junction &>/dev/null; then
-        exec re.sonny.Junction "$@"
-    elif flatpak list --app --columns=application | grep -q 're.sonny.Junction'; then
-        exec $fr re.sonny.Junction "$@"
+    if command -v "$junction" &>/dev/null; then
+        exec "$junction" "$@"
+    elif flatpak list --app --columns=application | grep -q "$junction"; then
+        exec $fr "$junction" "$@"
     else
         # fallback to self
         exec "$0" 1 "$@"

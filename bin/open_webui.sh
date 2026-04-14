@@ -15,5 +15,6 @@ echo 'ddgs==9.11.3' >"$OVERRIDES_FILE"
 exec uvx \
     --python 3.12 \
     --overrides "$OVERRIDES_FILE" \
+    "$@" \
     open-webui@latest \
     serve

@@ -5,6 +5,7 @@ IFS=$'\t\n'
 set -ueo pipefail
 
 declare -ir MAX_PARALLEL_DOWNLOADS="${MAX_PARALLEL_DOWNLOADS:-5}"
+declare -ar ALLOWED_FILE_EXTENSIONS=(md txt json json5 yaml toml ron mdx md)
 
 panic() {
     printf '%s\n' "$@" >&2
@@ -123,23 +124,39 @@ cd "$OUTPUT_DIR"
 
 output=''
 declare -i i=0
+declare -i is_allowed=0
 
 declare -a outputs=()
 declare -a urls=()
 
 for url in "${mf_urls[@]}"; do
+    is_allowed=0
     # url: https://my-cool_sub%20domain.blogwhore.co.uk/ai%20slop%20generator/docs/modules///img//ai_slop_images.md/
     url_normalizer "$url"
     url="$URL_NORMALIZER_OUTPUT"
 
-    if [[ "$url" != */* ]]; then
+    if [[ $url == *'/' ]]; then
+        url="${url}index.md"
+    elif [[ "$url" != */* ]]; then
         # This was confusing the script when they would have a description of the content
         continue
     fi
 
-    if [[ "$url" != *.md ]]; then
-        url="$url/index.md"
+    for j in "${ALLOWED_FILE_EXTENSIONS[@]}"; do
+        if [[ ${url,,} == *.$j ]]; then
+            is_allowed=1
+            break
+        fi
+    done
+
+    if ((is_allowed == 0)); then
+        echo "Skipping: disallowed file extension: $url"
+        continue
     fi
+
+    # if [[ "$url" != *.md ]]; then
+    # url="$url/index.md"
+    # fi
 
     urls[i]="$url"
     # url: https://my-cool_sub%20domain.blogwhore.co.uk/ai%20slop%20generator/docs/modules/img/ai_slop_images.md
@@ -154,7 +171,7 @@ for url in "${mf_urls[@]}"; do
     output="$OUTPUT_DIR${output}"
     # output: $OUTPUT_DIR/modules/img/ai_slop_images.md
 
-    # Ensure parent dir exists
+    # Ensure parent dir exists before we start shotgunning them with HTTP requests
     # mkdir -p $OUTPUT_DIR/modules/img
     mkdir -p "${output%/*}"
     outputs[i]="$output"
@@ -198,6 +215,7 @@ parallel_downloads() {
     local -i num_downloads=0
     for ((i = 0; i != max; ++i)); do
         if [[ ! -f "${outputs[i]}" ]]; then
+            echo "${urls[i]} => ${outputs[i]}"
             num_downloads=$((num_downloads + 1))
             # Subshells won't errexit us, unfortunately
             (

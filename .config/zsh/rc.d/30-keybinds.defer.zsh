@@ -12,7 +12,7 @@ if [[ ${TERM-} == xterm-kitty ]]; then
     zle -N __vlk::zle::kitty_new_tab
 fi
 
-typeset -A keymap=(
+typeset -Ar keymap=(
     [home]="^[[H"
     [ctrl_home]="^[[1;5H"
     [end]="^[[F"
@@ -33,6 +33,7 @@ typeset -A keymap=(
 
     [ctrl_a]="^A"
     [ctrl_e]="^E"
+    [ctrl_g]="^G"
     [ctrl_t]="^T"
 )
 for i in main vicmd; do
@@ -55,7 +56,7 @@ done
 
 autoload -Uz edit-command-line
 zle -N edit-command-line
-bindkey $keymap[ctrl_e] edit-command-line
+bindkey $keymap[ctrl_g] edit-command-line
 
 bindkey -M main $keymap[alt_s] expand-cmd-path
 
@@ -110,7 +111,7 @@ __vlk::zle::space() {
     # If there are just numbers in there, it is a shortcut for a loop
     elif [[ ${LBUFFER-} =~ ^[0-9]*$ ]]; then
         # only replace when it isn't an actual command
-        if ! whence "$LBUFFER"; then
+        if ! \whence "$LBUFFER"; then
             LBUFFER="for ((i=0;i<$LBUFFER;i++));"
         fi
     fi
@@ -132,29 +133,30 @@ bindkey -M main 'q' __vlk::zle::quit
 
 # Make it so I can tab-complete for homedirs without my plugins breaking everything
 # expands `lns ~rnd/images ~data/backgrounds` to `lns /home/vlk/random/images /home/vlk/.local/share/backgrounds`
-__vlk::zle::expand_nameddirs() {
-    # Only works if there is a tilde
-    if [[ ${LBUFFER:=} != *'~'* ]]; then
-        zle self-insert
-        return
-    fi
-
-    local buffer
-    buffer="${LBUFFER##*'~'}"
-
-    # Prevent lag from typing ~///////
-    if [[ -n $buffer ]]; then
-        # only do one lookup
-        buffer="${nameddirs[$buffer]}"
-        if [[ -n $buffer ]]; then
-            LBUFFER="${LBUFFER%'~'*}$buffer"
-        fi
-    fi
-
-    zle self-insert
-}
-zle -N __vlk::zle::expand_nameddirs
-bindkey -M main '/' __vlk::zle::expand_nameddirs
+# THE ISSUE WAS FINALLY FIXED!!
+# __vlk::zle::expand_nameddirs() {
+#     # Only works if there is a tilde
+#     if [[ ${LBUFFER:=} != *'~'* ]]; then
+#         zle self-insert
+#         return
+#     fi
+#
+#     local buffer
+#     buffer="${LBUFFER##*'~'}"
+#
+#     # Prevent lag from typing ~///////
+#     if [[ -n $buffer ]]; then
+#         # only do one lookup
+#         buffer="${nameddirs[$buffer]}"
+#         if [[ -n $buffer ]]; then
+#             LBUFFER="${LBUFFER%'~'*}$buffer"
+#         fi
+#     fi
+#
+#     zle self-insert
+# }
+# zle -N __vlk::zle::expand_nameddirs
+# bindkey -M main '/' __vlk::zle::expand_nameddirs
 
 # I forget where I found this or why it's useful,
 # but from what I can see, it probably makes sure to unfuck some stty stuff

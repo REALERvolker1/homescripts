@@ -37,6 +37,8 @@ cmd() { command -v "$@" &>/dev/null; }
 sudo -vn &>/dev/null || echo "This script requires sudo"
 sudo -v
 
+export RUSTFLAGS='-Ctarget-cpu=native'
+
 if [[ -f /etc/os-release ]]; then
     DISTRO_COLOR="$(grep -oP '^ANSI_COLOR="\K[^"]*' /etc/os-release || echo '31')"
 else

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=OpenCode
+Exec=/usr/bin/opencode-desktop %u
+Terminal=false
+MimeType=x-scheme-handler/opencode
+NoDisplay=true

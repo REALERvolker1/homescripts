@@ -251,7 +251,7 @@
         },
     ],
     "codeium.enableConfig": {
-        "*": true,
+        "*": false,
         "c": false,
     },
     // `astyle --indent=spaces=4 --attach-extern-c --attach-closing-while --attach-inlines --attach-namespaces --indent-classes --indent-switches --indent-cases --indent-namespaces --indent-after-parens --indent-modifiers --break-blocks --pad-oper --pad-comma --pad-paren-out --pad-header --delete-empty-lines --squeeze-ws --align-pointer=type --align-reference=name --break-closing-braces --attach-return-type --convert-tabs --lineend=windows`
@@ -301,7 +301,7 @@
     "rust-analyzer.assist.preferSelf": true,
     "rust-analyzer.diagnostics.enable": true,
     "rust-analyzer.hover.memoryLayout.alignment": "hexadecimal",
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "memory-view.tracking.duplicateDebuggerMemoryViews": false,
     "terminal.integrated.defaultProfile.linux": "zsh",
     "stm32-for-vscode.openOCDPath": "/usr/bin/openocd",
@@ -323,7 +323,7 @@
     "privy.autocomplete.mode": "manual",
     // "rust-analyzer.server.path": "lspmux",
     "rust-analyzer.server.path": "rust-analyzer",
-    "editor.formatOnType": true,
+    "editor.formatOnType": false,
     "cmake.ignoreCMakeListsMissing": true,
     "cmake.showConfigureWithDebuggerNotification": false,
     "continue.pauseTabAutocompleteOnBattery": true,
@@ -333,11 +333,23 @@
     },
     "yaml.schemas": {
         "file:///home/vlk/.vscode-oss/extensions/continue.continue-1.2.16-linux-x64/config-yaml-schema.json": [
-            ".continue/**/*.yaml",
+            ".continue/**/*.yaml"
         ],
         "file:///home/vlk/.vscode-oss/extensions/continue.continue-1.2.17-linux-x64/config-yaml-schema.json": [
-            ".continue/**/*.yaml",
+            ".continue/**/*.yaml"
         ],
+        "file:///home/vlk/.vscode-oss/extensions/continue.continue-1.2.18-linux-x64/config-yaml-schema.json": [
+            ".continue/**/*.yaml"
+        ],
+        "file:///home/vlk/.vscode-oss/extensions/continue.continue-1.2.19-linux-x64/config-yaml-schema.json": [
+            ".continue/**/*.yaml"
+        ],
+        "file:///home/vlk/.vscode-oss/extensions/continue.continue-1.2.21-linux-x64/config-yaml-schema.json": [
+            ".continue/**/*.yaml"
+        ],
+        "file:///home/vlk/.vscode-oss/extensions/continue.continue-1.2.22-linux-x64/config-yaml-schema.json": [
+            ".continue/**/*.yaml"
+        ]
     },
     "continue.enableTabAutocomplete": false,
     "continue.pauseCodebaseIndexOnStart": true,
@@ -357,4 +369,6 @@
     "errorLens.statusBarMessageTemplate": "$count $source : $message",
     "errorLens.statusBarMessageType": "activeCursor",
     "errorLens.statusBarMessageEnabled": true,
+    "python.REPL.enableREPLSmartSend": false,
+    "editor.formatOnPaste": false,
 }
