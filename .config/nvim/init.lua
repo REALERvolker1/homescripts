@@ -288,13 +288,20 @@ require("lazy").setup({
         event = "BufEnter",
         opts = {
             easing_function = "quadratic",
+            duration_multiplier = 0.75,
         },
     },
-    {
+    --[[{
         "petertriho/nvim-scrollbar",
         event = "BufEnter",
-        -- lazy = false,
         config = true,
+    }, ]]
+    {
+        "dstein64/nvim-scrollview",
+        event = "BufEnter",
+        opts = {
+            hide_on_text_intersect = true,
+        },
     },
     --[[{
         "chrisgrieser/nvim-spider",
@@ -575,7 +582,7 @@ require("lazy").setup({
             highlight = {
                 enable = true,
                 disable = function(lang, buf)
-                    local max_filesize = 100 * 1024 -- 100 KB
+                    local max_filesize = 102400 -- 100 KB
                     local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
                     if ok and stats and stats.size > max_filesize then
                         return true
