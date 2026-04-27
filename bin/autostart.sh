@@ -102,7 +102,7 @@ if [[ -n ${WAYLAND_DISPLAY-} ]]; then
     hyprpaper &
 
     # wl-clip-persist --clipboard regular   # Bug: Automatically clears my clipboard
-    wl-paste -t text --watch clipman store --histpath="$XDG_RUNTIME_DIR/virus.bin"
+    wl-paste -t text --watch clipman store --histpath="$XDG_RUNTIME_DIR/virus.bin" &!
 
     if [[ -n ${HYPRLAND_INSTANCE_SIGNATURE-} ]]; then
         # _pgrepx hyprpointer status-monitor &
@@ -110,7 +110,8 @@ if [[ -n ${WAYLAND_DISPLAY-} ]]; then
     fi
 
     (
-        sleep 5
+        # sleep 5
+        # TODO: This doesn't work without reloading hyprland (thereby running it through `$XDG_CONFIG_HOME/scripts/reload.sh`
         _pgrepx waybar
     ) &
 
@@ -155,6 +156,6 @@ elif [[ -n ${DISPLAY-} ]]; then
     vlk-xrandr.sh &
 fi
 
-_pgrepx ollama serve &
+# _pgrepx ollama serve &
 
 wait

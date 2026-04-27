@@ -8,7 +8,11 @@ if [ "${USER:=$(whoami)}" = root ]; then
     exit 1
 fi
 
+declare -a yes=()
 [[ ${1-} == --shutdown ]] && command -v systemctl &>/dev/null && SHUTDOWN=1
+if [[ ${1-} == -y ]]; then
+    yes=(-y)
+fi
 
 unsafe() {
     set +euo pipefail
@@ -52,10 +56,10 @@ if cmd apt; then
     unsafe
     if cmd nala; then
         _head ' nala'
-        sudo nala update && sudo nala upgrade
+        sudo nala update && sudo nala upgrade "${yes[@]}"
     else
         _head ' apt'
-        sudo apt update && sudo apt upgrade
+        sudo apt update && sudo apt upgrade "${yes[@]}"
     fi
     safe
 fi
@@ -75,13 +79,13 @@ if cmd pacman; then
     fi
     if cmd paru; then
         _head ' paru'
-        unsafe paru -Syu --sudoloop
+        unsafe paru -Syu --sudoloop "${yes[@]/y/-noconfirm}"
     elif cmd yay; then
         _head ' yay'
-        unsafe yay -Syyu --devel
+        unsafe yay -Syyu --devel --sudoloop --noremovemake "${yes[@]/y/-noconfirm}"
     else
         _head ' pacman'
-        unsafe sudo pacman -Syyu
+        unsafe sudo pacman -Syyu "${yes[@]/y/-noconfirm}"
     fi
     # if cmd reflector; then
     # unsafe sudo reflector '@/etc/xdg/reflector/reflector.conf' --save '/etc/pacman.d/mirrorlist' &

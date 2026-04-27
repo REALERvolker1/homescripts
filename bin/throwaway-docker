@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-if [[ "$(id "$USER")" != *'(docker)'* ]]; then
-    echo "Error, $USER must be in group 'docker' (sudo usermod -aG '$USER' 'docker')"
-    exit 1
-fi
+# if [[ "$(id "$USER")" != *'(docker)'* ]]; then
+# echo "Error, $USER must be in group 'docker' (sudo usermod -aG '$USER' 'docker')"
+# exit 1
+# fi
 
 set -eu
 stty="$(stty --save)"
