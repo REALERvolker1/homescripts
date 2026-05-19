@@ -1,8 +1,8 @@
 [Context]
-filesystems=xdg-config/gtk-4.0;xdg-config/gtk-2.0:ro;xdg-data/fonts:ro;xdg-config/fontconfig:ro;xdg-config/Kvantum:ro;xdg-config/gtk-3.0;~/random:ro;xdg-data/icons:ro;
+filesystems=xdg-config/gtk-4.0;xdg-config/gtk-2.0:ro;xdg-data/fonts:ro;xdg-config/fontconfig:ro;xdg-config/gtk-3.0;~/random:ro;xdg-data/icons:ro;xdg-config/Kvantum:ro;
 
 [Environment]
-XCURSOR_THEME=GoogleDot-Purple
-XCURSOR_SIZE=24
 QT_STYLE_OVERRIDE=kvantum
+XCURSOR_SIZE=24
 QT_SCALE_FACTOR=1.25
+XCURSOR_THEME=GoogleDot-Purple

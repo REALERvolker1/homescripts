@@ -1,0 +1,20 @@
+[package]
+name = "dumbfetch2"
+version = "0.1.0"
+edition = "2024"
+# This MSRV guarantees no UB for our use of `MaybeUninit<[T; N]>`
+rust-version = "1.95"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = true
+opt-level = 3
+panic = "abort"
+
+[profile.dev]
+panic = "abort"
+
+[dependencies]
+arrayvec = { version = "0.7.6", default-features = false }
+libc = { version = "0.2.186", default-features = false }

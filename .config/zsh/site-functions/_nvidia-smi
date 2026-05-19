@@ -1,0 +1,1297 @@
+#compdef nvidia-smi
+
+# nvidia-smi has a wide option surface and no first-party completion file. Keep
+# the tables flat and close to `nvidia-smi --help`/nvidia-smi(1) so future
+# driver updates are mostly handled by editing data rather than control flow.
+typeset -ga _NVIDIA_SMI_HELP_ARGS=(
+  '(- *)'{-h,--help}'[Print usage information]'
+)
+
+# Top-level subcommands are centralized because new NVIDIA drivers add these
+# more often than they change the core parser shape.
+typeset -ga _NVIDIA_SMI_COMMANDS=(
+  'dmon:Display device stats in scrolling format'
+  'daemon:Monitor devices in the background'
+  'replay:Replay or extract daemon logs'
+  'pmon:Display process stats in scrolling format'
+  'topo:Display device and system topology'
+  'drain:Display or modify GPU drain states'
+  'nvlink:Display device NVLink information'
+  'c2c:Display device C2C information'
+  'clocks:Control and query clock information'
+  'encodersessions:Display encoder session information'
+  'fbcsessions:Display FBC session information'
+  'vgpu:Display vGPU information'
+  'mig:Manage MIG instances'
+  'compute-policy:Control and query compute policies'
+  'boost-slider:Control and query boost sliders'
+  'power-hint:Estimate GPU power usage'
+  'base-clocks:Query GPU base clocks'
+  'conf-compute:Control and query confidential compute'
+  'gpm:Control and query GPU performance monitoring'
+  'pci:Display device PCI information'
+  'power-smoothing:Control and query power smoothing'
+  'power-profiles:Control and query workload power profiles'
+  'rusd:Set RUSD settings'
+  'prm:Query GPU PRM registers and counters'
+  'soc:Query system-on-chip metrics on Tegra Linux'
+)
+
+# nvidia-smi -q -d accepts only these section names and combines them with
+# commas, so the values live in one list shared by static and comma helpers.
+typeset -ga _NVIDIA_SMI_DISPLAY_SECTIONS=(
+  'MEMORY:FB/BAR1 memory usage'
+  'UTILIZATION:GPU engine utilization'
+  'ECC:ECC mode and error counts'
+  'TEMPERATURE:Temperature readings'
+  'POWER:Power readings and limits'
+  'CLOCK:Clock frequencies'
+  'COMPUTE:Compute mode information'
+  'PIDS:Running process information'
+  'PERFORMANCE:Performance state and clock event reasons'
+  'SUPPORTED_CLOCKS:Supported memory and graphics clocks'
+  'PAGE_RETIREMENT:Retired page information'
+  'ACCOUNTING:Accounting mode and process stats'
+  'ENCODER_STATS:Encoder utilization and sessions'
+  'SUPPORTED_GPU_TARGET_TEMP:Supported GPU target temperatures'
+  'VOLTAGE:Voltage information'
+  'FBC_STATS:FBC session statistics'
+  'ROW_REMAPPER:Row remapper status'
+  'GSP_FIRMWARE_VERSION:GSP firmware version'
+  'POWER_SMOOTHING:Power smoothing status'
+  'POWER_PROFILES:Workload power profile status'
+)
+
+# This list intentionally favors common, stable --query-gpu fields. The
+# experimental completion can query the driver exact --help-query-gpu output
+# when that help page is available.
+typeset -ga _NVIDIA_SMI_QUERY_GPU_PROPERTIES=(
+  'timestamp:sample timestamp'
+  'driver_version:NVIDIA driver version'
+  'cuda_version:CUDA version supported by the driver'
+  'name:product name'
+  'gpu_name:product name alias'
+  'index:GPU index'
+  'uuid:GPU UUID'
+  'serial:board serial number'
+  'pci.bus_id:PCI bus ID'
+  'pci.domain:PCI domain'
+  'pci.bus:PCI bus'
+  'pci.device:PCI device'
+  'pci.device_id:PCI device ID'
+  'pci.sub_device_id:PCI subsystem ID'
+  'pci.base_class:PCI base class code'
+  'pci.sub_class:PCI subclass code'
+  'pcie.link.gen.current:current PCIe generation'
+  'pcie.link.gen.max:max PCIe generation'
+  'pcie.link.width.current:current PCIe link width'
+  'pcie.link.width.max:max PCIe link width'
+  'vbios_version:VBIOS version'
+  'inforom.img:InfoROM image version'
+  'inforom.oem:InfoROM OEM object version'
+  'inforom.ecc:InfoROM ECC object version'
+  'inforom.pwr:InfoROM power object version'
+  'inforom.checksum_validation:InfoROM checksum status'
+  'persistence_mode:persistence mode'
+  'accounting.mode:accounting mode'
+  'accounting.buffer_size:accounting buffer size'
+  'driver_model.current:current driver model'
+  'driver_model.pending:pending driver model'
+  'display_mode:display mode'
+  'display_active:display active state'
+  'gom.current:current GPU operation mode'
+  'gom.pending:pending GPU operation mode'
+  'mig.mode.current:current MIG mode'
+  'mig.mode.pending:pending MIG mode'
+  'gpu_recovery_action:recommended GPU recovery action'
+  'gsp_firmware_version:GSP firmware version'
+  'compute_mode:compute mode'
+  'utilization.gpu:GPU utilization'
+  'utilization.memory:memory utilization'
+  'utilization.encoder:encoder utilization'
+  'utilization.decoder:decoder utilization'
+  'utilization.jpeg:JPEG utilization'
+  'utilization.ofa:OFA utilization'
+  'memory.total:total FB memory'
+  'memory.reserved:reserved FB memory'
+  'memory.used:used FB memory'
+  'memory.free:free FB memory'
+  'bar1.memory.total:total BAR1 memory'
+  'bar1.memory.used:used BAR1 memory'
+  'bar1.memory.free:free BAR1 memory'
+  'temperature.gpu:GPU temperature'
+  'temperature.memory:memory temperature'
+  'temperature.gpu.tlimit:GPU thermal limit margin'
+  'temperature.gpu.slowdown:GPU slowdown threshold'
+  'temperature.gpu.shutdown:GPU shutdown threshold'
+  'temperature.gpu.max_threshold:GPU max operating threshold'
+  'power.draw:power draw'
+  'power.draw.average:average board power draw'
+  'power.draw.instant:instant board power draw'
+  'power.limit:requested power limit'
+  'enforced.power.limit:enforced power limit'
+  'power.default_limit:default power limit'
+  'power.min_limit:min power limit'
+  'power.max_limit:max power limit'
+  'module.power.draw.average:average module power draw'
+  'module.power.draw.instant:instant module power draw'
+  'module.power.limit:requested module power limit'
+  'module.enforced.power.limit:enforced module power limit'
+  'module.power.default_limit:default module power limit'
+  'module.power.min_limit:min module power limit'
+  'module.power.max_limit:max module power limit'
+  'clocks.current.graphics:current graphics clock'
+  'clocks.current.sm:current SM clock'
+  'clocks.current.memory:current memory clock'
+  'clocks.current.video:current video clock'
+  'clocks.max.graphics:max graphics clock'
+  'clocks.max.sm:max SM clock'
+  'clocks.max.memory:max memory clock'
+  'clocks.max.video:max video clock'
+  'clocks.applications.graphics:applications graphics clock'
+  'clocks.applications.memory:applications memory clock'
+  'clocks.default_applications.graphics:default applications graphics clock'
+  'clocks.default_applications.memory:default applications memory clock'
+  'clocks_throttle_reasons.active:active clock throttle reasons'
+  'clocks_throttle_reasons.gpu_idle:GPU idle throttle reason'
+  'clocks_throttle_reasons.applications_clocks_setting:applications clock throttle reason'
+  'clocks_throttle_reasons.sw_power_cap:software power cap throttle reason'
+  'clocks_throttle_reasons.hw_slowdown:hardware slowdown throttle reason'
+  'clocks_throttle_reasons.hw_thermal_slowdown:hardware thermal slowdown reason'
+  'clocks_throttle_reasons.hw_power_brake_slowdown:hardware power brake reason'
+  'clocks_throttle_reasons.sw_thermal_slowdown:software thermal slowdown reason'
+  'clocks_throttle_reasons.sync_boost:sync boost throttle reason'
+  'clocks_event_reasons.active:active clock event reasons'
+  'clocks_event_reasons.sw_power_cap:software power cap event reason'
+  'clocks_event_reasons.sw_thermal_slowdown:software thermal event reason'
+  'clocks_event_reasons.hw_thermal_slowdown:hardware thermal event reason'
+  'clocks_event_reasons.hw_power_brake_slowdown:hardware power brake event reason'
+  'encoder.stats.sessionCount:active encoder sessions'
+  'encoder.stats.averageFps:average encoder FPS'
+  'encoder.stats.averageLatency:average encoder latency'
+  'ecc.mode.current:current ECC mode'
+  'ecc.mode.pending:pending ECC mode'
+  'ecc.errors.corrected.volatile.total:volatile corrected ECC total'
+  'ecc.errors.corrected.aggregate.total:aggregate corrected ECC total'
+  'ecc.errors.uncorrected.volatile.total:volatile uncorrected ECC total'
+  'ecc.errors.uncorrected.aggregate.total:aggregate uncorrected ECC total'
+  'retired_pages.single_bit_ecc.count:single-bit retired page count'
+  'retired_pages.double_bit.count:double-bit retired page count'
+  'retired_pages.pending:pending retired pages'
+  'remapped_rows.correctable:correctable remapped rows'
+  'remapped_rows.uncorrectable:uncorrectable remapped rows'
+  'remapped_rows.pending:pending remapped rows'
+  'remapped_rows.failure:row remapping failure state'
+  'platform.gpu_fabric_guid:GPU fabric GUID'
+)
+
+# The selective query help pages expose these smaller property sets separately;
+# keeping separate arrays makes --query-* completion precise without special
+# parser logic.
+typeset -ga _NVIDIA_SMI_QUERY_SUPPORTED_CLOCKS_PROPERTIES=(
+  'timestamp:sample timestamp'
+  'gpu_name:product name'
+  'gpu_uuid:GPU UUID'
+  'memory:supported memory clock'
+  'graphics:supported graphics clock'
+)
+
+typeset -ga _NVIDIA_SMI_QUERY_COMPUTE_APPS_PROPERTIES=(
+  'timestamp:sample timestamp'
+  'gpu_name:product name'
+  'gpu_uuid:GPU UUID'
+  'pid:process ID'
+  'process_name:process name'
+  'used_memory:used GPU memory'
+)
+
+typeset -ga _NVIDIA_SMI_QUERY_ACCOUNTED_APPS_PROPERTIES=(
+  'timestamp:sample timestamp'
+  'gpu_name:product name'
+  'gpu_uuid:GPU UUID'
+  'pid:process ID'
+  'process_name:process name'
+  'gpu_util:average GPU utilization'
+  'mem_util:average memory utilization'
+  'max_memory_usage:max memory usage'
+  'time:process execution time'
+)
+
+typeset -ga _NVIDIA_SMI_QUERY_RETIRED_PAGES_PROPERTIES=(
+  'timestamp:sample timestamp'
+  'gpu_name:product name'
+  'gpu_uuid:GPU UUID'
+  'retired_pages.address:retired page address'
+  'retired_pages.cause:retired page cause'
+)
+
+typeset -ga _NVIDIA_SMI_QUERY_REMAPPED_ROWS_PROPERTIES=(
+  'timestamp:sample timestamp'
+  'gpu_name:product name'
+  'gpu_uuid:GPU UUID'
+  'remapped_rows.correctable:correctable remapped rows'
+  'remapped_rows.uncorrectable:uncorrectable remapped rows'
+  'remapped_rows.pending:pending remapped rows'
+  'remapped_rows.failure:row remapping failure state'
+)
+
+typeset -ga _NVIDIA_SMI_PRM_REGISTERS=(
+  GHPKT MCAM MGIR MLPC MORD MPSCR MTCAP MTECR MTEIM MTEWE MTIE MTIM MTRC_CAP
+  MTRC_CONF MTRC_CTRL MTSR PAOS PDDR PGUID PLIB PLTC PMAOS PMLP PMTU PPAOS
+  PPCNT PPHCR PPLM PPLR PPRM PPRT PPSLC PPSLS PPTT PTYS SLRG SLTP
+)
+
+typeset -ga _NVIDIA_SMI_PRM_COUNTERS=(
+  'link_down_events:PPCNT physical-layer link down events'
+  'oper_recovery:PPRM operational recovery'
+  'plr_rcv_code_err:PPCNT PLR receive code errors'
+  'plr_rcv_codes:PPCNT PLR receive codes'
+  'plr_rcv_uncorrectable_code:PPCNT uncorrectable PLR receive codes'
+  'plr_retry_codes:PPCNT PLR retry codes'
+  'plr_sync_events:PPCNT PLR sync events'
+  'plr_xmit_codes:PPCNT PLR transmit codes'
+  'plr_xmit_retry_events:PPCNT PLR transmit retry events'
+  'port_xmit_wait:PPCNT port transmit wait'
+  'successful_recovery_events:PPCNT successful recovery events'
+  'time_between_last_2_recoveries:PPCNT time between recoveries'
+  'time_since_last_recovery:PPCNT time since recovery'
+  'total_successful_recovery_events:PPCNT total successful recovery events'
+)
+
+_nvidia_smi__describe_entries() {
+  emulate -L zsh
+
+  local tag=$1 descr=$2 entry key
+  shift 2
+  local -a matches=()
+  local -A seen=()
+
+  # Several helpers combine live IDs with static placeholders. Deduping on the
+  # inserted word keeps completion menus readable when sources overlap.
+  for entry in "$@"; do
+    [[ -n $entry ]] || continue
+    key=${entry%%:*}
+    [[ -n ${seen[$key]} ]] && continue
+    seen[$key]=1
+    matches+=("$entry")
+  done
+
+  (( $#matches )) || return 1
+  _describe -t "$tag" "$descr" matches
+}
+
+_nvidia_smi__comma_values() {
+  emulate -L zsh
+
+  local helper=$1
+
+  # nvidia-smi uses comma-separated words for IDs, query fields, and metric
+  # groups. _sequence preserves normal compsys behavior for the current segment
+  # and prevents already-entered values from being suggested again.
+  _sequence -s , "$helper"
+}
+
+_nvidia_smi__integer() {
+  emulate -L zsh
+
+  # Numeric options are ranges or device-dependent values in NVIDIA help, so
+  # _guard documents the shape without inventing false completions.
+  _guard '[0-9]#' 'integer'
+}
+
+_nvidia_smi__number() {
+  emulate -L zsh
+
+  # Power limits and percentages can be decimal. A shape guard is safer than a
+  # static range because valid bounds depend on the selected GPU.
+  _guard '[0-9]#[.]?[0-9]#' 'number'
+}
+
+_nvidia_smi__time_hms() {
+  emulate -L zsh
+
+  # replay accepts either HH:MM:SS or 0 for file start/end. The common shapes
+  # are useful hints, but arbitrary validation belongs to nvidia-smi itself.
+  _message 'HH:MM:SS or 0'
+}
+
+_nvidia_smi__pci_id() {
+  emulate -L zsh
+
+  # Drain mode wants the PCI address instead of the broader GPU ID grammar.
+  _message 'PCI ID in domain:bus:device.function form'
+}
+
+_nvidia_smi__gpu_ids() {
+  emulate -L zsh
+
+  local line
+  local -a ids=()
+
+  # Live GPU indexes and UUIDs are the most useful ID completions, but this
+  # must fail quietly on machines where the NVIDIA driver is not loaded.
+  if (( $+commands[nvidia-smi] )); then
+    for line in "${(@f)$({ \nvidia-smi -L } 2>/dev/null)}"; do
+      if [[ $line == (#b)GPU[[:space:]]##([0-9]##):* ]]; then
+        ids+=("${match[1]}:GPU index")
+      fi
+      if [[ $line == *UUID:\ *\) ]]; then
+        ids+=("${${line##*UUID: }%)}:GPU UUID")
+      fi
+    done
+  fi
+
+  _nvidia_smi__describe_entries gpu-ids 'GPU ID' "${ids[@]}" \
+    '0:GPU index' 'GPU-:GPU UUID prefix' || _message 'GPU index, UUID, serial, or PCI bus ID'
+}
+
+_nvidia_smi__gpu_id_list() {
+  emulate -L zsh
+
+  # ID lists are common across root queries and subcommands, so one wrapper
+  # keeps comma handling consistent.
+  _nvidia_smi__comma_values _nvidia_smi__gpu_ids
+}
+
+_nvidia_smi__unit_ids() {
+  emulate -L zsh
+
+  # Unit IDs are rarely available on modern desktop systems, so keep the helper
+  # generic instead of pretending GPU IDs are valid here.
+  _message 'unit index'
+}
+
+_nvidia_smi__format_values() {
+  emulate -L zsh
+
+  local -a formats=(
+    'csv:comma-separated values'
+    'noheader:omit the header row'
+    'nounits:omit units from numeric values'
+  )
+
+  _nvidia_smi__describe_entries formats 'format option' formats
+}
+
+_nvidia_smi__format_list() {
+  emulate -L zsh
+
+  # --format requires csv and optionally accepts modifiers, all in one comma
+  # word. _sequence makes completion match that command grammar.
+  _nvidia_smi__comma_values _nvidia_smi__format_values
+}
+
+_nvidia_smi__display_section() {
+  emulate -L zsh
+
+  _nvidia_smi__describe_entries display-sections 'display section' \
+    "${_NVIDIA_SMI_DISPLAY_SECTIONS[@]}"
+}
+
+_nvidia_smi__display_section_list() {
+  emulate -L zsh
+
+  # -d/--display allows combinations such as ECC,POWER.
+  _nvidia_smi__comma_values _nvidia_smi__display_section
+}
+
+_nvidia_smi__query_gpu_properties() {
+  emulate -L zsh
+
+  _nvidia_smi__comma_values _nvidia_smi__query_gpu_property
+}
+
+_nvidia_smi__query_gpu_property() {
+  emulate -L zsh
+
+  _nvidia_smi__describe_entries query-gpu-properties 'GPU query property' \
+    "${_NVIDIA_SMI_QUERY_GPU_PROPERTIES[@]}"
+}
+
+_nvidia_smi__query_supported_clocks_properties() {
+  emulate -L zsh
+
+  _nvidia_smi__comma_values _nvidia_smi__query_supported_clocks_property
+}
+
+_nvidia_smi__query_supported_clocks_property() {
+  emulate -L zsh
+
+  _nvidia_smi__describe_entries query-supported-clocks-properties \
+    'supported-clocks query property' "${_NVIDIA_SMI_QUERY_SUPPORTED_CLOCKS_PROPERTIES[@]}"
+}
+
+_nvidia_smi__query_compute_apps_properties() {
+  emulate -L zsh
+
+  _nvidia_smi__comma_values _nvidia_smi__query_compute_apps_property
+}
+
+_nvidia_smi__query_compute_apps_property() {
+  emulate -L zsh
+
+  _nvidia_smi__describe_entries query-compute-apps-properties \
+    'compute-apps query property' "${_NVIDIA_SMI_QUERY_COMPUTE_APPS_PROPERTIES[@]}"
+}
+
+_nvidia_smi__query_accounted_apps_properties() {
+  emulate -L zsh
+
+  _nvidia_smi__comma_values _nvidia_smi__query_accounted_apps_property
+}
+
+_nvidia_smi__query_accounted_apps_property() {
+  emulate -L zsh
+
+  _nvidia_smi__describe_entries query-accounted-apps-properties \
+    'accounted-apps query property' "${_NVIDIA_SMI_QUERY_ACCOUNTED_APPS_PROPERTIES[@]}"
+}
+
+_nvidia_smi__query_retired_pages_properties() {
+  emulate -L zsh
+
+  _nvidia_smi__comma_values _nvidia_smi__query_retired_pages_property
+}
+
+_nvidia_smi__query_retired_pages_property() {
+  emulate -L zsh
+
+  _nvidia_smi__describe_entries query-retired-pages-properties \
+    'retired-pages query property' "${_NVIDIA_SMI_QUERY_RETIRED_PAGES_PROPERTIES[@]}"
+}
+
+_nvidia_smi__query_remapped_rows_properties() {
+  emulate -L zsh
+
+  _nvidia_smi__comma_values _nvidia_smi__query_remapped_rows_property
+}
+
+_nvidia_smi__query_remapped_rows_property() {
+  emulate -L zsh
+
+  _nvidia_smi__describe_entries query-remapped-rows-properties \
+    'remapped-rows query property' "${_NVIDIA_SMI_QUERY_REMAPPED_ROWS_PROPERTIES[@]}"
+}
+
+_nvidia_smi__enabled_disabled() {
+  emulate -L zsh
+
+  local -a values=(
+    '0:DISABLED'
+    'DISABLED:disable'
+    '1:ENABLED'
+    'ENABLED:enable'
+  )
+
+  _nvidia_smi__describe_entries states 'state' values
+}
+
+_nvidia_smi__reset_ecc_errors() {
+  emulate -L zsh
+
+  local -a values=(
+    '0:VOLATILE'
+    'VOLATILE:reset volatile error counts'
+    '1:AGGREGATE'
+    'AGGREGATE:reset aggregate error counts'
+  )
+
+  _nvidia_smi__describe_entries ecc-reset-types 'ECC reset type' values
+}
+
+_nvidia_smi__compute_modes() {
+  emulate -L zsh
+
+  local -a values=(
+    '0:DEFAULT'
+    'DEFAULT:multiple contexts allowed'
+    '1:EXCLUSIVE_THREAD deprecated'
+    'EXCLUSIVE_THREAD:deprecated exclusive-thread mode'
+    '2:PROHIBITED'
+    'PROHIBITED:no compute contexts allowed'
+    '3:EXCLUSIVE_PROCESS'
+    'EXCLUSIVE_PROCESS:one context allowed per device'
+  )
+
+  _nvidia_smi__describe_entries compute-modes 'compute mode' values
+}
+
+_nvidia_smi__gom_modes() {
+  emulate -L zsh
+
+  local -a values=(
+    '0:ALL_ON'
+    'ALL_ON:all GPU features enabled'
+    '1:COMPUTE'
+    'COMPUTE:compute mode'
+    '2:LOW_DP'
+    'LOW_DP:low double-precision mode'
+  )
+
+  _nvidia_smi__describe_entries gom-modes 'GPU operation mode' values
+}
+
+_nvidia_smi__virt_modes() {
+  emulate -L zsh
+
+  local -a values=(
+    '3:VGPU'
+    'VGPU:vGPU virtualization mode'
+    '4:VSGA'
+    'VSGA:vSGA virtualization mode'
+  )
+
+  _nvidia_smi__describe_entries virt-modes 'virtualization mode' values
+}
+
+_nvidia_smi__clock_lock_modes() {
+  emulate -L zsh
+
+  local -a values=(
+    '0:default clock locking mode'
+    '1:closed-loop controller mode'
+  )
+
+  _nvidia_smi__describe_entries clock-lock-modes 'clock lock mode' values
+}
+
+_nvidia_smi__power_scopes() {
+  emulate -L zsh
+
+  local -a values=(
+    '0:GPU'
+    'GPU:GPU power scope'
+    '1:TOTAL_MODULE'
+    'TOTAL_MODULE:Grace Hopper total module scope'
+  )
+
+  _nvidia_smi__describe_entries power-scopes 'power scope' values
+}
+
+_nvidia_smi__cuda_clock_modes() {
+  emulate -L zsh
+
+  local -a values=(
+    '0:RESTORE_DEFAULT'
+    'RESTORE_DEFAULT:restore default CUDA clocks'
+    '1:OVERRIDE'
+    'OVERRIDE:override CUDA clocks'
+  )
+
+  _nvidia_smi__describe_entries cuda-clock-modes 'CUDA clock mode' values
+}
+
+_nvidia_smi__driver_models() {
+  emulate -L zsh
+
+  local -a values=(
+    'TCC:Tesla Compute Cluster driver model'
+    'WDDM:Windows Display Driver Model'
+    'MCDM:Microsoft Compute Driver Model'
+  )
+
+  _nvidia_smi__describe_entries driver-models 'driver model' values
+}
+
+_nvidia_smi__reset_modes() {
+  emulate -L zsh
+
+  local -a values=(
+    'bus:bus reset'
+  )
+
+  _nvidia_smi__describe_entries reset-modes 'reset mode' values
+}
+
+_nvidia_smi__dmon_metric() {
+  emulate -L zsh
+
+  local -a metrics=(
+    'p:power usage and temperature'
+    'u:utilization'
+    'c:processor and memory clocks'
+    'v:power and thermal violations'
+    'm:FB, BAR1, and confidential-compute memory'
+    'e:ECC and PCIe replay errors'
+    't:PCIe Rx and Tx throughput'
+  )
+
+  _nvidia_smi__describe_entries metric-groups 'metric group' metrics
+}
+
+_nvidia_smi__dmon_metrics() {
+  emulate -L zsh
+
+  # dmon/daemon/replay accept compact metric group strings; completing them as
+  # comma-separated values keeps the UI readable and still inserts valid atoms.
+  _nvidia_smi__comma_values _nvidia_smi__dmon_metric
+}
+
+_nvidia_smi__pmon_metric() {
+  emulate -L zsh
+
+  local -a metrics=(
+    'u:process utilization'
+    'm:process memory usage'
+  )
+
+  _nvidia_smi__describe_entries metric-groups 'metric group' metrics
+}
+
+_nvidia_smi__pmon_metrics() {
+  emulate -L zsh
+
+  _nvidia_smi__comma_values _nvidia_smi__pmon_metric
+}
+
+_nvidia_smi__date_time_options() {
+  emulate -L zsh
+
+  local -a values=(
+    'D:prepend date'
+    'T:prepend time'
+  )
+
+  _nvidia_smi__describe_entries output-options 'output option' values
+}
+
+_nvidia_smi__gpm_options() {
+  emulate -L zsh
+
+  local -a values=(
+    'd:device-level GPM metrics'
+    'm:MIG-level GPM metrics'
+    'dm:device and MIG GPM metrics'
+    'md:device and MIG GPM metrics'
+  )
+
+  _nvidia_smi__describe_entries gpm-options 'GPM option' values
+}
+
+_nvidia_smi__topo_traversal_paths() {
+  emulate -L zsh
+
+  local -a paths=(
+    '0:single PCIe switch on a dual-GPU board'
+    '1:single PCIe switch'
+    '2:multiple PCIe switches'
+    '3:PCIe host bridge'
+    '4:on-CPU interconnect between host bridges'
+    '5:SMP interconnect between NUMA nodes'
+  )
+
+  _nvidia_smi__describe_entries traversal-paths 'traversal path' paths
+}
+
+_nvidia_smi__topo_p2p_caps() {
+  emulate -L zsh
+
+  local -a caps=(
+    'r:P2P read capability'
+    'w:P2P write capability'
+    'n:P2P NVLink capability'
+    'a:P2P atomic capability'
+    'p:P2P PCIe capability'
+  )
+
+  _nvidia_smi__describe_entries p2p-capabilities 'P2P capability' caps
+}
+
+_nvidia_smi__nvlink_throughput_types() {
+  emulate -L zsh
+
+  local -a types=(
+    'd:Tx and Rx data payload in KiB'
+    'r:Tx and Rx raw payload plus protocol overhead in KiB'
+  )
+
+  _nvidia_smi__describe_entries throughput-types 'throughput data type' types
+}
+
+_nvidia_smi__nvlink_bandwidth_modes() {
+  emulate -L zsh
+
+  local -a modes=(
+    'FULL:all links at max bandwidth'
+    'OFF:use PCIe instead of NVLink bandwidth'
+    'MIN:minimum bandwidth'
+    'HALF:about half of full bandwidth'
+    '3QUARTER:about 75 percent of full bandwidth'
+  )
+
+  _nvidia_smi__describe_entries bandwidth-modes 'bandwidth mode' modes
+}
+
+_nvidia_smi__nvlink_widths() {
+  emulate -L zsh
+
+  local -a values=(
+    'values:list possible link widths'
+  )
+
+  _nvidia_smi__describe_entries link-widths 'link width' values
+  _nvidia_smi__integer
+}
+
+_nvidia_smi__rusd_metric() {
+  emulate -L zsh
+
+  local -a groups=(
+    'none:disable polling'
+    'clock:clock metrics'
+    'performance:performance metrics'
+    'memory:memory metrics'
+    'power:power metrics'
+    'thermal:thermal metrics'
+    'pci:PCI metrics'
+    'fan:fan metrics'
+    'proc_util:process utilization metrics'
+    'all:all metric groups'
+  )
+
+  _nvidia_smi__describe_entries rusd-groups 'RUSD metric group' groups
+}
+
+_nvidia_smi__rusd_metrics() {
+  emulate -L zsh
+
+  _nvidia_smi__comma_values _nvidia_smi__rusd_metric
+}
+
+_nvidia_smi__profile_ids() {
+  emulate -L zsh
+
+  # Profile IDs are reported by the target GPU and can differ by SKU, so keep
+  # this generic instead of freezing a misleading numeric range.
+  _message 'profile ID'
+}
+
+_nvidia_smi__profile_id_list() {
+  emulate -L zsh
+
+  _nvidia_smi__comma_values _nvidia_smi__profile_ids
+}
+
+_nvidia_smi__prm_registers() {
+  emulate -L zsh
+
+  # The manpage lists the current Blackwell PRM register names; centralizing
+  # them here makes future additions obvious.
+  _describe -t prm-registers 'PRM register' _NVIDIA_SMI_PRM_REGISTERS
+}
+
+_nvidia_smi__prm_counters() {
+  emulate -L zsh
+
+  _nvidia_smi__describe_entries prm-counters 'PRM counter' _NVIDIA_SMI_PRM_COUNTERS
+}
+
+_nvidia_smi__prm_params() {
+  emulate -L zsh
+
+  # PRM params are register-specific key=value pairs; a generic hint avoids
+  # implying that the same keys work for every register.
+  _message 'comma-separated key=value pairs'
+}
+
+_nvidia_smi__generic_help_only() {
+  emulate -L zsh
+
+  local topic=$1
+
+  # Some newer subcommands are present in --help but are not documented in this
+  # installed manpage without a working driver. Keep their branch explicit so
+  # maintainers know where to add detailed specs after checking live help.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    '*::argument:_message "$topic argument"'
+}
+
+_nvidia_smi__root_options() {
+  emulate -L zsh
+
+  # Root specs are grouped in one helper so subcommands can reuse selected
+  # value completers without the main state machine becoming a wall of options.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    '(- *)--version[Print version information]' \
+    '(- *)'{-L,--list-gpus}'[List GPUs connected to the system]' \
+    '(- *)'{-B,--list-excluded-gpus}'[List excluded GPUs]' \
+    '(- *)'{-col,--columns}'[Show summary in multi-column format]' \
+    '(- *)'{-q,--query}'[Display GPU or Unit information]' \
+    {-u,--unit}'[Show unit rather than GPU attributes]' \
+    {-i,--id=}'[Target a specific GPU or Unit]:ID:_nvidia_smi__gpu_id_list' \
+    {-f,--filename=}'[Log to a specified file]:file:_files' \
+    {-x,--xml-format}'[Produce XML output]' \
+    '--dtd[Embed or print DTD information]' \
+    '--debug=[Write encrypted debug information]:file:_files' \
+    {-d,--display=}'[Display selected query sections]:section:_nvidia_smi__display_section_list' \
+    {-l,--loop=}'[Probe at second intervals]:seconds:_nvidia_smi__integer' \
+    {-lms,--loop-ms=}'[Probe at millisecond intervals]:milliseconds:_nvidia_smi__integer' \
+    '--query-gpu=[Query selected GPU properties]:property:_nvidia_smi__query_gpu_properties' \
+    '--query-supported-clocks=[Query supported clocks]:property:_nvidia_smi__query_supported_clocks_properties' \
+    '--query-compute-apps=[Query active compute apps]:property:_nvidia_smi__query_compute_apps_properties' \
+    '--query-accounted-apps=[Query accounted apps]:property:_nvidia_smi__query_accounted_apps_properties' \
+    '--query-retired-pages=[Query retired pages]:property:_nvidia_smi__query_retired_pages_properties' \
+    '--query-remapped-rows=[Query remapped rows]:property:_nvidia_smi__query_remapped_rows_properties' \
+    '--format=[Select selective-query output format]:format:_nvidia_smi__format_list' \
+    {-pm,--persistence-mode=}'[Set persistence mode]:mode:_nvidia_smi__enabled_disabled' \
+    {-e,--ecc-config=}'[Toggle ECC support]:mode:_nvidia_smi__enabled_disabled' \
+    {-p,--reset-ecc-errors=}'[Reset ECC error counts]:type:_nvidia_smi__reset_ecc_errors' \
+    {-c,--compute-mode=}'[Set compute mode]:mode:_nvidia_smi__compute_modes' \
+    {-dm,--driver-model=}'[Set Windows driver model]:model:_nvidia_smi__driver_models' \
+    {-fdm,--force-driver-model=}'[Force Windows driver model]:model:_nvidia_smi__driver_models' \
+    '--gom=[Set GPU operation mode]:mode:_nvidia_smi__gom_modes' \
+    {-r,--gpu-reset}'[Trigger GPU reset]' \
+    '(-r --gpu-reset)1:reset mode:_nvidia_smi__reset_modes' \
+    {-vm,--virt-mode=}'[Set GPU virtualization mode]:mode:_nvidia_smi__virt_modes' \
+    {-lgc,--lock-gpu-clocks=}'[Lock GPU clocks]:clock or min,max:_message "clock MHz or min,max"' \
+    {-m,--mode=}'[Clock locking mode]:mode:_nvidia_smi__clock_lock_modes' \
+    {-rgc,--reset-gpu-clocks}'[Reset GPU clocks]' \
+    {-lmc,--lock-memory-clocks=}'[Lock memory clocks]:clock or min,max:_message "clock MHz or min,max"' \
+    {-rmc,--reset-memory-clocks}'[Reset memory clocks]' \
+    {-lmcd,--lock-memory-clocks-deferred=}'[Set deferred memory clock]:clock MHz:_nvidia_smi__integer' \
+    {-rmcd,--reset-memory-clocks-deferred}'[Reset deferred memory clocks]' \
+    {-ac,--applications-clocks=}'[Set applications clocks]:memory,graphics MHz:_message "memory,graphics MHz"' \
+    {-rac,--reset-applications-clocks}'[Reset applications clocks]' \
+    {-pl,--power-limit=}'[Set power limit in watts]:watts:_nvidia_smi__number' \
+    {-sc,--scope=}'[Set power limit scope]:scope:_nvidia_smi__power_scopes' \
+    {-cc,--cuda-clocks=}'[Override or restore CUDA clocks]:mode:_nvidia_smi__cuda_clock_modes' \
+    {-am,--accounting-mode=}'[Toggle accounting mode]:mode:_nvidia_smi__enabled_disabled' \
+    {-caa,--clear-accounted-apps}'[Clear accounted processes]' \
+    '--auto-boost-default=[Set default auto boost policy]:mode:_nvidia_smi__enabled_disabled' \
+    '--auto-boost-permission=[Set auto boost permission]:mode:((0\:UNRESTRICTED 1\:RESTRICTED))' \
+    {-mig,--multi-instance-gpu=}'[Toggle MIG mode]:mode:_nvidia_smi__enabled_disabled' \
+    {-gtt,--gpu-target-temp=}'[Set GPU target temperature]:temperature:_nvidia_smi__number' \
+    {-den,--dram-encryption=}'[Toggle DRAM encryption]:mode:_nvidia_smi__enabled_disabled' \
+    '--set-hostname=[Set hostname associated with the GPU]:hostname:' \
+    '--get-hostname[Get hostname associated with the GPU]' \
+    {-eow,--error-on-warning}'[Return non-zero for warnings]' \
+    {-t,--toggle-led=}'[Set unit LED state]:state:((0\:GREEN 1\:AMBER))' \
+    '1:command:->command' \
+    '*::argument:->args'
+}
+
+_nvidia_smi__dmon() {
+  emulate -L zsh
+
+  # dmon, daemon, and replay share metric groups, but their option sets differ
+  # enough that separate helpers are easier to audit.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-s,--select=}'[Select metric groups]:metric:_nvidia_smi__dmon_metrics' \
+    {-c,--count=}'[Number of samples]:samples:_nvidia_smi__integer' \
+    {-d,--delay=}'[Collection interval in seconds]:seconds:_nvidia_smi__integer' \
+    {-o,--options=}'[Prepend date or time]:output option:_nvidia_smi__date_time_options' \
+    '--gpm-metrics=[Select GPM metric IDs]:metric IDs:_message "comma-separated GPM metric IDs"' \
+    '--gpm-options=[Select GPM metric level]:mode:_nvidia_smi__gpm_options' \
+    '--format=[Modify output format]:format:_nvidia_smi__format_list'
+}
+
+_nvidia_smi__daemon() {
+  emulate -L zsh
+
+  # The daemon help works without a loaded driver here, so these specs follow
+  # that output directly.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-d,--delay=}'[Collection interval in seconds]:seconds:_nvidia_smi__integer' \
+    {-s,--select=}'[Select metric groups]:metric:_nvidia_smi__dmon_metrics' \
+    {-p,--path=}'[Directory for log files]:directory:_files -/' \
+    {-j,--join=}'[Append string to log file name]:string:' \
+    {-t,--term}'[Terminate daemon]'
+}
+
+_nvidia_smi__replay() {
+  emulate -L zsh
+
+  # replay consumes daemon logs, so file completion is more useful than live GPU
+  # queries for the mandatory input path.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-f,--filename=}'[Compressed daemon log file]:log file:_files' \
+    {-s,--select=}'[Select metric groups]:metric:_nvidia_smi__dmon_metrics' \
+    {-i,--id=}'[Restrict to comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-b,--begin=}'[Start time]:time:_nvidia_smi__time_hms' \
+    {-e,--end=}'[End time]:time:_nvidia_smi__time_hms' \
+    {-r,--redirect=}'[Write replay output to file]:file:_files'
+}
+
+_nvidia_smi__pmon() {
+  emulate -L zsh
+
+  # pmon has a smaller metric vocabulary than dmon; a separate helper prevents
+  # invalid dmon-only groups from being suggested.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-s,--select=}'[Select metric groups]:metric:_nvidia_smi__pmon_metrics' \
+    {-c,--count=}'[Number of samples]:samples:_nvidia_smi__integer' \
+    {-d,--delay=}'[Collection interval in seconds]:seconds:_nvidia_smi__integer' \
+    {-o,--options=}'[Prepend date or time]:output option:_nvidia_smi__date_time_options'
+}
+
+_nvidia_smi__topo() {
+  emulate -L zsh
+
+  # Topology modes are mostly mutually exclusive in practice, but leaving them
+  # as plain options allows users to complete valid combinations involving -i.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    '-m[Show topology matrix]' \
+    '-mp[Show PCI-only topology matrix]' \
+    '-c[Show GPUs with affinity to CPU]:CPU:_nvidia_smi__integer' \
+    '-n[Show GPUs connected by traversal path]:path:_nvidia_smi__topo_traversal_paths' \
+    '-p[Show direct PCIe path traversal for a GPU pair]' \
+    '-p2p[Show P2P status for capability]:capability:_nvidia_smi__topo_p2p_caps' \
+    '-C[Show nearest CPU NUMA ID]' \
+    '-M[Show nearest memory NUMA ID]' \
+    '-gnid[Show GPU NUMA ID]' \
+    '-nvme[Show GPU to NVMe PCI topology]' \
+    {-i,--id=}'[Target GPU ID or GPU pair]:ID:_nvidia_smi__gpu_id_list'
+}
+
+_nvidia_smi__drain() {
+  emulate -L zsh
+
+  # drain addresses GPUs by PCI ID, not the broader -i grammar.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-p,--pciid=}'[GPU PCI ID]:PCI ID:_nvidia_smi__pci_id' \
+    {-m,--modify=}'[Modify drain state]:state:((0\:not-draining 1\:draining))' \
+    {-q,--query}'[Query drain state]' \
+    {-r,--remove}'[Remove a drained GPU if possible]' \
+    {-d,--discover}'[Discover previously removed GPUs]'
+}
+
+_nvidia_smi__nvlink() {
+  emulate -L zsh
+
+  # NVLink uses many single-dash long names. Listing them explicitly avoids
+  # treating names such as -gLowPwrInfo as stacked short options.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-l,--list=}'[Select NVLink ID]:link ID:_nvidia_smi__integer' \
+    {-s,--status}'[Query NVLink status]' \
+    {-c,--capabilities}'[Query NVLink capabilities]' \
+    '(-p)-pcibusid[Query remote node PCI bus ID]' \
+    '(-pcibusid)-p[Query remote node PCI bus ID]' \
+    '(-R)-remotelinkinfo[Query remote link info]' \
+    '(-remotelinkinfo)-R[Query remote link info]' \
+    {-e,--errorcounters}'[Query NVLink error counters]' \
+    {-ec,--crcerrorcounters}'[Query NVLink CRC/ECC error counters]' \
+    {-re,--reseterrorcounters}'[Reset NVLink error counters]' \
+    {-gt,--getthroughput=}'[Query NVLink throughput counters]:data type:_nvidia_smi__nvlink_throughput_types' \
+    {-sLowPwrThres,--setLowPowerThreshold=}'[Set low-power threshold]:threshold:_nvidia_smi__number' \
+    {-gLowPwrInfo,--getLowPowerInfo}'[Query low-power info]' \
+    {-sBwMode,--setBandwidthMode=}'[Set bandwidth mode]:mode:_nvidia_smi__nvlink_bandwidth_modes' \
+    {-gBwMode,--getBandwidthMode}'[Query bandwidth mode]' \
+    {-cBridge,--checkBridge}'[Check for NVLink bridge]' \
+    {-sLWidth,--setLinkWidth=}'[Set NVLink width]:width:_nvidia_smi__nvlink_widths' \
+    {-gLWidth,--getLinkWidth}'[Query NVLink width]' \
+    {-info,--info}'[Query NVLink device information]'
+}
+
+_nvidia_smi__c2c() {
+  emulate -L zsh
+
+  # C2C mirrors a small subset of the NVLink command grammar.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-l,--list=}'[Select C2C link ID]:link ID:_nvidia_smi__integer' \
+    {-s,--status}'[Query C2C link status]' \
+    '(-e)-errorCounters[Query C2C error counters]' \
+    '(-errorCounters)-e[Query C2C error counters]' \
+    '(-gLowPwrInfo)-getLowPowerInfo[Query C2C power info]' \
+    '(-getLowPowerInfo)-gLowPwrInfo[Query C2C power info]'
+}
+
+_nvidia_smi__vgpu() {
+  emulate -L zsh
+
+  # vgpu has both option-style actions and a named scheduler subcommand; the
+  # positional spec keeps that subcommand discoverable without hiding options.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-q,--query}'[Display detailed vGPU information]' \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-s,--supported}'[Display supported vGPU types]' \
+    {-c,--creatable}'[Display creatable vGPU types]' \
+    {-v,--verbose}'[Show detailed vGPU type information]' \
+    {-u,--utilization}'[Report active vGPU utilization]' \
+    {-l,--loop=}'[Loop interval in seconds]:seconds:_nvidia_smi__integer' \
+    {-p,--processes}'[Display vGPU process engine usage]' \
+    {-m,--migration}'[Display migration capabilities]' \
+    '-ss[Display vGPU scheduler state]' \
+    '-sc[Display vGPU scheduler capabilities]' \
+    '-sl[Display vGPU scheduler logs]' \
+    '--set-vgpu-scheduler-state[Set vGPU scheduler state]' \
+    '-es[Display encoder session info]' \
+    '--query-accounted-apps=[Query accounted apps]:property:_nvidia_smi__query_accounted_apps_properties' \
+    '-fs[Display FBC session info]' \
+    '-shm[Set vGPU heterogeneous mode]' \
+    '-smts[Set vGPU MIG timeslice mode]' \
+    {-gi,--gpu-instance-id=}'[Target comma-separated GPU instance IDs]:GPU instance ID:_message "GPU instance ID"' \
+    '-ghm[Get vGPU heterogeneous mode]' \
+    '--query-vgpu-scheduler-logs=[Query scheduler logs]:property:_message "scheduler log property"' \
+    '--query-gpu-instance-vgpu-scheduler-logs=[Query GPU-instance scheduler logs]:property:_message "scheduler log property"' \
+    '1:vgpu subcommand:(set-vgpu-scheduler-state)'
+}
+
+_nvidia_smi__mig() {
+  emulate -L zsh
+
+  # MIG objects are device-specific, so IDs use shape hints while profile names
+  # remain free-form.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-gi,--gpu-instance-id=}'[Target comma-separated GPU instance IDs]:GPU instance ID:_message "GPU instance ID"' \
+    {-ci,--compute-instance-id=}'[Target comma-separated compute instance IDs]:compute instance ID:_message "compute instance ID"' \
+    {-lgip,--list-gpu-instance-profiles}'[List GPU instance profiles]' \
+    {-lgipp,--list-gpu-instance-possible-placements}'[List GPU instance possible placements]' \
+    {-cgi,--create-gpu-instance=}'[Create GPU instance]:profile or placement:_message "profile ID/name or profile:placement"' \
+    {-C,--default-compute-instance}'[Create default compute instance]' \
+    {-lgi,--list-gpu-instances}'[List GPU instances]' \
+    {-dgi,--destroy-gpu-instances}'[Destroy GPU instances]' \
+    {-lcip,--list-compute-instance-profiles}'[List compute instance profiles]' \
+    {-lcipp,--list-compute-instance-possible-placements}'[List compute instance placements]' \
+    {-cci,--create-compute-instance=}'[Create compute instance]:profile or placement:_message "profile ID/name or profile:placement"' \
+    {-lci,--list-compute-instances}'[List compute instances]' \
+    {-dci,--destroy-compute-instance}'[Destroy compute instances]'
+}
+
+_nvidia_smi__boost_slider() {
+  emulate -L zsh
+
+  # Boost slider values are GPU-specific, so complete the operations and leave
+  # the value as a generic number.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-l,--list}'[List boost sliders]' \
+    '--vboost=[Set video boost slider]:value:_nvidia_smi__number'
+}
+
+_nvidia_smi__power_hint() {
+  emulate -L zsh
+
+  # The installed manpage examples call this "boost-slider" in a few places,
+  # but top-level help exposes the command as power-hint.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-l,--list-info}'[List power hint info]' \
+    {-gc,--graphics-clock=}'[Graphics clock]:MHz:_nvidia_smi__integer' \
+    {-mc,--memory-clock=}'[Memory clock]:MHz:_nvidia_smi__integer' \
+    {-t,--temperature=}'[Temperature]:degrees:_nvidia_smi__number' \
+    {-p,--profile=}'[Profile ID]:profile:_nvidia_smi__profile_ids'
+}
+
+_nvidia_smi__conf_compute() {
+  emulate -L zsh
+
+  # Confidential-compute actions are all explicit flags, making a flat option
+  # list clearer than a synthetic action subcommand.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-gc,--get-cpu-caps}'[Get CPU capability]' \
+    {-gg,--get-gpus-caps}'[Get GPU capability]' \
+    {-d,--get-devtools-mode}'[Get devtools mode]' \
+    {-e,--get-environment}'[Get confidential-compute environment]' \
+    {-f,--get-cc-feature}'[Get confidential-compute feature status]' \
+    {-gm,--get-mem-size-info}'[Get protected and unprotected memory sizes]' \
+    {-sm,--set-unprotected-mem-size=}'[Set unprotected memory size]:KiB:_nvidia_smi__integer' \
+    {-srs,--set-gpus-ready-state=}'[Set GPU ready state]:state:_nvidia_smi__enabled_disabled' \
+    {-grs,--get-gpus-ready-state}'[Get GPU ready state]' \
+    {-skr,--set-key-rotation-max-attacker-advantage=}'[Set key rotation max attacker advantage]:value:_nvidia_smi__number' \
+    {-gkr,--get-key-rotation-threshold-info}'[Get key rotation threshold info]' \
+    {-mgm,--get-multigpu-mode}'[Get multi-GPU mode]' \
+    {-q,--query-conf-compute}'[Display detailed confidential-compute info]'
+}
+
+_nvidia_smi__gpm() {
+  emulate -L zsh
+
+  # GPM currently exposes a simple get/set stream-state interface.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-g,--get-stream-state}'[Get stream state]' \
+    {-s,--set-stream-state=}'[Set stream state]:state:_nvidia_smi__enabled_disabled'
+}
+
+_nvidia_smi__pci() {
+  emulate -L zsh
+
+  # PCI subcommands query or clear counters for one GPU index.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target GPU index]:GPU index:_nvidia_smi__integer' \
+    '-gErrCnt[Query PCI error counters]' \
+    '-cErrCnt[Clear PCI error counters]' \
+    '-gCnt[Query PCI RX and TX counters]'
+}
+
+_nvidia_smi__power_smoothing() {
+  emulate -L zsh
+
+  # Profile IDs and rates are hardware-defined, so value helpers stay generic
+  # while operation names are kept exact.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-p,--profile=}'[Select preset profile ID]:profile:_nvidia_smi__profile_ids' \
+    {-spp,--set-preset-profile=}'[Activate preset profile]:profile:_nvidia_smi__profile_ids' \
+    {-ptf,--percent-tmp-floor=}'[Set percent TMP floor]:percent:_nvidia_smi__number' \
+    {-rur,--ramp-up-rate=}'[Set ramp-up rate]:mW/s:_nvidia_smi__integer' \
+    {-rdr,--ramp-down-rate=}'[Set ramp-down rate]:mW/s:_nvidia_smi__integer' \
+    {-rdh,--ramp-down-hysteresis=}'[Set ramp-down hysteresis]:milliseconds:_nvidia_smi__integer' \
+    {-ppd,--print-profile-definitions}'[Print profile definitions]' \
+    {-s,--state=}'[Set power smoothing state]:state:_nvidia_smi__enabled_disabled'
+}
+
+_nvidia_smi__power_profiles() {
+  emulate -L zsh
+
+  # Workload profile IDs can be comma-separated for set/clear operations.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target comma-separated GPU IDs]:ID:_nvidia_smi__gpu_id_list' \
+    {-l,--list}'[List workload power profiles]' \
+    {-ld,--list-detailed}'[List detailed workload power profile info]' \
+    {-gr,--get-requested}'[Get requested profiles]' \
+    {-sr,--set-requested=}'[Add requested profiles]:profile:_nvidia_smi__profile_id_list' \
+    {-cr,--clear-requested=}'[Clear requested profiles]:profile:_nvidia_smi__profile_id_list' \
+    {-ge,--get-enforced}'[Get enforced profiles]'
+}
+
+_nvidia_smi__rusd() {
+  emulate -L zsh
+
+  # RUSD polling masks are a documented comma list, so the helper exposes the
+  # metric group atoms directly.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--id=}'[Target GPU]:ID:_nvidia_smi__gpu_ids' \
+    {-spm,--set-polling-mask=}'[Set polling mask]:metric group:_nvidia_smi__rusd_metrics'
+}
+
+_nvidia_smi__prm() {
+  emulate -L zsh
+
+  # PRM register/counter names are separate namespaces; separate options keep
+  # completion precise when the user chooses -n versus -c.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-i,--index=}'[GPU index]:GPU index:_nvidia_smi__integer' \
+    {-l,--list}'[List supported PRM registers and counters]' \
+    {-n,--name=}'[PRM register name]:register:_nvidia_smi__prm_registers' \
+    {-c,--counter=}'[PRM counter name]:counter:_nvidia_smi__prm_counters' \
+    {-f,--info}'[List supported PRM parameters]' \
+    {-p,--params=}'[PRM input parameters]:parameters:_nvidia_smi__prm_params'
+}
+
+_nvidia_smi__soc() {
+  emulate -L zsh
+
+  # soc is Tegra-only and exposes only query/help in the installed manpage.
+  _arguments -C \
+    "${_NVIDIA_SMI_HELP_ARGS[@]}" \
+    {-q,--query}'[Query SoC metrics]'
+}
+
+_nvidia-smi() {
+  emulate -L zsh
+  setopt EXTENDED_GLOB
+
+  local curcontext="$curcontext" state command
+  local -a line
+  typeset -A opt_args
+
+  # Let _arguments perform option parsing so command words after options are
+  # identified consistently with the rest of compsys.
+  _nvidia_smi__root_options
+
+  case $state in
+    command)
+      _describe -t commands 'nvidia-smi command' _NVIDIA_SMI_COMMANDS
+      ;;
+    args)
+      command=$line[1]
+
+      case $command in
+        dmon)
+          _nvidia_smi__dmon
+          ;;
+        daemon)
+          _nvidia_smi__daemon
+          ;;
+        replay)
+          _nvidia_smi__replay
+          ;;
+        pmon)
+          _nvidia_smi__pmon
+          ;;
+        topo)
+          _nvidia_smi__topo
+          ;;
+        drain)
+          _nvidia_smi__drain
+          ;;
+        nvlink)
+          _nvidia_smi__nvlink
+          ;;
+        c2c)
+          _nvidia_smi__c2c
+          ;;
+        vgpu)
+          _nvidia_smi__vgpu
+          ;;
+        mig)
+          _nvidia_smi__mig
+          ;;
+        boost-slider)
+          _nvidia_smi__boost_slider
+          ;;
+        power-hint)
+          _nvidia_smi__power_hint
+          ;;
+        conf-compute)
+          _nvidia_smi__conf_compute
+          ;;
+        gpm)
+          _nvidia_smi__gpm
+          ;;
+        pci)
+          _nvidia_smi__pci
+          ;;
+        power-smoothing)
+          _nvidia_smi__power_smoothing
+          ;;
+        power-profiles)
+          _nvidia_smi__power_profiles
+          ;;
+        rusd)
+          _nvidia_smi__rusd
+          ;;
+        prm)
+          _nvidia_smi__prm
+          ;;
+        soc)
+          _nvidia_smi__soc
+          ;;
+        clocks|encodersessions|fbcsessions|compute-policy|base-clocks)
+          _nvidia_smi__generic_help_only "$command"
+          ;;
+      esac
+      ;;
+  esac
+}
+
+compdef _nvidia-smi nvidia-smi

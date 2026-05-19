@@ -215,6 +215,10 @@ export SCCACHE_IGNORE_SERVER_IO_ERROR=1
 # ollama (It's a piece of shit that still puts stuff in ~/.ollama)
 export OLLAMA_HOME="$XDG_DATA_HOME/ollama"
 export OLLAMA_MODELS="$OLLAMA_HOME/models"
+export OLLAMA_URL='0.0.0.0:11434'
+export OLLAMA_ORIGIN='*'
+export OLLAMA_FLASH_ATTENTION=1
+export OLLAMA_MMAP=1
 
 # nixpkg is fundamentally broken on both Arch and Fedora. I don't know why they claim they are a cross-distro package manager, because that's just straight-up wrong.
 #export VLK_NIX_HOME="$XDG_STATE_HOME/nix/profile"
@@ -312,7 +316,7 @@ export LD_LIBRARY_PATH="$(
 export PATH="$(
     dir_pref_before=(
         {$HOME/{,.local},$VLK_NIX_HOME,$CARGO_HOME,$GOPATH,$BUN_INSTALL,$PYTHONUSERBASE}/bin
-        $PNPM_HOME
+        $PNPM_HOME $XDG_DATA_HOME/npm/bin
         {"$XDG_DATA_HOME",/var/lib}/flatpak/exports/bin
     '/opt/xc16-stuff'
     )

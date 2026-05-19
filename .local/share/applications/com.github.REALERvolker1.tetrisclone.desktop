@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Tetris Clone
+GenericName=Tetris
+Comment=A random-ass noname Tetris clone written in Rust btw
+TryExec=tetrisclone
+Exec=tetrisclone
+Icon=com.github.REALERvolker1.tetrisclone
+Terminal=false
+Type=Application
+Keywords=game;tetris;puzzle;
+Categories=Game;LogicGame;
+StartupNotify=false
+X-Desktop-File-Install-Version=0.26

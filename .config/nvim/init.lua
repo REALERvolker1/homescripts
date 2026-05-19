@@ -572,16 +572,18 @@ require("lazy").setup({
     },
     {
         "nvim-treesitter/nvim-treesitter",
-        build = function()
-            local ts_update = require("nvim-treesitter.install").update({ with_sync = true })
-            ts_update()
-        end,
-        main = "nvim-treesitter.configs",
+        branch = "main",
+        lazy = false,
+        build = ":TSUpdate",
+        -- main = "nvim-treesitter.configs",
         opts = {
             auto_install = true,
             highlight = {
                 enable = true,
                 disable = function(lang, buf)
+                    if lang == "markdown" or lang == "markdown_inline" then
+                        return true
+                    end
                     local max_filesize = 102400 -- 100 KB
                     local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
                     if ok and stats and stats.size > max_filesize then
@@ -887,6 +889,26 @@ require("lazy").setup({
             },
         },
     },
+})
+
+-- Only clear problematic markdown injection queries — do NOT start treesitter here
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "markdown",
+    callback = function(ev)
+        pcall(vim.treesitter.query.set, ev.buf, "markdown", "injections", nil)
+        pcall(vim.treesitter.query.set, ev.buf, "markdown_inline", "injections", nil)
+    end,
+})
+
+-- Safe fallback: attempt to start treesitter for non-empty, non-markdown filetypes
+vim.api.nvim_create_autocmd("BufReadPost", {
+    callback = function(ev)
+        local ft = vim.bo[ev.buf].filetype
+        if ft == "" or ft == "markdown" or ft == "markdown_inline" then
+            return
+        end
+        pcall(vim.treesitter.start, ev.buf)
+    end,
 })
 
 if nvim_tree_loaded then

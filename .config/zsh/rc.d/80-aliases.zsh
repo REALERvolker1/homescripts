@@ -125,7 +125,7 @@ alias ytmp4="=yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --prog
 
 alias nmapa="=nmap -Av 192.168.0.'*'"
 
-expand_aliases[uncrlf]='sed -i $'\''s/\r\n$/\n/g'\'
+expand_aliases[uncrlf]='sed -i '\''s/\r\n$/\n/g'\'
 alias uncrlf=:
 
 # so I can see what's plugged into what
@@ -368,8 +368,16 @@ rustc_renice() {
     sudo renice -n -20 "$(pgrep rustc | head -n 1)"
 }
 
-#!/usr/bin/zsh
-# vim:foldmethod=marker:ft=zsh
+pi() {
+    if git rev-parse --is-inside-work-tree &>/dev/null && [[ -n $(git status --porcelain) ]]; then
+        print -lnu2 -- 'warning: dirty git tree before agent launch' 'Launch anyway?' '[y/N] > '
+        if read -qrt 5; then
+            print -u2 -- "Don't say I didn't warn you..."
+        else
+            print -u2 -- "Wisely done. Canceling"
+            return
+        fi
+    fi
+    command pi "$@"
+}
 
-# I have a bunch of aliases that only expand when I hit spacebar.
-# This works with the `expand_alias` function in my zsh keybindings.

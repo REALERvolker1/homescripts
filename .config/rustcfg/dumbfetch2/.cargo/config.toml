@@ -1,0 +1,3 @@
+[target.'*']
+rustflags = ["-Ctarget-cpu=native"]
+# "-Clink-arg=-nostartfiles",
