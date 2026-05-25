@@ -215,7 +215,7 @@ export SCCACHE_IGNORE_SERVER_IO_ERROR=1
 # ollama (It's a piece of shit that still puts stuff in ~/.ollama)
 export OLLAMA_HOME="$XDG_DATA_HOME/ollama"
 export OLLAMA_MODELS="$OLLAMA_HOME/models"
-export OLLAMA_URL='0.0.0.0:11434'
+export OLLAMA_HOST='0.0.0.0:11434'
 export OLLAMA_ORIGIN='*'
 export OLLAMA_FLASH_ATTENTION=1
 export OLLAMA_MMAP=1

@@ -342,4 +342,5 @@
 	"evenBetterToml.taplo.path": "/usr/bin/taplo",
 	"evenBetterToml.formatter.columnWidth": 80,
 	"evenBetterToml.formatter.indentString": "",
+    "password-store":"gnome-libsecret"
 }

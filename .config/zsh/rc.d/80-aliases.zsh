@@ -365,7 +365,7 @@ cargo_clean_recursive() {
 }
 
 rustc_renice() {
-    sudo renice -n -20 "$(pgrep rustc | head -n 1)"
+    sudo renice -n -20 $(pgrep rustc)
 }
 
 pi() {
