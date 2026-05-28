@@ -215,7 +215,7 @@ export SCCACHE_IGNORE_SERVER_IO_ERROR=1
 # ollama (It's a piece of shit that still puts stuff in ~/.ollama)
 export OLLAMA_HOME="$XDG_DATA_HOME/ollama"
 export OLLAMA_MODELS="$OLLAMA_HOME/models"
-export OLLAMA_HOST='0.0.0.0:11434'
+# export OLLAMA_HOST='0.0.0.0:11434'
 export OLLAMA_ORIGIN='*'
 export OLLAMA_FLASH_ATTENTION=1
 export OLLAMA_MMAP=1
@@ -244,7 +244,7 @@ export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 # fix Supcom FAF
 # [[ -n ${JAVA_HOME-} ]] && export INSTALL4J_JAVA_HOME=${JAVA_HOME-}
 
-export DLSS_SDK="${HOME}/random/DLSS"
+# export DLSS_SDK="${HOME}/random/DLSS"
 export VULKAN_SDK='/usr/include/vulkan'
 
 # perl, this doesn't really do much at all
@@ -316,7 +316,7 @@ export LD_LIBRARY_PATH="$(
 export PATH="$(
     dir_pref_before=(
         {$HOME/{,.local},$VLK_NIX_HOME,$CARGO_HOME,$GOPATH,$BUN_INSTALL,$PYTHONUSERBASE}/bin
-        $PNPM_HOME $XDG_DATA_HOME/npm/bin
+        $PNPM_HOME/bin $XDG_DATA_HOME/npm/bin
         {"$XDG_DATA_HOME",/var/lib}/flatpak/exports/bin
     '/opt/xc16-stuff'
     )

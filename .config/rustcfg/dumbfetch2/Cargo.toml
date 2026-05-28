@@ -1,20 +1,20 @@
 [package]
-name = "dumbfetch2"
-version = "0.1.0"
 edition = "2024"
-# This MSRV guarantees no UB for our use of `MaybeUninit<[T; N]>`
+name = "dumbfetch2"
 rust-version = "1.95"
+version = "0.1.0"
 
 [profile.release]
-lto = "fat"
 codegen-units = 1
-strip = true
+lto = "fat"
 opt-level = 3
 panic = "abort"
+strip = true
 
 [profile.dev]
 panic = "abort"
 
 [dependencies]
-arrayvec = { version = "0.7.6", default-features = false }
-libc = { version = "0.2.186", default-features = false }
+arrayvec = { default-features = false, version = "0.7.6" }
+itoa = "1.0.18"
+libc = { default-features = false, version = "0.2.186" }

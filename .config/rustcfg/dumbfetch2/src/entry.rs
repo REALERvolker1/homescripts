@@ -1,19 +1,20 @@
-use ::arrayvec::ArrayVec;
+// use ::arrayvec::ArrayVec;
 
-const MAX_ENTRY_LEN: usize = 48;
+// const ENTRY_SIZE: usize = 64;
 
-pub struct Entry {
-    pub key: &'static str,
-    pub data: ArrayVec<u8, MAX_ENTRY_LEN>,
+// const MAX_ENTRY_LEN: usize =
+//     ENTRY_SIZE - (size_of::<&'static EntryMetadata>() + size_of::<ArrayVec<(), 0>>());
+
+pub struct EntryMetadata {
+    pub color: u8,
+    pub name: &'static str,
     pub icon: char,
 }
-impl Entry {
-    pub const fn new(key: &'static str, icon: char) -> Self {
-        Self {
-            key,
-            data: ArrayVec::new_const(),
-            icon,
-        }
-    }
-    // pub fn append_to_buffer<const N: usize>(&mut self, buf: &mut ArrayVec<u8, N>) {}
-}
+
+// pub struct Entry {
+//     pub meta: &'static EntryMetadata,
+//     pub data: ArrayVec<u8, MAX_ENTRY_LEN>,
+// }
+// impl Entry {
+//     // pub fn print(&self)
+// }
