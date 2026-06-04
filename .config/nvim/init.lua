@@ -4,9 +4,10 @@ vim.g.loaded_netrwPlugin = 1
 local opt = vim.opt
 
 local vlk_tab_width = 4
+local vlk_expand_tab = false
 
 opt.tabstop = vlk_tab_width
-opt.expandtab = true
+opt.expandtab = vlk_expand_tab
 opt.shiftwidth = 0
 opt.shiftround = true
 opt.autoindent = true
@@ -661,27 +662,50 @@ require("lazy").setup({
                 ["_"] = { "trim_whitespace" },
             },
             formatters = {
+                biome = {
+                    args = {
+                        "format",
+                        "--stdin-file-path",
+                        "$FILENAME",
+                        "--indent-style",
+                        vlk_expand_tab and "space" or "tab",
+                        "--indent-width",
+                        vlk_tab_width,
+                    },
+                },
                 shfmt = {
-                    prepend_args = { "-i", vlk_tab_width },
+                    prepend_args = { "-i", vlk_expand_tab and vlk_tab_width or 0 },
                 },
                 stylua = {
                     -- make me look like I like writing lua
-                    prepend_args = { "--indent-type", "Spaces", "--indent-width", vlk_tab_width },
+                    prepend_args = { "--indent-type", vlk_expand_tab and "Spaces" or "Tabs", "--indent-width", vlk_tab_width },
+                },
+                prettierd = {
+                    prepend_args = { "--tab-width", vlk_tab_width, vlk_expand_tab and "--no-use-tabs" or "--use-tabs" },
                 },
                 prettier = {
-                    prepend_args = { "--tab-width", vlk_tab_width, "--no-semi" },
+                    prepend_args = { "--tab-width", vlk_tab_width, "--no-semi", vlk_expand_tab and "--no-use-tabs" or "--use-tabs" },
                 },
                 rustfmt = {
-                    prepend_args = { "--config", "tab_spaces=" .. vlk_tab_width },
+                    prepend_args = { "--config", "hard_tabs=" .. tostring(not vlk_expand_tab) .. ",tab_spaces=" .. vlk_tab_width },
                 },
                 perltidy = {
-                    prepend_args = { "-i=" .. vlk_tab_width },
+                    prepend_args = vlk_expand_tab and { "-i=" .. vlk_tab_width } or { "-i=" .. vlk_tab_width, "-et=" .. vlk_tab_width },
                 },
                 astyle = {
-                    prepend_args = { "--indent=spaces=" .. vlk_tab_width },
+                    prepend_args = { vlk_expand_tab and "--indent=spaces=" .. vlk_tab_width or "--indent=force-tab=" .. vlk_tab_width },
                 },
                 clang_format = {
-                    prepend_args = { "-style=file" },
+                    prepend_args = {
+                        "-style=file",
+                        "--fallback-style={BasedOnStyle: LLVM, UseTab: "
+                            .. (vlk_expand_tab and "Never" or "ForIndentation")
+                            .. ", IndentWidth: "
+                            .. vlk_tab_width
+                            .. ", TabWidth: "
+                            .. vlk_tab_width
+                            .. "}",
+                    },
                 },
                 injected = {
                     -- Set to true to ignore errors

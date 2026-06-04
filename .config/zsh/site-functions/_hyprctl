@@ -1,155 +1,29 @@
 #compdef hyprctl
 
-# Keep global help flags in one array because hyprctl accepts --help after a
-# command, and sharing the spec avoids stale copies in every subcommand branch.
-typeset -ga _HYPRCTL_HELP_ARGS=(
-  '(- *)'{-h,--help}'[Show help]'
-)
+_experimental_hyprctl__trim() {
+  emulate -L zsh
+  setopt extendedglob
 
-# Keep command metadata flat and close to hyprctl --help. Hyprland changes
-# quickly, so future maintainers should only need to edit this one list when the
-# top-level command table changes.
-typeset -ga _HYPRCTL_COMMANDS=(
-  'activewindow:Get the active window name and its properties'
-  'activeworkspace:Get the active workspace and its properties'
-  'animations:Get configured animations and beziers'
-  'binds:List all registered binds'
-  'clients:List all windows with their properties'
-  'configerrors:List current config parsing errors'
-  'cursorpos:Get the current cursor position in global layout coordinates'
-  'decorations:List decorations for a matching window'
-  'devices:List connected keyboards and mice'
-  'dismissnotify:Dismiss all or a given number of notifications'
-  'dispatch:Issue a keybind dispatcher request'
-  'getoption:Get a config option status'
-  'globalshortcuts:List global shortcuts'
-  'hyprpaper:Issue a hyprpaper request'
-  'hyprsunset:Issue a hyprsunset request'
-  'instances:List running Hyprland instances'
-  'keyword:Set a config keyword dynamically'
-  'kill:Enter click-to-kill mode'
-  'layers:List surface layers'
-  'layouts:List available layouts'
-  'monitors:List active outputs, or all outputs with "all"'
-  'notify:Send a Hyprland notification'
-  'output:Add or remove fake outputs'
-  'plugin:Issue a plugin request'
-  'reload:Force a config reload'
-  'rollinglog:Print the tail of the log'
-  'setcursor:Set the cursor theme and size'
-  'seterror:Set the hyprctl error string'
-  'setprop:Set a window property'
-  'getprop:Get a window property'
-  'splash:Get the current splash'
-  'status:Get internal status information'
-  'switchxkblayout:Set the xkb layout index for a keyboard'
-  'systeminfo:Get system info'
-  'version:Print the Hyprland version and build information'
-  'workspacerules:List all workspace rules'
-  'workspaces:List all workspaces with their properties'
-)
+  local text=$1
 
-# These commands take no documented arguments in the current help output. The
-# grouped list makes the large case statement below easier to audit.
-typeset -ga _HYPRCTL_NO_ARG_COMMANDS=(
-  activewindow activeworkspace animations binds clients configerrors cursorpos
-  devices globalshortcuts instances kill layers layouts splash status systeminfo
-  version workspacerules workspaces
-)
+  # Help parsing repeats the same whitespace cleanup in several places. Keeping
+  # it in one helper makes the parser tolerant of hyprctl's column alignment
+  # without scattering extended-glob trimming patterns through the file.
+  text=${text##[[:space:]]#}
+  text=${text%%[[:space:]]#}
+  REPLY=$text
+}
 
-# hyprctl dispatch --help does not currently enumerate dispatchers. The static
-# fallback is intentionally centralized so users can update it without reading
-# the rest of the completion logic.
-typeset -ga _HYPRCTL_DISPATCHERS=(
-  'exec:Execute a shell command'
-  'execr:Execute a shell command with rules'
-  'pass:Pass a key to a window'
-  'killactive:Close the active window'
-  'closewindow:Close a matching window'
-  'workspace:Switch workspace'
-  'focusworkspaceoncurrentmonitor:Switch workspace on the current monitor'
-  'movetoworkspace:Move active window to a workspace'
-  'movetoworkspacesilent:Move active window without switching workspace'
-  'moveworkspacetomonitor:Move a workspace to a monitor'
-  'movecurrentworkspacetomonitor:Move the current workspace to a monitor'
-  'renameworkspace:Rename a workspace'
-  'swapactiveworkspaces:Swap active workspaces between monitors'
-  'fullscreen:Toggle fullscreen'
-  'fakefullscreen:Toggle fake fullscreen'
-  'togglefloating:Toggle floating for the active window'
-  'setfloating:Set active window floating'
-  'settiled:Set active window tiled'
-  'pin:Pin the active window'
-  'centerwindow:Center the active window'
-  'movefocus:Move focus in a direction'
-  'movewindow:Move active window in a direction'
-  'movewindoworgroup:Move active window or group in a direction'
-  'moveactive:Move active window by pixels'
-  'resizeactive:Resize active window by pixels'
-  'movewindowpixel:Move a matching window by pixels'
-  'resizewindowpixel:Resize a matching window by pixels'
-  'focuswindow:Focus a matching window'
-  'focusmonitor:Focus a monitor'
-  'focuscurrentorlast:Focus current or previous window'
-  'focusurgentorlast:Focus urgent or previous window'
-  'cyclenext:Cycle to the next window'
-  'swapnext:Swap with the next window'
-  'bringactivetotop:Bring active window to the top'
-  'alterzorder:Alter active window z-order'
-  'splitratio:Change split ratio'
-  'togglesplit:Toggle split direction'
-  'swapsplit:Swap split direction'
-  'layoutmsg:Send a message to the active layout'
-  'togglegroup:Toggle grouped layout'
-  'moveintogroup:Move active window into a group'
-  'moveoutofgroup:Move active window out of its group'
-  'changegroupactive:Change active window in a group'
-  'lockgroups:Lock or unlock groups'
-  'lockactivegroup:Lock or unlock the active group'
-  'denywindowfromgroup:Deny active window from group operations'
-  'submap:Switch keybind submap'
-  'global:Trigger a global shortcut'
-  'dpms:Control monitor power management'
-  'forcerendererreload:Force renderer reload'
-  'event:Emit a custom event'
-  'setprop:Set a window property'
-  'sendshortcut:Send a shortcut to a window'
-  'sendevent:Send a window event'
-  'exit:Exit Hyprland'
-)
+_experimental_hyprctl__help() {
+  emulate -L zsh
 
-# setprop/getprop help points to the wiki instead of printing property names.
-# Keeping the list here gives useful completions without entangling this file
-# with a network lookup or a generated parser.
-typeset -ga _HYPRCTL_SETPROP_PROPERTIES=(
-  'animationstyle:Override animation style'
-  'alpha:Override active opacity'
-  'alphafullscreen:Override fullscreen opacity'
-  'alphainactive:Override inactive opacity'
-  'alphainactiveoverride:Override inactive alpha handling'
-  'bordersize:Override border size'
-  'decorate:Toggle server-side decoration'
-  'dimaround:Toggle dimming around the window'
-  'focusonactivate:Toggle focus-on-activate behavior'
-  'forceallowsinput:Force input allowance'
-  'forceopaque:Force opaque rendering'
-  'forceopaqueoverriden:Mark force-opaque as overridden'
-  'forcergbx:Force RGBX rendering'
-  'keepaspectratio:Keep aspect ratio while resizing'
-  'nearestneighbor:Toggle nearest-neighbor scaling'
-  'noanim:Disable animations'
-  'noblur:Disable blur'
-  'noborder:Disable border'
-  'nodim:Disable dimming'
-  'nofocus:Prevent focus'
-  'noinitialfocus:Prevent initial focus'
-  'nomaxsize:Ignore max size'
-  'norounding:Disable rounding'
-  'opaque:Force opaque behavior'
-  'suppressevent:Suppress window events'
-)
+  # This experimental completer treats hyprctl itself as the source of truth.
+  # It intentionally does not cache because the user requested live parsing and
+  # hyprctl --help is cheap compared with the complexity of invalidation.
+  \hyprctl "$@" --help 2>&1
+}
 
-_hyprctl__describe_entries() {
+_experimental_hyprctl__describe_entries() {
   emulate -L zsh
 
   local tag=$1 descr=$2 entry key
@@ -157,9 +31,8 @@ _hyprctl__describe_entries() {
   local -a matches=()
   local -A seen=()
 
-  # Completion sources can overlap, especially static fallbacks plus live
-  # hyprctl JSON. Deduping by the inserted word keeps descriptions stable while
-  # avoiding repeated menu entries.
+  # Parsed help can mention the same inserted word through aliases or repeated
+  # sections. Deduping by the word before the description keeps menus compact.
   for entry in "$@"; do
     [[ -n $entry ]] || continue
     key=${entry%%:*}
@@ -172,486 +45,412 @@ _hyprctl__describe_entries() {
   _describe -t "$tag" "$descr" matches
 }
 
-_hyprctl__json_query() {
+_experimental_hyprctl__section_entries() {
   emulate -L zsh
-  set -o pipefail
+  setopt extendedglob
 
-  local filter=$1
-  shift
+  # local text=$1 section=$2
+  local arrow=$'\342\206\222'
+  local line left desc
+  local -i in_section=0
+  local -a left_words
+  reply=()
 
-  # Live values are useful only when both hyprctl and jq are present. Failing
-  # quietly keeps completion responsive outside a running Hyprland session.
-  (( $+commands[hyprctl] && $+commands[jq] )) || return 1
-  \hyprctl -j "$@" 2>/dev/null | \jq -r "$filter" 2>/dev/null
+  # hyprctl help uses simple titled sections such as "commands:" and
+  # "requests:". This parser only depends on those headings and the arrow
+  # separator, so it survives changes to spacing and description wrapping.
+  for line in "${(@f)1}"; do
+    if [[ $line == "$2:" ]]; then
+      in_section=1
+      continue
+    fi
+
+    (( in_section )) || continue
+    [[ -z $line ]] && continue
+
+    # A new unindented heading ends the current section. This prevents "flags:"
+    # text from being mistaken for command or request entries.
+    if [[ $line != [[:space:]]* && $line == *: ]]; then
+      break
+    fi
+
+    [[ $line == *$arrow* ]] || continue
+    left=${line%%$arrow*}
+    desc=${line#*$arrow}
+    _experimental_hyprctl__trim "$left"
+    left=$REPLY
+    _experimental_hyprctl__trim "$desc"
+    desc=$REPLY
+
+    left_words=(${=left})
+    left=$left_words[1]
+    [[ -n $left ]] && reply+=("$left:$desc")
+  done
 }
 
-_hyprctl__describe_query() {
+_experimental_hyprctl__flag_entries() {
   emulate -L zsh
+  setopt extendedglob
 
-  local tag=$1 descr=$2 filter=$3
-  shift 3
-  local -a matches
+  local text=$1
+  local arrow=$'\342\206\222'
+  local line left desc
+  local -i in_section=0
+  local -a left_words
+  reply=()
 
-  # Convert jq's newline output into zsh array entries so callers can compose
-  # live data with static fallbacks through the same _describe path.
-  matches=("${(@f)$(_hyprctl__json_query "$filter" "$@")}")
-  _hyprctl__describe_entries "$tag" "$descr" "${matches[@]}"
-}
+  # Flags have a slightly different shape from commands because aliases are
+  # printed in parentheses, for example "--instance (-i)". This parser emits
+  # each option spelling as its own completion candidate.
+  for line in "${(@f)text}"; do
+    if [[ $line == 'flags:' ]]; then
+      in_section=1
+      continue
+    fi
 
-_hyprctl__instances() {
-  emulate -L zsh
+    (( in_section )) || continue
+    [[ -z $line ]] && continue
+    if [[ $line != [[:space:]]* && $line == *: ]]; then
+      break
+    fi
 
-  # hyprctl accepts either an instance index or signature. The helper emits both
-  # forms when JSON is available and otherwise leaves a clear placeholder.
-  _hyprctl__describe_query instances 'Hyprland instance' \
-    'to_entries[]? | "\(.key):instance index", ((.value.instance? // .value.signature? // empty) + ":instance signature")' \
-    instances || _message 'instance signature or index'
-}
+    [[ $line == *$arrow* ]] || continue
+    left=${line%%$arrow*}
+    desc=${line#*$arrow}
+    _experimental_hyprctl__trim "$left"
+    left=$REPLY
+    _experimental_hyprctl__trim "$desc"
+    desc=$REPLY
 
-_hyprctl__keyboards() {
-  emulate -L zsh
-
-  # switchxkblayout wants Hyprland's keyboard device names, so they come from
-  # live device state instead of hard-coded hardware assumptions.
-  _hyprctl__describe_query keyboards 'keyboard' \
-    '.keyboards[]? | .name? // empty' \
-    devices || _message 'keyboard device'
-}
-
-_hyprctl__monitors() {
-  emulate -L zsh
-
-  # Monitor names are compositor state. Querying them makes output/remove and
-  # monitor-targeted dispatchers match the user's current session.
-  _hyprctl__describe_query monitors 'monitor' \
-    '.[]? | .name? // empty' \
-    monitors all || _message 'monitor'
-}
-
-_hyprctl__workspaces() {
-  emulate -L zsh
-
-  # Workspace ids and names are both accepted in many Hyprland commands, so the
-  # query offers both while allowing the fallback to stay generic.
-  _hyprctl__describe_query workspaces 'workspace' \
-    '.[]? | "\(.id):workspace id", ((.name? // empty) + ":workspace name")' \
-    workspaces || _message 'workspace'
-}
-
-_hyprctl__windows() {
-  emulate -L zsh
-
-  # Regex arguments can target class, title, or address. Offering live values is
-  # a convenience, but failure is fine because arbitrary regex remains valid.
-  _hyprctl__describe_query windows 'window match' \
-    '.[]? | .address? // empty, .class? // empty, .title? // empty' \
-    clients || _message 'window regex'
-}
-
-_hyprctl__dispatchers() {
-  emulate -L zsh
-
-  local -a live
-
-  # Bound dispatchers expose user/plugin additions that --help omits. Static
-  # entries come first so their descriptions win when names overlap.
-  live=("${(@f)$(_hyprctl__json_query '.[]? | .dispatcher? // empty' binds)}")
-  _hyprctl__describe_entries dispatchers 'dispatcher' \
-    "${_HYPRCTL_DISPATCHERS[@]}" "${live[@]}"
-}
-
-_hyprctl__cursor_themes() {
-  emulate -L zsh
-
-  local dir theme_dir
-  local -a themes=()
-  local -A seen=()
-
-  # Cursor themes are named by icon-theme directories, not arbitrary files. The
-  # common search roots keep completion useful without invoking external tools.
-  for dir in ~/.icons ~/.local/share/icons /usr/share/icons; do
-    [[ -d $dir ]] || continue
-    for theme_dir in "$dir"/*(/N); do
-      [[ -n ${seen[${theme_dir:t}]} ]] && continue
-      seen[${theme_dir:t}]=1
-      themes+=("${theme_dir:t}")
+    left_words=(${=left})
+    for left in "$left_words[@]"; do
+      left=${left//[()]/}
+      [[ $left == -* ]] && reply+=("$left:$desc")
     done
   done
-
-  (( $#themes )) || return 1
-  _describe -t cursor-themes 'cursor theme' themes
 }
 
-_hyprctl__integer() {
+_experimental_hyprctl__usage_line() {
   emulate -L zsh
 
-  # _guard documents the expected shape without inventing fake numeric matches.
-  _guard '[0-9]#' 'integer'
+  local text=$1 line
+  REPLY=
+
+  # Usage lines are the only generic place where hyprctl exposes positional
+  # argument names such as <icon> or <cmd>. Pulling out the first one keeps the
+  # rest of the completer independent from individual commands.
+  for line in "${(@f)text}"; do
+    if [[ $line == usage:* ]]; then
+      REPLY=$line
+      return 0
+    fi
+  done
+
+  return 1
 }
 
-_hyprctl__color() {
+_experimental_hyprctl__usage_placeholders() {
   emulate -L zsh
+  setopt extendedglob
 
-  local -a colors=(
-    '0:default color for notification icon'
-  )
+  local text=$1 command=$2 usage token after_command=0 cleaned
+  local -a tokens
+  reply=()
 
-  # Hyprland colors are config-format strings; only the documented default has
-  # a fixed value, so the helper combines that with a shape hint.
-  _describe -t colors 'color' colors
-  _message 'Hyprland color'
+  _experimental_hyprctl__usage_line "$text" || return 1
+  usage=$REPLY
+  tokens=(${=usage})
+
+  # The command name is the stable anchor in both "hyprctl [flags] cmd" and
+  # "[flags] cmd" usage formats. Everything after it is inspected for bracketed
+  # positional names.
+  for token in "$tokens[@]"; do
+    if (( ! after_command )); then
+      [[ $token == $command ]] && after_command=1
+      continue
+    fi
+
+    cleaned=${token//[<>\[\]|]/}
+    cleaned=${cleaned//,/}
+    [[ -n $cleaned && $cleaned != flags && $cleaned != command && $cleaned != args... && $cleaned != --help ]] || continue
+    reply+=("$cleaned")
+  done
 }
 
-_hyprctl__config_option() {
+_experimental_hyprctl__usage_alternatives() {
   emulate -L zsh
+  setopt extendedglob
 
-  # hyprctl does not expose the complete config-key tree through --help, and
-  # config files can define plugin-specific keys. A message avoids freezing an
-  # incomplete static list into the completion.
-  _message 'config option'
+  local text=$1 command=$2 usage after_command alt first cleaned
+  local -a alternatives alt_words
+  reply=()
+
+  _experimental_hyprctl__usage_line "$text" || return 1
+  usage=$REPLY
+  after_command=${usage#*$command}
+  [[ $after_command == *'|'* ]] || return 1
+
+  # Some hyprctl commands encode a small request set directly in usage, e.g.
+  # "output <create <backend> | remove <name>>", without a requests section.
+  # Splitting on "|" and taking the first word of each branch recovers those
+  # literal requests while staying generic enough for similar future help text.
+  alternatives=("${(@s:|:)after_command}")
+  for alt in "$alternatives[@]"; do
+    _experimental_hyprctl__trim "$alt"
+    alt=$REPLY
+    alt_words=(${=alt})
+    first=$alt_words[1]
+    cleaned=${first//[<>\[\]|]/}
+    cleaned=${cleaned//,/}
+    [[ -n $cleaned && $cleaned != flags && $cleaned != args... && $cleaned != --help ]] || continue
+    reply+=("$cleaned")
+  done
+
+  (( $#reply ))
 }
 
-_hyprctl__config_keyword() {
+_experimental_hyprctl__usage_alternative_placeholder() {
   emulate -L zsh
+  setopt extendedglob
 
-  # keyword accepts the same broad namespace as the config file. Keeping this
-  # generic makes the completer correct for plugin and future Hyprland keys.
-  _message 'config keyword'
+  local text=$1 command=$2 request=$3 arg_index=$4
+  local usage after_command alt first token
+  local -a alternatives alt_words
+  REPLY=
+
+  _experimental_hyprctl__usage_line "$text" || return 1
+  usage=$REPLY
+  after_command=${usage#*$command}
+  [[ $after_command == *'|'* ]] || return 1
+
+  # After a usage-derived request has been typed, use that same branch to name
+  # the next positional argument. This is why "output remove <TAB>" says "name"
+  # while "output create <TAB>" says "backend".
+  alternatives=("${(@s:|:)after_command}")
+  for alt in "$alternatives[@]"; do
+    _experimental_hyprctl__trim "$alt"
+    alt=$REPLY
+    alt_words=(${=alt})
+    first=${alt_words[1]//[<>\[\]|]/}
+    first=${first//,/}
+    [[ $first == $request ]] || continue
+
+    token=$alt_words[$(( arg_index + 1 ))]
+    token=${token//[<>\[\]|]/}
+    token=${token//,/}
+    REPLY=$token
+    [[ -n $REPLY ]] && return 0
+  done
+
+  return 1
 }
 
-_hyprctl__config_value() {
+_experimental_hyprctl__request_placeholder() {
   emulate -L zsh
+  setopt extendedglob
 
-  # Values are keyword-specific and can contain spaces or commas, so there is no
-  # safe command-independent set of matches to offer here.
-  _message 'config value'
+  local text=$1 request=$2 arg_index=$3
+  local arrow=$'\342\206\222'
+  local line left token in_section=0
+  local -a left_words
+  REPLY=
+
+  # Some commands describe nested requests as "name <arg>" inside the requests
+  # section. Reading that shape lets the completer show the next argument name
+  # without hard-coding plugin, hyprsunset, or future request families.
+  for line in "${(@f)text}"; do
+    if [[ $line == 'requests:' ]]; then
+      in_section=1
+      continue
+    fi
+
+    (( in_section )) || continue
+    [[ -z $line ]] && continue
+    if [[ $line != [[:space:]]* && $line == *: ]]; then
+      break
+    fi
+
+    [[ $line == *$arrow* ]] || continue
+    left=${line%%$arrow*}
+    _experimental_hyprctl__trim "$left"
+    left=$REPLY
+    left_words=(${=left})
+    [[ $left_words[1] == $request ]] || continue
+
+    token=$left_words[$(( arg_index + 1 ))]
+    token=${token//[<>\[\]|]/}
+    token=${token//,/}
+    REPLY=$token
+    [[ -n $REPLY ]] && return 0
+  done
+
+  return 1
 }
 
-_hyprctl__property_value() {
+_experimental_hyprctl__command_before_cursor() {
   emulate -L zsh
 
-  # setprop values depend on the selected property. The property list is useful,
-  # but guessing values globally would be more misleading than a plain hint.
-  _message 'property value'
+  local i word skip_next=0
+  reply=()
+
+  # Completion has to find the first non-flag word before the cursor because
+  # global flags may precede the command. Only options documented as taking a
+  # value are skipped with their following word.
+  for (( i = 2; i < CURRENT; i++ )); do
+    word=$words[i]
+
+    if (( skip_next )); then
+      skip_next=0
+      continue
+    fi
+
+    case $word in
+      --batch|--instance|-i)
+        skip_next=1
+        ;;
+      --*)
+        ;;
+      -*)
+        ;;
+      *)
+        reply=("$word" "$i")
+        return 0
+        ;;
+    esac
+  done
+
+  return 1
 }
 
-_hyprctl__setprop_properties() {
+_experimental_hyprctl__complete_flags() {
   emulate -L zsh
 
-  _describe -t properties 'window property' _HYPRCTL_SETPROP_PROPERTIES
+  local text=$1
+  local -a flags
+
+  # Subcommand help often says "See 'hyprctl --help'" instead of repeating the
+  # flag table. The caller can retry with root help if this returns no matches.
+  _experimental_hyprctl__flag_entries "$text"
+  flags=("$reply[@]")
+  _experimental_hyprctl__describe_entries options 'hyprctl option' "$flags[@]"
 }
 
-_hyprctl__plugin_path() {
+_experimental_hyprctl__complete_placeholder() {
   emulate -L zsh
 
-  # Plugin requests load shared objects. _files preserves normal path behavior
-  # while narrowing the menu to the extension Hyprland expects.
-  _files -g '*.so(-.)'
-}
+  local text=$1 placeholder=$2
+  local -a entries
 
-_hyprctl__batch() {
-  emulate -L zsh
-
-  # Batch mode is a mini hyprctl command string, not shell syntax that this
-  # static completer can safely parse. A message is less misleading than partial
-  # command completion.
-  _message "commands separated by ';'"
-}
-
-_hyprctl__wallpaper_arg() {
-  emulate -L zsh
-
-  local comma_count
-
-  # hyprpaper wallpaper takes a single comma-delimited word. compset strips the
-  # already-typed comma prefix so monitor/path completion inserts only the
-  # current segment instead of replacing the whole request.
-  compset -P '*,'
-  comma_count=${#${IPREFIX//[^,]/}}
-
-  case $comma_count in
-    0)
-      _hyprctl__monitors
+  # A placeholder named "request" maps directly to a requests section. Other
+  # placeholders first try a same-named section, then fall back to a message so
+  # the user still sees the argument expected by the current help text.
+  case $placeholder in
+    request)
+      _experimental_hyprctl__section_entries "$text" requests
+      entries=("$reply[@]")
+      _experimental_hyprctl__describe_entries requests request "$entries[@]"
       ;;
-    1)
+    path)
       _files
       ;;
-    *)
-      _message 'fit mode'
+    icon|cmd|device|color)
+      _experimental_hyprctl__section_entries "$text" "$placeholder"
+      entries=("$reply[@]")
+      _experimental_hyprctl__describe_entries "$placeholder" "$placeholder" "$entries[@]" || _message "$placeholder"
       ;;
-  esac
-}
-
-_hyprctl__notify_icons() {
-  emulate -L zsh
-
-  local -a icons=(
-    '-1:no icon'
-    '0:warning'
-    '1:info'
-    '2:hint'
-    '3:error'
-    '4:confused'
-    '5:ok'
-    '6:no icon'
-  )
-
-  # hyprctl documents icons as numeric protocol values, so descriptions matter
-  # more here than the raw numbers.
-  _describe -t icons 'notification icon' icons
-}
-
-_hyprctl__xkb_command() {
-  emulate -L zsh
-
-  # The second switchxkblayout argument accepts words or a numeric layout id, so
-  # _alternative keeps both valid shapes visible in one position.
-  _alternative \
-    'commands:layout command:(next prev)' \
-    'ids:layout id:_hyprctl__integer'
-}
-
-_hyprctl__dispatch_arg() {
-  emulate -L zsh
-
-  local dispatcher=$1
-
-  # Only complete arguments where Hyprland's dispatcher convention is stable.
-  # Unknown dispatchers intentionally fall back to a generic message because
-  # plugins may define their own argument grammar.
-  case $dispatcher in
-    workspace|focusworkspaceoncurrentmonitor|movetoworkspace|movetoworkspacesilent|renameworkspace)
-      _hyprctl__workspaces
-      ;;
-    focusmonitor|movecurrentworkspacetomonitor)
-      _hyprctl__monitors
-      ;;
-    moveworkspacetomonitor)
-      if (( CURRENT == 4 )); then
-        _hyprctl__workspaces
-      else
-        _hyprctl__monitors
-      fi
-      ;;
-    closewindow|focuswindow|movewindowpixel|resizewindowpixel)
-      _hyprctl__windows
-      ;;
-    movefocus|movewindow|movewindoworgroup)
-      local -a directions=(l r u d left right up down)
-      _describe -t directions 'direction' directions
-      ;;
-    fullscreen)
-      local -a modes=(0 1 2 maximize maximize-fullscreen)
-      _describe -t fullscreen-modes 'fullscreen mode' modes
-      ;;
-    dpms)
-      local -a states=(on off toggle)
-      _describe -t states 'dpms state' states
-      ;;
-    layoutmsg)
-      local -a messages=(swapwithmaster orientationnext orientationprev addmaster removemaster)
-      _describe -t layout-messages 'layout message' messages
-      ;;
-    submap)
-      _message 'submap name'
-      ;;
-    exec|execr)
-      _cmdstring
+    time_ms|time|amount|size|temp|gamma)
+      _guard '[0-9]#' "$placeholder"
       ;;
     *)
-      _message 'dispatcher argument'
+      _message "$placeholder"
       ;;
   esac
 }
 
-_hyprctl__no_args() {
+_experimental_hyprctl_completions() {
   emulate -L zsh
 
-  # Keeping a helper for empty commands keeps the main case statement readable
-  # and still allows --help after a subcommand.
-  _arguments -C "${_HYPRCTL_HELP_ARGS[@]}"
-}
+  local root_help command command_index command_help arg_index request placeholder
+  local -a entries flags placeholders
 
-_hyprctl() {
-  emulate -L zsh
+  root_help=$(_experimental_hyprctl__help)
 
-  local curcontext="$curcontext" state command
-  local -a line
-  typeset -A opt_args
-
-  # Global parsing uses _arguments so options with values, normal arguments, and
-  # state transitions follow compsys rules instead of ad hoc word indexing.
-  _arguments -C \
-    "${_HYPRCTL_HELP_ARGS[@]}" \
-    '-j[Output in JSON]' \
-    '-r[Refresh state after issuing command]' \
-    '--batch[Execute a batch of commands separated by semicolons]:batch command:_hyprctl__batch' \
-    '(-i --instance)'{-i,--instance}'[Use a specific Hyprland instance]:instance:_hyprctl__instances' \
-    '(-q --quiet)'{-q,--quiet}'[Disable output]' \
-    '1:command:->command' \
-    '*::argument:->args'
-
-  case $state in
-    command)
-      _describe -t commands 'hyprctl command' _HYPRCTL_COMMANDS
+  # Value-bearing global flags are handled before command discovery so
+  # "--instance <TAB>" and "--batch <TAB>" do not get mistaken for command
+  # position.
+  case $words[CURRENT-1] in
+    --instance|-i)
+      _message 'instance signature or index'
+      return
       ;;
-    args)
-      command=$line[1]
-
-      case $command in
-        (${(j:|:)_HYPRCTL_NO_ARG_COMMANDS})
-          _hyprctl__no_args
-          ;;
-        decorations)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:window regex:_hyprctl__windows'
-          ;;
-        dismissnotify)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:amount:_hyprctl__integer'
-          ;;
-        dispatch)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:dispatcher:_hyprctl__dispatchers' \
-            '*::dispatcher argument:->dispatch-arg'
-
-          [[ $state == dispatch-arg ]] && _hyprctl__dispatch_arg "$line[1]"
-          ;;
-        getoption)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:config option:_hyprctl__config_option'
-          ;;
-        hyprpaper)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:request:(wallpaper)' \
-            '*::wallpaper argument:->hyprpaper-arg'
-
-          [[ $state == hyprpaper-arg && $line[1] == wallpaper ]] && _hyprctl__wallpaper_arg
-          ;;
-        hyprsunset)
-          local -a sunset_requests=(
-            'temperature:Enable blue-light filter'
-            'identity:Disable blue-light filter'
-            'gamma:Enable gamma filter'
-          )
-
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:request:_describe -t requests request sunset_requests' \
-            '*::request argument:->hyprsunset-arg'
-
-          if [[ $state == hyprsunset-arg ]]; then
-            case $line[1] in
-              temperature)
-                _hyprctl__integer
-                ;;
-              gamma)
-                _message 'gamma value'
-                ;;
-            esac
-          fi
-          ;;
-        keyword)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:keyword:_hyprctl__config_keyword' \
-            '*::value:_hyprctl__config_value'
-          ;;
-        monitors)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:scope:(all)'
-          ;;
-        notify)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:icon:_hyprctl__notify_icons' \
-            '2:time in milliseconds:_hyprctl__integer' \
-            '3:color:_hyprctl__color' \
-            '*:message'
-          ;;
-        output)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:request:(create remove)' \
-            '*::request argument:->output-arg'
-
-          if [[ $state == output-arg ]]; then
-            case $line[1] in
-              create)
-                local -a backends=(wayland x11 headless auto)
-                _describe -t backends 'backend' backends
-                ;;
-              remove)
-                _hyprctl__monitors
-                ;;
-            esac
-          fi
-          ;;
-        plugin)
-          local -a plugin_requests=(
-            'load:Load a plugin'
-            'unload:Unload a plugin'
-            'list:List loaded plugins'
-          )
-
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:request:_describe -t requests request plugin_requests' \
-            '*::request argument:->plugin-arg'
-
-          [[ $state == plugin-arg && $line[1] == (load|unload) ]] && _hyprctl__plugin_path
-          ;;
-        reload)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:mode:(config-only)'
-          ;;
-        rollinglog)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '(-f --follow)'{-f,--follow}'[Follow log output]'
-          ;;
-        setcursor)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:cursor theme:_hyprctl__cursor_themes' \
-            '2:cursor size:_hyprctl__integer'
-          ;;
-        seterror)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:color:_hyprctl__color' \
-            '*:message'
-          ;;
-        setprop)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:window regex:_hyprctl__windows' \
-            '2:property:_hyprctl__setprop_properties' \
-            '3:value:_hyprctl__property_value' \
-            '4:lock:(lock)'
-          ;;
-        getprop)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:window regex:_hyprctl__windows' \
-            '2:property:_hyprctl__setprop_properties'
-          ;;
-        switchxkblayout)
-          _arguments -C \
-            "${_HYPRCTL_HELP_ARGS[@]}" \
-            '1:keyboard:_hyprctl__keyboards' \
-            '2:layout command:_hyprctl__xkb_command'
-          ;;
-      esac
+    --batch)
+      _message "commands separated by ';'"
+      return
       ;;
   esac
+
+  if ! _experimental_hyprctl__command_before_cursor; then
+    if [[ $PREFIX == -* ]]; then
+      _experimental_hyprctl__complete_flags "$root_help"
+      return
+    fi
+
+    _experimental_hyprctl__section_entries "$root_help" commands
+    entries=("$reply[@]")
+    _experimental_hyprctl__describe_entries commands 'hyprctl command' "$entries[@]"
+    return
+  fi
+
+  command=$reply[1]
+  command_index=$reply[2]
+  command_help=$(_experimental_hyprctl__help "$command")
+  arg_index=$(( CURRENT - command_index ))
+
+  # Once a command is known, option completion is driven by that command's help
+  # first. If it delegates flags to the root help, retry with root help.
+  if [[ $PREFIX == -* ]]; then
+    _experimental_hyprctl__complete_flags "$command_help" || _experimental_hyprctl__complete_flags "$root_help"
+    return
+  fi
+
+  if (( arg_index == 1 )); then
+    _experimental_hyprctl__section_entries "$command_help" requests
+    entries=("$reply[@]")
+    if (( $#entries )); then
+      _experimental_hyprctl__describe_entries requests request "$entries[@]"
+      return
+    fi
+
+    _experimental_hyprctl__usage_alternatives "$command_help" "$command"
+    entries=("$reply[@]")
+    if (( $#entries )); then
+      _experimental_hyprctl__describe_entries requests request "$entries[@]"
+      return
+    fi
+  fi
+
+  request=$words[$(( command_index + 1 ))]
+  if (( arg_index > 1 )) && _experimental_hyprctl__request_placeholder "$command_help" "$request" $(( arg_index - 1 )); then
+    placeholder=$REPLY
+    _experimental_hyprctl__complete_placeholder "$command_help" "$placeholder"
+    return
+  fi
+
+  if (( arg_index > 1 )) && _experimental_hyprctl__usage_alternative_placeholder "$command_help" "$command" "$request" $(( arg_index - 1 )); then
+    placeholder=$REPLY
+    _experimental_hyprctl__complete_placeholder "$command_help" "$placeholder"
+    return
+  fi
+
+  _experimental_hyprctl__usage_placeholders "$command_help" "$command"
+  placeholders=("$reply[@]")
+  placeholder=$placeholders[$arg_index]
+
+  if [[ -n $placeholder ]]; then
+    _experimental_hyprctl__complete_placeholder "$command_help" "$placeholder"
+  else
+    _message 'argument'
+  fi
 }
 
-compdef _hyprctl hyprctl
+compdef _experimental_hyprctl_completions hyprctl

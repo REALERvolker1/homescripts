@@ -109,7 +109,7 @@
 		"emmet.showAbbreviationSuggestions": false,
 	},
 	"[python]": {
-		"editor.defaultFormatter": "ms-pyright.pyright",
+		"editor.defaultFormatter": "charliermarsh.ruff",
 	},
 	"evenBetterToml.formatter.allowedBlankLines": 2,
 	"evenBetterToml.formatter.arrayTrailingComma": false,

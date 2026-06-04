@@ -3,27 +3,27 @@
 # https://github.com/REALERvolker1/homescripts
 
 _panic() {
-    type="${1:-Unspecified}"
-    msg="${2:-Error}"
-    echo "[${0##*/}] [$type] $msg"
-    notify-send -a "${0##*/}" "$type" "$msg"
-    [ "${3:-}" = '--warn' ] || exit 1
+	type="${1:-Unspecified}"
+	msg="${2:-Error}"
+	echo "[${0##*/}] [$type] $msg"
+	notify-send -a "${0##*/}" "$type" "$msg"
+	[ "${3:-}" = '--warn' ] || exit 1
 }
 
-deps='swappy jq'
+deps='gradia jq'
 if [ -n "${WAYLAND_DISPLAY}" ]; then
-    deps="$deps grim slurp"
+	deps="$deps grim slurp"
 elif [ -n "${DISPLAY:-}" ]; then
-    deps="$deps scrot"
+	deps="$deps scrot"
 else
-    _panic 'Platform error' "Current platform '${XDG_CURRENT_DESKTOP:-}' on tty '$(tty)' is not supported!"
+	_panic 'Platform error' "Current platform '${XDG_CURRENT_DESKTOP:-}' on tty '$(tty)' is not supported!"
 fi
 
 missingdeps=''
 for i in $deps; do
-    if ! command -v "$i" >/dev/null; then
-        missingdeps="${missingdeps}$i "
-    fi
+	if ! command -v "$i" >/dev/null; then
+		missingdeps="${missingdeps}$i "
+	fi
 done
 [ -z "${missingdeps:-}" ] || _panic 'Dependency error' "Missing required dependencies: $missingdeps"
 
@@ -32,44 +32,48 @@ done
 sel="${1:-}"
 case "${sel:-}" in
 --region)
-    if [ -n "${WAYLAND_DISPLAY}" ]; then
-        grim -g "$(slurp)" - | swappy -f -
-    else
-        scrot -s -l mode=edge - | swappy -f -
-    fi
-    ;;
+	if [ -n "${WAYLAND_DISPLAY}" ]; then
+		# grim -g "$(slurp)" - | swappy -f -
+		gradia --screenshot
+	else
+		scrot -s -l mode=edge - | gradia
+		# gradia --interactive
+	fi
+	;;
 
 --active-output)
-    if [ -n "${WAYLAND_DISPLAY}" ]; then
-        if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-            active_monitor="$(hyprctl activeworkspace -j | jq -r '.monitor')"
-        else
-            # fallback option. We need to avoid triggering this
-            _panic 'Unknown Wayland compositor' 'Cannot automatically select active output. Falling back to interactive selection' --warn
-            active_monitor="$(slurp -o)"
-        fi
-        grim -o "$active_monitor" - | swappy -f -
-    else
-        _panic 'X11 screenshot' "No method for finding the active output on x11. Falling back to active window" --warn
-        scrot -up - | swappy -f -
-    fi
-    ;;
+	if [ -n "${WAYLAND_DISPLAY}" ]; then
+		if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+			active_monitor="$(hyprctl activeworkspace -j | jq -r '.monitor')"
+		else
+			# fallback option. We need to avoid triggering this
+			_panic 'Unknown Wayland compositor' 'Cannot automatically select active output. Falling back to interactive selection' --warn
+			active_monitor="$(slurp -o)"
+		fi
+
+		grim -o "$active_monitor" - | gradia
+	else
+		_panic 'X11 screenshot' "No method for finding the active output on x11. Falling back to active window" --warn
+		scrot -up - | gradia
+	fi
+	;;
 
 --full)
-    if [ -n "${WAYLAND_DISPLAY}" ]; then
-        grim - | swappy -f -
-    else
-        scrot -mp - | swappy -f -
-    fi
-    ;;
+	if [ -n "${WAYLAND_DISPLAY}" ]; then
+		# grim - | gradia
+		gradia --screenshot=FULL
+	else
+		scrot -mp - | gradia
+	fi
+	;;
 
 *)
-    printf '%s\n' \
-        "${0##*/} error, unrecognized option $sel" \
-        "Available options:" \
-        '' \
-        '--region    select an area to capture' \
-        "--active-output    Wayland only, capture the currently active monitor" \
-        '--full    capture entire multi-monitor screen'
-    ;;
+	printf '%s\n' \
+		"${0##*/} error, unrecognized option $sel" \
+		"Available options:" \
+		'' \
+		'--region    select an area to capture' \
+		"--active-output    Wayland only, capture the currently active monitor" \
+		'--full    capture entire multi-monitor screen'
+	;;
 esac

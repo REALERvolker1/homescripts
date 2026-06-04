@@ -201,6 +201,7 @@ export MOST_INITFILE="$XDG_CONFIG_HOME/mostrc"
 export KDEHOME="$XDG_CONFIG_HOME/kdehome"
 export KERAS_HOME="${XDG_STATE_HOME}/keras"
 export MINETEST_USER_PATH="$XDG_DATA_HOME/minetest"
+export TERMINFO="$XDG_DATA_HOME/terminfo"
 #export DISCORD_USER_DATA_DIR="$XDG_DATA_HOME"  # Probably not needed
 
 # I fixed some bugs in this. I don't think they really tested to see if it would compile before they made the release.
@@ -240,6 +241,9 @@ export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 #     # export JAVA_HOME=/usr/lib/jvm/default
 #     export JAVA_HOME="/usr/lib/jvm/java-8-openjdk"
 # }
+
+# Microsoft® Java
+export DOTNET_CLI_HOME="$XDG_DATA_HOME/dotnet"
 
 # fix Supcom FAF
 # [[ -n ${JAVA_HOME-} ]] && export INSTALL4J_JAVA_HOME=${JAVA_HOME-}
@@ -339,6 +343,14 @@ export XDG_DATA_DIRS="$(
     essentials=/usr/share
     INIT_PATH="${XDG_DATA_DIRS-}"
     __pathmunge
+)"
+export TERMINFO_DIRS="$(
+	dir_pref_before=(
+		"$TERMINFO"
+		/usr/{local/,}share/terminfo
+	)
+	INIT_PATH="${TERMINFO_DIRS-}"
+	__pathmunge
 )"
 
 unset -f __pathmunge
