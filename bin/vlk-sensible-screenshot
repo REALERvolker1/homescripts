@@ -1,79 +1,164 @@
-#!/usr/bin/env dash
+#!/usr/bin/env bash
 # a screenshot script by vlk that tries its best to work on both xorg and wayland
-# https://github.com/REALERvolker1/homescripts
+set -euo pipefail
 
-_panic() {
-	type="${1:-Unspecified}"
-	msg="${2:-Error}"
-	echo "[${0##*/}] [$type] $msg"
-	notify-send -a "${0##*/}" "$type" "$msg"
-	[ "${3:-}" = '--warn' ] || exit 1
-}
-
-deps='gradia jq'
-if [ -n "${WAYLAND_DISPLAY}" ]; then
-	deps="$deps grim slurp"
-elif [ -n "${DISPLAY:-}" ]; then
-	deps="$deps scrot"
+declare -i log_color
+if [[ -n ${NO_COLOR-} ]]; then
+	log_color=0
+elif [[ -n ${FORCE_COLOR-} ]]; then
+	log_color=1
+elif [[ -t 2 ]]; then
+	log_color=1
 else
-	_panic 'Platform error' "Current platform '${XDG_CURRENT_DESKTOP:-}' on tty '$(tty)' is not supported!"
+	log_color=0
 fi
 
-missingdeps=''
-for i in $deps; do
-	if ! command -v "$i" >/dev/null; then
-		missingdeps="${missingdeps}$i "
+declare -r ME="${0##*/}"
+
+# Param 1: enum level
+# - 32: info
+# - 33: warn
+# - 31: critical error (exits)
+_log() {
+	local -i lvl="${1:?Error, nothing to log}"
+	local header="${2:?Error, nothing to log}"
+	shift 2
+
+	printf '(%s) ' "$ME"
+	if ((log_color)); then
+		printf '\x1b[0;1m%s\x1b[%sm' '[' "$lvl"
+	else
+		printf '['
+	fi
+	if ((lvl == 33)); then
+		printf 'WARN '
+	elif ((lvl == 31)); then
+		printf 'ERROR'
+	else
+		printf 'INFO '
+	fi
+	if ((log_color)); then
+		printf '\x1b[0;1m%s' ']'
+	else
+		printf ']'
+	fi
+	printf ' %s' "$header"
+	if ((log_color)); then
+		printf '\x1b[0m'
+	fi
+	if (($#)); then
+		printf ': %s\n' "$*"
+	else
+		printf '\n'
+	fi
+
+	if ((lvl == 31)); then
+		# If notify-send was not found, this will errexit with a different
+		# error, which will call out the user for having a weird env
+		if (($#)); then
+			notify-send -a "$ME" "$header" "$*"
+		else
+			notify-send -a "$ME" "$header"
+		fi
+		exit 2
+	fi
+} >&2
+
+# Enum:
+# 1: wayland
+# 0: xorg
+declare -i is_wayland
+
+declare -a deps=(swappy jq)
+if [[ -n ${WAYLAND_DISPLAY-} ]]; then
+	_log 32 'Environment' WAYLAND
+	is_wayland=1
+	deps+=(grim slurp)
+elif [[ -n ${DISPLAY-} ]]; then
+	_log 32 'Environment' X
+	is_wayland=0
+	deps+=(scrot)
+else
+	_log 31 'Platform error' "Current platform '${XDG_CURRENT_DESKTOP-}' on tty '$(tty)' is not supported!"
+fi
+
+declare -r is_wayland
+
+declare -a missingdeps=()
+for i in "${deps[@]}"; do
+	if ! hash "$i"; then
+		missingdeps+=("$i")
 	fi
 done
-[ -z "${missingdeps:-}" ] || _panic 'Dependency error' "Missing required dependencies: $missingdeps"
+if ((${#missingdeps[@]})); then
+	_log 31 'Missing dependencies' "${missingdeps[@]}"
+fi
+
+unset missingdeps deps
 
 # active_window="$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')"
 
-sel="${1:-}"
-case "${sel:-}" in
+_edit_stdin() {
+	swappy -f -
+	# Turns out gradia doesn't like having multiple windows open :/
+	# gradia
+}
+
+# this means extra random args will make the script error out. We only care about the first
+sel="${*-}"
+
+case "$sel" in
 --region)
-	if [ -n "${WAYLAND_DISPLAY}" ]; then
-		# grim -g "$(slurp)" - | swappy -f -
-		gradia --screenshot
+	_log 32 'Mode' "${sel#--}"
+	if ((is_wayland)); then
+		grim -g "$(slurp)" - | _edit_stdin
 	else
-		scrot -s -l mode=edge - | gradia
-		# gradia --interactive
+		scrot -s -l mode=edge - | _edit_stdin
 	fi
 	;;
 
 --active-output)
-	if [ -n "${WAYLAND_DISPLAY}" ]; then
-		if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+	_log 32 'Mode' "${sel#--}"
+	if ((is_wayland)); then
+		if [[ -n ${HYPRLAND_INSTANCE_SIGNATURE-} ]]; then
+			_log 32 'Specialization' 'Hyprland'
+			# 100% chance you have hyprctl installed, let's be real here
 			active_monitor="$(hyprctl activeworkspace -j | jq -r '.monitor')"
 		else
 			# fallback option. We need to avoid triggering this
-			_panic 'Unknown Wayland compositor' 'Cannot automatically select active output. Falling back to interactive selection' --warn
+			_log 33 'Unknown Wayland compositor' 'Cannot automatically select active output. Falling back to interactive selection'
 			active_monitor="$(slurp -o)"
 		fi
 
-		grim -o "$active_monitor" - | gradia
+		grim -o "$active_monitor" - | _edit_stdin
 	else
-		_panic 'X11 screenshot' "No method for finding the active output on x11. Falling back to active window" --warn
-		scrot -up - | gradia
+		_log 33 'X11 screenshot' "No method for finding the active output on x11. Falling back to active window"
+		scrot -up - | _edit_stdin
 	fi
 	;;
 
 --full)
-	if [ -n "${WAYLAND_DISPLAY}" ]; then
-		# grim - | gradia
-		gradia --screenshot=FULL
+	_log 32 'Mode' "${sel#--}"
+	if ((is_wayland)); then
+		grim - | _edit_stdin
 	else
-		scrot -mp - | gradia
+		scrot -mp - | _edit_stdin
 	fi
 	;;
 
 *)
 	printf '%s\n' \
-		"${0##*/} error, unrecognized option $sel" \
 		"Available options:" \
 		'' \
 		'--region    select an area to capture' \
 		"--active-output    Wayland only, capture the currently active monitor" \
 		'--full    capture entire multi-monitor screen'
+
+	if [[ $sel == --help || $sel == -h || -z $sel ]]; then
+		exit 0
+	else
+		_log 33 'Invalid argument' "$sel"
+		exit 1
+	fi
 	;;
 esac
