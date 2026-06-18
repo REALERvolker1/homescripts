@@ -378,6 +378,11 @@ pi() {
             return
         fi
     fi
+
+	if ! fuck_isps.sh; then
+		export PI_OFFLINE=1
+	fi
+
     command pi "$@"
 }
 

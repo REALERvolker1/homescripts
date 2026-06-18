@@ -11,7 +11,8 @@ ZSH_AUTOSUGGEST_HISTORY_IGNORE="?(#c50,)"
 
 __vlkplugin::load() {
     if [[ -f $1 ]]; then
-        zsh-defer . "$1"
+        # zsh-defer . "$1"
+		. "$1"
     elif [[ -e $1 ]]; then
         echo "Skipping plugin ${1:t} -- not a file!"
     else

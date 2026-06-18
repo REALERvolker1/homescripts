@@ -4,14 +4,14 @@ IFS=$'\n\t'
 
 # Exit the shell on errors
 _panic() {
-    printf '%s\n' "$@" >&2
-    exit 1
+	printf '%s\n' "$@" >&2
+	exit 1
 }
 
 # check for missing dependencies, panic if there are any
 declare -a deperr=()
 for i in ln realpath ls sudo dircolors; do
-    command -v "$i" &>/dev/null || deperr+=("$i")
+	command -v "$i" &>/dev/null || deperr+=("$i")
 done
 ((${#deperr[@]})) && _panic "Missing dependencies:" "${deperr[@]}"
 unset deperr
@@ -31,69 +31,69 @@ tmp_path=''
 
 # used internally in push_target. This prints the path, resolving symlinks or not depending on $REALPATH
 __determine_path() {
-    if ((REALPATH)); then
-        realpath "$1"
-    else
-        realpath -s "$1"
-    fi
+	if ((REALPATH)); then
+		realpath "$1"
+	else
+		realpath -s "$1"
+	fi
 }
 
 # Add a target to be linked
 push_target() {
-    local path="$1"
-    path="$(__determine_path "$path")"
+	local path="$1"
+	path="$(__determine_path "$path")"
 
-    if ((current_is_target)); then
-        ((pair_error)) && pair_error=0
+	if ((current_is_target)); then
+		((pair_error)) && pair_error=0
 
-        if [[ ! -e "$path" ]]; then
-            echo "Invalid symlink target: '$path'" >&2
-            pair_error=1
-            return
-        fi
+		if [[ ! -e "$path" ]]; then
+			echo "Invalid symlink target: '$path'" >&2
+			pair_error=1
+			return
+		fi
 
-        current_is_target=0
+		current_is_target=0
 
-        tmp_path="$path"
+		tmp_path="$path"
 
-    else # This is going to be a symlink
-        current_is_target=1
-        # Skip this group if the target was an error
-        ((pair_error)) && return
+	else # This is going to be a symlink
+		current_is_target=1
+		# Skip this group if the target was an error
+		((pair_error)) && return
 
-        if [[ -d "$path" ]]; then
-            # support symlinking into dir with the current name
-            path="$path/${tmp_path##*/}"
-        fi
-        if [[ -e "$path" ]]; then
-            echo "Invalid symlink destination: '$path'" >&2
-            pair_error=1
-            return
-        fi
-        if [[ -w "${path%/*}" ]]; then
-            links+=("$path")
-            targets+=("$tmp_path")
-        else
-            # The parent dir is not writable
-            echo "Symlink destination is not writable: '$path'" >&2
-            pair_error=1
-        fi
-    fi
+		if [[ -d "$path" ]]; then
+			# support symlinking into dir with the current name
+			path="$path/${tmp_path##*/}"
+		fi
+		if [[ -e "$path" ]]; then
+			echo "Invalid symlink destination: '$path'" >&2
+			pair_error=1
+			return
+		fi
+		if [[ -w "${path%/*}" ]]; then
+			links+=("$path")
+			targets+=("$tmp_path")
+		else
+			# The parent dir is not writable
+			echo "Symlink destination is not writable: '$path'" >&2
+			pair_error=1
+		fi
+	fi
 }
 
 me="${0##*/}"
 
 for arg in "$@"; do
-    if ((ENDARG)); then
-        # Maybe you have a file named "--help"
-        # lns --argument --arg -- --help
-        push_target "$arg"
-        continue
-    fi
-    case "${arg:-}" in
-    --help | -help | -h)
-        me="${BOLD}$me${RESET}"
-        _panic "${RESET}${BOLD}=== Help page for $me ===${RESET}
+	if ((ENDARG)); then
+		# Maybe you have a file named "--help"
+		# lns --argument --arg -- --help
+		push_target "$arg"
+		continue
+	fi
+	case "${arg:-}" in
+	--help | -help | -h)
+		me="${BOLD}$me${RESET}"
+		_panic "${RESET}${BOLD}=== Help page for $me ===${RESET}
 
 ${BOLD}General options${RESET}
 
@@ -119,49 +119,51 @@ This example symlinks the target of the symlink '/bin/sh' (typically /usr/bin/ba
 
 Default:
     $me --color=auto --no-real /path/to/file.ext \$PWD/file.ext${RESET}"
-        ;;
-    --real | -r)
-        REALPATH=1
-        ;;
-    --no-real | -nr)
-        REALPATH=0
-        ;;
-    --no-confirm | -y)
-        CONFIRM=0
-        ;;
-    --color=*)
-        arg_tmp="${arg#*=}"
-        case "${arg_tmp:-}" in
-        auto | always | never) COLOR="${arg_tmp:-}" ;;
-        *) _panic "Invalid color setting '$arg_tmp'" ;;
-        esac
-        ;;
-    --)
-        ENDARG=1
-        ;;
-    -)
-        [[ -t 0 ]] && echo "Reading file from stdin" >&2
-        read -r stdin_file
-        push_target "$stdin_file"
-        ;;
-    *)
-        push_target "$arg"
-        ;;
-    esac
+		;;
+	--real | -r)
+		REALPATH=1
+		;;
+	--no-real | -nr)
+		REALPATH=0
+		;;
+	--no-confirm | -y)
+		CONFIRM=0
+		;;
+	--color=*)
+		arg_tmp="${arg#*=}"
+		case "${arg_tmp:-}" in
+		auto | always | never) COLOR="${arg_tmp:-}" ;;
+		*) _panic "Invalid color setting '$arg_tmp'" ;;
+		esac
+		;;
+	--)
+		ENDARG=1
+		;;
+	-)
+		[[ -t 0 ]] && echo "Reading file from stdin" >&2
+		read -r stdin_file
+		push_target "$stdin_file"
+		;;
+	*)
+		push_target "$arg"
+		;;
+	esac
 done
 
 declare -i NUM_ENTRIES=${#targets[@]}
 
 if ((NUM_ENTRIES == 0)); then
-    # this should be false
-    ((current_is_target)) && _panic "No files selected!"
+	# this should be false
+	((current_is_target)) && _panic "No files selected!"
 
-    # since the targets are pushed along with links, it could potentially not be populated. Make it symlink into PWD by default.
-    push_target "$PWD"
+	# since the targets are pushed along with links, it could potentially not be populated. Make it symlink into PWD by default.
+	push_target "$PWD"
 
-    NUM_ENTRIES=${#targets[@]}
+	NUM_ENTRIES=${#targets[@]}
 
-    ((NUM_ENTRIES == 0)) && _panic "No files selected!" "Super Secret error! This should never occur!!!"
+	# TODO: If the symlink target does not exist, we hit this.
+	# ((NUM_ENTRIES == 0)) && _panic "No files selected!" "Super Secret error! This should never occur!!!"
+	((NUM_ENTRIES == 0)) && _panic "No files selected!" "Does the symlink target not exist or something?"
 fi
 
 ((${#links[@]} != NUM_ENTRIES)) && _panic "Error: number of links and number of targets don't match!"
@@ -172,97 +174,99 @@ unset next_target_is_link file_tmp
 # actually determine if we should print in color or not
 declare -i HAS_COLOR
 if [[ $COLOR == never ]] || [[ $COLOR == auto && ! -t 1 ]]; then
-    HAS_COLOR=0
-    DI_COLOR="${LN_COLOR:=}"
+	HAS_COLOR=0
+	DI_COLOR="${LN_COLOR:=}"
 else
-    [[ -z "${LS_COLORS:-}" ]] && eval "$(dircolors -b)"
+	[[ -z "${LS_COLORS:-}" ]] && eval "$(dircolors -b)"
 
-    # find a color for an entry in LS_COLORS
-    _grab_ls_color() {
-        local filter="$1"
-        # clip the LS_COLORS right after the = for the filter
-        local color="${LS_COLORS#*:"$filter"=}"
-        # trim the color to the colon, which is the separator for the LS_COLORS tied array
-        echo "${color%%:*}"
-    }
+	# find a color for an entry in LS_COLORS
+	_grab_ls_color() {
+		local filter="$1"
+		# clip the LS_COLORS right after the = for the filter
+		local color="${LS_COLORS#*:"$filter"=}"
+		# trim the color to the colon, which is the separator for the LS_COLORS tied array
+		echo "${color%%:*}"
+	}
 
-    HAS_COLOR=1
-    DI_COLOR=$'\e['"$(_grab_ls_color di)m"
-    LN_COLOR=$'\e['"$(_grab_ls_color ln)m"
+	HAS_COLOR=1
+	DI_COLOR=$'\e['"$(_grab_ls_color di)m"
+	LN_COLOR=$'\e['"$(_grab_ls_color ln)m"
 fi
 
 echo "${DI_COLOR}hh"
 
 # Use a shell function for colorizing. Requires environment variables `$LN_COLOR` and `$DI_COLOR`
 _colorize() {
-    if ((HAS_COLOR == 0)); then
-        # This function is a no-op if color is disabled
-        echo "$1"
-        return
-    fi
+	if ((HAS_COLOR == 0)); then
+		# This function is a no-op if color is disabled
+		echo "$1"
+		return
+	fi
 
-    local parent_dir="${1%/*}"
-    local entry_name="${1##*/}"
-    local entry="${1:?Error, no entry to colorize!}"
-    local parent_dir_color
+	local parent_dir="${1%/*}"
+	local entry_name="${1##*/}"
+	local entry="${1:?Error, no entry to colorize!}"
+	local parent_dir_color
 
-    if [[ -L "$parent_dir" ]]; then
-        parent_dir_color="$LN_COLOR"
-    else
-        parent_dir_color="$DI_COLOR"
-    fi
+	if [[ -L "$parent_dir" ]]; then
+		parent_dir_color="$LN_COLOR"
+	else
+		parent_dir_color="$DI_COLOR"
+	fi
 
-    local entry_color
-    if [[ -L "$entry" || ! -e "$entry" ]]; then
-        # if it doesn't exist, then it is probably the symlink target
-        entry_color="$LN_COLOR"
-    elif [[ -d "$entry" ]]; then
-        entry_color="$DI_COLOR"
-    else
-        # I don't have time to rewrite GNU LS_COLORS in shell here
-        entry_color="$(ls -d --color=always "$entry" 2>/dev/null)"
-        # try to just leave the color
-        entry_color="${entry_color%%"$entry"*}"
-    fi
+	local entry_color
+	if [[ -L "$entry" || ! -e "$entry" ]]; then
+		# if it doesn't exist, then it is probably the symlink target
+		entry_color="$LN_COLOR"
+	elif [[ -d "$entry" ]]; then
+		entry_color="$DI_COLOR"
+	else
+		# I don't have time to rewrite GNU LS_COLORS in shell here
+		entry_color="$(ls -d --color=always "$entry" 2>/dev/null)"
+		# try to just leave the color
+		entry_color="${entry_color%%"$entry"*}"
+	fi
 
-    echo "${RESET}${parent_dir_color}${parent_dir}/${RESET}${entry_color}${entry_name}${RESET}"
+	echo "${RESET}${parent_dir_color}${parent_dir}/${RESET}${entry_color}${entry_name}${RESET}"
 }
 
 _prompt() {
-    local prompt_text="${1-}"
-    local answer
+	local prompt_text="${1-}"
+	local answer
 
-    read -r -p "$prompt_text"$'\n\n'"[y/N] > ${BOLD}" answer
-    echo -n "$RESET"
+	read -r -p "$prompt_text"$'\n\n'"[y/N] > ${BOLD}" answer
+	echo -n "$RESET"
 
-    [[ "${answer:-}" == y ]] || _panic "Canceling"
+	[[ "${answer:-}" == y ]] || _panic "Canceling"
 }
 
 _try_make_link() {
-    local target="$1" link="$2"
-    ln -s "$target" "$link"
-    if [[ -L "$link" ]]; then
-        echo "Link created successfully"
-        _colorize "$link"
-    else
-        printf '%s\n' \
-            "Error creating symlink!" \
-            "target: '$target'" \
-            "link: '$link'" >&2
+	local target="$1" link="$2"
+	ln -s "$target" "$link"
+	if [[ -L "$link" ]]; then
+		echo "Link created successfully"
+		_colorize "$link"
+	else
+		printf '%s\n' \
+			"Error creating symlink!" \
+			"target: '$target'" \
+			"link: '$link'" >&2
 
-        error_count+=1
-    fi
+		error_count+=1
+	fi
 }
 
 declare -i error_count=0
 
 for ((i = 0; i < NUM_ENTRIES; i++)); do
-    target="${targets[$i]}"
-    link="${links[$i]}"
+	target="${targets[$i]}"
+	link="${links[$i]}"
 
-    _prompt "$(_colorize "$target") => $(_colorize "$link")"
-    _try_make_link "$target" "$link"
+	_prompt "$(_colorize "$target") => $(_colorize "$link")"
+	_try_make_link "$target" "$link"
 done
 
 # panic if there were any errors
-((error_count)) && _panic "$error_count errors occured!"
+if ((error_count)); then
+	_panic "$error_count errors occured!"
+fi

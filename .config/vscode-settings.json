@@ -161,7 +161,7 @@
 	"rust-analyzer.lru.capacity": 512,
 	"codeium.aggressiveShutdown": true,
 	"[c]": {
-		"editor.defaultFormatter": "ebextensions.active-clang-format",
+		"editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
 	},
 	"[cpp]": {
 		"editor.defaultFormatter": "ebextensions.active-clang-format",
@@ -351,4 +351,5 @@
 	"rust-analyzer.inlayHints.closureCaptureHints.enable": true,
 	"rust-analyzer.inlayHints.closureStyle": "rust_analyzer",
 	"rust-analyzer.interpret.tests": true,
+	"chatgpt.composerEnterBehavior": "cmdIfMultiline",
 }

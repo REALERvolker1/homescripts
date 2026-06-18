@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=snake.py
+GenericName=Snake
+Comment=A random-ass noname Snake clone written in Python btw
+TryExec=snake.py
+Exec=snake.py
+Icon=network-cellular-disabled-rtl-symbolic
+Terminal=false
+Type=Application
+Keywords=game;snake;puzzle;
+Categories=Game;
+StartupNotify=false
+X-Desktop-File-Install-Version=0.26
