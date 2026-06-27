@@ -77,7 +77,13 @@ for i j in \
 if [[ -d ${XDG_RUNTIME_DIR-} ]] {
     export XDG_RUNTIME_DIR
     export GNOME_KEYRING_CONTROL="${GNOME_KEYRING_CONTROL:-$XDG_RUNTIME_DIR/keyring}"
-    export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$XDG_RUNTIME_DIR/keyring/ssh}"
+	if [[ -S ${XDG_RUNTIME_DIR-}/gcr/ssh ]]; then
+		export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gcr/ssh"
+	elif [[ -S ${SSH_AUTH_SOCK-} ]]; then
+		export SSH_AUTH_SOCK
+	elif [[ -S ${XDG_RUNTIME_DIR-}/ssh-agent.socket ]]; then
+		export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+	fi
 
     __dircolor_cache="$XDG_RUNTIME_DIR/dircolors.cache"
 } else {
@@ -140,9 +146,13 @@ if (($+commands[batpipe])) {
     unset LESSCLOSE
     export LESS="${LESS-} -R"
     export BATPIPE=color
-} elif (($+commands[lesspipe.sh])) {
-    # Fedora's default LESSOPEN
-    export LESSOPEN="|${commands[lesspipe.sh]} %s"
+} else {
+    export LESS="${LESS-} -r"
+
+    if (($+commands[lesspipe.sh])) {
+        # Fedora's default LESSOPEN
+        export LESSOPEN="|${commands[lesspipe.sh]} %s"
+    }
 }
 
 # Both of these scripts are in ~/bin

@@ -1,0 +1,23 @@
+emulate -LR zsh
+
+local tools="${IDF_TOOLS_PATH:-$HOME/.espressif}/tools"
+local -a idfs=("$tools/"activate_idf*.sh(N-.))
+local idf
+
+case ${#idfs} in
+	0)
+		print -u2 "No ESP-IDF activation scripts found under \`$tools\`"
+		return 1
+		;;
+	1)
+    	idf="${idfs[1]}"
+		;;
+	*)
+    	select idf in "${idfs[@]}"; do
+    	    [[ -f $idf ]] && break
+    	done
+	;;
+esac
+
+print -u2 "Chose ESP-IDF install at \`$idf\`"
+. "$idf"

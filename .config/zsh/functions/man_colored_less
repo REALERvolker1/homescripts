@@ -1,0 +1,42 @@
+# Man page stuff I can copy. Mainly here so I don't forget them.
+# I use nvim as my manpager but I really don't want to forget what these are for
+# Can also unzip manpages with `gunzip /usr/share/man/man1/lscpu.1.gz` for example
+# Use `MANWIDTH=80 man myprogrampage | col -bx` when passing manpages to other programs or wl-copy
+# https://gist.github.com/bahamas10/542875bb47990933638d2b7dfaa501bf
+
+emulate -LR zsh
+
+#export MANPAGER='less'
+# groff fix for some distros
+#export GROFF_NO_SGR=1
+# Activate overstrike (check if supported with `MAN_KEEP_FORMATTING=1 man ls | cat -v | head`)
+#export MANROFFOPT='-c'
+
+# Blinking text
+#export LESS_TERMCAP_mb=$'\e[1;31m'
+# Bold text
+#export LESS_TERMCAP_md=$'\e[1;31m'
+# End special formatting
+#export LESS_TERMCAP_me=$'\e[0m'
+# End standout
+#export LESS_TERMCAP_se=$'\e[0m'
+# Begin standout
+#export LESS_TERMCAP_so=$'\e[1;33;44m'
+# End underline
+#export LESS_TERMCAP_ue=$'\e[0m'
+# Begin underline
+#export LESS_TERMCAP_us=$'\e[4;1;32m'
+# Begin reverse
+#export LESS_TERMCAP_mr=$'\e[7m'
+# Begin dim
+#export LESS_TERMCAP_mh=$'\e[2m'
+# Begin subscript
+#export LESS_TERMCAP_ZN=$'\e[74m'
+# End subscript
+#export LESS_TERMCAP_ZV=$'\e[75m'
+# Begin superscript
+#export LESS_TERMCAP_ZO=$'\e[73m'
+# End superscript
+#export LESS_TERMCAP_ZW=$'\e[75m'
+
+MANPAGER=less command man "$@"

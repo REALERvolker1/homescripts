@@ -41,12 +41,9 @@ LOCKFILE="$XDG_RUNTIME_DIR/$ME-$XDG_SESSION_ID.lock"
 
 # autostarts
 
-# This overwrites some env vars in my systemd user session, but idc because it makes stuff just work
-systemctl --user import-environment DISPLAY XAUTHORITY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
-dbus-update-activation-environment --systemd --all
 
 # Pretty sure this detects if it is started properly, and I don't want to mess with it
-gnome-keyring-daemon --start --components=secrets &
+# _pgrepx gnome-keyring-daemon --start --components=secrets &
 
 (
     pk=''
@@ -66,7 +63,7 @@ gnome-keyring-daemon --start --components=secrets &
     done
 
     if [[ -n $pk ]]; then
-        "$pk"
+        _pgrepx "$pk"
     else
         echo "No suitable polkit agent found"
     fi
@@ -109,14 +106,14 @@ if [[ -n ${WAYLAND_DISPLAY-} ]]; then
         hyprpm reload &
     fi
 
-    (
-        # sleep 5
-        # TODO: This doesn't work without reloading hyprland (thereby running it through `$XDG_CONFIG_HOME/scripts/reload.sh`
-        _pgrepx waybar
-    ) &
+	_pgrepx waybar &
 
 elif [[ -n ${DISPLAY-} ]]; then
     [[ -r "${XRESOURCES-}" ]] && xrdb -merge "${XRESOURCES-}" &
+
+	# This overwrites some env vars in my systemd user session, but idc because it makes stuff just work
+	systemctl --user import-environment DISPLAY XAUTHORITY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+	dbus-update-activation-environment --systemd --all
 
     _pgrepx gammastep -P -m randr &
 
