@@ -12,10 +12,10 @@ unset MAILCHECK
 # unfuck my locale
 [[ ${LANG:-C} == C ]] && export LANG='en_US.UTF-8'
 # reset colors
-echo -en '\e[0m'
+# echo -en '\e[0m'
 
 # reset the internal field separators
-[[ $IFS != $' \t\n\C-@' ]] && IFS=$' \t\n\C-@'
+# [[ $IFS != $' \t\n\C-@' ]] && IFS=$' \t\n\C-@'
 
 # Set the current va-api driver used
 # export LIBVA_DRIVER_NAME='iHD'       # integrated gpu
@@ -166,12 +166,12 @@ export HOMESCRIPTS="$HOME/random/homescripts"
 export ENV="$XDG_CONFIG_HOME/dashrc"
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 export ZPLUGIN_DIR="$XDG_DATA_HOME/zsh-plugins"
-export BDOTDIR="$XDG_CONFIG_HOME/bash"
+# export BDOTDIR="$XDG_CONFIG_HOME/bash"
 
 export GREP_COLORS="mt=01;91:fn=03;32:ln=33:bn=36:se=35"
 export JQ_COLORS="0;31:0;36:1;36:0;33:1;32:0;37:1;37"
 
-export SUDO_PROMPT="[0;1m[[31mSUDO[0;1m][0m " # I need to set raw escape codes in here because sudo doesn't parse C escape codes
+export SUDO_PROMPT=$'\e[0;1m[\e[31mSUDO\e[0;1m]\e[0m '
 export FZF_DEFAULT_OPTS="--prompt=' ' --pointer=' ' --marker=' ' --tabstop=4 --no-mouse --ansi \
 --color=fg:#ccccdc,hl:#df6b75,fg+:#fcfcff,bg+:#2c323d,hl+:#d682f0,info:#f2ce97,prompt:#d7005f,pointer:#65b6f8,marker:#56b5c2,spinner:#d682f0,header:#e6e6e6 "
 
@@ -214,14 +214,10 @@ export MINETEST_USER_PATH="$XDG_DATA_HOME/minetest"
 export TERMINFO="$XDG_DATA_HOME/terminfo"
 #export DISCORD_USER_DATA_DIR="$XDG_DATA_HOME"  # Probably not needed
 
-# I fixed some bugs in this. I don't think they really tested to see if it would compile before they made the release.
 # export PICO_SDK_PATH="$HOME/src/pico-sdk"
 
 # Don't break builds if sccache decides not to work today
 export SCCACHE_IGNORE_SERVER_IO_ERROR=1
-
-# starship (unused)
-# export STARSHIP_CONFIG="$XDG_CONFIG_HOME/starship/dashline.toml" STARSHIP_CACHE="$XDG_CACHE_HOME/starship"
 
 # ollama (It's a piece of shit that still puts stuff in ~/.ollama)
 export OLLAMA_HOME="$XDG_DATA_HOME/ollama"

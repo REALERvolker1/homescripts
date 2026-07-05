@@ -81,6 +81,8 @@ foreach i ("${ZDOTDIR:-~/.config/zsh}/rc.d"/*.zsh) {
     }
 }
 
+[[ -f "/home/vlk/.openclaw/completions/openclaw.zsh" ]] && . "/home/vlk/.openclaw/completions/openclaw.zsh"
+
 # Autoload all my functions
 for i in "$ZDOTDIR/functions"/^*.zwc(.N)
     autoload $i
@@ -93,7 +95,7 @@ for i in "$HOME/".{xsel.log,wget-hsts}
 zsh-defer zstatectl --track
 
 # My custom fetchscript
-dumbfetch
+(($+commands[dumbfetch])) && dumbfetch
 
 # Print a fortune in italics, pass through lolcat for formatting
 print -n '\e[0;3m'
@@ -101,7 +103,7 @@ fortune -a -s | lolcat
 print -n '\e[0m'
 
 # Run to see if you need to unfunction anything
-for i in ${(@k)builtins} ${(@k)aliases} ${(@k)reswords}; (($+functions[$i])) && echo $i
+# for i in ${(@k)builtins} ${(@k)aliases} ${(@k)reswords}; (($+functions[$i])) && echo $i
 
 # Execute lsdiff unless I don't need to
 [[ -z ${DISTROBOX_ENTER_PATH-} ]] && lsdiff

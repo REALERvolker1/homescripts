@@ -1,0 +1,31 @@
+[Unit]
+Description=OpenClaw Gateway (v2026.6.11)
+After=network-online.target
+Wants=network-online.target
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+[Service]
+ExecStart=/usr/bin/node /home/vlk/.local/share/pnpm/store/v11/links/@/openclaw/2026.6.11/c20a5f96e32e316ee9dd94baf0d3a8656c038bbff0779ce7fa8385964d95a260/node_modules/openclaw/dist/index.js gateway --port 18789
+Restart=always
+RestartSec=5
+RestartPreventExitStatus=78
+TimeoutStopSec=30
+TimeoutStartSec=30
+SuccessExitStatus=0 143
+OOMPolicy=continue
+KillMode=control-group
+Environment=HOME=/home/vlk
+Environment=TMPDIR=/tmp
+Environment=NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
+Environment=PATH=/usr/bin:/home/vlk/.local/share/pnpm:/home/vlk/.local/share/bun/bin:/home/vlk/.local/share/nvm/current/bin:/home/vlk/.local/bin:/home/vlk/.npm-global/bin:/home/vlk/bin:/home/vlk/.nix-profile/bin:/usr/local/bin:/bin
+Environment=OPENCLAW_GATEWAY_PORT=18789
+Environment=OPENCLAW_SYSTEMD_UNIT=openclaw-gateway.service
+Environment="OPENCLAW_WINDOWS_TASK_NAME=OpenClaw Gateway"
+Environment=OPENCLAW_WINDOWS_TASK_HIDDEN_LAUNCHER=1
+Environment=OPENCLAW_SERVICE_MARKER=openclaw
+Environment=OPENCLAW_SERVICE_KIND=gateway
+Environment=OPENCLAW_SERVICE_VERSION=2026.6.11
+
+[Install]
+WantedBy=default.target
