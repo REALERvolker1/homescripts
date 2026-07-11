@@ -125,7 +125,7 @@
 	"code-runner.enableAppInsights": false,
 	"workbench.settings.enableNaturalLanguageSearch": false,
 	"update.mode": "manual",
-	"extensions.autoUpdate": "onlyEnabledExtensions",
+	"extensions.autoUpdate": "on",
 	"python.experiments.optOutFrom": ["All"],
 	"workbench.commandPalette.experimental.suggestCommands": true,
 	"python.experiments.enabled": false,
