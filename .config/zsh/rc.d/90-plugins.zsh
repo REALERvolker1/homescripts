@@ -36,7 +36,6 @@ __vlkplugin::refresh() {
         [url]='https://github.com/zdharma-continuum/fast-syntax-highlighting'
         [plugin]="$ZPLUGIN_DIR/$fsh/$fsh.plugin.zsh"
     )
-    vlkplugins+=(fshz)
 
     # zsh-autosuggestions
     typeset -A sugz=(
@@ -44,7 +43,6 @@ __vlkplugin::refresh() {
         [plugin]="$ZPLUGIN_DIR/$sug/$sug.zsh"
         [branch]=develop
     )
-    vlkplugins+=(sugz)
 
     # zsh better vi mode plugin. Very slow. Candidate to rewrite in rust
     # typeset -A zviz=(
@@ -59,7 +57,6 @@ __vlkplugin::refresh() {
         [plugin]="$ZPLUGIN_DIR/$fzf/$fzf.zsh"
         [cmds]="recompile --all" # build-fzf-tab-module
     )
-    vlkplugins+=(fzfz)
 
     # zsh-autocomplete. Horrible performance, so I'm disabling it on battery (when battery variable is zero)
     typeset -A aucz=(
@@ -67,6 +64,11 @@ __vlkplugin::refresh() {
         [plugin]="$ZPLUGIN_DIR/zsh-autocomplete/zsh-autocomplete.plugin.zsh"
     )
     ((${__vlkplugin_battery:-1})) && vlkplugins+=(aucz)
+
+    # Autocomplete must initialize before fzf-tab, and fzf-tab must load before
+    # autosuggestions wraps completion widgets. Keep the syntax highlighter
+    # first so it does not try to wrap autocomplete's private widgets.
+    vlkplugins=(fshz $vlkplugins fzfz sugz)
 
     typeset -a error_plugins=()
     foreach plug ($vlkplugins) {
@@ -103,14 +105,44 @@ __vlkplugin::refresh() {
 }
 __vlkplugin::refresh
 
-# workaround for zsh-autocomplete and fzf-tab/atuin compatibility
+# zsh-autocomplete resets compadd and uses `menu no no-select`, while fzf-tab
+# treats an unambiguous prefix under that style as a reason not to open fzf.
+# Override both only for an explicit Tab press; passive suggestions keep using
+# autocomplete's normal configuration.
+__vlkplugin::fzf_tab_complete() {
+    local -a menu_style
+    zstyle -a ':completion:*:*:*:*:default' menu menu_style
+
+    zstyle ':completion:*:*:*:*:default' menu select=1
+    functions[compadd]=$functions[-ftb-compadd]
+
+    zle fzf-tab-complete
+    local ret=$?
+
+    if ((${#menu_style})); then
+        zstyle ':completion:*:*:*:*:default' menu $menu_style
+    else
+        zstyle -d ':completion:*:*:*:*:default' menu
+    fi
+    return $ret
+}
+
 __vlkplugin::keybind_reset() {
     bindkey '^r' _atuin_search_widget
     bindkey '^[[A' _atuin_up_search_widget
     bindkey '^[OA' _atuin_up_search_widget
 
-    bindkey -M viins '^I'  fzf-tab-complete
-    bindkey -M viins '^X.' fzf-tab-debug
+    if (( ${+functions[enable-fzf-tab]} )); then
+        disable-fzf-tab
+        bindkey -M emacs '^I' expand-or-complete
+        bindkey -M viins '^I' expand-or-complete
+        enable-fzf-tab
+    fi
+
+    zle -N __vlkplugin::fzf_tab_complete
+    bindkey -M main '^I' __vlkplugin::fzf_tab_complete
+    bindkey -M emacs '^I' __vlkplugin::fzf_tab_complete
+    bindkey -M viins '^I' __vlkplugin::fzf_tab_complete
 }
 
 # This will run after all the plugins are loaded.
@@ -129,4 +161,3 @@ __vlkplugin::fast_theme() {
     unset -f __vlkplugin::fast_theme
 }
 zsh-defer __vlkplugin::fast_theme
-
