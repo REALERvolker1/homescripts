@@ -68,7 +68,9 @@ typeset -gr __vlk_fzf_process_preview_binding="focus:transform:exec 2>/dev/null;
 typeset -gr __vlk_fzf_show_preview_binding='focus:change-preview-window(right,50%,nohidden)'
 typeset -gr __vlk_fzf_show_narrow_preview_binding='focus:change-preview-window(right,30%,wrap,nohidden)'
 
-zstyle ':fzf-tab:complete:*:*' fzf-preview "$__vlk_fzf_preview_env"'; [[ -n ${realpath-} ]] && txtpreview.zsh ${(Q)realpath}'
+# Source txtpreview in this shell. Launching it through its Zsh shebang resets
+# the special COLUMNS/LINES parameters back to the outer terminal dimensions.
+zstyle ':fzf-tab:complete:*:*' fzf-preview "$__vlk_fzf_preview_env"'; [[ -n ${realpath-} ]] && source =txtpreview.zsh ${(Q)realpath}'
 zstyle ':fzf-tab:complete:*:*' fzf-flags --preview-window=right:'50%':hidden
 zstyle ':fzf-tab:complete:*:*' fzf-bindings "$__vlk_fzf_file_preview_binding"
 

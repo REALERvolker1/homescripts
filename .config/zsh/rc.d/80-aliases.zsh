@@ -122,6 +122,7 @@ alias download='=curl -sfLO '
 # download from youtube
 alias ytmp3="=yt-dlp --extract-audio --audio-format mp3 "
 alias ytmp4="=yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --progress --remux-video mp4 "
+alias ytmp='=yt-dlp -f bestvideo+bestaudio --sponsorblock-remove sponsor --progress --concurrent-fragments 4 --no-playlist'
 
 alias nmapa="=nmap -Av 192.168.0.'*'"
 
