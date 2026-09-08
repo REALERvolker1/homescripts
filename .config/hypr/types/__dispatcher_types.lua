@@ -50,7 +50,11 @@
 ---@field action? VlkToggleAction
 ---@field window? HL.WindowSelector
 
+---@class VlkWindowPinArgs: VlkWindowTargetArgs
+---@field action? VlkToggleAction
+
 ---@class VlkWindowFullscreenArgs
+---@field mode? "fullscreen"|"maximized"
 ---@field action? VlkToggleAction
 ---@field window? HL.WindowSelector
 
@@ -81,7 +85,7 @@
 ---@field pseudo fun(args?: VlkWindowPseudoArgs): HL.Dispatcher
 ---@field float fun(args?: VlkWindowFloatArgs): HL.Dispatcher
 ---@field fullscreen fun(args?: VlkWindowFullscreenArgs): HL.Dispatcher
----@field pin fun(args?: VlkWindowTargetArgs): HL.Dispatcher
+---@field pin fun(args?: VlkWindowPinArgs): HL.Dispatcher
 ---@field center fun(args?: VlkWindowTargetArgs): HL.Dispatcher
 ---@field drag fun(args?: VlkWindowTargetArgs): HL.Dispatcher
 

@@ -1,0 +1,22 @@
+---@meta
+
+-- Effects omitted by the installed generated stub; documented in the local wiki.
+---@class HL.WindowRuleSpec
+---@field border_size? number
+---@field center? boolean
+---@field decorate? boolean
+---@field dim_around? boolean
+---@field float? boolean
+---@field immediate? boolean
+---@field move? string
+---@field no_anim? boolean
+---@field no_blur? boolean
+---@field no_focus? boolean
+---@field no_initial_focus? boolean
+---@field no_shadow? boolean
+---@field opacity? string
+---@field pin? boolean
+---@field rounding? number
+---@field size? string
+---@field workspace? string
+---@field xray? boolean
