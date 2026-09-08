@@ -1,0 +1,14 @@
+[Unit]
+Description=Load NVIDIA settings
+PartOf=xorg.target graphical-session.target
+After=graphical-session.target
+ConditionFileIsExecutable=/usr/bin/nvidia-settings
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecCondition=/usr/bin/test -f "${XDG_CONFIG_HOME}/nvidia/settings"
+ExecStart=/usr/bin/nvidia-settings --config="${XDG_CONFIG_HOME}/nvidia/settings"
+Slice=app.slice
+
+[Install]
+WantedBy=xorg.target

@@ -1,4 +1,7 @@
 [Unit]
-Description=Wayland session target
+Description=Personal wayland session
 Requires=user-graphical-session.target
+After=user-graphical-session.target
+PartOf=user-graphical-session.target
 Conflicts=xorg.target
+Wants=gammastep-wayland.service xhost.service hyprpaper.service clipman-wayland.service hyprpm-reload.service quickshell.service wayland-cleanup.service

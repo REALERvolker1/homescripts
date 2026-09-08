@@ -1,10 +1,14 @@
 [Unit]
-Description=Start networkmanager-applet for bars
-After=user-graphical-session.target
+Description=NetworkManager applet
+PartOf=user-graphical-session.target graphical-session.target
+After=graphical-session.target
 
 [Service]
-ExecStart=/usr/bin/nm-applet
+Type=simple
 Restart=on-failure
+RestartSec=3s
+ExecStart=/usr/bin/nm-applet
+Slice=app.slice
 
 [Install]
 WantedBy=user-graphical-session.target

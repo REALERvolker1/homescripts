@@ -1,0 +1,13 @@
+[Unit]
+Description=Remove legacy X11 session files
+PartOf=wayland.target graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/bash -c 'for file in "$HOME/.xsession-errors" "$HOME/.Xauthority"; do if [[ -f "$$file" ]]; then rm -- "$$file"; fi; done'
+Slice=app.slice
+
+[Install]
+WantedBy=wayland.target

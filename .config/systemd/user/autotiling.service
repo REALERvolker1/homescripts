@@ -1,13 +1,14 @@
 [Unit]
-Description=Lock the X11 session
+Description=Automatic i3 tiling
 PartOf=xorg.target graphical-session.target
 After=graphical-session.target
-
+ConditionEnvironment=I3SOCK
+ConditionFileIsExecutable=/usr/bin/autotiling-rs
 [Service]
 Type=simple
 Restart=on-failure
 RestartSec=3s
-ExecStart=/usr/bin/xss-lock -l %h/bin/vlklock.sh
+ExecStart=/usr/bin/autotiling-rs
 Slice=app.slice
 
 [Install]

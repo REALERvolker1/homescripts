@@ -1,5 +1,5 @@
 [Unit]
-Description=Polkit authentication agent
+Description=Maintain game launcher symlinks
 PartOf=user-graphical-session.target graphical-session.target
 After=graphical-session.target
 
@@ -7,7 +7,7 @@ After=graphical-session.target
 Type=simple
 Restart=on-failure
 RestartSec=3s
-ExecStart=/usr/bin/bash %h/bin/autostart-polkit-agent.sh
+ExecStart=%h/bin/symlink_unfuckd
 Slice=app.slice
 
 [Install]

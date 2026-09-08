@@ -1,12 +1,12 @@
 [Unit]
-Description=Allow local X11 clients
+Description=Load Hyprland plugins
 PartOf=wayland.target graphical-session.target
 After=graphical-session.target
-ConditionEnvironment=DISPLAY
+ConditionEnvironment=HYPRLAND_INSTANCE_SIGNATURE
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/bin/xhost +local:
+ExecStart=/usr/bin/hyprpm reload
 Slice=app.slice
 
 [Install]

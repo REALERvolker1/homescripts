@@ -1,4 +1,7 @@
 [Unit]
-Description=x11-xorg user session target
+Description=Personal xorg session
 Requires=user-graphical-session.target
+After=user-graphical-session.target
+PartOf=user-graphical-session.target
 Conflicts=wayland.target
+Wants=gammastep-xorg.service xresources.service nvidia-settings.service clipman-xorg.service xsettingsd.service xss-lock.service x11-dpms.service numlock.service caps-escape.service x11-background.service x11-monitors.service autotiling.service picom.service

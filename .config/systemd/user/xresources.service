@@ -1,0 +1,14 @@
+[Unit]
+Description=Merge X resources
+PartOf=xorg.target graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecCondition=/usr/bin/test -r "${XRESOURCES}"
+ExecStart=/usr/bin/xrdb -merge "${XRESOURCES}"
+Slice=app.slice
+
+[Install]
+WantedBy=xorg.target

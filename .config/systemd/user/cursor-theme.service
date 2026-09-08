@@ -1,13 +1,12 @@
 [Unit]
-Description=Polkit authentication agent
+Description=Apply the session cursor theme
 PartOf=user-graphical-session.target graphical-session.target
 After=graphical-session.target
 
 [Service]
-Type=simple
-Restart=on-failure
-RestartSec=3s
-ExecStart=/usr/bin/bash %h/bin/autostart-polkit-agent.sh
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=%h/bin/set-cursor-theme.sh --session
 Slice=app.slice
 
 [Install]

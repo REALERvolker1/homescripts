@@ -1,12 +1,13 @@
 [Unit]
-Description=Allow local X11 clients
+Description=Quickshell desktop shell
 PartOf=wayland.target graphical-session.target
 After=graphical-session.target
-ConditionEnvironment=DISPLAY
+
 [Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/usr/bin/xhost +local:
+Type=simple
+Restart=on-failure
+RestartSec=3s
+ExecStart=/usr/bin/qs
 Slice=app.slice
 
 [Install]

@@ -1,5 +1,4 @@
 -- Core layout and compositor behavior. Optional modules are toggled below.
-require("environment")
 -- random shit
 require("globals")
 
@@ -100,5 +99,5 @@ require("classes")
 require("visuals")
 require("plugins")
 
--- Register startup last so child processes inherit environment.lua.
+-- Register startup after the compositor configuration.
 require("startup")

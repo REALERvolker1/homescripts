@@ -1,5 +1,5 @@
 -- Apply only registered options: absent plugins must not break the base config.
--- autostart.sh already runs hyprpm reload. Plugin binaries must match Hyprland.
+-- hyprpm-reload.service runs hyprpm reload. Plugin binaries must match Hyprland.
 -- Comment individual entries to leave that setting at the plugin's default.
 -- These are the production plugin options; third-party APIs have no installed stubs.
 ---@type table<string, string|number|boolean>

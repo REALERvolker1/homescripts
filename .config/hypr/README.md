@@ -1,13 +1,13 @@
 - `hyprland.lua`: The core module
-- `environment.lua`: session and toolkit environment variables.
+- `../uwsm/env-hyprland`: toolkit environment variables, loaded by UWSM before Hyprland starts. UWSM supplies the desktop and session identity variables.
 - `input.lua`: keyboard, pointer, and touchpad settings. The touchpad toggle uses Lua state and resets to the configured default on reload.
 - `monitors_and_workspaces.lua`: output layout and workspace monitor preferences. Odd workspaces prefer the laptop; even workspaces prefer DP-1, HDMI-A-1, then DP-2. A single available output receives all eight assignments.
 - `keybinds.lua`: application launchers, window management, media, screenshots, and gestures.
 - `dropdown.lua`: native show/hide for the `hdropkitty` terminal, replacing the shortcut's legacy hdrop script. It reuses `special:hdrop` and sizes the terminal for the active output.
 - `classes.lua`: application placement and window rules.
 - `visuals.lua`: colors, decorations, animations, and layer rules.
-- `plugins.lua`: production plugin settings, applied only when each option is registered. Plugin loading remains in the existing `autostart.sh`.
-- `startup.lua`: startup and reload callbacks. Autostart runs on `hyprland.start`, after environment setup, rather than on every reload.
+- `plugins.lua`: production plugin settings, applied only when each option is registered. Plugin loading runs through `hyprpm-reload.service`.
+- `startup.lua`: startup and reload callbacks. On `hyprland.start`, `autostart.sh` finalizes UWSM and starts `wayland.target`. Reloads do not restart services.
 - `types/`: declarations missing from the installed Hyprland stubs.
 
 The port preserves the deliberate changes in the partial Lua config, including cursor behavior and excluding special workspaces from smart gaps. It restores missing production shortcuts and the production mouse-wheel direction. Super+Print retains the partial config's active-output screenshot behavior. Super+Shift+Print and Super+Ctrl+Print are also available.

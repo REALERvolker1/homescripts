@@ -48,8 +48,19 @@ fi
 
 ERRFILE="${XDG_RUNTIME_DIR:-$HOME}/xinit-xsession-errors"
 
+# Unlike UWSM, xinit does not stop the systemd graphical session for us.
+cleanup_session() {
+    if systemctl --user is-active --quiet xorg.target; then
+        systemctl --user stop graphical-session.target
+    fi
+}
+trap cleanup_session EXIT
+
 if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
-    exec dbus-run-session -- $session${session_args} >"$ERRFILE" 2>&1
+    # Session arguments are stored as a space-separated list above.
+    # shellcheck disable=SC2086
+    dbus-run-session -- "$session" ${session_args} >"$ERRFILE" 2>&1
 else
-    exec $session${session_args} >"$ERRFILE" 2>&1
+    # shellcheck disable=SC2086
+    "$session" ${session_args} >"$ERRFILE" 2>&1
 fi

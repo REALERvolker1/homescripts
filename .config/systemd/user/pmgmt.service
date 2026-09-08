@@ -1,11 +1,14 @@
 [Unit]
-Description=pmgmt.sh -- a power management daemon to automatically apply profiles if AC is plugged or unplugged
-After=default.target
+Description=Apply power profiles when AC changes
+PartOf=user-graphical-session.target graphical-session.target
+After=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/home/vlk/bin/pmgmt.sh --monitor
 Restart=on-failure
+RestartSec=3s
+ExecStart=%h/bin/pmgmt.sh --monitor
+Slice=app.slice
 
 [Install]
-WantedBy=default.target
+WantedBy=user-graphical-session.target

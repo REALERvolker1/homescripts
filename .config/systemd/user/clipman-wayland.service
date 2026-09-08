@@ -1,5 +1,5 @@
 [Unit]
-Description=Gammastep for Wayland
+Description=Store Wayland clipboard text
 PartOf=wayland.target graphical-session.target
 After=graphical-session.target
 
@@ -7,7 +7,7 @@ After=graphical-session.target
 Type=simple
 Restart=on-failure
 RestartSec=3s
-ExecStart=/usr/bin/gammastep -P -m wayland
+ExecStart=/usr/bin/wl-paste -t text --watch clipman store --histpath=%t/virus.bin
 Slice=app.slice
 
 [Install]

@@ -1,9 +1,14 @@
 [Unit]
-Description=Start gammastep (Xorg-x11 randr mode)
-After=xorg.target
+Description=Gammastep for X11
+PartOf=xorg.target graphical-session.target
+After=graphical-session.target
 
 [Service]
+Type=simple
+Restart=on-failure
+RestartSec=3s
 ExecStart=/usr/bin/gammastep -P -m randr
+Slice=app.slice
 
 [Install]
 WantedBy=xorg.target

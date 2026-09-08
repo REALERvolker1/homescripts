@@ -1,5 +1,5 @@
 [Unit]
-Description=Lock the X11 session
+Description=X11 clipboard manager
 PartOf=xorg.target graphical-session.target
 After=graphical-session.target
 
@@ -7,7 +7,7 @@ After=graphical-session.target
 Type=simple
 Restart=on-failure
 RestartSec=3s
-ExecStart=/usr/bin/xss-lock -l %h/bin/vlklock.sh
+ExecStart=/usr/bin/xfce4-clipman
 Slice=app.slice
 
 [Install]

@@ -1,3 +1,6 @@
 [Unit]
-Description=Shared wayland-xorg graphical session target
-Requires=default.target
+Description=Personal graphical session services
+BindsTo=graphical-session.target
+After=graphical-session.target
+PartOf=graphical-session.target
+Wants=dunst.service ydotool.service polkit-agent.service nm-applet.service pmgmt.service cursor-theme.service symlink-unfuck.service

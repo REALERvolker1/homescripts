@@ -1,0 +1,9 @@
+# Loaded by UWSM before Hyprland and exported to user services.
+# UWSM supplies XDG_CURRENT_DESKTOP, XDG_SESSION_DESKTOP and XDG_SESSION_TYPE.
+export QT_QPA_PLATFORM='wayland;xcb'
+export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+export GDK_BACKEND='wayland,x11'
+export SDL_VIDEODRIVER=wayland
+export CLUTTER_BACKEND=wayland
+export _JAVA_AWT_WM_NONREPARENTING=1
+export HYPRVLK_LOADED=1

@@ -1,13 +1,13 @@
 [Unit]
-Description=Lock the X11 session
+Description=X11 compositor for i3
 PartOf=xorg.target graphical-session.target
 After=graphical-session.target
-
+ConditionEnvironment=I3SOCK
 [Service]
 Type=simple
 Restart=on-failure
 RestartSec=3s
-ExecStart=/usr/bin/xss-lock -l %h/bin/vlklock.sh
+ExecStart=/usr/bin/picom
 Slice=app.slice
 
 [Install]
