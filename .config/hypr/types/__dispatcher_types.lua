@@ -33,6 +33,9 @@
 ---@field out_of_group? boolean|VlkDirection
 ---@field window? HL.WindowSelector
 
+---@class VlkMouseResizeArgs
+---@field keep_aspect_ratio? boolean
+
 ---@class VlkWindowResizeArgs
 ---@field x number
 ---@field y number
@@ -74,7 +77,7 @@
 ---@field close fun(args?: VlkWindowTargetArgs): HL.Dispatcher
 ---@field kill fun(args?: VlkWindowTargetArgs): HL.Dispatcher
 ---@field move fun(args: VlkWindowMoveArgs): HL.Dispatcher
----@field resize fun(args: VlkWindowResizeArgs): HL.Dispatcher
+---@field resize fun(args?: VlkWindowResizeArgs|VlkMouseResizeArgs): HL.Dispatcher
 ---@field pseudo fun(args?: VlkWindowPseudoArgs): HL.Dispatcher
 ---@field float fun(args?: VlkWindowFloatArgs): HL.Dispatcher
 ---@field fullscreen fun(args?: VlkWindowFullscreenArgs): HL.Dispatcher

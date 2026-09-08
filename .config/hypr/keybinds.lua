@@ -1,5 +1,3 @@
----@source
-
 local mod = "SUPER + "
 local mods = mod .. "SHIFT + "
 local modc = mod .. "CTRL + "
@@ -43,7 +41,7 @@ local function dexec(argv)
 end
 
 ---Shallow-copy a table
----@generic T
+---@generic T: table
 ---@param t T
 ---@return T
 local function tablecpy(t)
@@ -103,76 +101,76 @@ for i, imod in ipairs({ mod, mods, modc }) do
         imod,
         "Backspace",
         "Z",
-        dexec("vlk-sensible-browser " .. i),
+        dexec({"vlk-sensible-browser", i}),
         { description = "Open browser variant " .. i }
     )
 end
 
 hl.bind(
     mod .. "Backslash",
-    dexec("thunar"),
+    dexec({"thunar"}),
 	{ description = "Open the file manager" }
 )
 hl.bind(
     mods .. "Backslash",
-    dexec("mousepad"),
+    dexec({"mousepad"}),
 	{ description = "Open the GUI text editor" }
 )
 hl.bind(
     modc .. "Backslash",
-    dexec("codium"),
+    dexec({"codium"}),
 	{ description = "Open the IDE" }
 )
 
 hl.bind(
     mod .. "D",
-    dexec("vlk-sensible-rofi"),
+    dexec({"vlk-sensible-rofi"}),
 	{ description = "Open drun-style dmenu" }
 )
 hl.bind(
     mods .. "D",
-    dexec("rofi -show run"),
+    dexec({"rofi", "-show", "run"}),
 	{ description = "Open shell command dmenu" }
 )
 
 hl.bind(
     mod .. "period",
-    dexec("rofi-charamap-menu.sh"),
+    dexec({"rofi-charamap-menu.sh"}),
 	{ description = "Open character map / emoji picker" }
 )
 
 hl_bind_with_alt(
     "", "XF86Calculator", mod .. "KP_Enter",
-    dexec("gnome-calculator"),
+    dexec({"gnome-calculator"}),
 	{ description = "Open the calculator" }
 )
 
 hl.bind(
     mod .. "Equal",
-    dexec("vlklock.sh"),
+    dexec({"vlklock.sh"}),
 	{ description = "Session lockscreen" }
 )
 
 hl.bind(
     mod .. "Escape",
-    dexec("rofi -show powermenu"),
+    dexec({"rofi", "-show", "powermenu"}),
 	{ description = "Show the session logout/power menu" }
 )
 
 hl.bind(
     "Print",
-    dexec("vlk-sensible-screenshot --region"),
+    dexec({"vlk-sensible-screenshot", "--region"}),
 	{ description = "Interactive region-selection screenshot. Opens editor." }
 )
 -- I got tired of having to hit shift when making fullscreen screenshots, as it messes with gameplay
 hl_bind_with_alt(
     "", mod .. "Print", "SHIFT + Print",
-    dexec("vlk-sensible-screenshot --active-output"),
+    dexec({"vlk-sensible-screenshot", "--active-output"}),
 	{ description = "Take a full-screen screenshot of the active monitor. Opens editor." }
 )
 hl.bind(
     "CTRL + Print",
-    dexec("vlk-sensible-screenshot --full"),
+    dexec({"vlk-sensible-screenshot", "--full"}),
 	{ description = "Take a screenshot of ALL monitors. Opens editor." }
 )
 
@@ -184,12 +182,12 @@ hl.bind(
 
 hl.bind(
     mods .. "R",
-    dexec(xdg_config_home .. "/hypr/scripts/reload.sh"),
+    dexec({xdg_config_home .. "/hypr/scripts/reload.sh"}),
 	{ description = "Full reload of Hyprland and Waybar" }
 )
 hl.bind(
     mod .. "R",
-    dexec("hyprctl reload"),
+    dexec({"hyprctl", "reload"}),
 	{ description = "Reload Hyprland itself" }
 )
 
@@ -220,16 +218,17 @@ hl.bind(
 
 hl_bind_with_alt(
     "", "XF86Launch3", "Scroll_Lock",
-    dexec("hdrop vlk-sensible-terminal 1 --class=hdropkitty"),
+    dexec({"hdrop", "vlk-sensible-terminal", "1", "--class=hdropkitty"}),
 	{ description = "Drop-down terminal on a special workspace" }
 )
 hl_bind_with_alt(
     mod, "XF86Launch3", "Scroll_Lock",
-    dexec("gfxmenu.sh"),
+    dexec({"gfxmenu.sh"}),
 	{ description = "home-made Asus Armory Crate" }
 )
 
 --[[
+TODO: Investigate moving to wireplumber CTL from pulseaudio CTL
 -- Example volume button that allows press and hold, volume limited to 150%
 hl.bind("XF86AudioRaiseVolume", dexec("wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+"), { repeating = true })
 
@@ -244,10 +243,10 @@ hl.bind("SUPER + XF86AudioNext", dexec("playerctl next"), { long_press = true })
 hl.bind("SUPER + XF86AudioNext", dexec("playerctl position +5"))
 ]]
 
--- TODO: I don't remember what `bindl` or `bindel` meant in hyprlang, I hope this works like before
+
 hl.bind(
     "XF86AudioRaiseVolume",
-    dexec("pactl set-sink-volume @DEFAULT_SINK@ +5%"),
+    dexec({"pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%"}),
     {
         description = "Raise the audio volume",
         repeating = true,
@@ -256,7 +255,7 @@ hl.bind(
 )
 hl.bind(
     "XF86AudioLowerVolume",
-    dexec("pactl set-sink-volume @DEFAULT_SINK@ -5%"),
+    dexec({"pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%"}),
 	{
         description = "Lower the audio volume",
         repeating = true,
@@ -265,7 +264,7 @@ hl.bind(
 )
 hl.bind(
     "XF86AudioMute",
-    dexec("pactl set-sink-mute @DEFAULT_SINK@ toggle"),
+    dexec({"pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle"}),
     {
         description = "Mute the audio",
 		locked = true,
@@ -274,7 +273,7 @@ hl.bind(
 -- I almost never use this key
 hl.bind(
     "XF86AudioMicMute",
-    dexec("playerctl play-pause"),
+    dexec({"playerctl", "play-pause"}),
     {
         description = "Play or pause the most recent audio source",
 		locked = true,
@@ -282,7 +281,7 @@ hl.bind(
 )
 hl.bind(
     mod .. "XF86AudioRaiseVolume",
-    dexec("playerctl next"),
+    dexec({"playerctl", "next"}),
     {
         description = "Fast-forward to the next track in the most recent audio source",
 		locked = true,
@@ -290,7 +289,7 @@ hl.bind(
 )
 hl.bind(
     mod .. "XF86AudioLowerVolume",
-    dexec("playerctl previous"),
+    dexec({"playerctl", "previous"}),
     {
         description = "Go back to the previous track in the most recent audio source",
 		locked = true,
@@ -298,7 +297,7 @@ hl.bind(
 )
 hl.bind(
     mods .. "XF86AudioRaiseVolume",
-    dexec("playerctl position 5+"),
+    dexec({"playerctl", "position", "5+"}),
     {
         description = "Fast-forward 5 seconds",
 		locked = true,
@@ -306,7 +305,7 @@ hl.bind(
 )
 hl.bind(
     mods .. "XF86AudioLowerVolume",
-    dexec("playerctl position 5-"),
+    dexec({"playerctl", "position", "5-"}),
     {
         description = "Rewind 5 seconds",
 		locked = true,
@@ -315,7 +314,7 @@ hl.bind(
 
 hl.bind(
     "XF86MonBrightnessUp",
-    dexec("brightnessctl s '+10%'"),
+    dexec({"brightnessctl", "s", "+10%"}),
     {
         description = "Raise built-in monitor brightness",
         repeating = true,
@@ -324,7 +323,7 @@ hl.bind(
 )
 hl.bind(
     "XF86MonBrightnessDown",
-    dexec("brightnessctl s '10%-'"),
+    dexec({"brightnessctl", "s", "10%-"}),
     {
         description = "Lower built-in monitor brightness",
         repeating = true,
@@ -335,8 +334,29 @@ hl.bind(
 -- TODO: I want `disabled_on_external_mouse` from sway-input(5) but Vaxry doesn't want to implement that
 hl_bind_with_alt(
     "", "XF86TouchpadToggle", mod .. "F10",
-    dexec(xdg_config_home .. "/hypr/scripts/temp-hyprpointer.sh toggle"),
+    dexec({xdg_config_home .. "/hypr/scripts/temp-hyprpointer.sh", "toggle"}),
 	{ description = "Toggle the laptop's touchpad" }
+)
+
+hl.bind(
+    mod .. "space",
+    dsp.window.float({ action = "toggle" }),
+    { description = "Toggle floating for the active window" }
+)
+
+hl.bind(
+    mod .. "F",
+    dsp.window.fullscreen({
+        mode = "fullscreen",
+        action = "toggle",
+    }),
+    { description = "Toggle fullscreen for the active window" }
+)
+
+hl.bind(
+    mod .. "comma",
+    dsp.window.pin({ action = "toggle" }),
+    { description = "Toggle pinning for the active window" }
 )
 
 -- hl.bind("switch:on:[Lid Switch]")
@@ -380,8 +400,81 @@ hl_bind_lrud(
         repeating = true
     }
 )
+hl_bind_lrud(
+    modc,
+    dsp.window.resize({
+        x = -resize_mult,
+        y = 0,
+        relative = true,
+    }),
+    dsp.window.resize({
+        x = resize_mult,
+        y = 0,
+        relative = true,
+    }),
+    dsp.window.resize({
+        x = 0,
+        y = -resize_mult,
+        relative = true,
+    }),
+    dsp.window.resize({
+        x = 0,
+        y = resize_mult,
+        relative = true,
+    }),
+    {
+        description = "Resize the active window",
+        repeating = true,
+    }
+)
 
--- hl_bind_lrud(
---     modc,
--- 	hl.dsp.window.resize({})
--- )
+local sswp = ""
+for i in 1, 10 do
+    -- There isn't a "10" key on my keyboard, so I use "0"
+    sswp = tostring(i % 10)
+
+    hl.bind(
+        mod .. sswp,
+        dsp.focus({ workspace = i }),
+        { description = "Move to workspace " .. i }
+    )
+    hl.bind(
+        mods .. sswp,
+        dsp.window.move({ workspace = i }),
+        { description = "Move current window to workspace " .. i }
+    )
+end
+
+hl.bind(
+    mod .. "mouse_down",
+    dsp.focus({ workspace = "e+1" }),
+    { description = "Scroll down to go to the previous workspace in numerical order" }
+)
+hl.bind(
+    mod .. "mouse_up",
+    dsp.focus({ workspace = "e-1" }),
+    { description = "Scroll down to go to the next workspace in numerical order" }
+)
+
+hl.bind(
+    mod .. "mouse:272",
+    dsp.window.drag(),
+    {
+        mouse = true,
+        description = "Drag a window around just by super + grabbing"
+    }
+)
+hl.bind(
+    mod .. "mouse:273",
+    dsp.window.resize(),
+    {
+        mouse = true,
+        description = "Right-click anywhere in a window with super held down to grab-resize it"
+    }
+)
+
+hl.gesture({
+    fingers = 3,
+    direction = "horizontal",
+    action = "workspace",
+})

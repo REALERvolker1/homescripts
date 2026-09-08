@@ -106,7 +106,7 @@ if [[ -n ${WAYLAND_DISPLAY-} ]]; then
         hyprpm reload &
     fi
 
-	_pgrepx waybar &
+	_pgrepx qs qs &
 
 elif [[ -n ${DISPLAY-} ]]; then
     [[ -r "${XRESOURCES-}" ]] && xrdb -merge "${XRESOURCES-}" &
