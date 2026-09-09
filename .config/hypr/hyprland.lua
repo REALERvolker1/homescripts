@@ -5,7 +5,7 @@ require("globals")
 hl.config({
 	general = {
 		-- Broken on my gpu? Test
-		-- allow_tearing = true,
+		allow_tearing = true,
 		layout = "dwindle",
 		resize_on_border = true,
 		extend_border_grab_area = 20,

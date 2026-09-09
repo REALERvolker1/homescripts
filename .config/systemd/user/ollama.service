@@ -1,0 +1,11 @@
+[Unit]
+Description=Ollama server
+
+[Service]
+Environment=OLLAMA_CONTEXT_LENGTH=256000
+ExecStart=/usr/bin/ollama serve
+Restart=on-failure
+RestartSec=3s
+
+[Install]
+WantedBy=default.target

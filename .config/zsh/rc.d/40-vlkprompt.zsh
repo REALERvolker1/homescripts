@@ -6,6 +6,7 @@
 
 unsetopt single_line_zle
 setopt prompt_subst
+zmodload zsh/terminfo
 
 # important variables
 export VIRTUAL_ENV_DISABLE_PROMPT=1 # needed for proper python venv string
@@ -142,8 +143,11 @@ zle -N zle-keymap-select __vlkprompt::zle::keymap
 __vlkprompt::zle::line_init() {
     [[ $CONTEXT == start ]] || return 0
     ((${+zle_bracketed_paste})) && print -r -n - "${zle_bracketed_paste[1]}"
+    # Match terminfo's key sequences while the recursive line editor is active.
+    [[ -n ${terminfo[smkx]-} ]] && echoti smkx
     zle recursive-edit
     local -i ret=$?
+    [[ -n ${terminfo[rmkx]-} ]] && echoti rmkx
     ((${+zle_bracketed_paste})) && print -r -n - "${zle_bracketed_paste[2]}"
     if [[ $ret == 0 && $KEYS == $'\4' ]]; then
         psvar[130]=1

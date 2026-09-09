@@ -28,7 +28,8 @@ if [[ -o i && -t 0 && -t 1 && -t 2 && -e $i ]] {
     export TTY=$i
     # The shell is royally fucked up if I don't set a TERM.
     # This will make sure that I have a TERM set, even if it is the wrong kind.
-    (($+TERM)) || export TERM=${$([[ $TTY =~ pts ]] && print xterm-256color):-linux}
+	# nvm lol this was messing with weird env stuff
+    #(($+TERM)) || export TERM=${$([[ $TTY =~ pts ]] && print xterm-256color):-linux}
 }
 
 # deactivate virtual environments

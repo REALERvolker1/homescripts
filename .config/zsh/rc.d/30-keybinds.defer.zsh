@@ -1,29 +1,30 @@
 # keybinds for zsh
 
 bindkey -v
-# if it can't finish a keybind command in 1 second of me typing a key, I probably didn't want it anyway
-export KEYTIMEOUT=1
+# Allow 100 ms for a multi-byte key sequence.
+KEYTIMEOUT=10
+zmodload zsh/terminfo
 
 # kitty-only new tab
-if [[ ${TERM-} == xterm-kitty ]]; then
-    __vlk::zle::kitty_new_tab() {
-        kitty @ launch --cwd=current --type=tab >/dev/null
-    }
-    zle -N __vlk::zle::kitty_new_tab
-fi
+# if [[ ${TERM-} == xterm-kitty ]]; then
+    # __vlk::zle::kitty_new_tab() {
+        # kitty @ launch --cwd=current --type=tab >/dev/null
+    # }
+    # zle -N __vlk::zle::kitty_new_tab
+# fi
 
 typeset -Ar keymap=(
-    [home]="^[[H"
-    [ctrl_home]="^[[1;5H"
-    [end]="^[[F"
-    [ctrl_end]="^[[1;5F"
+    [home]="${terminfo[khome]-}"
+    [ctrl_home]="${terminfo[kHOM5]-}"
+    [end]="${terminfo[kend]-}"
+    [ctrl_end]="${terminfo[kEND5]-}"
 
-    [delete]="^[[3~"
+    [delete]="${terminfo[kdch1]-}"
     [shift_backspace_or_ctrl_h]="^H"
-    [backspace]="^?"
+    [backspace]="${terminfo[kbs]-}"
 
-    [ctrl_right]="^[[1;5C"
-    [ctrl_left]="^[[1;5D"
+    [ctrl_right]="${terminfo[kRIT5]-}"
+    [ctrl_left]="${terminfo[kLFT5]-}"
 
     [alt_s]='^[s'
     [alt_shift_s]='^[S'
@@ -34,25 +35,31 @@ typeset -Ar keymap=(
     [ctrl_a]="^A"
     [ctrl_e]="^E"
     [ctrl_g]="^G"
-    [ctrl_t]="^T"
+    # [ctrl_t]="^T"
 )
-for i in main vicmd; do
-    bindkey -M $i $keymap[home] beginning-of-line
-    bindkey -M $i $keymap[ctrl_home] beginning-of-line
-    bindkey -M $i $keymap[end] end-of-line
-    bindkey -M $i $keymap[ctrl_end] end-of-line
-
-    bindkey -M $i $keymap[delete] delete-char
-    bindkey -M $i $keymap[shift_backspace_or_ctrl_h] backward-delete-char
-    bindkey -M $i $keymap[backspace] backward-delete-char
-
-    bindkey -M $i $keymap[ctrl_right] forward-word
-    bindkey -M $i $keymap[ctrl_left] backward-word
-
-    bindkey -M $i $keymap[ctrl_z] undo
-    bindkey -M $i $keymap[ctrl_y] redo
-    [[ ${TERM-} == xterm-kitty ]] && bindkey -M $i $keymap[ctrl_t] __vlk::zle::kitty_new_tab
-done
+() {
+    local map key widget
+    local -A bindings=(
+        [home]=beginning-of-line
+        [ctrl_home]=beginning-of-line
+        [end]=end-of-line
+        [ctrl_end]=end-of-line
+        [delete]=delete-char
+        [shift_backspace_or_ctrl_h]=backward-delete-char
+        [backspace]=backward-delete-char
+        [ctrl_right]=forward-word
+        [ctrl_left]=backward-word
+        [ctrl_z]=undo
+        [ctrl_y]=redo
+    )
+    for map in main vicmd; do
+        for key widget in "${(@kv)bindings}"; do
+            # Extended key capabilities are not available on every terminal.
+            [[ -n ${keymap[$key]} ]] || continue
+            bindkey -M "$map" "${keymap[$key]}" "$widget"
+        done
+    done
+}
 
 autoload -Uz edit-command-line
 zle -N edit-command-line
@@ -157,15 +164,3 @@ bindkey -M main 'q' __vlk::zle::quit
 # }
 # zle -N __vlk::zle::expand_nameddirs
 # bindkey -M main '/' __vlk::zle::expand_nameddirs
-
-# I forget where I found this or why it's useful,
-# but from what I can see, it probably makes sure to unfuck some stty stuff
-if ((${+terminfo[smkx]} && ${+terminfo[rmkx]})) {
-    zle-line-init () {
-        echoti smkx
-    }
-    zle-line-finish () {
-        echoti rmkx
-    }
-}
-

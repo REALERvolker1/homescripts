@@ -1,40 +1,36 @@
-
 ---Apply window rules to a list of classes
 ---@param params HL.WindowRuleSpec Rules to apply to class matches. Is not mutated
 ---@param classlist string[] {"^(class1)$", "^(class2)$"} etc
 local function multicls(params, classlist)
 	local mytable
 	for _i, class in ipairs(classlist) do
-        mytable = Tablecpy(params)
+		mytable = Tablecpy(params)
 		class = "^(" .. class .. ")$"
-        if mytable.match then
+		if mytable.match then
 			mytable.match.class = class
 		else
-        	mytable.match = { class = class }
+			mytable.match = { class = class }
 		end
 		hl.window_rule(mytable)
 	end
 end
 
--- One rule per line makes individual applications easy to enable or disable.
--- Rule order follows production; later matching effects take precedence.
-multicls(
-    { immediate = true },
-    {
-		"ghostrunner2-win64-shipping.exe",
-		"cs2",
-		"steam_app_322170",
-		"steam_app_1139900",
-		"steam_app_2144740",
-		"steam_app_264710",
-		"steam_app_387290",
-		"steam_app_1057090",
-		"Celeste.bin.x86_64",
-		"hl_linux",
-		"hl2_linux",
-	}
-)
-
+multicls({ immediate = true }, {
+	"ghostrunner2-win64-shipping.exe",
+	"cs2",
+	"steam_app_322170",
+	"steam_app_1139900",
+	"steam_app_2144740",
+	"steam_app_264710",
+	"steam_app_387290",
+	"steam_app_1057090",
+	"Celeste.bin.x86_64",
+	"hl_linux",
+	"hl2_linux",
+	"haste.exe",
+	"justcause3.exe",
+	"geometrydash.exe",
+})
 
 -- Fullscreen and floating Codex pet decorations.
 hl.window_rule({ match = { fullscreen = true }, rounding = 0 })
@@ -47,25 +43,19 @@ hl.window_rule({
 })
 
 -- Application workspace placement.
-multicls(
-    { workspace = "1" },
-    {
-		"codium-url-handler",
-		"VSCodium",
-		"vscodium",
-		"code-oss-url-handler",
-		"code-oss",
-		"codium",
-	}
-)
-multicls(
-    { workspace = "2" },
-    {
-		"LibreWolf",
-		"floorp",
-		"one.ablaze.floorp",
-	}
-)
+multicls({ workspace = "1" }, {
+	"codium-url-handler",
+	"VSCodium",
+	"vscodium",
+	"code-oss-url-handler",
+	"code-oss",
+	"codium",
+})
+multicls({ workspace = "2" }, {
+	"LibreWolf",
+	"floorp",
+	"one.ablaze.floorp",
+})
 hl.window_rule({ match = { class = "^([Bb]rave-browser)$" }, workspace = "3" })
 -- hl.window_rule({ match = { class = "^(brave-browser)$" }, workspace = "3" })
 -- hl.window_rule({ match = { class = "^(Brave-browser)$" }, workspace = "3" })
@@ -73,37 +63,30 @@ hl.window_rule({ match = { class = "^(org.mozilla.firefox)$" }, workspace = "4" 
 hl.window_rule({ match = { class = "^(steam)$" }, workspace = "5" })
 hl.window_rule({ match = { class = "^()$", title = "^(Steam)$" }, workspace = "5", float = true }) -- steam xwayland dialogs
 hl.window_rule({ match = { class = "^(org.prismlauncher.PrismLauncher)$" }, workspace = "5" })
-multicls(
-    { workspace = "6" },
-    {
-		"discord",
-		"[Vv]esktop",
-		"WebCord",
-	}
-)
+multicls({ workspace = "6" }, {
+	"discord",
+	"[Vv]esktop",
+	"WebCord",
+})
 hl.window_rule({ match = { class = "^(wlroots)$" }, workspace = "12" })
 
--- Utility windows and dialogs.
-multicls(
-    { float = true },
-    {
-		"xfce-polkit",
-		"pavucontrol",
-        "pavucontrol-qt",
-        "blueman-manager",
-        "nm-connection-editor",
-        "galculator",
-        "org.gnome.Calculator",
-        "app.drey.EarTag", -- I forget why this is here tbh
-        "net.davidotek.pupgui2", -- same for this one
-        "kvantummanager",
-        "xdg-desktop-portal-gnome",
-        "xdg-desktop-portal-gtk",
-        "xdg-desktop-portal",
-        "file-roller",
-		"org.gnome.FileRoller"
-	}
-)
+multicls({ float = true }, {
+	"xfce-polkit",
+	"pavucontrol",
+	"pavucontrol-qt",
+	"blueman-manager",
+	"nm-connection-editor",
+	"galculator",
+	"org.gnome.Calculator",
+	"app.drey.EarTag", -- I forget why this is here tbh
+	"net.davidotek.pupgui2", -- same for this one
+	"kvantummanager",
+	"xdg-desktop-portal-gnome",
+	"xdg-desktop-portal-gtk",
+	"xdg-desktop-portal",
+	"file-roller",
+	"org.gnome.FileRoller",
+})
 hl.window_rule({ match = { class = "^(flameshot)$" }, float = true })
 hl.window_rule({ match = { title = "^(flameshot)" }, move = "(0) (0)" })
 -- 20 is the current maximum rounding, replacing the old value of 30.
