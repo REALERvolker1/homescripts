@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=T3 Code (Nightly)
+Exec="/opt/t3code-nightly-bin/t3code" %U
+Terminal=false
+NoDisplay=true
+StartupNotify=false
+MimeType=x-scheme-handler/t3code;

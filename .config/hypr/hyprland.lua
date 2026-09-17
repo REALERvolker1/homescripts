@@ -56,7 +56,7 @@ hl.config({
 	},
 	render = {
 		-- 1 forces it on, 2 only activates it if the window's content_type is "game"
-		direct_scanout = 1,
+		-- direct_scanout = 1,
 		-- Color management pipeline, disabling breaks HDR, which IDGAF about
 		-- cm_enabled = false,
 		-- Set this to 1 if screenshots are transparent

@@ -1,0 +1,18 @@
+[Unit]
+Description=Course agent daemon (started through the session gate)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=120
+StartLimitBurst=3
+
+[Service]
+Type=simple
+WorkingDirectory="/bruh/home/code/typescript/course-agent"
+Environment="COURSE_AGENT_CONFIG=/bruh/home/code/typescript/course-agent/config.local.jsonc"
+ExecStart="/usr/bin/node" "/bruh/home/code/typescript/course-agent/node_modules/tsx/dist/cli.mjs" "/bruh/home/code/typescript/course-agent/src/cli.ts" start
+Restart=on-failure
+RestartSec=15
+TimeoutStopSec=30
+UMask=0077
+KillMode=control-group
+NoNewPrivileges=true

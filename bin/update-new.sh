@@ -113,12 +113,17 @@ unsafe sysdboot.sh update --no-mkinitcpio --no-interactive
 
 if cmd flatpak; then
 	_head ' flatpak' 94
-	unsafe sudo flatpak update -y
+	unsafe sudo flatpak update -y &
 fi
 
 if cmd distrobox; then
 	_head '󰡨 Distrobox' '38;5;95'
-	unsafe distrobox upgrade --all
+	unsafe distrobox upgrade --all &
+fi
+
+if cmd pnpm; then
+	_head '󰛷 PNPM' '38;5;172'
+	unsafe pnpm update --global &
 fi
 
 # if cmd pipx; then

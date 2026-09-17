@@ -1,0 +1,9 @@
+[Unit]
+Description=Offer gated course agent startup after user manager starts
+
+[Timer]
+OnStartupSec=30s
+Unit=course-agent-launch.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=t3code headless server with Tailscale
+
+[Service]
+Type=simple
+ExecStart=/home/vlk/.local/share/pnpm/bin/t3 serve --tailscale-serve --tailscale-serve-port 49151
+Restart=on-failure
+RestartSec=3s
+
+[Install]
+WantedBy=default.target

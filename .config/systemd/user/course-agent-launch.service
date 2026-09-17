@@ -1,0 +1,9 @@
+[Unit]
+Description=Course agent graphical-session startup gate
+
+[Service]
+Type=oneshot
+WorkingDirectory="/bruh/home/code/typescript/course-agent"
+Environment="COURSE_AGENT_CONFIG=/bruh/home/code/typescript/course-agent/config.local.jsonc"
+ExecStart="/bruh/home/code/typescript/course-agent/scripts/launch.sh"
+TimeoutStartSec=infinity

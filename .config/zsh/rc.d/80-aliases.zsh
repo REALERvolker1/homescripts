@@ -224,6 +224,8 @@ alias cbr='RUSTFLAGS="-C target-cpu=native" cargo build --release'
 # For distro/cross-compilation
 alias cbrr='cargo build --release'
 
+alias t3c='t3 project add .'
+
 cbc() {
     local -a cargs=(-Wall -fuse-ld=mold -march=native -mtune=native)
     if [[ ${1-} == --debug ]]; then
