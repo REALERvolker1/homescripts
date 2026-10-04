@@ -52,6 +52,9 @@ ERRFILE="${XDG_RUNTIME_DIR:-$HOME}/xinit-xsession-errors"
 cleanup_session() {
     if systemctl --user is-active --quiet xorg.target; then
         systemctl --user stop graphical-session.target
+        # xinit has no UWSM cleanup; lingering user services must forget this X session.
+        systemctl --user unset-environment DISPLAY XAUTHORITY I3SOCK \
+            XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE
     fi
 }
 trap cleanup_session EXIT

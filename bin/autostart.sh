@@ -31,4 +31,8 @@ if [[ -n ${WAYLAND_DISPLAY:-} ]]; then
 else
     target=xorg.target
 fi
-exec systemctl --user start "$target"
+systemctl --user start "$target"
+
+# SSH can activate the portal before UWSM or X11 exports the desktop environment.
+# Recreate it once the graphical session is ready so it selects the right backend.
+systemctl --user restart xdg-desktop-portal.service

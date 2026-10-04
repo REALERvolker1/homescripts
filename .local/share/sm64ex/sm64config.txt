@@ -1,24 +1,35 @@
 fullscreen false
-window_x 1920
+window_x 3840
 window_y 0
-window_w 950
-window_h 1040
+window_w 1920
+window_h 1050
 vsync false
+60fps true
+internal_bool true
+internal_swap 1
+internal_w 640
+internal_h 480
+force4by3 false
 texture_filtering 2
+drawing_distance 300
 master_volume 113
 music_volume 100
 sfx_volume 120
 env_volume 127
-key_a 0039 1000 0024 
-key_b 0025 0010 0025 
-key_start 001c 0001 000f 
-key_l 002a 1009 101a 
-key_r 0036 100a 101b 
-key_z 0026 0012 1002 
+key_a 1000 1000 0024 
+key_b 1001 0010 0025 
+key_start 1006 0001 000f 
+key_l 101a 1009 101a 
+key_r 101b 100a 101b 
+key_z 100a 1009 1002 
 key_cup 0148 100b ffff 
 key_cdown 0150 100c ffff 
 key_cleft 014b 100d ffff 
 key_cright 014d 100e ffff 
+key_dup 000c 100b ffff 
+key_ddown 001a 100c ffff 
+key_dleft 0019 100d ffff 
+key_dright 001b 100e ffff 
 key_stickup 0011 1007 ffff 
 key_stickdown 001f ffff ffff 
 key_stickleft 001e ffff ffff 
@@ -26,15 +37,45 @@ key_stickright 0020 ffff ffff
 stick_deadzone 16
 rumble_strength 50
 precache true
+language 2
+disable_billboard false
 bettercam_enable true
 bettercam_analog true
 bettercam_mouse_look true
-bettercam_invertx true
+bettercam_invertx false
 bettercam_inverty false
-bettercam_xsens 50
-bettercam_ysens 50
+bettercam_xsens 10
+bettercam_ysens 10
 bettercam_aggression 0
 bettercam_pan_level 0
 bettercam_degrade 60
 skip_intro true
-discordrpc_enable true
+cheats_enable false
+cheats_moon_jump false
+cheats_god_mode false
+cheats_infinite_lives false
+cheats_responsive false
+cheats_moon_gravity false
+cheats_super_copter false
+cheats_auto_wall_kick false
+cheats_no_hold_heavy false
+cheats_speed_modifier 0
+cheats_jump_modifier 0
+cheats_swim_modifier 0
+cheats_size_modifier 0
+cheats_cap_modifier false
+cheats_super_wing_cap false
+cheats_speed_display false
+cheats_blj_anywhere 0
+cheats_swim_anywhere false
+cheats_exit_anywhere false
+cheats_walk_on_hazards false
+cheats_no_death_barrier false
+cheats_no_bounds false
+cheats_water_level 0
+cheats_coins_magnet false
+cheats_hurt_mario 0
+cheats_spamba false
+cheats_spamba_index 0
+cheats_key_time_stop ffff ffff ffff 
+cheats_key_spamba_controls 100d 100e 1009 

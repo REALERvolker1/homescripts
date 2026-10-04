@@ -228,6 +228,13 @@ export OLLAMA_ORIGIN='*'
 export OLLAMA_FLASH_ATTENTION=1
 export OLLAMA_MMAP=1
 
+# Claude Code
+export ANTHROPIC_BASE_URL="http://${${OLLAMA_HOST:-localhost:11434}#http://}"
+export ANTHROPIC_AUTH_TOKEN=ollama
+export ANTHROPIC_API_KEY=""
+# Optional: kill any telemetry/update pings to Anthropic
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+
 # nixpkg is fundamentally broken on both Arch and Fedora. I don't know why they claim they are a cross-distro package manager, because that's just straight-up wrong.
 #export VLK_NIX_HOME="$XDG_STATE_HOME/nix/profile"
 # fix nix XDG being trash

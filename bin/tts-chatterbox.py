@@ -6,10 +6,11 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TextIO
 
 if TYPE_CHECKING:
 	from torch import Tensor
@@ -75,32 +76,33 @@ class Generation:
 	audio: Tensor
 	sample_rate: int
 
-	def save_as(self, output: Path) -> None:
-		import torchaudio
+	def channels_last(self) -> Tensor:
+		"""Return float samples with the channel dimension last."""
+		samples = self.audio.detach().cpu().float()
+		if samples.ndim == 1:
+			return samples
+		if samples.ndim == 2:
+			# Torch audio uses (channels, frames); playback and file-writing
+			# libraries expect the channel dimension last.
+			return samples.transpose(0, 1).contiguous()
+		raise ValueError(
+			f"Expected 1D or 2D audio tensor, got {tuple(samples.shape)}"
+		)
 
-		torchaudio.save(
-			uri=str(output),
-			src=self.audio.detach().cpu(),
-			sample_rate=self.sample_rate,
+	def save_as(self, output: Path) -> None:
+		import soundfile as sf
+
+		sf.write(
+			file=output,
+			data=self.channels_last().numpy(),
+			samplerate=self.sample_rate,
 		)
 
 	def play(self) -> None:
 		import sounddevice as sd
 
-		samples = self.audio.detach().cpu().float()
-		if samples.ndim == 1:
-			playback = samples
-		elif samples.ndim == 2:
-			# Torch audio uses (channels, frames); sounddevice expects the
-			# channel dimension last.
-			playback = samples.transpose(0, 1).contiguous()
-		else:
-			raise ValueError(
-				f"Expected 1D or 2D audio tensor, got {tuple(samples.shape)}"
-			)
-
 		sd.play(
-			playback.numpy(),
+			self.channels_last().numpy(),
 			samplerate=self.sample_rate,
 			blocking=True,
 		)
@@ -187,6 +189,36 @@ class GenerationConfig:
 		return Generation(audio=audio, sample_rate=model.sr)
 
 
+def read_text(
+	parser: argparse.ArgumentParser,
+	literal: str | None,
+	input_file: Path | None,
+	stdin: TextIO,
+) -> str:
+	"""Read text from the explicitly selected source or piped stdin."""
+	if literal is not None and input_file is not None:
+		parser.error("Text and --input cannot be used together")
+
+	try:
+		if input_file == Path("-"):
+			text = stdin.read()
+		elif input_file is not None:
+			text = input_file.read_text(encoding="utf-8")
+		elif literal is not None:
+			text = literal
+		elif not stdin.isatty():
+			text = stdin.read()
+		else:
+			parser.error("Nothing to say; provide text, --input FILE, or piped stdin")
+	except (OSError, UnicodeError) as error:
+		source = "stdin" if input_file == Path("-") or input_file is None else input_file
+		parser.error(f"Could not read text from {source}: {error}")
+
+	if not text.strip():
+		parser.error("Nothing to say; the text input is empty")
+	return text
+
+
 def build_parser() -> argparse.ArgumentParser:
 	parser = argparse.ArgumentParser(
 		description="Make the computer say something",
@@ -196,7 +228,10 @@ def build_parser() -> argparse.ArgumentParser:
 		"-o",
 		"--output",
 		type=Path,
-		help="File to write; if omitted, play the generated audio",
+		help=(
+			"Write audio instead of playing it. The extension selects the format; "
+			"common formats are WAV, FLAC, OGG/Vorbis, MP3, AIFF, AU, and CAF"
+		),
 	)
 	parser.add_argument(
 		"-l",
@@ -223,11 +258,20 @@ def build_parser() -> argparse.ArgumentParser:
 		"--audio_prompt_path",
 		dest="audio_prompt_path",
 		type=Path,
-		help="A voice clip to clone",
+		help=(
+			"Voice clip to clone. Supports libsndfile formats, including WAV, "
+			"FLAC, OGG/Vorbis, MP3, AIFF, AU, and CAF"
+		),
 	)
-	# This is optional only so --list-languages can be used on its own. main()
-	# requires it for every generation mode.
-	parser.add_argument("text", nargs="?", help="What to say")
+	parser.add_argument(
+		"-i",
+		"--input",
+		type=Path,
+		metavar="FILE",
+		help="Read UTF-8 text from FILE; use - for stdin",
+	)
+	# This is optional so --list-languages and piped stdin work without it.
+	parser.add_argument("text", nargs="?", help="Literal text to say")
 	return parser
 
 
@@ -249,8 +293,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 			print(f"{code} ({name})")
 		return 0
 
-	if not args.text:
-		parser.error("Nothing to say; provide text")
+	text = read_text(parser, args.text, args.input, sys.stdin)
 
 	if args.use_turbo and args.language is not None:
 		parser.error("--use-turbo cannot be combined with --language")
@@ -272,15 +315,15 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 	if args.use_turbo:
 		logging.info("Using Turbo English model")
-		output = config.tts_turbo(args.text)
+		output = config.tts_turbo(text)
 	elif args.language is not None:
 		logging.info(
 			"Using multilingual model for %s", SUPPORTED_LANGUAGES[args.language]
 		)
-		output = config.tts_multilingual(args.text, language=args.language)
+		output = config.tts_multilingual(text, language=args.language)
 	else:
 		logging.info("Using regular English model")
-		output = config.tts_regular(args.text)
+		output = config.tts_regular(text)
 
 	if output_file is not None:
 		logging.info("Writing speech to file: %s", output_file)

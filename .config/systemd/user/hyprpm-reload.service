@@ -3,6 +3,7 @@ Description=Load Hyprland plugins
 PartOf=wayland.target graphical-session.target
 After=graphical-session.target
 ConditionEnvironment=HYPRLAND_INSTANCE_SIGNATURE
+ConditionFileIsExecutable=/usr/bin/hyprpm
 [Service]
 Type=oneshot
 RemainAfterExit=yes

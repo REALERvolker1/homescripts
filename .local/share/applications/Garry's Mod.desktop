@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Garry's Mod
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/4000
+Icon=steam_icon_4000
+Terminal=false
+Type=Application
+Categories=Game;

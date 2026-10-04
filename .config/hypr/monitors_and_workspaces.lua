@@ -27,8 +27,8 @@ hl.monitor({
 	position = "3840x0",
 	scale = 1,
 })
--- A display's preferred mode can be 60 Hz even when higher refresh rates are available.
-hl.monitor({ output = "", mode = "highrr", position = "auto", scale = 1 })
+-- Prefer screen real estate, including advertised resolutions the display downscales.
+hl.monitor({ output = "", mode = "highres", position = "auto", scale = 1 })
 
 -- Workspace configs {{{
 
