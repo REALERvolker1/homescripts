@@ -352,5 +352,19 @@
 	"rust-analyzer.inlayHints.closureStyle": "rust_analyzer",
 	"rust-analyzer.interpret.tests": true,
 	"chatgpt.composerEnterBehavior": "cmdIfMultiline",
-	"idf.eimExecutableArgs": ["gui", "--idf-features ide"],
+	"idf.eimExecutableArgs": [
+		"gui",
+		"--idf-features ide"
+	],
+	"workbench.editorAssociations": {
+		"{hexdiff}:/**/*.*": "hexEditor.hexedit",
+		"{git,gitlens,chat-editing-snapshot-text-model,copilot,git-graph,git-graph-3}:/**/*.qrc": "default",
+		"*.qrc": "qt-core.qrcEditor"
+	},
+	"qt-core.additionalQtPaths": [
+		{
+			"name": "Qt-5.15.19-linux-g++-x86_64_from_PATH",
+			"path": "/usr/bin/qtpaths"
+		}
+	],
 }
