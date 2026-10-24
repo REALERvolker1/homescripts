@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=iTunes
+MimeType=audio/x-aiff;
+Exec=env "WINEPREFIX=/bruh/home/itunes-wine-vlk/prefix" wine start /ProgIDOpen "iTunes.aif" %f
+NoDisplay=true
+StartupNotify=true
+Icon=8B86_iTunes.0

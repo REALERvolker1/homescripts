@@ -1,0 +1,10 @@
+[Unit]
+Description=iTunes USB mux connection
+
+[Service]
+# usbmuxd starts through its existing udev rule when an iPhone is connected.
+ExecCondition=/usr/bin/test -S /run/usbmuxd
+ExecStart=/usr/bin/socat STDIO UNIX-CONNECT:/run/usbmuxd
+StandardInput=socket
+StandardOutput=socket
+NoNewPrivileges=yes

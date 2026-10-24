@@ -1,5 +1,7 @@
 -- Monitor-specific configs
 
+local enable_hdr = false
+
 local asus_fx517zm = {
 	internal = "eDP-1",
 	usbc_intel = "DP-1",
@@ -21,16 +23,8 @@ Monitor transform table
 Can also do `mirror = "eDP-1"` to dupe screen content
 ]]
 
-hl.monitor({
-	output = asus_fx517zm.internal,
-	mode = "1920x1080@144",
-	position = "3840x0",
-	scale = 1,
-})
 -- Prefer screen real estate, including advertised resolutions the display downscales.
-hl.monitor({ output = "", mode = "highres", position = "auto", scale = 1 })
-
--- Workspace configs {{{
+-- hl.monitor({ output = "", mode = "highres", position = "auto", scale = 1 })
 
 ---Takes monitor names suitable for their side, ordered from most-preferred to least-preferred for that position
 ---@param even_monitor_names string[]
@@ -74,6 +68,93 @@ local function choose_monitors(even_monitor_names, odd_monitor_names, all_monito
 	end
 end
 
+---See if a monitor has the resolution you want. Mainly used for determining if I want scaling
+---@param monitor HL.Monitor
+---@param width_px number
+---@param height_px number
+---@return boolean
+local function monitor_has_gteq_res(monitor, width_px, height_px)
+	if type(monitor.available_modes) ~= "table" then
+		return false
+	end
+	---@diagnostic disable-next-line
+	for _, mode in ipairs(monitor.available_modes) do
+		if mode.width >= width_px and mode.height >= height_px then
+			return true
+		end
+	end
+
+	return false
+end
+
+---@class MonitorMode
+---@field width integer
+---@field height integer
+---@field refresh_rate number
+
+---@param monitor HL.Monitor
+---@return MonitorMode?
+local function highest_resolution_mode(monitor)
+	local modes = monitor.available_modes
+	if type(modes) ~= "table" then
+		return nil
+	end
+	-- Hyprland's generated stub omits the available_modes entry type.
+	---@cast modes MonitorMode[]
+	---@type MonitorMode?
+	local best
+	for _, mode in ipairs(modes) do
+		local pixels = mode.width * mode.height
+		local best_pixels = best and best.width * best.height or 0
+		if not best or pixels > best_pixels or (pixels == best_pixels and mode.refresh_rate > best.refresh_rate) then
+			best = mode
+		end
+	end
+	return best
+end
+
+---@param apply_color? boolean Apply on reload/hotplug even when mode and scale already match.
+---@return nil
+local function apply_monitor_scaling(apply_color)
+	hl.monitor({
+		output = asus_fx517zm.internal,
+		mode = "1920x1080@144",
+		position = "3840x0",
+		scale = 1,
+	})
+	for _, monitor in ipairs(hl.get_monitors()) do
+		if monitor.name ~= asus_fx517zm.internal then
+			local wanted_scale = monitor_has_gteq_res(monitor, 3840, 2160) and 1.5 or 1
+			local mode = highest_resolution_mode(monitor)
+
+			-- HDR falls back to sRGB on unsupported displays, so don't compare the resulting preset.
+			if
+				apply_color
+				or math.abs(monitor.scale - wanted_scale) > 0.001
+				or (
+					mode
+					and (
+						monitor.width ~= mode.width
+						or monitor.height ~= mode.height
+						or math.abs(monitor.refresh_rate - mode.refresh_rate) > 0.01
+					)
+				)
+			then
+				hl.monitor({
+					output = monitor.name,
+					mode = mode and string.format("%dx%d@%.3f", mode.width, mode.height, mode.refresh_rate)
+						or "highres",
+					position = "auto",
+					scale = wanted_scale,
+					-- Hyprland checks EDID for HDR and tests 10-bit output, falling back when unsupported.
+					cm = enable_hdr and "hdr" or "srgb",
+					bitdepth = enable_hdr and 10 or 8,
+				})
+			end
+		end
+	end
+end
+
 ---@return nil
 local function apply_workspace_monitor_settings()
 	local available = hl.get_monitors()
@@ -108,10 +189,21 @@ local function apply_workspace_monitor_settings()
 	end
 end
 
+apply_monitor_scaling(true)
 apply_workspace_monitor_settings()
 
 -- hl.on("monitor.added", apply_workspace_monitor_settings)
 -- hl.on("monitor.removed", apply_workspace_monitor_settings)
-hl.on("monitor.layout_changed", apply_workspace_monitor_settings)
 
--- }}}
+hl.on("hyprland.start", function()
+	apply_monitor_scaling(true)
+end)
+--hl.on("config.reloaded", apply_monitor_scaling) -- stupid fucking event
+hl.on("monitor.added", function()
+	apply_monitor_scaling(true)
+end)
+
+hl.on("monitor.layout_changed", function()
+	apply_monitor_scaling()
+	apply_workspace_monitor_settings()
+end)

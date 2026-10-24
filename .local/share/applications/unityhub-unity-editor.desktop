@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Unity Editor
+Comment=Unity Editor (managed by Unity Hub)
+Icon=unityhub-unity-editor
+Exec="/usr/bin/unityhub"
+Terminal=false
+Categories=Development;
+StartupWMClass=Unity

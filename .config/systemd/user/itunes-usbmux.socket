@@ -1,0 +1,7 @@
+[Unit]
+Description=iTunes connection to Linux usbmuxd
+
+[Socket]
+ListenStream=127.0.0.1:27015
+Accept=yes
+MaxConnections=32

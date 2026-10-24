@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Wwise Launcher
+MimeType=application/x-wine-extension-wproj;
+Exec=env "WINEPREFIX=/home/vlk/.local/share/wine" wine start /ProgIDOpen "WPROJ" %f
+NoDisplay=true
+StartupNotify=true
+Icon=14AD_Wwise Launcher.0

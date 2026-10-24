@@ -116,6 +116,14 @@ hl.window_rule({
 })
 hl.window_rule({ match = { class = "^()$", title = "^(Picture in picture)$" }, float = true, pin = true })
 
+hl.window_rule({ match = { class = "^(firefox)$", title = "^(Bitwarden)$" }, float = true })
+hl.window_rule({ match = { class = "^(org.mozilla.firefox)$", title = "^(Bitwarden)$" }, float = true })
+-- stupid window regex won't match even when hardcoded
+hl.window_rule({
+	match = { class = "^(brave-nngceckbapebfimnlniiiahkandclblb-Default)$", title = "^(Bitwarden)$" },
+	float = true,
+})
+
 hl.window_rule({
 	match = { class = "^(xwaylandvideobridge)$" },
 	opacity = "0.0 override 0.0 override",

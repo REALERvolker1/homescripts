@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Cinnabar
+Comment=Minecraft Bedrock client
+Exec="/home/vlk/.local/bin/cinnabar"
+Icon=/home/vlk/.local/share/icons/hicolor/256x256/apps/cinnabar.png
+Categories=Game;
+Terminal=false

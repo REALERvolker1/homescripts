@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Wine Installer
+MimeType=application/microsoftpatch;
+Exec=env "WINEPREFIX=/mnt/kkrieger-werkkzeug3/build/linux/wineprefix" wine start /ProgIDOpen "Msi.Patch" %f
+NoDisplay=true
+StartupNotify=true
+Icon=D23E_msiexec.0

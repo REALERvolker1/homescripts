@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=iTunes
+Comment=Manage your music library with iTunes in Wine
+Exec=/bruh/home/itunes-wine-vlk/launch-itunes
+TryExec=/bruh/home/itunes-wine-vlk/launch-itunes
+Icon=multimedia-player
+Terminal=false
+Categories=AudioVideo;Audio;Player;
+StartupWMClass=itunes.exe

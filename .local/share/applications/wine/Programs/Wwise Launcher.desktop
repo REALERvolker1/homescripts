@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Wwise Launcher
+Exec=env "WINEPREFIX=/home/vlk/.local/share/wine" wine "C:\\\\ProgramData\\\\Microsoft\\\\Windows\\\\Start Menu\\\\Programs\\\\Wwise Launcher.lnk"
+Type=Application
+StartupNotify=true
+Comment=Launcher for Wwise
+Path=/home/vlk/.local/share/wine/drive_c/Program Files/Wwise Launcher
+Icon=14AD_Wwise Launcher.0
+StartupWMClass=wwise launcher.exe

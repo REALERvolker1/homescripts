@@ -19,9 +19,9 @@ env_volume 127
 key_a 1000 1000 0024 
 key_b 1001 0010 0025 
 key_start 1006 0001 000f 
-key_l 101a 1009 101a 
+key_l 101a 101a 101a 
 key_r 101b 100a 101b 
-key_z 100a 1009 1002 
+key_z 1009 1009 1002 
 key_cup 0148 100b ffff 
 key_cdown 0150 100c ffff 
 key_cleft 014b 100d ffff 
@@ -37,8 +37,9 @@ key_stickright 0020 ffff ffff
 stick_deadzone 16
 rumble_strength 50
 precache true
-language 2
+language 4
 disable_billboard false
+sunshine_helmet_diving false
 bettercam_enable true
 bettercam_analog true
 bettercam_mouse_look true

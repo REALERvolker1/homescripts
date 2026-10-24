@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Unity Editor 2019.4.27f1
+Comment=Unity Editor 2019.4.27f1 (managed by Unity Hub)
+Icon=unityhub-unity-editor
+Exec="/home/vlk/Unity/Hub/Editor/2019.4.27f1/Editor/unityhub-unity-editor-2019.4.27f1"
+TryExec=/home/vlk/Unity/Hub/Editor/2019.4.27f1/Editor/unityhub-unity-editor-2019.4.27f1
+Terminal=false
+Categories=Development;
+StartupWMClass=unityhub-unity-editor-2019.4.27f1

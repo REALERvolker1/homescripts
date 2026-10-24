@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=iTunes
+MimeType=application/x-itunes-itls;
+Exec=env "WINEPREFIX=/bruh/home/itunes-wine-vlk/prefix" wine start /ProgIDOpen "iTunes.itls" %f
+NoDisplay=true
+StartupNotify=true
+Icon=8B86_iTunes.0

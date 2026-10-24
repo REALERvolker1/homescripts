@@ -113,3 +113,6 @@ unset i
 # Keep track of if zsh was loaded, don't re-source my zshrc if so
 typeset -i ZSHRC_LOADED=1
 
+
+# Unity CLI
+case ":${PATH}:" in *:"$HOME/.local/bin":*) ;; *) export PATH="$HOME/.local/bin:$PATH" ;; esac
